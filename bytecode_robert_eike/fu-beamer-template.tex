@@ -6,7 +6,10 @@
 %   please consider providing your modified version to
 %   https://www.mi.fu-berlin.de/w/Mi/BeamerTemplateCorporateDesign
 
-\usepackage{amsmath,dsfont,listings,fancyvrb}
+\usepackage{amsmath,dsfont,listings,fancyvrb,alltt}
+\usepackage[absolute,overlay]{textpos}
+\setlength{\TPHorizModule}{1mm}
+\setlength{\TPVertModule}{1mm}
 
 %%% FU logo
 % small version for upper right corner of normal pages
@@ -142,3 +145,5 @@
 %%% end listings
 
 \font\btt=rm-lmtk10
+
+\newenvironment{grayout}{\color{gray}}{\ignorespacesafterend}

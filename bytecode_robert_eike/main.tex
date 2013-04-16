@@ -71,13 +71,18 @@
 % ------------------------------------------------------------------------------
 
 \begin{frame}[plain]
-  \titlepage
+\titlepage
 \end{frame}
 
 % ------------------------------------------------------------------------------
 
 \begin{frame}{Inhalt}
-  \tableofcontents
+\tableofcontents
+\begin{textblock}{20}(90,20)
+\includegraphics[width=2.45cm]{github_robert.png}
+
+\includegraphics[width=2.445cm]{github_eike.png}
+\end{textblock}
 \end{frame}
 
 % ------------------------------------------------------------------------------
@@ -101,6 +106,10 @@
 \item JVM Stackorientiert $\rightarrow$ kompatibel zu registerarmen Plattformen
 
 (z.B. Intel 80486: 9 Register)
+
+\begin{center}
+\includegraphics[width=4.5cm]{intel486.jpg}
+\end{center}
 \end{itemize}
 \end{frame}
 
@@ -110,7 +119,7 @@
 \begin{frame}[fragile]
 \frametitle{Aufbau}
 \begin{Verbatim}[frame=single]
-<offset> <opcode> [<args1> <, args2>]
+<offset> <opcode> [<arg1>, <arg2>]
 \end{Verbatim}
 \begin{itemize}
 \item {\tt offset} $\rightarrow$ aktuelle Bytezahl, Sprungmarker
@@ -147,8 +156,9 @@
 \item Suffixe (speziell): {\tt const, load, store} + {\tt \_n}
 
 \begin{Verbatim}[frame=single]
-0 iconst_0    // 03
-1 sipush 999  // 11 03 E7
+0 iconst_0    // 03                    push int 0 to stack
+0 iconst_m1   // 02                   push int -1 to stack
+1 sipush 999  // 11 03 E7     push signed int 999 to stack
 \end{Verbatim}
 \end{itemize}
 \end{frame}
@@ -173,7 +183,7 @@
 \begin{frame}{Instruktionsgruppen}
 \begin{itemize}
 \item Laden/Speichern \hfill {\tt aload\_0, istore}\;\;\;\pause
-\item Arithmentische/logische Operationen \hfill {\tt ladd, fcmpl}\;\;\;\pause
+\item Arithmetische/logische Operationen \hfill {\tt ladd, fcmpl}\;\;\;\pause
 \item Typkonversion \hfill {\tt i2b, d2i}\;\;\;\pause
 \item Objekterzeugung und -manipulierung \hfill {\tt new, putfield}\;\;\;\pause
 \item Operandenstapelmanagement \hfill {\tt swap, dup2}\;\;\;\pause
@@ -207,6 +217,36 @@ public class Example {
 \tt{\$ javac Example.java}
 
 {\btt\$ javap -c -s -v -l example.Example}
+\end{frame}
+
+% ------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+\frametitle{Hello World! Bytecode-Ausschnitt}
+\begin{lstlisting}[language=Java]
+Classfile Example.class
+
+Constant pool:
+  #1  = Methodref  #6.#15   // Object."<init>":()V
+  #2  = Fieldref   #16.#17  // System.out:PrintStream
+  #3  = String     #18      // Hello, World!
+  #4  = Methodref  #19.#20  // PrintStream.println:(String;)V
+  #18 = Utf8       Hello, World!
+
+public class example.Example {
+
+  public example.Example();
+    0: aload_0       
+    1: invokespecial #1
+    4: return        
+
+  public static void main(j.l.String[]);
+    0: getstatic     #2
+    3: ldc           #3
+    5: invokevirtual #4
+    8: return        
+}
+\end{lstlisting}
 \end{frame}
 
 % ------------------------------------------------------------------------------
