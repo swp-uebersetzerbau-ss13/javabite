@@ -196,15 +196,19 @@
 
 \section{Beispiel}
 
+\begin{frame}<beamer>{Inhalt}
+\tableofcontents[currentsection,currentsubsection]
+\end{frame}
+
 \begin{frame}{Bytecode-Ausschnitt}
 \tt{\$ javac Example.java}\pause
 
-{\btt\$ javap -c -s -v -l example.Example}
+{\btt\$ javap -c -s -v -l Example}
 \end{frame}
 
 % ------------------------------------------------------------------------------
 
-\begin{frame}[fragile]
+\begin{frame}[fragile,plain]
 \frametitle{Bytecode-Ausschnitt}
 \begin{lstlisting}[language=Java]
 Constant pool:
@@ -213,6 +217,12 @@ Constant pool:
   #3= Methodref  #18.#19 //java/io/PrintStream.println:(I)V
 
 class example.Example {
+
+  example.Example();
+     0: aload_0       
+     1: invokespecial #1
+     4: return    
+
   public static void main(java.lang.String[]);
      0: iconst_0      
      1: istore_1      
@@ -234,8 +244,6 @@ class example.Example {
 \begin{frame}[fragile]
 \frametitle{Beispielprogramm}
 \begin{lstlisting}[language=Java]
-package example;
-
 class Example {
   
   public static void main(String[] args) {
@@ -250,7 +258,7 @@ class Example {
 
 % ------------------------------------------------------------------------------
 
-\begin{frame}[fragile]
+\begin{frame}[fragile,plain]
 \frametitle{Classfile Teil 1}
 \begin{lstlisting}[language=Java,basicstyle=\ttfamily\tiny]
 Classfile /data/Repositories/FUBerlin/Semester/ss13/ss13-com/Vortrag/example/Example.class
@@ -288,12 +296,6 @@ Constant pool:
   #23 = Utf8               out
   #24 = Utf8               Ljava/io/PrintStream;
   #25 = Utf8               java/io/PrintStream
-\end{lstlisting}
-\end{frame}
-
-\begin{frame}[fragile]
-\frametitle{Classfile Teil 2}
-\begin{lstlisting}[language=Java,basicstyle=\ttfamily\tiny,firstnumber=36]
   #26 = Utf8               println
   #27 = Utf8               (I)V
 {
@@ -302,6 +304,12 @@ Constant pool:
     flags: 
     LineNumberTable:
       line 3: 0
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile,plain]
+\frametitle{Classfile Teil 2}
+\begin{lstlisting}[language=Java,basicstyle=\ttfamily\tiny,firstnumber=44]
     Code:
       stack=1, locals=1, args_size=1
          0: aload_0       
@@ -330,12 +338,6 @@ Constant pool:
         11: invokevirtual #3                  // Method java/io/PrintStream.println:(I)V
         14: iinc          1, 1
         17: goto          2
-\end{lstlisting}
-\end{frame}
-
-\begin{frame}[fragile]
-\frametitle{Classfile Teil 3}
-\begin{lstlisting}[language=Java,basicstyle=\ttfamily\tiny,firstnumber=72]
         20: return        
       LineNumberTable:
         line 6: 0
