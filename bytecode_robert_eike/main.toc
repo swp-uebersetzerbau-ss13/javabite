@@ -1,0 +1,7 @@
+\beamer@endinputifotherversion {3.24pt}
+\select@language {german}
+\beamer@sectionintoc {1}{Bytecode Allgemein}{3}{0}{1}
+\beamer@subsectionintoc {1}{1}{Architektur}{3}{0}{1}
+\beamer@subsectionintoc {1}{2}{Aufbau}{5}{0}{1}
+\beamer@subsectionintoc {1}{3}{Instruktionsgruppen}{11}{0}{1}
+\beamer@sectionintoc {2}{Beispiel}{19}{0}{2}
