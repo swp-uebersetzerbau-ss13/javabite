@@ -195,16 +195,53 @@
 % ------------------------------------------------------------------------------
 
 \section{Beispiel}
-\subsection{Hello World!}
+
+\begin{frame}{Bytecode-Ausschnitt}
+\tt{\$ javac Example.java}\pause
+
+{\btt\$ javap -c -s -v -l example.Example}
+\end{frame}
+
+% ------------------------------------------------------------------------------
+
 \begin{frame}[fragile]
-\frametitle{Hello World! Code}
+\frametitle{Bytecode-Ausschnitt}
+\begin{lstlisting}[language=Java]
+Constant pool:
+  #1= Methodref  #5.#15  //java/lang/Object."<init>":()V
+  #2= Fieldref   #16.#17 //java/lang/System.out:Ljava/io/PrintStream;
+  #3= Methodref  #18.#19 //java/io/PrintStream.println:(I)V
+
+class example.Example {
+  public static void main(java.lang.String[]);
+     0: iconst_0      
+     1: istore_1      
+     2: iload_1       
+     3: iconst_5      
+     4: if_icmpge     20
+     7: getstatic     #2
+    10: iload_1       
+    11: invokevirtual #3
+    14: iinc          1, 1
+    17: goto          2
+    20: return        
+}
+\end{lstlisting}
+\end{frame}
+
+% ------------------------------------------------------------------------------
+
+\begin{frame}[fragile]
+\frametitle{Beispielprogramm}
 \begin{lstlisting}[language=Java]
 package example;
 
-public class Example {
-
+class Example {
+  
   public static void main(String[] args) {
-    System.out.println("Hello, World!");
+    for(int i = 0; i < 5; i++) {
+      System.out.println(i);
+    }
   }
 
 }
@@ -213,127 +250,56 @@ public class Example {
 
 % ------------------------------------------------------------------------------
 
-\begin{frame}{HelloWorld! Bytecode-Ausschnitt}
-\tt{\$ javac Example.java}
-
-{\btt\$ javap -c -s -v -l example.Example}
-\end{frame}
-
-% ------------------------------------------------------------------------------
-
 \begin{frame}[fragile]
-\frametitle{Hello World! Bytecode-Ausschnitt}
-\begin{lstlisting}[language=Java]
-Classfile Example.class
-
-Constant pool:
-  #1  = Methodref  #6.#15   // Object."<init>":()V
-  #2  = Fieldref   #16.#17  // System.out:PrintStream
-  #3  = String     #18      // Hello, World!
-  #4  = Methodref  #19.#20  // PrintStream.println:(String;)V
-  #18 = Utf8       Hello, World!
-
-public class example.Example {
-
-  public example.Example();
-    0: aload_0       
-    1: invokespecial #1
-    4: return        
-
-  public static void main(j.l.String[]);
-    0: getstatic     #2
-    3: ldc           #3
-    5: invokevirtual #4
-    8: return        
-}
-\end{lstlisting}
-\end{frame}
-
-% ------------------------------------------------------------------------------
-
-\begin{frame}[fragile]
-\frametitle{Hello World! Bytecode-Ausschnitt}
-\begin{lstlisting}[language=Java]
-Classfile Example.class
-
-Constant pool:
-  #1  = Methodref  #6.#15   // Object."<init>":()V
-  #2  = Fieldref   #16.#17  // System.out:PrintStream
-  #3  = String     #18      // Hello, World!
-  #4  = Methodref  #19.#20  // PrintStream.println:(String;)V
-  #18 = Utf8       Hello, World!
-
-public class example.Example {
-
-  public example.Example();
-    0: aload_0       
-    1: invokespecial #1 // Method Object."<init>":()V
-    4: return        
-
-  public static void main(j.l.String[]);
-    0: getstatic     #2 // Field System.out:PrintStream
-    3: ldc           #3 // String Hello, World!
-    5: invokevirtual #4 // Method PrintStream.println:(String;)V
-    8: return        
-}
-\end{lstlisting}
-\end{frame}
-
-% ------------------------------------------------------------------------------
-
-\begin{frame}[fragile]
-\frametitle{HelloWorld! Classfile 1}
+\frametitle{Classfile Teil 1}
 \begin{lstlisting}[language=Java,basicstyle=\ttfamily\tiny]
 Classfile /data/Repositories/FUBerlin/Semester/ss13/ss13-com/Vortrag/example/Example.class
-  Last modified 12.04.2013; size 429 bytes
-  MD5 checksum fe91c51c057ecd33db3dc365459fb92d
+  Last modified 17.04.2013; size 446 bytes
+  MD5 checksum 1f4fd95d93cfdb73b348333b97ca87d2
   Compiled from "Example.java"
-public class example.Example
+class example.Example
   SourceFile: "Example.java"
   minor version: 0
   major version: 51
-  flags: ACC_PUBLIC, ACC_SUPER
+  flags: ACC_SUPER
 Constant pool:
-   #1 = Methodref          #6.#15         //  java/lang/Object."<init>":()V
+   #1 = Methodref          #5.#15         //  java/lang/Object."<init>":()V
    #2 = Fieldref           #16.#17        //  java/lang/System.out:Ljava/io/PrintStream;
-   #3 = String             #18            //  Hello, World!
-   #4 = Methodref          #19.#20        //  java/io/PrintStream.println:(Ljava/lang/String;)V
-   #5 = Class              #21            //  example/Example
-   #6 = Class              #22            //  java/lang/Object
-   #7 = Utf8               <init>
-   #8 = Utf8               ()V
-   #9 = Utf8               Code
-  #10 = Utf8               LineNumberTable
-  #11 = Utf8               main
-  #12 = Utf8               ([Ljava/lang/String;)V
+   #3 = Methodref          #18.#19        //  java/io/PrintStream.println:(I)V
+   #4 = Class              #20            //  example/Example
+   #5 = Class              #21            //  java/lang/Object
+   #6 = Utf8               <init>
+   #7 = Utf8               ()V
+   #8 = Utf8               Code
+   #9 = Utf8               LineNumberTable
+  #10 = Utf8               main
+  #11 = Utf8               ([Ljava/lang/String;)V
+  #12 = Utf8               StackMapTable
   #13 = Utf8               SourceFile
   #14 = Utf8               Example.java
-  #15 = NameAndType        #7:#8          //  "<init>":()V
-  #16 = Class              #23            //  java/lang/System
-  #17 = NameAndType        #24:#25        //  out:Ljava/io/PrintStream;
-  #18 = Utf8               Hello, World!
-  #19 = Class              #26            //  java/io/PrintStream
-  #20 = NameAndType        #27:#28        //  println:(Ljava/lang/String;)V
-  #21 = Utf8               example/Example
-  #22 = Utf8               java/lang/Object
-  #23 = Utf8               java/lang/System
-  #24 = Utf8               out
-  #25 = Utf8               Ljava/io/PrintStream;
+  #15 = NameAndType        #6:#7          //  "<init>":()V
+  #16 = Class              #22            //  java/lang/System
+  #17 = NameAndType        #23:#24        //  out:Ljava/io/PrintStream;
+  #18 = Class              #25            //  java/io/PrintStream
+  #19 = NameAndType        #26:#27        //  println:(I)V
+  #20 = Utf8               example/Example
+  #21 = Utf8               java/lang/Object
+  #22 = Utf8               java/lang/System
+  #23 = Utf8               out
+  #24 = Utf8               Ljava/io/PrintStream;
+  #25 = Utf8               java/io/PrintStream
 \end{lstlisting}
 \end{frame}
 
-% ------------------------------------------------------------------------------
-
 \begin{frame}[fragile]
-\frametitle{HelloWorld! Classfile 2}
-\begin{lstlisting}[language=Java,basicstyle=\ttfamily\tiny]
-  #26 = Utf8               java/io/PrintStream
-  #27 = Utf8               println
-  #28 = Utf8               (Ljava/lang/String;)V
+\frametitle{Classfile Teil 2}
+\begin{lstlisting}[language=Java,basicstyle=\ttfamily\tiny,firstnumber=36]
+  #26 = Utf8               println
+  #27 = Utf8               (I)V
 {
-  public example.Example();
+  example.Example();
     Signature: ()V
-    flags: ACC_PUBLIC
+    flags: 
     LineNumberTable:
       line 3: 0
     Code:
@@ -349,16 +315,40 @@ Constant pool:
     flags: ACC_PUBLIC, ACC_STATIC
     LineNumberTable:
       line 6: 0
-      line 7: 8
+      line 7: 7
+      line 6: 14
+      line 9: 20
     Code:
-      stack=2, locals=1, args_size=1
-         0: getstatic     #2                  // Field java/lang/System.out:Ljava/io/PrintStream;
-         3: ldc           #3                  // String Hello, World!
-         5: invokevirtual #4                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V
-         8: return        
+      stack=2, locals=2, args_size=1
+         0: iconst_0      
+         1: istore_1      
+         2: iload_1       
+         3: iconst_5      
+         4: if_icmpge     20
+         7: getstatic     #2                  // Field java/lang/System.out:Ljava/io/PrintStream;
+        10: iload_1       
+        11: invokevirtual #3                  // Method java/io/PrintStream.println:(I)V
+        14: iinc          1, 1
+        17: goto          2
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{Classfile Teil 3}
+\begin{lstlisting}[language=Java,basicstyle=\ttfamily\tiny,firstnumber=72]
+        20: return        
       LineNumberTable:
         line 6: 0
-        line 7: 8
+        line 7: 7
+        line 6: 14
+        line 9: 20
+      StackMapTable: number_of_entries = 2
+           frame_type = 252 /* append */
+             offset_delta = 2
+        locals = [ int ]
+           frame_type = 250 /* chop */
+          offset_delta = 17
+
 }
 \end{lstlisting}
 \end{frame}
