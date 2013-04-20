@@ -1,0 +1,60 @@
+allprojects {
+	apply plugin: 'java'
+	apply plugin: 'eclipse'
+
+
+	sourceCompatibility = 1.7
+	version = '0.1'
+	ext.title = 'Javabite'
+	jar {
+		manifest {
+			attributes 'Implementation-Title': title, 'Implementation-Version': version
+		}
+	}
+
+	repositories {
+		mavenCentral()
+	}
+
+	dependencies {
+		testCompile 'junit:junit:4.11'
+	}
+
+	test {
+		systemProperties 'property': 'value'
+	}
+}
+project(':common'){
+	sourceSets {
+		main {
+			java {
+				srcDir 'interfaces/src'
+			}
+		}
+	}
+}
+project(':javabite-compiler') {
+	dependencies {
+		compile project(':common'), project(':javabite-lexer'), project(':javabite-parser'), project(':javabite-code-gen'), project(':javabite-backend')
+	}
+}
+project(':javabite-lexer') {
+	dependencies {
+		compile project(':common')
+	}
+}
+project(':javabite-parser') {
+	dependencies {
+		compile project(':common')
+	}
+}
+project(':javabite-code-gen') {
+	dependencies {
+		compile project(':common')
+	}
+}
+project(':javabite-backend') {
+	dependencies {
+		compile project(':common')
+	}
+}
