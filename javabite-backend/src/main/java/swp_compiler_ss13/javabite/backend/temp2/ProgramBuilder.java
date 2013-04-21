@@ -1,5 +1,6 @@
 package swp_compiler_ss13.javabite.backend.temp2;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +23,13 @@ public class ProgramBuilder {
 	private int currentOffset;
 	private List<Operation> operations;
 
+	/**
+	 * Creates a new instance of this builder class.
+	 * 
+	 * @param startOffset
+	 *          the initial offset to start with byte counting.
+	 * @return a new instance of this builder class
+	 */
 	public static ProgramBuilder newBuilder(final int startOffset) {
 		return new ProgramBuilder(startOffset);
 	}
@@ -40,20 +48,39 @@ public class ProgramBuilder {
 		currentOffset += operation.getSize();
 	}
 
+	/**
+	 * Adds a new operation by template to this program. The internal offset
+	 * counter will take care of the appropriate byte counting.
+	 * 
+	 * @param template
+	 *          the template of the operation to be added
+	 * @param args
+	 *          the arguments to use with the template. Mind that each operation
+	 *          has a set count of arguments and that this operation will fail if
+	 *          not the right amount of arguments is supplied.
+	 * @return this builder instance
+	 */
 	public ProgramBuilder add(final OperationTemplate template,
 	    final Object... args) {
 		add(template.getOperation(currentOffset, args));
 		return this;
 	}
 
-	public String visualize() {
-		// TODO implement
-		return null;
-	}
-
-	public Byte[] bytes() {
-		// TODO implement
-		return null;
+	/**
+	 * Returns a byte array of all operations of this program.
+	 * 
+	 * @return byte array of operations
+	 */
+	public byte[] getBytes() {
+		int bytesize = 0;
+		for (final Operation operation : operations) {
+			bytesize += operation.getSize();
+		}
+		final ByteBuffer bb = ByteBuffer.allocate(bytesize);
+		for (final Operation operation : operations) {
+			bb.put(operation.getBytes());
+		}
+		return bb.array();
 	}
 
 }

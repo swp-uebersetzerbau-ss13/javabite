@@ -222,23 +222,24 @@ public enum Mnemonic {
   IMPDEP2         (0xFF);
   //@formatter:on
 
-
 	public static enum ArgumentType {
 		BYTE, INDX
 	}
 
+	private final int size;
 	private final int byteCode;
 	private final ArgumentType[] argumentTypes;
 
 	private Mnemonic(int hexCode, final ArgumentType... argumentTypes) {
 		this.byteCode = hexCode;
 		this.argumentTypes = argumentTypes;
+		this.size = 1 + (argumentTypes != null ? argumentTypes.length : 0);
 	}
-	
+
 	public ArgumentType[] getArgumentTypes() {
 		return argumentTypes;
 	}
-	
+
 	public int getArgumentCount() {
 		return argumentTypes.length;
 	}
@@ -274,6 +275,10 @@ public enum Mnemonic {
 	 */
 	public int getBytecode() {
 		return byteCode;
+	}
+
+	public int getSize() {
+		return size;
 	}
 
 }

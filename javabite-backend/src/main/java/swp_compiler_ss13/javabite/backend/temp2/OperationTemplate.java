@@ -1,5 +1,6 @@
 package swp_compiler_ss13.javabite.backend.temp2;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,13 +31,30 @@ public class OperationTemplate {
 	 */
 	public static class Operation {
 
-		private Operation() {
-			// TODO implement
+		private final byte[] bytes;
+
+		private Operation(final int offset, final List<Mnemonic> instructions,
+		    final Object... objects) {
+			int size = 0;
+			for(final Mnemonic instruction : instructions) {
+				size += instruction.getSize();
+			}
+			ByteBuffer bb = ByteBuffer.allocate(size);
+			
+			int currentOffset = offset;
+			for(final Mnemonic instruction : instructions) {
+				// TODO implement
+			}
+			
+			this.bytes = bb.array();
+		}
+		
+		public byte[] getBytes() {
+			return bytes;
 		}
 
 		public int getSize() {
-			// TODO implement
-			return 0;
+			return bytes.length;
 		}
 
 	}
@@ -115,8 +133,7 @@ public class OperationTemplate {
 	 */
 	public Operation getOperation(final int offset, final Object... args) {
 		assert argumentCount == args.length;
-		// TODO implement
-		return new Operation();
+		return new Operation(offset, instructions, args);
 	}
 
 }
