@@ -49,14 +49,7 @@ To change common you have to go inside common repository and switch to a branch,
 ```
 
 Than you finished your changes, commit and push as always. If everyone using javabite
-should use your new commit, you have to update the reference. In main-repo use:
-
-```
-> git submodule update
-```
-
-This will change the referenced commit everyone sees to your local commit.
-You will have to commit and pull this change.
+should use your new commit, you will have to commit and push the main-repo.
 
 ## Setup
 
