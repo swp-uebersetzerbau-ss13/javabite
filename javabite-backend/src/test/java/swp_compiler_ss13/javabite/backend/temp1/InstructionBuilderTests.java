@@ -1,9 +1,9 @@
-package swp_compiler_ss13.javabite.backend;
+package swp_compiler_ss13.javabite.backend.temp1;
 
 import org.junit.Before;
 import org.junit.Test;
 
-import swp_compiler_ss13.javabite.backend.InstructionBuilder;
+import swp_compiler_ss13.javabite.backend.temp1.InstructionBuilder;
 
 public class InstructionBuilderTests {
 
