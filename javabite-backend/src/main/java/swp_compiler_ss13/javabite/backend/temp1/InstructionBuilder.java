@@ -1,4 +1,6 @@
-package swp_compiler_ss13.javabite.backend;
+package swp_compiler_ss13.javabite.backend.temp1;
+
+import swp_compiler_ss13.javabite.backend.Mnemonic;
 
 /**
  * InstructionBuilder class. The InstructionBuilder class is used to create many

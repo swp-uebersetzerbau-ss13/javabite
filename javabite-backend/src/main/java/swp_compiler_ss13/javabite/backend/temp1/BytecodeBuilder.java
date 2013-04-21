@@ -1,4 +1,6 @@
-package swp_compiler_ss13.javabite.backend;
+package swp_compiler_ss13.javabite.backend.temp1;
+
+import swp_compiler_ss13.javabite.backend.Mnemonic;
 
 /**
  * BytecodeBuilder class. This class is used to assemble bytecode sequences. The

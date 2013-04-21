@@ -1,5 +1,7 @@
 package swp_compiler_ss13.javabite.backend;
 
+import static swp_compiler_ss13.javabite.backend.Mnemonic.ArgumentType.*;
+
 /**
  * Mnemonic enum.
  * 
@@ -28,16 +30,16 @@ public enum Mnemonic {
   FCONST_2        (0x0D),
   DCONST_0        (0x0E),
   DCONST_1        (0x0F),
-  BIPUSH          (0x10),
-  SIPUSH          (0x11),
-  LDC             (0x12),
-  LDC_W           (0x13),
-  LDC2_W          (0x14),
-  ILOAD           (0x15),
-  LLOAD           (0x16),
-  FLOAD           (0x17),
-  DLOAD           (0x18),
-  ALOAD           (0x19),
+  BIPUSH          (0x10, BYTE),
+  SIPUSH          (0x11, BYTE, BYTE),
+  LDC             (0x12, INDX),
+  LDC_W           (0x13, INDX, INDX),
+  LDC2_W          (0x14, INDX, INDX),
+  ILOAD           (0x15, INDX),
+  LLOAD           (0x16, INDX),
+  FLOAD           (0x17, INDX),
+  DLOAD           (0x18, INDX),
+  ALOAD           (0x19, INDX),
   ILOAD_0         (0x1A),
   ILOAD_1         (0x1B),
   ILOAD_2         (0x1C),
@@ -66,11 +68,11 @@ public enum Mnemonic {
   BALOAD          (0x33),
   CALOAD          (0x34),
   SALOAD          (0x35),
-  ISTORE          (0x36),
-  LSTORE          (0x37),
-  FSTORE          (0x38),
-  DSTORE          (0x39),
-  ASTORE          (0x3A),
+  ISTORE          (0x36, INDX),
+  LSTORE          (0x37, INDX),
+  FSTORE          (0x38, INDX),
+  DSTORE          (0x39, INDX),
+  ASTORE          (0x3A, INDX),
   ISTORE_0        (0x3B),
   ISTORE_1        (0x3C),
   ISTORE_2        (0x3D),
@@ -144,7 +146,7 @@ public enum Mnemonic {
   LOR             (0x81),
   IXOR            (0x82),
   LXOR            (0x83),
-  IINC            (0x84),
+  IINC            (0x84, INDX, BYTE),
   I2L             (0x85),
   I2F             (0x86),
   I2D             (0x87),
@@ -165,65 +167,80 @@ public enum Mnemonic {
   FCMPG           (0x96),
   DCMPL           (0x97),
   DCMPG           (0x98),
-  IFEQ            (0x99),
-  IFNE            (0x9A),
-  IFLT            (0x9B),
-  IFGE            (0x9C),
-  IFGT            (0x9D),
-  IFLE            (0x9E),
-  IF_ICMPEQ       (0x9F),
-  IF_ICMPNE       (0xA0),
-  IF_ICMPLT       (0xA1),
-  IF_ICMPGE       (0xA2),
-  IF_ICMPGT       (0xA3),
-  IF_ICMPLE       (0xA4),
-  IF_ACMPEQ       (0xA5),
-  IF_ACMPNE       (0xA6),
-  GOTO            (0xA7),
+  IFEQ            (0x99, BYTE, BYTE),
+  IFNE            (0x9A, BYTE, BYTE),
+  IFLT            (0x9B, BYTE, BYTE),
+  IFGE            (0x9C, BYTE, BYTE),
+  IFGT            (0x9D, BYTE, BYTE),
+  IFLE            (0x9E, BYTE, BYTE),
+  IF_ICMPEQ       (0x9F, BYTE, BYTE),
+  IF_ICMPNE       (0xA0, BYTE, BYTE),
+  IF_ICMPLT       (0xA1, BYTE, BYTE),
+  IF_ICMPGE       (0xA2, BYTE, BYTE),
+  IF_ICMPGT       (0xA3, BYTE, BYTE),
+  IF_ICMPLE       (0xA4, BYTE, BYTE),
+  IF_ACMPEQ       (0xA5, BYTE, BYTE),
+  IF_ACMPNE       (0xA6, BYTE, BYTE),
+  GOTO            (0xA7, BYTE, BYTE),
   JSR             (0xA8),
   RET             (0xA9),
-  TABLESWITCH     (0xAA),
-  LOOKUPSWITCH    (0xAB),
+  TABLESWITCH     (0xAA), // missing args
+  LOOKUPSWITCH    (0xAB), // missing args
   IRETURN         (0xAC),
   LRETURN         (0xAD),
   FRETURN         (0xAE),
   DRETURN         (0xAF),
   ARETURN         (0xB0),
   RETURN          (0xB1),
-  GETSTATIC       (0xB2),
-  PUTSTATIC       (0xB3),
-  GETFIELD        (0xB4),
-  PUTFIELD        (0xB5),
-  INVOKEVIRTUAL   (0xB6),
-  INVOKESPECIAL   (0xB7),
-  INVOKESTATIC    (0xB8),
-  INVOKEINTERFACE (0xB9),
-  INVOKEDYNAMIC   (0xBA),
-  NEW             (0xBB),
-  NEWARRAY        (0xBC),
-  ANEWARRAY       (0xBD),
+  GETSTATIC       (0xB2, INDX, INDX),
+  PUTSTATIC       (0xB3, BYTE, BYTE),
+  GETFIELD        (0xB4, INDX, INDX),
+  PUTFIELD        (0xB5, BYTE, BYTE),
+  INVOKEVIRTUAL   (0xB6, BYTE, BYTE),
+  INVOKESPECIAL   (0xB7, BYTE, BYTE),
+  INVOKESTATIC    (0xB8, BYTE, BYTE),
+  INVOKEINTERFACE (0xB9, BYTE, BYTE, BYTE, BYTE),
+  INVOKEDYNAMIC   (0xBA, BYTE, BYTE, BYTE, BYTE),
+  NEW             (0xBB, BYTE, BYTE),
+  NEWARRAY        (0xBC, INDX),
+  ANEWARRAY       (0xBD, BYTE, BYTE),
   ARRAYLENGTH     (0xBE),
   ATHROW          (0xBF),
-  CHECKCAST       (0xC0),
-  INSTANCEOF      (0xC1),
+  CHECKCAST       (0xC0, BYTE, BYTE),
+  INSTANCEOF      (0xC1, BYTE, BYTE),
   MONITORENTER    (0xC2),
   MONITOREXIT     (0xC3),
-  WIDE            (0xC4),
-  MULTIANEWARRAY  (0xC5),
-  IFNULL          (0xC6),
-  IFNONNULL       (0xC7),
-  GOTO_W          (0xC8),
-  JSR_W           (0xC9),
+  WIDE            (0xC4), // missing args
+  MULTIANEWARRAY  (0xC5, BYTE, BYTE, BYTE),
+  IFNULL          (0xC6, BYTE, BYTE),
+  IFNONNULL       (0xC7, BYTE, BYTE),
+  GOTO_W          (0xC8, BYTE, BYTE, BYTE, BYTE),
+  JSR_W           (0xC9, BYTE, BYTE, BYTE, BYTE),
   BREAKPOINT      (0xCA),
   // 0xCB .. 0XFD not assigned
   IMPDEP1         (0xFE),
   IMPDEP2         (0xFF);
   //@formatter:on
 
-	private final int byteCode;
 
-	private Mnemonic(int hexCode) {
+	public static enum ArgumentType {
+		BYTE, INDX
+	}
+
+	private final int byteCode;
+	private final ArgumentType[] argumentTypes;
+
+	private Mnemonic(int hexCode, final ArgumentType... argumentTypes) {
 		this.byteCode = hexCode;
+		this.argumentTypes = argumentTypes;
+	}
+	
+	public ArgumentType[] getArgumentTypes() {
+		return argumentTypes;
+	}
+	
+	public int getArgumentCount() {
+		return argumentTypes.length;
 	}
 
 	/**
