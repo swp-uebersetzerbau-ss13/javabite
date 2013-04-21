@@ -32,6 +32,13 @@ Its imported to understand, that the submodule reference a certain commit and if
 a newer commit of common should be used it has to be pulled and than the reference
 must be updated.
 
+You will have to call 
+```
+> git submodule update
+```
+to get the main referenced version.
+
+
 ## How to change common
 **Attention**: If there is something unclear below here, better create an issue. We will try
 to describe it in more details. If you only want a newer commit of common than you can
@@ -64,6 +71,11 @@ Recommended is:
 If another IDE integration plugin in the build.gralde is needed, please open issue.
 
 1. Checkout the repository to a location you want.
+ * If you do this on console you will need to use:
+ ```
+ git submodule init
+ git submodule update
+ ```
 2. Go to the "Import..." in eclipse and select Gradle->Gradle Project.
 3. Select the repository location and press "Build Model"
 4. Select all projects
