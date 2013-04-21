@@ -1,4 +1,4 @@
-package swp_compiler_ss13.common.backend;
+package swp_compiler_ss13.javabite.backend;
 
 /**
  * InstructionBuilder class. The InstructionBuilder class is used to create many

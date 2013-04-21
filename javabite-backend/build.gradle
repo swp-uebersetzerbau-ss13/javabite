@@ -1,6 +1,2 @@
 title = 'Javabite Backend'
 version = '0.1'
-
-dependencies {
-	compile 'org.slf4j:slf4j-log4j12:1.7.5'
-}

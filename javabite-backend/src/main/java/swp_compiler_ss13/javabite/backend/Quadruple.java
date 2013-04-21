@@ -1,4 +1,4 @@
-package swp_compiler_ss13.common.backend;
+package swp_compiler_ss13.javabite.backend;
 
 public interface Quadruple {
 
