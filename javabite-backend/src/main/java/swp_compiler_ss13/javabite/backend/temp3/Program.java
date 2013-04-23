@@ -29,6 +29,10 @@ public class Program {
 
 		public ProgramBuilder add(@Nonnull Operation operation) {
 			operations.add(operation);
+			for(Instruction instruction : operation.getInstructions()) {
+				instruction.setOffset(instruction.getOffset() + currentOffset);
+			}
+			currentOffset += operation.getSize();
 			return this;
 		}
 

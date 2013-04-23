@@ -6,6 +6,7 @@ import swp_compiler_ss13.javabite.backend.Mnemonic;
 
 public class Instruction {
 
+	// offset to predecessor
 	private int offset;
 	private Mnemonic mnemonic;
 	private Object[] arguments;
