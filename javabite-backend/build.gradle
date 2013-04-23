@@ -1,2 +1,6 @@
 title = 'Javabite Backend'
 version = '0.1'
+
+dependencies {
+	compile 'com.google.code.findbugs:findbugs:2.0.1'
+}
