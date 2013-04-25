@@ -36,25 +36,30 @@ project(':common'){
 }
 project(':javabite-compiler') {
 	dependencies {
-		compile project(':common'), project(':javabite-lexer'), project(':javabite-parser'), project(':javabite-code-gen'), project(':javabite-backend')
+		compile project(':javabite-common'), project(':javabite-lexer'), project(':javabite-parser'), project(':javabite-code-gen'), project(':javabite-backend')
 	}
 }
 project(':javabite-lexer') {
 	dependencies {
-		compile project(':common')
+		compile project(':javabite-common')
 	}
 }
 project(':javabite-parser') {
 	dependencies {
-		compile project(':common')
+		compile project(':javabite-common')
 	}
 }
 project(':javabite-code-gen') {
 	dependencies {
-		compile project(':common')
+		compile project(':javabite-common')
 	}
 }
 project(':javabite-backend') {
+	dependencies {
+		compile project(':javabite-common')
+	}
+}
+project(':javabite-common') {
 	dependencies {
 		compile project(':common')
 	}

@@ -20,7 +20,9 @@ The project consists of six projects, each responsible for another part of the c
  * parser for the common grammar
 6. javabite-compiler
  * main application with user interface which provide the compiler
-
+7. javabite-common
+ * implementation of the project common classes
+ 
 ## Submodule
 The common-project has its own git repository (all the others are part of the javabite 
 repository). The javabite-repository is setted up so that it will automatically download 
