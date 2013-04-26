@@ -1,4 +1,4 @@
-package swp_compiler_ss13.javabite.grammar;
+package swp_compiler_ss13.javabite.parser.grammar;
 
 /**
  * Just a marker interface for Symbols of an Alphabet
