@@ -28,6 +28,10 @@ public class GrammarTestcase {
 	SimpleNT F=new SimpleNT("F");
 	SimpleNT E_=new SimpleNT("E'");
 	
+	
+	
+	
+	
 	/**
 	 * left-recursive language of drachenbuch (S.244)
 	 * Pay atention to the type in the book ( E is F in the grammar at one place)
@@ -106,7 +110,7 @@ public class GrammarTestcase {
 	@Test
 	public void testAutomaton(){
 		SLRAutomaton<SimpleT, SimpleNT> automaton=new SLRAutomaton<>(g1);
-		assertEquals("should have exact these number of states",12,automaton.getNStates());
+		assertEquals("should have exact this number of states",12,automaton.getNStates());
 	}
 	
 

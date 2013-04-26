@@ -38,8 +38,6 @@ public class SLRAutomaton<T extends Symbol, NT extends Symbol> {
 		State st=new State();
 		states.add(st);
 		st.kernel_items=kernel;
-		logger.info("new state for kernel {} -> {}",kernel,st.id);
-		logger.info("state:\n{}",st);
 		return st;
 	}
 	
@@ -52,7 +50,6 @@ public class SLRAutomaton<T extends Symbol, NT extends Symbol> {
 	private void build() {
 		// create first state and closure
 		NT s_symbol=g.artificial_start_symbol;
-		logger.info("build automaton with start symbol {} and grammar:\n{}",s_symbol,g);
 		Set<Item<T,NT>> initialKernel=new HashSet<>();
 		initialKernel.add(new Item<T,NT>(new LinkedList<Symbol>(),g.productions.get(s_symbol).iterator().next()));
 		Map<NT,Set<Item<T,NT>>> initialKernelProd=new HashMap<>();
