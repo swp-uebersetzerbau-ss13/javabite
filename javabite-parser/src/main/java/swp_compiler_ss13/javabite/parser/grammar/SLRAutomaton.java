@@ -140,9 +140,6 @@ public class SLRAutomaton<T extends Symbol, NT extends Symbol> {
 		final Map<Symbol,State> transition=new HashMap<>();
 		int id;
 		
-		private SLRAutomaton<T, NT> getOuterType() {
-			return SLRAutomaton.this;
-		}
 		
 		public String toString(){
 			String str="";

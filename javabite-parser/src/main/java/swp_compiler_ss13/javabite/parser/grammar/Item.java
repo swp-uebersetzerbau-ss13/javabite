@@ -1,11 +1,7 @@
 package swp_compiler_ss13.javabite.parser.grammar;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Map.Entry;
 
 /**
  * Represents a production with a pre-production as handle.
@@ -32,6 +28,7 @@ public class Item<T extends Symbol, NT extends Symbol> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
+		@SuppressWarnings("rawtypes")
 		Item other = (Item) obj;
 		if (left == null) {
 			if (other.left != null)

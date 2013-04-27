@@ -13,8 +13,6 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-
 /**
  * A Grammar object determines (surprisingly) a Grammar.
  * Plus, some methods support an easy LR-parsing of it.
@@ -89,6 +87,7 @@ public class Grammar<T extends Symbol,NT extends Symbol> {
 	 * @param prod the production
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public Map<NT,Set<Item<T,NT>>> getClosure(NT nT, Item<T,NT> prod){
 		Map<NT,Set<Item<T,NT>>> closures=new HashMap<>();
 		
