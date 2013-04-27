@@ -1,6 +1,5 @@
-package swp_compiler_ss13.javabite.parser.grammar;
+package swp_compiler_ss13.javabite.parser.grammar.test;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
@@ -10,6 +9,10 @@ import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import swp_compiler_ss13.javabite.parser.grammar.Grammar;
+import swp_compiler_ss13.javabite.parser.grammar.Item;
+import swp_compiler_ss13.javabite.parser.grammar.Symbol;
 
 public class GrammarTestcase {
 	
@@ -65,13 +68,13 @@ public class GrammarTestcase {
 	
 	@Test
 	public void testProductionCorrectnessNum(){
-		assertTrue("There must be 2 NonTerminals ( incl. artificial start)", g1.productions.size()==4);
+		assertTrue("There must be 2 NonTerminals ( incl. artificial start)", g1.getProductions().size()==4);
 	}
 	
 	@Test
 	public void testProductionCorrectnessContant(){
-		assertTrue("There must exist 4 productions",g1.productions.get(E).size()==2);
-		assertTrue("There must exist 2 productions",g1.productions.get(T).size()==2);
+		assertTrue("There must exist 4 productions",g1.getProductions().get(E).size()==2);
+		assertTrue("There must exist 2 productions",g1.getProductions().get(T).size()==2);
 	}
 	
 	@Test
@@ -103,13 +106,6 @@ public class GrammarTestcase {
 				));
 		
 		assertTrue("There should be no additional NT",res.size()==1);
-	}
-	
-	
-	@Test
-	public void testAutomaton(){
-		SLRAutomaton<SimpleT, SimpleNT> automaton=new SLRAutomaton<>(g1);
-		assertEquals("should have exact this number of states",12,automaton.getNStates());
 	}
 	
 

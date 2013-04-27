@@ -23,6 +23,10 @@ import org.slf4j.LoggerFactory;
  */
 public class Grammar<T extends Symbol,NT extends Symbol> {
 	
+	public final Map<NT, Set<List<Symbol>>> getProductions() {
+		return productions;
+	}
+
 	/**
 	 * 
 	 * @param start Start Symbol of the Grammar
@@ -67,7 +71,7 @@ public class Grammar<T extends Symbol,NT extends Symbol> {
 	 * @return
 	 */
 	@SafeVarargs
-	final Grammar<T, NT> addProduction(NT nT, List<Symbol> head, List<Symbol>... rest){
+	public final Grammar<T, NT> addProduction(NT nT, List<Symbol> head, List<Symbol>... rest){
 		// get List for productions
 		Set<List<Symbol>> productionsOfNT=productions.get(nT);
 		if (productionsOfNT==null){
@@ -150,6 +154,7 @@ public class Grammar<T extends Symbol,NT extends Symbol> {
 		}
 		return strb.toString();
 	}
+	
 	
 	/**
 	 * Since generics are not available in runtime, we need this little hacky thing 
