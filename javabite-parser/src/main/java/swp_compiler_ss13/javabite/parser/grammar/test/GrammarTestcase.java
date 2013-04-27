@@ -108,6 +108,20 @@ public class GrammarTestcase {
 		assertTrue("There should be no additional NT",res.size()==1);
 	}
 	
+	
+	@Test
+	public void testFirstSet(){
+		Set<SimpleT> first= g1.getFirstSet(E);
+		assertTrue("Must contains at least this element",first.contains(T_OPEN));
+	}
+	
+	@Test
+	public void testFollowSet(){
+		Set<SimpleT> first= g1.getFollowSet(E);
+		assertTrue("Must contains at least this element",first.contains(T_CLOSE));
+	}
+	
+	
 
 }
 

@@ -13,6 +13,8 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+
 /**
  * A Grammar object determines (surprisingly) a Grammar.
  * Plus, some methods support an easy LR-parsing of it.
@@ -153,6 +155,24 @@ public class Grammar<T extends Symbol,NT extends Symbol> {
 			}
 		}
 		return strb.toString();
+	}
+	
+	/**
+	 * computes the first set
+	 * @param t terminals
+	 * @return A set of Terminals
+	 */
+	public Set<T> getFirstSet(NT t){
+		throw new NotImplementedException();
+	}
+	
+	/**
+	 * computes the first set
+	 * @param t terminals
+	 * @return A set of Terminals
+	 */
+	public Set<T> getFollowSet(NT t){
+		throw new NotImplementedException();
 	}
 	
 	
