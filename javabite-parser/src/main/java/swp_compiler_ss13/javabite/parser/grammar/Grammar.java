@@ -167,7 +167,7 @@ public class Grammar<T extends Symbol,NT extends Symbol> {
 	}
 	
 	/**
-	 * computes the first set
+	 * computes the follow set
 	 * @param t terminals
 	 * @return A set of Terminals
 	 */
