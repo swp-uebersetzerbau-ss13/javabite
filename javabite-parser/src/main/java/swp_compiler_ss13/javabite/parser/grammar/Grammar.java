@@ -102,7 +102,7 @@ public class Grammar<T extends Symbol,NT extends Symbol> {
 		closures.put(nT, nTset);
 		
 		if (prod.right.isEmpty() || isTerminal(prod.right.get(0))){
-			// nothing to do here
+			// nothing to do here                  
 		}
 		else {
 			NT toCheck=(NT)prod.right.get(0);
@@ -163,8 +163,30 @@ public class Grammar<T extends Symbol,NT extends Symbol> {
 	 * @return A set of Terminals
 	 */
 	public Set<T> getFirstSet(NT t){
-		throw new NotImplementedException();
-	}
+		Set<T> terminal = new HashSet<>();
+		int first=0;
+		Set<List<Symbol>> k=productions.get(t);
+		
+		for (List<Symbol> list:k){
+			    List<Symbol> l=list;
+				if(isTerminal(l.get(first))){
+				    terminal.add((T) l.get(first));
+					}
+				else if(l.get(first).toString()=="epsilon"){
+					terminal.add((T) l.get(first));
+					
+				}
+				else{//isNotTerminal(l.get(first))
+					getFirstSet((NT) l.get(first));
+				}
+				
+			}
+		return terminal;
+			
+		}
+		
+
+	
 	
 	/**
 	 * computes the follow set
