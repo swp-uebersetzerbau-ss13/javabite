@@ -12,55 +12,49 @@ allprojects {
 		}
 	}
 
-	repositories {
-		mavenCentral()
-	}
+	repositories { mavenCentral() }
 
 	dependencies {
 		compile 'org.slf4j:slf4j-simple:1.7.5'
 		testCompile 'junit:junit:4.11'
 	}
 
-	test {
-		systemProperties 'org.slf4j.simpleLogger.defaultLogLevel': 'debug'
-	}
+	test { systemProperties 'org.slf4j.simpleLogger.defaultLogLevel': 'debug' }
 }
 project(':common'){
 	sourceSets {
 		main {
-			java {
-				srcDir 'interfaces/src'
-			}
+			java { srcDir 'interfaces/src' }
 		}
 	}
 }
 project(':javabite-compiler') {
+	apply plugin:'application'
+
+	jar {
+		manifest {
+			attributes 'Main-Class': 'swp_compiler_ss13.javabite.compiler.JavabiteCompiler'
+		}
+	}
+	
+	mainClassName = 'swp_compiler_ss13.javabite.compiler.JavabiteCompiler'
+
 	dependencies {
 		compile project(':javabite-common'), project(':javabite-lexer'), project(':javabite-parser'), project(':javabite-code-gen'), project(':javabite-backend')
 	}
 }
 project(':javabite-lexer') {
-	dependencies {
-		compile project(':javabite-common')
-	}
+	dependencies { compile project(':javabite-common') }
 }
 project(':javabite-parser') {
-	dependencies {
-		compile project(':javabite-common')
-	}
+	dependencies { compile project(':javabite-common') }
 }
 project(':javabite-code-gen') {
-	dependencies {
-		compile project(':javabite-common')
-	}
+	dependencies { compile project(':javabite-common') }
 }
 project(':javabite-backend') {
-	dependencies {
-		compile project(':javabite-common')
-	}
+	dependencies { compile project(':javabite-common') }
 }
 project(':javabite-common') {
-	dependencies {
-		compile project(':common')
-	}
+	dependencies { compile project(':common') }
 }
