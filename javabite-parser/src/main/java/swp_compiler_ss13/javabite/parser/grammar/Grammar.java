@@ -178,7 +178,7 @@ public class Grammar<T extends Symbol,NT extends Symbol> {
 	
 	/**
 	 * Since generics are not available in runtime, we need this little hacky thing 
-	 * to identify, whether its a terminal or not.
+	 * to identify, whether it's a terminal or not.
 	 * @param s the symbol
 	 * @return if it's an instance of NonTerminal
 	 */
@@ -188,7 +188,7 @@ public class Grammar<T extends Symbol,NT extends Symbol> {
 	
 	/**
 	 * Since generics are not available in runtime, we need this little hacky thing 
-	 * to identify, whether its a terminal or not.
+	 * to identify, whether it's a terminal or not.
 	 * @param s the symbol
 	 * @return if it's an instance of Terminal
 	 */
