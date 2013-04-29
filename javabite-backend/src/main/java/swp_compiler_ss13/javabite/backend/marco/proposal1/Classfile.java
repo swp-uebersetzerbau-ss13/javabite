@@ -174,6 +174,10 @@ public class Classfile {
 		case "CLASS":
 			index = this.constantPool.generateConstantClassInfo(value);
 			break;
+		case "DOUBLE":
+			break;
+		case "STRING":
+			break;
 		}
 		
 		return index;
