@@ -1,6 +1,6 @@
 package swp_compiler_ss13.javabite.backend.marco.proposal1;
 
-import javax.annotation.Nonnull;
+//import javax.annotation.Nonnull;
 
 import swp_compiler_ss13.javabite.backend.Mnemonic;
 
@@ -13,7 +13,8 @@ public class Instruction {
 	private final int size;
 
 	public Instruction(final int size, final int offset,
-	    @Nonnull final Mnemonic mnemonic, Object... arguments) {
+	    //@Nonnull final Mnemonic mnemonic, Object... arguments) {
+		final Mnemonic mnemonic, Object... arguments) {
 		this.offset = offset;
 		this.mnemonic = mnemonic;
 		this.arguments = arguments;
