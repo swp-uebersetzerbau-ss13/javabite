@@ -16,7 +16,7 @@ import swp_compiler_ss13.javabite.backend.marco.proposal1.Quadruple.Operator;
  */
 public class ControllerTemp {
 
-	static List<QuadrupleImpl> tac = new ArrayList<QuadrupleImpl>(){ 
+	static List<Quadruple> tac = new ArrayList<Quadruple>(){ 
 		/**
 		 * 
 		 */
@@ -24,9 +24,9 @@ public class ControllerTemp {
 		{
 			/* Variable declaration */
 			add(new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "long1"));
-			add(new QuadrupleImpl(Operator.DECLARE_LONG, "#1l", "!", "long2"));
+			add(new QuadrupleImpl(Operator.DECLARE_LONG, "#100", "!", "long2"));
 			
-			add(new QuadrupleImpl(Operator.DECLARE_DOUBLE,"!","!","doble1" ));
+			add(new QuadrupleImpl(Operator.DECLARE_DOUBLE,"!","!","double1" ));
 			add(new QuadrupleImpl(Operator.DECLARE_DOUBLE,"#2.0","!","double2"));
 			
 			add(new QuadrupleImpl(Operator.DECLARE_BOOL,"!","!","bool1"));
@@ -81,7 +81,7 @@ public class ControllerTemp {
 		
 		StringBuilder sb = new StringBuilder();
 		
-		for(QuadrupleImpl quad : ControllerTemp.tac) {
+		for(Quadruple quad : ControllerTemp.tac) {
 			sb.append(quad.getOperator()); 
 			sb.append(" | ");
 			sb.append(quad.getArgument1());
@@ -92,10 +92,10 @@ public class ControllerTemp {
 			sb.append("\n\n");
 		}
 		
-		System.out.println(sb.toString());
+		//System.out.println(sb.toString());
 		
 		BackendModule backend = new BackendModule();
-		backend.generateTargetCode(null);
+		backend.generateTargetCode(tac);
 	}
 
 }
