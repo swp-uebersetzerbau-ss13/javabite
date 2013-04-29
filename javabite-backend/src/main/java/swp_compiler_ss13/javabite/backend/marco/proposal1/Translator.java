@@ -2,6 +2,9 @@ package swp_compiler_ss13.javabite.backend.marco.proposal1;
 
 import java.util.List;
 import java.util.ArrayList;
+import swp_compiler_ss13.javabite.backend.marco.proposal1.Quadruple.Operator;
+
+import com.sun.org.apache.bcel.internal.util.ClassPath.ClassFile;
 
 /**
  * Translator class.
@@ -60,5 +63,69 @@ public class Translator {
 		mainClassfile.addConstantToConstantPool("LONG", "100000");
 		
 		return this.classfileList;
+	}
+	
+	/**
+	 * 
+	 * @param classFile
+	 * @param tac
+	 */
+	public void extractCPContent(Classfile classFile, List<Quadruple> tac) {
+		
+		for(Quadruple quad : tac) {
+			
+			String arg1 = quad.getArgument1();
+			
+			switch (quad.getOperator()) {
+			case DECLARE_LONG:
+				if(arg1.equals("!") || arg1.length() <=2) {
+					// long arg's smaller than 9 will be pushed on stack
+				} else {
+					classFile.addConstantToConstantPool("LONG", arg1.substring(1));
+				}
+				break;
+			case DECLARE_DOUBLE:
+				if(arg1.equals("!")) {
+					classFile.addConstantToConstantPool("DOUBLE", "0.0");
+				} else {
+					classFile.addConstantToConstantPool("DOUBLE", arg1.substring(1));
+				}
+				break;
+			case DECLARE_BOOL:
+				if(arg1.equals("!")) {
+					classFile.addConstantToConstantPool("BOOL", "false");
+				}
+				break;
+			case DECLARE_STRING:
+				if(arg1.equals("!")) {
+					classFile.addConstantToConstantPool("STRING", "\"\"");
+				} else {
+					classFile.addConstantToConstantPool("STRING", arg1.substring(1));
+				}
+				break;
+			case ASSIGN_LONG:
+				if(!arg1.equals("!")) {
+					classFile.addConstantToConstantPool("LONG", arg1.substring(1));
+				}
+				break;
+			case ASSIGN_DOUBLE:
+				if(!arg1.equals("!")) {
+					classFile.addConstantToConstantPool("DOUBLE", arg1.substring(1));
+				}
+				break;
+			case ASSIGN_BOOL:
+				if(!arg1.equals("!")) {
+					classFile.addConstantToConstantPool("BOOL", arg1.substring(1));
+				}
+				break;
+			case ASSIGN_STRING:
+				if(!arg1.equals("!")) {
+					classFile.addConstantToConstantPool("STRING", arg1.substring(1));
+				}
+				break;
+			default:
+				break;
+			}
+		}
 	}
 }
