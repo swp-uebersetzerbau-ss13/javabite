@@ -117,8 +117,8 @@ public class GrammarTestcase {
 	
 	@Test
 	public void testFollowSet(){
-		Set<SimpleT> first= g1.getFollowSet(E);
-		assertTrue("Must contains at least this element",first.contains(T_CLOSE));
+		Set<SimpleT> follow= g1.getFollowSet(E);
+		assertTrue("Must contains at least this element",follow.contains(T_CLOSE));
 	}
 	
 	
