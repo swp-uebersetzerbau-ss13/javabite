@@ -14,7 +14,6 @@ public class ControllerTemp {
 		
 		BackendModule backend = new BackendModule();
 		backend.generateTargetCode(null);
-		
 	}
 
 }

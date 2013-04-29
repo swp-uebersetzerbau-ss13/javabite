@@ -25,16 +25,35 @@ public class Translator {
 	 * @author Marco
 	 * @since 27.04.2013
 	 * 
+	 * @param name string describing the classfile's name
+	 * @param thisClassNameEIF string describing this classname of the class 
+	 * described in this classfile encoded in internal form  
+	 * @param superClassNameEIF string describing the superclass' classname 
+	 * of the class described in this classfile encoded in internal form
+	 * 
+	 * @return instance of Classfile
 	 */
-	private Classfile generateNewFile(String name) {
-		Classfile file = new Classfile(name);
+	private Classfile generateNewFile(String name, String thisClassNameEIF, 
+			String superClassNameEIF) {
+		Classfile file = new Classfile(name, thisClassNameEIF, superClassNameEIF);
 		this.classfileList.add(file);
 		return file;
 	}
 	
+	/**
+	 * translate function. This function translates the tac into classfiles.
+	 * 
+	 * @author Marco
+	 * @since 27.04.2013
+	 * 
+	 * @param tac List of quadruple objects
+	 * 
+	 * @return List<Classfile>
+	 */
 	public List<Classfile> translate(List<Quadruple> tac) {
 		// always generate main.c file
-		Classfile mainClassfile = this.generateNewFile("main.c");
+		Classfile mainClassfile = this.generateNewFile
+				("main.c", "Tests/Example", "java/lang/Object");
 		
 		// TestTMP!!!!
 		mainClassfile.addConstantToConstantPool("LONG", "100000");
@@ -42,5 +61,4 @@ public class Translator {
 		
 		return this.classfileList;
 	}
-	
 }
