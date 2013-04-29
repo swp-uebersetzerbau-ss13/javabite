@@ -64,7 +64,8 @@ public class Translator {
 		
 		// MS 1 translate everything into main.class file
 		tac = this.addVariablesToLocalVariableSpace(mainClassfile, "main", tac);
-		
+		this.addTACValuesToConstantPool(mainClassfile, tac);
+
 		
 		// TestTMP!!!!
 		mainClassfile.addConstantToConstantPool("LONG", "100000");
@@ -78,11 +79,11 @@ public class Translator {
 	 * @param classFile
 	 * @param tac
 	 */
-	public void extractCPContent(Classfile classFile, List<Quadruple> tac) {
+	public void addTACValuesToConstantPool(Classfile classFile, List<Quadruple> tac) {
 		
 		for(Quadruple quad : tac) {
 			
-			String arg1 = quad.getArgument1();
+			String arg1 = quad.getArgument1();	
 			
 			switch (quad.getOperator()) {
 			case DECLARE_LONG:
@@ -135,8 +136,9 @@ public class Translator {
 				break;
 			}
 		}
+	}
 	 
-	 * addVariablesToLocalVariableSpace function. This function allocates space for all variable
+	 /* addVariablesToLocalVariableSpace function. This function allocates space for all variable
 	 * declarations and will convert them into assignments, if they have an inital value;
 	 * 
 	 * @author Marco
@@ -153,7 +155,7 @@ public class Translator {
 				if (!tacElement.getArgument1().equals("!")) {
 					newTac.add(new QuadrupleImpl(Operator.ASSIGN_STRING, tacElement.getArgument1(), "!", tacElement.getResult()));
 				} else {
-					newTac.add(new QuadrupleImpl(Operator.ASSIGN_STRING, "#", "!", tacElement.getResult()));
+					newTac.add(new QuadrupleImpl(Operator.ASSIGN_STRING, "#\"\"", "!", tacElement.getResult()));
 				}
 				break;
 			case DECLARE_DOUBLE:

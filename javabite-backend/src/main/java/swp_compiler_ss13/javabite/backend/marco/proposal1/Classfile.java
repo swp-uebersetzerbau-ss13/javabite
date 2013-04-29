@@ -1,13 +1,10 @@
 package swp_compiler_ss13.javabite.backend.marco.proposal1;
 
 import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Classfile class. This class represents all information needed
@@ -168,7 +165,7 @@ public class Classfile {
 	 * What constant pool function is to be used has to be determined using
 	 * the parameter "constantType".
 	 * 
-	 * constantTypes: LONG, CLASS
+	 * constantTypes: LONG, DOUBLE, BOOL, CLASS
 	 * 
 	 * @author Marco
 	 * @since 28.04.2013
@@ -178,7 +175,14 @@ public class Classfile {
 	 * 
 	 */
 	public int addConstantToConstantPool(String constantType, String value) {
+		Map<String, Integer> uniqueCPEntries = this.constantPool.getUniqueCPEntries();
 		int index = 0;
+		// the value is the key of the map
+		String key = value;
+		
+		if(uniqueCPEntries.containsKey(key)) {
+			return uniqueCPEntries.get(key);
+		}
 		
 		switch (constantType) {
 		case "LONG":
@@ -198,6 +202,8 @@ public class Classfile {
 			index = this.constantPool.generateConstantUTF8Info(value);
 			break;
 		}
+		
+		uniqueCPEntries.put(key, index);
 		
 		return index;
 	}
@@ -245,13 +251,13 @@ public class Classfile {
 	 * 
 	 */
 	private class ConstantPool {
-		
-		List<CPInfo> entryList;
-		Map<String,Integer> uniqueEntries;
+
+		private List<CPInfo> entryList;
+		private Map<String,Integer> uniqueCPEntries;
 		
 		private ConstantPool() {
 			entryList = new ArrayList<>();
-			uniqueEntries = new HashMap<>();
+			uniqueCPEntries = new HashMap<>();
 		}
 		
 		/**
@@ -409,8 +415,21 @@ public class Classfile {
 			return 0;
 		}
 		
-		
-		
+		public List<CPInfo> getEntryList() {
+			return entryList;
+		}
+
+		public void setEntryList(List<CPInfo> entryList) {
+			this.entryList = entryList;
+		}
+
+		public Map<String, Integer> getUniqueCPEntries() {
+			return uniqueCPEntries;
+		}
+
+		public void setUniqueCPEntries(Map<String, Integer> uniqueCPEntries) {
+			this.uniqueCPEntries = uniqueCPEntries;
+		}
 		
 		
 		/**
