@@ -41,10 +41,6 @@ public class ASTJb implements AST {
 		this.rootNode = rootNode;
 	}
 
-	@Override
-	public void setRootNode(ASTNode rootNode) {
-		// TODO Auto-generated method stub
-		
-	}
+
 
 }
