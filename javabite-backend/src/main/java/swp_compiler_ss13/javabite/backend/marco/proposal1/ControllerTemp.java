@@ -16,7 +16,7 @@ import swp_compiler_ss13.javabite.backend.marco.proposal1.Quadruple.Operator;
  */
 public class ControllerTemp {
 
-	static List<QuadrupleImpl> tac = new ArrayList<QuadrupleImpl>(){ 
+	static List<Quadruple> tac = new ArrayList<Quadruple>(){ 
 		/**
 		 * 
 		 */
@@ -81,7 +81,7 @@ public class ControllerTemp {
 		
 		StringBuilder sb = new StringBuilder();
 		
-		for(QuadrupleImpl quad : ControllerTemp.tac) {
+		for(Quadruple quad : ControllerTemp.tac) {
 			sb.append(quad.getOperator()); 
 			sb.append(" | ");
 			sb.append(quad.getArgument1());
@@ -96,7 +96,7 @@ public class ControllerTemp {
 		
 		
 		BackendModule backend = new BackendModule();
-		backend.generateTargetCode(null);
+		backend.generateTargetCode(tac);
 	}
 
 }

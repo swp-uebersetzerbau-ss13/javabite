@@ -4,7 +4,11 @@ import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Classfile class. This class represents all information needed
@@ -171,12 +175,14 @@ public class Classfile {
 			long longValue = Long.parseLong(value);
 			index = this.constantPool.generateConstantLongInfo(longValue);
 			break;
-		case "CLASS":
-			index = this.constantPool.generateConstantClassInfo(value);
-			break;
 		case "DOUBLE":
+			double doubleValue = Double.parseDouble(value);
+			index = this.constantPool.generateConstantDoubleInfo(doubleValue);
 			break;
 		case "STRING":
+			break;
+		case "CLASS":
+			index = this.constantPool.generateConstantClassInfo(value);
 			break;
 		}
 		
@@ -203,10 +209,12 @@ public class Classfile {
 	 */
 	private class ConstantPool {
 		
-		ArrayList<CPInfo> entryList;
+		List<CPInfo> entryList;
+		Map<String,Integer> uniqueEntries;
 		
 		private ConstantPool() {
-			entryList = new ArrayList<CPInfo>();
+			entryList = new ArrayList<>();
+			uniqueEntries = new HashMap<>();
 		}
 		
 		/**
@@ -259,27 +267,39 @@ public class Classfile {
 		}
 		
 		/**
-		 * ToDO!!! generateConstantStringInfo function. 
-		 * 
-		 * @author Marco
-		 * @since 27.04.2013
-		 * 
-		 */
-		private int generateConstantStringInfo() {
-			
-			return 0;
-		}
-		
-		/**
 		 * ToDO!!! generateConstantDoubleInfo function. 
 		 * 
 		 * @author Marco
 		 * @since 27.04.2013
 		 * 
 		 */
-		private int generateConstantDoubleInfo() {
+		private int generateConstantDoubleInfo(double value) {
 			
-			return 0;
+			ArrayList<Byte> info = ByteCalculator.doubleToByteArrayList(value); 
+			
+			CPInfo doubleInfo = new CPInfo((byte)0x06,info);
+			this.entryList.add(doubleInfo);
+			
+			// return index + 1
+			return this.entryList.size();
+		}
+		
+		/**
+		 * ToDO!!! generateConstantStringInfo function. 
+		 * 
+		 * @author Marco
+		 * @since 27.04.2013
+		 * 
+		 */
+		private int generateConstantStringInfo(String value) {
+			
+			ArrayList<Byte> info = ByteCalculator.stringToByteArrayList(value); 
+			
+			CPInfo stringInfo = new CPInfo((byte)0x08,info);
+			this.entryList.add(stringInfo);
+			
+			// return index + 1
+			return this.entryList.size();
 		}
 		
 		/**

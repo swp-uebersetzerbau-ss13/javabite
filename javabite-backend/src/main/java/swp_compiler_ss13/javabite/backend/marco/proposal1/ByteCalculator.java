@@ -80,6 +80,40 @@ public class ByteCalculator {
 	}
 	
 	/**
+	 * longToByteArrayList function. 
+	 * 
+	 * @author Marco
+	 * @since 28.04.2013
+	 * 
+	 */
+	public static ArrayList<Byte> doubleToByteArrayList (double value) {
+		ArrayList<Byte> byteArrayList = new ArrayList<Byte>();
+		
+		ByteBuffer buf = ByteBuffer.allocate(8);
+		buf.order(ByteOrder.BIG_ENDIAN);
+		buf.putDouble(value);
+		byte[] bufArray = buf.array();
+		
+		for (int i = 0; i < 8; i++) {
+			byteArrayList.add(bufArray[i]);
+		}
+		
+		return byteArrayList;
+	}
+	
+	/**
+	 * longToByteArrayList function. 
+	 * 
+	 * @author Marco
+	 * @since 28.04.2013
+	 * 
+	 */
+	public static ArrayList<Byte> stringToByteArrayList (String value) {
+		// TODO: make implementation from String to byte
+		return null;
+	}
+	
+	/**
 	 * byteArrayToByteArrayList function. 
 	 * 
 	 * @author Marco
