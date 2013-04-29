@@ -5,10 +5,9 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+import java.util.HashMap;
 
 /**
  * Classfile class. This class represents all information needed
@@ -40,6 +39,14 @@ public class Classfile {
 	// FieldArea
 	protected MethodArea methodArea;
 	// AttribueArea
+	
+	// TypeLengthMap	
+	public static final HashMap<String, Short> typeLengthMap = new HashMap<String, Short>() {{
+		put("LONG", (short) 2);
+		put("DOUBLE", (short) 2);
+		put("STRING", (short) 1);
+		put("BOOL", (short) 1);
+	}};
 	
 	/**
 	 * Classfile constructor. This constructor instantiates the classfile's
@@ -92,6 +99,10 @@ public class Classfile {
 		this.superClass = ByteCalculator.shortToByteArrayList(
 				(short)(this.addConstantToConstantPool("CLASS", this.superClassNameEIF)));
 		
+		// add initialize-method to methodArea
+		this.addMethodToMethodArea("<init>", "()V");
+		// TODO Code adden
+		
 		return 0;
 	}
 	
@@ -132,9 +143,8 @@ public class Classfile {
 		}
 		
 		// get bytes of constantPool
-		Iterator<Byte> constantPoolIterator = this.constantPool.getBytes().iterator();
-		while(constantPoolIterator.hasNext()) {
-			classfileBytes.add(constantPoolIterator.next());
+		for (Byte b : this.constantPool.getBytes()) {
+			classfileBytes.add(b);
 		}
 		
 		// ruturn classfiles bytes
@@ -175,21 +185,48 @@ public class Classfile {
 			long longValue = Long.parseLong(value);
 			index = this.constantPool.generateConstantLongInfo(longValue);
 			break;
+		case "CLASS":
+			index = this.constantPool.generateConstantClassInfo(value);
+			break;
 		case "DOUBLE":
 			double doubleValue = Double.parseDouble(value);
 			index = this.constantPool.generateConstantDoubleInfo(doubleValue);
 			break;
 		case "STRING":
 			break;
-		case "CLASS":
-			index = this.constantPool.generateConstantClassInfo(value);
+		case "UTF8":
+			index = this.constantPool.generateConstantUTF8Info(value);
 			break;
 		}
 		
 		return index;
 	}
 	
+	/**
+	 * addMethodToMethodArea function. This function adds the necessary entries
+	 * to the constantPool and then calls the addMethod function of this.methodAre 
+	 * to add and initialize a new method.
+	 * 
+	 * @author Marco
+	 * @since 29.04.2013
+	 * 
+	 */
+	public int addMethodToMethodArea(String methodName, String methodDescriptor) {
+		
+		return this.methodArea.addMethod(methodName, methodDescriptor);
+	}
 	
+	/**
+	 * addVariableToMethodsCode function.
+	 * 
+	 * @author Marco
+	 * @since 29.04.2013
+	 * 
+	 */
+	public void addVariableToMethodsCode(String methodName, String variableName, String variableType) {
+		
+		this.methodArea.addVariableToMethodsCode(methodName, variableName, variableType);
+	}
 	
 	
 	
@@ -235,9 +272,7 @@ public class Classfile {
 			constantPoolBytes.addAll(length);
 			
 			// get cp_info constant_pool[constant_pool_count-1]
-			Iterator<CPInfo> entryListIterator = entryList.iterator();
-			while(entryListIterator.hasNext()) {
-				CPInfo entry = entryListIterator.next();
+			for (CPInfo entry : entryList) {
 				constantPoolBytes.addAll(entry.getBytes());
 			}
 			
@@ -430,7 +465,7 @@ public class Classfile {
 	
 	/**
 	 * MethodArea class. This class represents all information needed
-	 * to create a JVM-classfile-Methods-area. 
+	 * to create a JVM-classfile-methods-area. 
 	 * 
 	 * @author Marco
 	 * @since 28.04.2013
@@ -438,10 +473,52 @@ public class Classfile {
 	 */
 	private class MethodArea {
 		
-		ArrayList<Method> methodList;
+		private HashMap<String, Method> methodMap;
 		
 		private MethodArea() {
-			methodList = new ArrayList<Method>();
+			this.methodMap = new HashMap<String, Method>();
+		}
+		
+		/**
+		 * addMethod function. This function adds and initializes a 
+		 * new method to the methodList of this methodArea.
+		 * 
+		 * @author Marco
+		 * @since 29.04.2013
+		 * 
+		 */
+		private int addMethod(String methodName, String methodDescriptor) {
+			Method newMethod = new Method(methodName, methodDescriptor);
+			
+			methodMap.put(methodName, newMethod);
+			
+			return 0;
+		}
+		
+		/**
+		 * getMethod function. This function gets the method begin described
+		 * by the paramter methodName
+		 * 
+		 * @author Marco
+		 * @since 29.04.2013
+		 * 
+		 */
+		private Method getMethodByMethodName(String methodName) {
+			
+			return this.methodMap.get(methodName);
+		}
+		
+		/**
+		 * addVariableToMethodsCode function.
+		 * 
+		 * @author Marco
+		 * @since 29.04.2013
+		 * 
+		 */
+		private void addVariableToMethodsCode(String methodName, String variableName, String variableType) {
+			
+			Method method = this.getMethodByMethodName(methodName);
+			method.addVariableToCodeAttribute(variableName, variableType);
 		}
 		
 		
@@ -457,6 +534,8 @@ public class Classfile {
 		 * 
 		 */
 		private class Method {
+			private String methodName;
+			private String methodDescriptor;
 			
 			// General method structure information
 			private short accessFlags;
@@ -466,8 +545,29 @@ public class Classfile {
 			// Attributes
 			private CodeAttribute codeAttribute;
 			
-			private Method() {
+			private Method(String methodName, String methodDescriptor) {
+				this.methodName = methodName;
+				this.methodName = methodDescriptor;
 				
+				this.nameIndex = (short) Classfile.this.addConstantToConstantPool("UTF8", methodName);
+				this.descriptorIndex = (short) Classfile.this.addConstantToConstantPool("UTF8", methodDescriptor);
+				
+				this.attributesCount = 1;
+				short codeIndex = (short) Classfile.this.addConstantToConstantPool("UTF8", "Code");
+				this.codeAttribute = new CodeAttribute(codeIndex);
+				
+			}
+			
+			/**
+			 * addVariableToCodeAttribute function. 
+			 * 
+			 * @author Marco
+			 * @since 29.04.2013
+			 * 
+			 */
+			private void addVariableToCodeAttribute(String variableName, String variableType) {
+			
+				this.codeAttribute.addVariable(variableName, variableType);
 			}
 			
 			
@@ -483,15 +583,45 @@ public class Classfile {
 			 * 
 			 */
 			private class CodeAttribute {
+				private HashMap<String, Short> variableMap;
+				
 				// General codeAttribute structure information
-				private short attributeNameIndex;
-				private int attributeLength;
+				private short codeIndex;
 				private short maxStack;
 				private short maxLocals;
-				private int codeLength;
 				private ArrayList<Byte> code;
+				private short exceptionTableLength;
 				private short attributesCount; 
 				
+				private CodeAttribute(short codeIndex) {
+					this.codeIndex = codeIndex;
+					
+					this.variableMap = new HashMap<String, Short>();
+					
+					this.maxLocals = 0;
+					this.maxLocals = 0;
+					this.exceptionTableLength = 0;
+					this.attributesCount = 0;
+					this.exceptionTableLength = 0;
+					this.attributesCount = 0;
+				};
+				
+				/**
+				 * addVariable function. This function adds a new variable to the local
+				 * variable space considering the variable name. if it's already existent,
+				 * nothing happens.
+				 * 
+				 * @author Marco
+				 * @since 29.04.2013
+				 * 
+				 */
+				private void addVariable(String variableName, String variableType) {
+					
+					if (!this.variableMap.containsKey(variableName)) {
+						this.variableMap.put(variableName, this.maxLocals);
+						this.maxLocals += Classfile.typeLengthMap.get(variableType);
+					}
+				}
 			}
 		}
 	}
