@@ -53,7 +53,7 @@ public class Translator {
 	public List<Classfile> translate(List<Quadruple> tac) {
 		// always generate main.c file
 		Classfile mainClassfile = this.generateNewFile
-				("main.c", "Tests/Example", "java/lang/Object");
+				("main.class", "Tests/Example", "java/lang/Object");
 		
 		// TestTMP!!!!
 		mainClassfile.addConstantToConstantPool("LONG", "100000");
