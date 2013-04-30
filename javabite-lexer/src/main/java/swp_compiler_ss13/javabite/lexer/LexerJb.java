@@ -1,5 +1,6 @@
 package swp_compiler_ss13.javabite.lexer;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.Scanner;
 import java.util.regex.Matcher;
@@ -18,8 +19,12 @@ public class LexerJb implements Lexer {
 	LexerJb(InputStream stream) {
 		StringBuffer buffer = new StringBuffer();
 		for (TokenType tokenType : TokenType.values()) {
-			buffer.append(String.format("|(?<%s>%s)", tokenType.name(), ""));
-			// TODO: second parameter would still tokenType.regExpr, discussion in #9
+			switch (tokenType.name()) {
+				case "NUM":
+					buffer.append(String.format("|(?<%s>%s)", tokenType.name(), "[0-9]+ ((E|e)-?[0-9+])?"));
+					break;
+			}
+			// TODO: see discussion in #9
 		}
 		
 		tokenPatterns = Pattern.compile(new String(buffer.substring(1)));
@@ -47,5 +52,19 @@ public class LexerJb implements Lexer {
 			}
 		}
 		return null;
+	}
+	
+	public static void main(String[] args) {
+		String myString = "huhu 4 * 3 sd fdsf";
+		byte[] bytes = myString.getBytes();
+		InputStream is = new ByteArrayInputStream(bytes);
+		if (is != null) {
+			LexerJb lexer = new LexerJb(is);
+			Token t = lexer.getNextToken();
+			while (t != null) {
+				System.out.println(t.getValue());
+				t = lexer.getNextToken();
+			}
+		}
 	}
 }
