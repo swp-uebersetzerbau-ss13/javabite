@@ -23,10 +23,20 @@ public class LexerJb implements Lexer {
 				case "NUM":
 					buffer.append(String.format("|(?<%s>%s)", tokenType.name(), "[0-9]+ ((E|e)-?[0-9+])?"));
 					break;
+				case "REAL":
+					buffer.append(String.format("|(?<%s>%s)", tokenType.name(), "[0-9]+.[0-9]+ ((E|e)-?[0-9+])?"));
+					break;
+				case "TRUE":
+					buffer.append(String.format("|(?<%s>%s)", tokenType.name(), "true"));
+					break;
+				case "FALSE":
+					buffer.append(String.format("|(?<%s>%s)", tokenType.name(), "false"));
+					break;
 			}
 			// TODO: see discussion in #9
 		}
 		
+		System.out.println("Patter: " + buffer);
 		tokenPatterns = Pattern.compile(new String(buffer.substring(1)));
 		setSourceStream(stream);
 	}
@@ -55,7 +65,7 @@ public class LexerJb implements Lexer {
 	}
 	
 	public static void main(String[] args) {
-		String myString = "huhu 4 * 3 sd fdsf";
+		String myString = "4 false 3 true";
 		byte[] bytes = myString.getBytes();
 		InputStream is = new ByteArrayInputStream(bytes);
 		if (is != null) {
