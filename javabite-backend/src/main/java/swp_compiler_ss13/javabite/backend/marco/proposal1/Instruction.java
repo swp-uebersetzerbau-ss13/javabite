@@ -1,26 +1,22 @@
 package swp_compiler_ss13.javabite.backend.marco.proposal1;
 
-//import javax.annotation.Nonnull;
-
-import swp_compiler_ss13.javabite.backend.Mnemonic;
+import java.util.ArrayList;
 
 public class Instruction {
 
 	// offset to predecessor
-	private int offset;
+	// private int offset;
 	private Mnemonic mnemonic;
-	private Object[] arguments;
+	private ArrayList<Byte> arguments;
 	private final int size;
 
-	public Instruction(final int size, final int offset,
-	    //@Nonnull final Mnemonic mnemonic, Object... arguments) {
-		final Mnemonic mnemonic, Object... arguments) {
-		this.offset = offset;
+	public Instruction(final int size, final Mnemonic mnemonic, ArrayList<Byte> arguments) {
 		this.mnemonic = mnemonic;
 		this.arguments = arguments;
 		this.size = size;
 	}
 
+	/* TODO for MS2
 	public int getOffset() {
 		return offset;
 	}
@@ -29,6 +25,7 @@ public class Instruction {
 		this.offset = offset;
 		return offset + size;
 	}
+	*/
 
 	public Mnemonic getMnemonic() {
 		return mnemonic;
@@ -38,11 +35,11 @@ public class Instruction {
 		this.mnemonic = mnemonic;
 	}
 
-	public Object[] getArguments() {
+	public ArrayList<Byte> getArguments() {
 		return arguments;
 	}
 
-	public void setArguments(Object[] arguments) {
+	public void setArguments(ArrayList<Byte> arguments) {
 		this.arguments = arguments;
 	}
 

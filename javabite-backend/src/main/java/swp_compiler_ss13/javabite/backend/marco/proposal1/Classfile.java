@@ -30,8 +30,8 @@ public class Classfile {
 	private byte[] majorVersion = {(byte)0x00,(byte)0x33};
 	protected ConstantPool constantPool;
 	// Access Flags TODO
-	private ArrayList<Byte> thisClass;
-	private ArrayList<Byte> superClass;
+	private short thisClassIndex;
+	private short superClassIndex;
 	// Interfaces
 	// FieldArea
 	protected MethodArea methodArea;
@@ -88,17 +88,28 @@ public class Classfile {
 		
 		// add thisClassNameEIF to ConstantPool, get back the index in the
 		// constantPool and set this.thisClass to it
-		this.thisClass = ByteCalculator.shortToByteArrayList(
-				(short)(this.addConstantToConstantPool("CLASS", this.thisClassNameEIF)));
-		
+		this.thisClassIndex = (short)(this.addConstantToConstantPool("CLASS", this.thisClassNameEIF));
 		// add superClassNameEIF to ConstantPool, get back the index in the
 		// constantPool and set this.superClass to it
-		this.superClass = ByteCalculator.shortToByteArrayList(
-				(short)(this.addConstantToConstantPool("CLASS", this.superClassNameEIF)));
+		this.superClassIndex = (short)(this.addConstantToConstantPool("CLASS", this.superClassNameEIF));
 		
-		// add initialize-method to methodArea
+		
+		// add initialize-method to methodArea and set invoke parameter
 		this.addMethodToMethodArea("<init>", "()V");
-		// TODO Code adden
+		short initNATIndex = 
+				(short) this.constantPool.generateConstantNameAndTypeInfo("<init>", "()V");
+		short methodrefIndex = 
+				(short) this.constantPool.generateConstantMethodrefInfo(this.thisClassIndex, initNATIndex);
+		ArrayList<Byte> methodRefByteArrayList = ByteCalculator.shortToByteArrayList(methodrefIndex);
+		
+		
+		// add code to initialize-method
+		Instruction InstrAload = new Instruction(1, Mnemonic.ALOAD_0, null);
+		Instruction InstrInvokespecial = new Instruction(3, Mnemonic.INVOKESPECIAL, methodRefByteArrayList);
+		Instruction InstrReturn = new Instruction(1, Mnemonic.RETURN, null);
+		this.addInstructionToMethodsCode("<init>", InstrAload);
+		this.addInstructionToMethodsCode("<init>", InstrInvokespecial);
+		this.addInstructionToMethodsCode("<init>", InstrReturn);
 		
 		return 0;
 	}
@@ -235,6 +246,19 @@ public class Classfile {
 	public void addVariableToMethodsCode(String methodName, String variableName, String variableType) {
 		
 		this.methodArea.addVariableToMethodsCode(methodName, variableName, variableType);
+	}
+	
+	/**
+	 * addInstructionToMethodsCode function. This function adds a new Instruction to the
+	 * codeArea of the codeAttribute of the provided method of this methodArea.
+	 * 
+	 * @author Marco
+	 * @since 30.04.2013
+	 * 
+	 */
+	public void addInstructionToMethodsCode(String methodName, Instruction instruction) {
+		
+		this.methodArea.addInstructionToMethodsCode(methodName, instruction);
 	}
 	
 	
@@ -404,27 +428,64 @@ public class Classfile {
 		}
 		
 		/**
-		 * ToDO!!! generateConstantMethodrefInfo function. 
+		 * generateConstantMethodrefInfo function. This function creates 
+		 * an MethodrefInfo-entry meeting the 
+		 * JVM-classfile-constantPool-CONSTANT_Methodref_info standard
+		 * in the constantPool. The generated entry is appended to 
+		 * the existing  List.
 		 * 
 		 * @author Marco
-		 * @since 27.04.2013
-		 * 
+		 * @since 30.04.2013
 		 */
-		private int generateConstantMethodrefInfo() {
+		private int generateConstantMethodrefInfo(short classIndex, short nameAndTypeIndex) {
 			
-			return 0;
+			if ((classIndex != 0) && (nameAndTypeIndex != 0)) {
+				ArrayList<Byte> info = new ArrayList<Byte>(); 
+				info.addAll(ByteCalculator.shortToByteArrayList(classIndex));
+				info.addAll(ByteCalculator.shortToByteArrayList(nameAndTypeIndex));
+				
+				CPInfo methodrefInfo = new CPInfo((byte)0x0A, info);
+				this.entryList.add(methodrefInfo);
+				
+				this.addCPMapEntry("METHODREF" + classIndex + "." + nameAndTypeIndex, (short) this.entryList.size());
+				
+				// return index + 1
+				return this.entryList.size();
+			} else {
+				return 0;
+			}
 		}
 		
 		/**
-		 * ToDO!!! generateConstantNameAndTypeInfo function. 
+		 * generateConstantNameAndTypeInfo function. This function creates 
+		 * an NameAndTypeInfo-entry meeting the 
+		 * JVM-classfile-constantPool-CONSTANT_NameAndType_info standard
+		 * in the constantPool. The generated entry is appended to 
+		 * the existing  List.
 		 * 
 		 * @author Marco
-		 * @since 27.04.2013
+		 * @since 30.04.2013
 		 * 
 		 */
-		private int generateConstantNameAndTypeInfo() {
+		private int generateConstantNameAndTypeInfo(String name, String descriptor) {
+			short nameIndex = this.getCPMapEntry("UTF8" + name);
+			short descriptorIndex = this.getCPMapEntry("UTF8" + descriptor);
 			
-			return 0;
+			if ((nameIndex != 0) && (descriptorIndex != 0)) {
+				ArrayList<Byte> info = new ArrayList<Byte>(); 
+				info.addAll(ByteCalculator.shortToByteArrayList(nameIndex));
+				info.addAll(ByteCalculator.shortToByteArrayList(descriptorIndex));
+				
+				CPInfo nameAndTypeInfo = new CPInfo((byte)0x0C, info);
+				this.entryList.add(nameAndTypeInfo);
+				
+				this.addCPMapEntry("NAMEANDTYPE" + name + descriptor, (short) this.entryList.size());
+				
+				// return index + 1
+				return this.entryList.size();
+			} else {
+				return 0;
+			}
 		}
 		
 		/**
@@ -580,6 +641,19 @@ public class Classfile {
 			method.addVariableToCodeAttribute(variableName, variableType);
 		}
 		
+		/**
+		 * addInstructionToMethodsCode function. This function adds a new Instruction to the
+		 * codeArea of the codeAttribute of the provided method.
+		 * 
+		 * @author Marco
+		 * @since 30.04.2013
+		 * 
+		 */
+		private void addInstructionToMethodsCode(String methodName, Instruction instruction) {
+			Method method = this.getMethodByMethodName(methodName);
+			method.addInstructionToCodeAttribute(instruction);
+		}
+		
 		
 		
 		
@@ -629,6 +703,19 @@ public class Classfile {
 				this.codeAttribute.addVariable(variableName, variableType);
 			}
 			
+			/**
+			 * addInstructionToCodeAttribute function. This function adds a new Instruction to the
+			 * codeArea of the codeAttribute of this method.
+			 * 
+			 * @author Marco
+			 * @since 30.04.2013
+			 * 
+			 */
+			private void addInstructionToCodeAttribute(Instruction instruction) {
+				
+				this.codeAttribute.addInstruction(instruction);
+			}
+			
 			
 			
 			
@@ -648,7 +735,7 @@ public class Classfile {
 				private short codeIndex;
 				private short maxStack;
 				private short maxLocals;
-				private ArrayList<Byte> code;
+				private ArrayList<Instruction> codeArea;
 				private short exceptionTableLength;
 				private short attributesCount; 
 				
@@ -656,9 +743,10 @@ public class Classfile {
 					this.codeIndex = codeIndex;
 					
 					this.variableMap = new HashMap<String, Short>();
+					this.codeArea = new ArrayList<Instruction>();
 					
-					this.maxLocals = 0;
-					this.maxLocals = 0;
+					this.maxStack = 1;
+					this.maxLocals = 1;
 					this.exceptionTableLength = 0;
 					this.attributesCount = 0;
 					this.exceptionTableLength = 0;
@@ -680,6 +768,19 @@ public class Classfile {
 						this.variableMap.put(variableName, this.maxLocals);
 						this.maxLocals += Classfile.typeLengthMap.get(variableType);
 					}
+				}
+				
+				/**
+				 * addInstruction function. This function adds a new Instruction to the
+				 * codeArea of this codeAttribute
+				 * 
+				 * @author Marco
+				 * @since 30.04.2013
+				 * 
+				 */
+				private void addInstruction(Instruction instruction) {
+					
+					this.codeArea.add(instruction);
 				}
 			}
 		}

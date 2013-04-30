@@ -63,11 +63,6 @@ public class Translator {
 			tac = this.addVariablesToLocalVariableSpace(mainClassfile, "main", tac);
 			this.addTACConstantsToConstantPool(mainClassfile, tac);
 		}
-
-		
-		// TestTMP!!!!
-		mainClassfile.addConstantToConstantPool("DOUBLE", "100000");
-		mainClassfile.addConstantToConstantPool("LONG", "100000");
 		
 		return this.classfileList;
 	}
@@ -99,11 +94,6 @@ public class Translator {
 			case ASSIGN_DOUBLE:
 				if(arg1.startsWith("#")) {
 					classFile.addConstantToConstantPool("DOUBLE", arg1.substring(1));
-				}
-				break;
-			case ASSIGN_BOOL:
-				if(arg1.startsWith("#")) {
-					classFile.addConstantToConstantPool("BOOL", arg1.substring(1));
 				}
 				break;
 			case ASSIGN_STRING:
