@@ -7,32 +7,27 @@ public class TokenJb implements Token {
 	
 	public String value;
 	public TokenType type;
-	int line;
-	int column;
+	public int line;
+	public int column;
 	
-
 	@Override
 	public String getValue() {
-		// TODO Auto-generated method stub
-		return null;
+		return value;
 	}
 
 	@Override
 	public TokenType getTokenType() {
-		// TODO Auto-generated method stub
-		return null;
+		return type;
 	}
 
 	@Override
 	public Integer getLine() {
-		// TODO Auto-generated method stub
-		return null;
+		return line;
 	}
 
 	@Override
 	public Integer getColumn() {
-		// TODO Auto-generated method stub
-		return null;
+		return column;
 	}
 
 }
