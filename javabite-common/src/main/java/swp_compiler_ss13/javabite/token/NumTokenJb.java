@@ -4,7 +4,11 @@ import swp_compiler_ss13.common.lexer.NumToken;
 import swp_compiler_ss13.common.lexer.TokenType;
 
 public class NumTokenJb extends TokenJb implements NumToken {
-
+	
+	public NumTokenJb(TokenType type, String value) {
+		super(type, value);
+	}
+	
 	@Override
 	public String getValue() {
 		return super.getValue();

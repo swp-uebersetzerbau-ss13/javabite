@@ -4,7 +4,11 @@ import swp_compiler_ss13.common.lexer.RealToken;
 import swp_compiler_ss13.common.lexer.TokenType;
 
 public class RealTokenJb extends TokenJb implements RealToken {
-
+	
+	public RealTokenJb(TokenType type, String value) {
+		super(type, value);
+	}
+	
 	@Override
 	public String getValue() {
 		return super.getValue();

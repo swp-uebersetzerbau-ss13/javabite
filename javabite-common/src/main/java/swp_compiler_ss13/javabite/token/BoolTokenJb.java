@@ -4,7 +4,11 @@ import swp_compiler_ss13.common.lexer.BoolToken;
 import swp_compiler_ss13.common.lexer.TokenType;
 
 public class BoolTokenJb extends TokenJb implements BoolToken {
-
+	
+	public BoolTokenJb(TokenType type, String value) {
+		super(type, value);
+	}
+	
 	@Override
 	public String getValue() {
 		return super.getValue();

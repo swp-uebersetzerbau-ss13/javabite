@@ -10,6 +10,12 @@ public class TokenJb implements Token {
 	private int line;
 	private int column;
 	
+	// TODO: line and column still needed in constructor
+	public TokenJb(TokenType type, String value) {
+		this.value = value;
+		this.type = type;
+	}
+	
 	@Override
 	public String getValue() {
 		return value;
