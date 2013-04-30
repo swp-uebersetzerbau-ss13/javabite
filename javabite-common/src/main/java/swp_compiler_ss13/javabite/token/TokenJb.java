@@ -5,10 +5,10 @@ import swp_compiler_ss13.common.lexer.TokenType;
 
 public class TokenJb implements Token {
 	
-	public String value;
-	public TokenType type;
-	public int line;
-	public int column;
+	private String value;
+	private TokenType type;
+	private int line;
+	private int column;
 	
 	@Override
 	public String getValue() {
@@ -29,5 +29,4 @@ public class TokenJb implements Token {
 	public Integer getColumn() {
 		return column;
 	}
-
 }
