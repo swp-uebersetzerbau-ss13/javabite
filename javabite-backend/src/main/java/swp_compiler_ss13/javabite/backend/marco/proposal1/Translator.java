@@ -64,6 +64,9 @@ public class Translator {
 			this.addTACConstantsToConstantPool(mainClassfile, tac);
 		}
 		
+		System.out.println(mainClassfile.getIndexOfVariableInMethod("main", "longVar"));
+		System.out.println(mainClassfile.getIndexOfConstantInConstantPool("#100000".substring(1), "LONG"));
+		
 		return this.classfileList;
 	}
 	

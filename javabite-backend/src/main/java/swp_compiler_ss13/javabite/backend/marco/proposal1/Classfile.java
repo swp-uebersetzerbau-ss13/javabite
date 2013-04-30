@@ -14,7 +14,7 @@ import java.util.Map;
  * @since 27.04.2013
  * 
  */
-public class Classfile {
+public class Classfile implements iClassfile {
 	// Name of File
 	private String name;
 	
@@ -38,12 +38,15 @@ public class Classfile {
 	// AttribueArea
 	
 	// TypeLengthMap	
-	public static final HashMap<String, Short> typeLengthMap = new HashMap<String, Short>() {{
-		put("LONG", (short) 2);
-		put("DOUBLE", (short) 2);
-		put("STRING", (short) 1);
-		put("BOOL", (short) 1);
-	}};
+	public static final HashMap<String, Short> typeLengthMap = new HashMap<String, Short>() {
+		private static final long serialVersionUID = 2549403784685766775L;
+		{
+			put("LONG", (short) 2);
+			put("DOUBLE", (short) 2);
+			put("STRING", (short) 1);
+			put("BOOL", (short) 1);
+		}
+	};
 	
 	/**
 	 * Classfile constructor. This constructor instantiates the classfile's
@@ -57,7 +60,6 @@ public class Classfile {
 	 * in internal form
 	 * @param superClassNameEIF string describing the superclass' classname 
 	 * encoded in internal form
-	 * 
 	 */
 	public Classfile(String name, String thisClassNameEIF, 
 			String superClassNameEIF) {
@@ -115,9 +117,7 @@ public class Classfile {
 	}
 	
 	/**
-	 * generateInputstream function. This function generates an Inputstream
-	 * containing all information of the classfile, which can be obtained
-	 * by using the classfile function "getBytes()".
+	 * generateInputstream function. (see interface iClassfile)
 	 * 
 	 * @author Marco
 	 * @since 27.04.2013
@@ -128,9 +128,7 @@ public class Classfile {
 	}
 	
 	/**
-	 * getBytes function. This function creates a Byte-List
-	 * of all the necessary classfile-information meeting the 
-	 * JVM-classfile standard.
+	 * getBytes function. (see interface iClassfile)
 	 * 
 	 * @author Marco
 	 * @since 27.04.2013
@@ -160,7 +158,7 @@ public class Classfile {
 	}
 	
 	/**
-	 * getName function. This function returns the classfile's name.
+	 * getName function. (see interface iClassfile)
 	 * 
 	 * @author Marco
 	 * @since 27.04.2013
@@ -171,21 +169,10 @@ public class Classfile {
 	}
 	
 	/**
-	 * addConstantToConstantPool function. This function adds a new constant
-	 * to the classfile's constant pool using the constant pool's functions.
-	 * What constant pool function is to be used has to be determined using
-	 * the parameter "constantType". If the constant is already existent,
-	 * its existent index in the constantPool is returned, otherwise the new 
-	 * index.
-	 * 
-	 * constantTypes: LONG, DOUBLE, CLASS, STRING, UTF8
+	 * addConstantToConstantPool function. (see interface iClassfile)
 	 * 
 	 * @author Marco
 	 * @since 28.04.2013
-	 * @param constantType type of constantPool information
-	 * @param value value of the constantPool information as String
-	 * @return returns the constantPool index of the created or existing entry
-	 * 
 	 */
 	public int addConstantToConstantPool(String constantType, String value) {
 		
@@ -223,13 +210,20 @@ public class Classfile {
 	}
 	
 	/**
-	 * addMethodToMethodArea function. This function adds the necessary entries
-	 * to the constantPool and then calls the addMethod function of this.methodAre 
-	 * to add and initialize a new method.
+	 * getIndexOfConstantInMethodsCP function. (see interface iClassfile)
+	 * 
+	 * @author Marco
+	 * @since 30.04.2013
+	 */
+	public short getIndexOfConstantInConstantPool(String constantName, String constantType) {
+		return this.constantPool.getIndexOfConstant(constantName, constantType);
+	};
+	
+	/**
+	 * addMethodToMethodArea function. (see interface iClassfile)
 	 * 
 	 * @author Marco
 	 * @since 29.04.2013
-	 * 
 	 */
 	public int addMethodToMethodArea(String methodName, String methodDescriptor) {
 		
@@ -237,11 +231,10 @@ public class Classfile {
 	}
 	
 	/**
-	 * addVariableToMethodsCode function.
+	 * addVariableToMethodsCode function. (see interface iClassfile)
 	 * 
 	 * @author Marco
 	 * @since 29.04.2013
-	 * 
 	 */
 	public void addVariableToMethodsCode(String methodName, String variableName, String variableType) {
 		
@@ -249,17 +242,28 @@ public class Classfile {
 	}
 	
 	/**
-	 * addInstructionToMethodsCode function. This function adds a new Instruction to the
-	 * codeArea of the codeAttribute of the provided method of this methodArea.
+	 * getIndexOfVariableInMethod function. (see interface iClassfile)
 	 * 
 	 * @author Marco
 	 * @since 30.04.2013
+	 */
+	public short getIndexOfVariableInMethod(String methodName, String variableName) {
+		
+		return this.methodArea.getIndexOfVariableInMethod(methodName, variableName);
+	}
+	
+	/**
+	 * addInstructionToMethodsCode function. (see interface iClassfile)
 	 * 
+	 * @author Marco
+	 * @since 30.04.2013
 	 */
 	public void addInstructionToMethodsCode(String methodName, Instruction instruction) {
 		
 		this.methodArea.addInstructionToMethodsCode(methodName, instruction);
 	}
+	
+	
 	
 	
 	
@@ -426,6 +430,26 @@ public class Classfile {
 			// return index + 1
 			return this.entryList.size();
 		}
+		
+		/**
+		 * getIndexOfConstant function. This function looks up the index of a 
+		 * constant.
+		 * 
+		 * possible constantTypes: LONG, DOUBLE, CLASS, STRING, UTF8
+		 * 
+		 * @author Marco
+		 * @since 30.04.2013
+		 * @param constantName String name of the constant
+		 * @param constantType String type of the constant
+		 * @return index of the constant in this constant pool.
+		 */
+		public short getIndexOfConstant(String constantName, String constantType) {
+			if (this.cpMapEntryExists(constantType + constantName)) {
+				return this.cpEntryMap.get(constantType + constantName);
+			} else {
+				return 0;
+			}
+		};
 		
 		/**
 		 * generateConstantMethodrefInfo function. This function creates 
@@ -616,7 +640,7 @@ public class Classfile {
 		}
 		
 		/**
-		 * getMethod function. This function gets the method begin described
+		 * getMethod function. This function gets the method described
 		 * by the paramter methodName
 		 * 
 		 * @author Marco
@@ -639,6 +663,23 @@ public class Classfile {
 			
 			Method method = this.getMethodByMethodName(methodName);
 			method.addVariableToCodeAttribute(variableName, variableType);
+		}
+		
+		/**
+		 * getIndexOfVariableInMethod function. This function looks up the specified method
+		 * in method are of this classfile and calls the function getIndexOfVariable()
+		 * on this method using the specified variable name.
+		 * 
+		 * @author Marco
+		 * @since 30.04.2013
+		 * @param methodName String name of the method
+		 * @param variableName String name of the variable
+		 * @return index of the variable in local variable space of the code attribute 
+		 * of the specified method
+		 */
+		private short getIndexOfVariableInMethod(String methodName, String variableName) {
+			Method method = this.getMethodByMethodName(methodName);
+			return method.getIndexOfVariable(variableName);
 		}
 		
 		/**
@@ -701,6 +742,20 @@ public class Classfile {
 			private void addVariableToCodeAttribute(String variableName, String variableType) {
 			
 				this.codeAttribute.addVariable(variableName, variableType);
+			}
+			
+			/**
+			 * getIndexOfVariable function. This function looks up the variable name
+			 * in the code attribute of this method.
+			 * 
+			 * @author Marco
+			 * @since 30.04.2013
+			 * @param variableName String name of the variable
+			 * @return index of the variable in local variable space of this method.
+			 */
+			private short getIndexOfVariable(String variableName) {
+				
+				return this.codeAttribute.getIndexOfVariable(variableName);
 			}
 			
 			/**
@@ -767,6 +822,24 @@ public class Classfile {
 					if (!this.variableMap.containsKey(variableName)) {
 						this.variableMap.put(variableName, this.maxLocals);
 						this.maxLocals += Classfile.typeLengthMap.get(variableType);
+					}
+				}
+				
+				/**
+				 * getIndexOfVariable function. This function looks up the variable name
+				 * in the variableMap of this code attribute.
+				 * 
+				 * @author Marco
+				 * @since 30.04.2013
+				 * @param variableName String name of the variable
+				 * @return index of the variable in local variable space of this method.
+				 */
+				private short getIndexOfVariable(String variableName) {
+					
+					if (this.variableMap.containsKey(variableName)) {
+						return this.variableMap.get(variableName);
+					} else {
+						return 0;
 					}
 				}
 				
