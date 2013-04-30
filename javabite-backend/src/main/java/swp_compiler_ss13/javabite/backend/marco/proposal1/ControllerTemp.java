@@ -22,11 +22,12 @@ public class ControllerTemp {
 		 */
 		private static final long serialVersionUID = 6319892294145882549L;
 		{
+			/* Variable declaration */
+			/*
 			add(new QuadrupleImpl(Operator.DECLARE_LONG, "#100", "!", "long1"));
 			add(new QuadrupleImpl(Operator.DECLARE_LONG, "#200", "!", "long2"));
 			add(new QuadrupleImpl(Operator.SUB_LONG, "long1", "long2", "long3"));
-			/* Variable declaration */
-			/*
+			
 			add(new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "long1"));
 			add(new QuadrupleImpl(Operator.DECLARE_LONG, "#100", "!", "long2"));
 			
@@ -100,7 +101,7 @@ public class ControllerTemp {
 		//System.out.println(sb.toString());
 		
 		BackendModule backend = new BackendModule();
-		backend.generateTargetCode(tac);
+		backend.generateTargetCode(null);
 	}
 
 }

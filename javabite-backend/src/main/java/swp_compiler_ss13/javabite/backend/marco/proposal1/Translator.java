@@ -4,10 +4,6 @@ import java.util.List;
 import java.util.ArrayList;
 import swp_compiler_ss13.javabite.backend.marco.proposal1.Quadruple.Operator;
 
-import com.sun.org.apache.bcel.internal.util.ClassPath.ClassFile;
-
-import swp_compiler_ss13.javabite.backend.marco.proposal1.Quadruple.Operator;
-
 /**
  * Translator class.
  * 
@@ -63,83 +59,98 @@ public class Translator {
 		mainClassfile.addMethodToMethodArea("main", "([Ljava/lang/String;])V");
 		
 		// MS 1 translate everything into main.class file
-		tac = this.addVariablesToLocalVariableSpace(mainClassfile, "main", tac);
-		this.addTACValuesToConstantPool(mainClassfile, tac);
+		if (tac != null) {
+			tac = this.addVariablesToLocalVariableSpace(mainClassfile, "main", tac);
+			this.addTACConstantsToConstantPool(mainClassfile, tac);
+		}
 
 		
 		// TestTMP!!!!
-		mainClassfile.addConstantToConstantPool("LONG", "100000");
+		mainClassfile.addConstantToConstantPool("DOUBLE", "100000");
 		mainClassfile.addConstantToConstantPool("LONG", "100000");
 		
 		return this.classfileList;
 	}
 	
 	/**
+	 * addTACConstantsToConstantPool function. This function parses the TAC and
+	 * adds all constants to the files constantPool.
+	 * 
+	 * @author Robert, Marco
+	 * @since 29.04.2013
 	 * 
 	 * @param classFile
 	 * @param tac
 	 */
-	public void addTACValuesToConstantPool(Classfile classFile, List<Quadruple> tac) {
+	public void addTACConstantsToConstantPool(Classfile classFile, List<Quadruple> tac) {
 		
 		for(Quadruple quad : tac) {
 			
-			String arg1 = quad.getArgument1();	
+			Quadruple.Operator operator = quad.getOperator();
+			String arg1 = quad.getArgument1();
+			String arg2 = quad.getArgument2();
 			
-			switch (quad.getOperator()) {
-			case DECLARE_LONG:
-				if(arg1.equals("!") || arg1.length() <=2) {
-					// long arg's smaller than 9 will be pushed on stack
-				} else {
-					classFile.addConstantToConstantPool("LONG", arg1.substring(1));
-				}
-				break;
-			case DECLARE_DOUBLE:
-				if(arg1.equals("!")) {
-					classFile.addConstantToConstantPool("DOUBLE", "0.0");
-				} else {
-					classFile.addConstantToConstantPool("DOUBLE", arg1.substring(1));
-				}
-				break;
-			case DECLARE_BOOL:
-				if(arg1.equals("!")) {
-					classFile.addConstantToConstantPool("BOOL", "false");
-				}
-				break;
-			case DECLARE_STRING:
-				if(arg1.equals("!")) {
-					classFile.addConstantToConstantPool("STRING", "\"\"");
-				} else {
-					classFile.addConstantToConstantPool("STRING", arg1.substring(1));
-				}
-				break;
+			switch (operator) {
 			case ASSIGN_LONG:
-				if(!arg1.equals("!")) {
+				if(arg1.startsWith("#")) {
 					classFile.addConstantToConstantPool("LONG", arg1.substring(1));
 				}
 				break;
 			case ASSIGN_DOUBLE:
-				if(!arg1.equals("!")) {
+				if(arg1.startsWith("#")) {
 					classFile.addConstantToConstantPool("DOUBLE", arg1.substring(1));
 				}
 				break;
 			case ASSIGN_BOOL:
-				if(!arg1.equals("!")) {
+				if(arg1.startsWith("#")) {
 					classFile.addConstantToConstantPool("BOOL", arg1.substring(1));
 				}
 				break;
 			case ASSIGN_STRING:
-				if(!arg1.equals("!")) {
+				if(arg1.startsWith("#")) {
 					classFile.addConstantToConstantPool("STRING", arg1.substring(1));
+				}
+				break;
+			case RETURN:
+				if(arg1.startsWith("#")) {
+					classFile.addConstantToConstantPool("LONG", arg1.substring(1));
 				}
 				break;
 			default:
 				break;
 			}
+			
+			if (operator == Quadruple.Operator.ADD_LONG || 
+					operator == Quadruple.Operator.SUB_LONG || 
+					operator == Quadruple.Operator.MUL_LONG || 
+					operator == Quadruple.Operator.DIV_LONG) {
+				
+				if(arg1.startsWith("#")) {
+					classFile.addConstantToConstantPool("LONG", arg1.substring(1));
+				}
+				if(arg2.startsWith("#")) {
+					classFile.addConstantToConstantPool("LONG", arg2.substring(1));
+				}
+			}
+			
+			if (operator == Quadruple.Operator.ADD_DOUBLE || 
+					operator == Quadruple.Operator.SUB_DOUBLE || 
+					operator == Quadruple.Operator.MUL_DOUBLE || 
+					operator == Quadruple.Operator.DIV_DOUBLE) {
+				
+				if(arg1.startsWith("#")) {
+					classFile.addConstantToConstantPool("DOUBLE", arg1.substring(1));
+				}
+				if(arg2.startsWith("#")) {
+					classFile.addConstantToConstantPool("DOUBLE", arg2.substring(1));
+				}
+			}
 		}
 	}
 	 
-	 /* addVariablesToLocalVariableSpace function. This function allocates space for all variable
-	 * declarations and will convert them into assignments, if they have an inital value;
+	/** 
+	 * addVariablesToLocalVariableSpace function. This function allocates space for all variable
+	 * declarations and will convert them into assignments, if they have an initial value;
 	 * 
 	 * @author Marco
 	 * @since 29.04.2013
@@ -148,42 +159,47 @@ public class Translator {
 	public List<Quadruple> addVariablesToLocalVariableSpace(Classfile file, String methodName, List<Quadruple> tac) {
 		List<Quadruple> newTac = new ArrayList<Quadruple>();
 		
-		for (Quadruple tacElement : tac) {
-			switch(tacElement.getOperator()) {
+		for (Quadruple quad : tac) {
+			
+			Quadruple.Operator operator = quad.getOperator();
+			String arg1 = quad.getArgument1();
+			String result = quad.getResult();
+			
+			switch(operator) {
 			case DECLARE_STRING:
-				file.addVariableToMethodsCode(methodName, tacElement.getResult(), "STRING");
-				if (!tacElement.getArgument1().equals("!")) {
-					newTac.add(new QuadrupleImpl(Operator.ASSIGN_STRING, tacElement.getArgument1(), "!", tacElement.getResult()));
+				file.addVariableToMethodsCode(methodName, result, "STRING");
+				if (!arg1.equals("!")) {
+					newTac.add(new QuadrupleImpl(Operator.ASSIGN_STRING, arg1, "!", result));
 				} else {
-					newTac.add(new QuadrupleImpl(Operator.ASSIGN_STRING, "#\"\"", "!", tacElement.getResult()));
+					newTac.add(new QuadrupleImpl(Operator.ASSIGN_STRING, "#\"\"", "!", result));
 				}
 				break;
 			case DECLARE_DOUBLE:
-				file.addVariableToMethodsCode(methodName, tacElement.getResult(), "DOUBLE");
-				if (!tacElement.getArgument1().equals("!")) {
-					newTac.add(new QuadrupleImpl(Operator.ASSIGN_DOUBLE, tacElement.getArgument1(), "!", tacElement.getResult()));
+				file.addVariableToMethodsCode(methodName, result, "DOUBLE");
+				if (!arg1.equals("!")) {
+					newTac.add(new QuadrupleImpl(Operator.ASSIGN_DOUBLE, arg1, "!", result));
 				} else {
-					newTac.add(new QuadrupleImpl(Operator.ASSIGN_DOUBLE, "#0.0", "!", tacElement.getResult()));
+					newTac.add(new QuadrupleImpl(Operator.ASSIGN_DOUBLE, "#0.0", "!", result));
 				}
 				break;
 			case DECLARE_LONG:
-				file.addVariableToMethodsCode(methodName, tacElement.getResult(), "LONG");
-				if (!tacElement.getArgument1().equals("!")) {
-					newTac.add(new QuadrupleImpl(Operator.ASSIGN_LONG, tacElement.getArgument1(), "!", tacElement.getResult()));
+				file.addVariableToMethodsCode(methodName, result, "LONG");
+				if (!arg1.equals("!")) {
+					newTac.add(new QuadrupleImpl(Operator.ASSIGN_LONG, arg1, "!", result));
 				} else {
-					newTac.add(new QuadrupleImpl(Operator.ASSIGN_LONG, "#0", "!", tacElement.getResult()));
+					newTac.add(new QuadrupleImpl(Operator.ASSIGN_LONG, "#0", "!", result));
 				}
 				break;
 			case DECLARE_BOOL:
-				file.addVariableToMethodsCode(methodName, tacElement.getResult(), "BOOL");
-				if (!tacElement.getArgument1().equals("!")) {
-					newTac.add(new QuadrupleImpl(Operator.ASSIGN_BOOL, tacElement.getArgument1(), "!", tacElement.getResult()));
+				file.addVariableToMethodsCode(methodName, result, "BOOL");
+				if (!arg1.equals("!")) {
+					newTac.add(new QuadrupleImpl(Operator.ASSIGN_BOOL, arg1, "!", result));
 				} else {
-					newTac.add(new QuadrupleImpl(Operator.ASSIGN_BOOL, "#FALSE", "!", tacElement.getResult()));
+					newTac.add(new QuadrupleImpl(Operator.ASSIGN_BOOL, "#FALSE", "!", result));
 				}
 				break;
 			default:
-				newTac.add(tacElement);
+				newTac.add(quad);
 			}
 		}
 		

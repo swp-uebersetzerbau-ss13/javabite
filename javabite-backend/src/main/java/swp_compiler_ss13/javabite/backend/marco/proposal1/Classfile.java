@@ -163,25 +163,28 @@ public class Classfile {
 	 * addConstantToConstantPool function. This function adds a new constant
 	 * to the classfile's constant pool using the constant pool's functions.
 	 * What constant pool function is to be used has to be determined using
-	 * the parameter "constantType".
+	 * the parameter "constantType". If the constant is already existent,
+	 * its existent index in the constantPool is returned, otherwise the new 
+	 * index.
 	 * 
-	 * constantTypes: LONG, DOUBLE, BOOL, CLASS
+	 * constantTypes: LONG, DOUBLE, CLASS, STRING, UTF8
 	 * 
 	 * @author Marco
 	 * @since 28.04.2013
 	 * @param constantType type of constantPool information
 	 * @param value value of the constantPool information as String
-	 * @return returns the constantPool index of the created entry
+	 * @return returns the constantPool index of the created or existing entry
 	 * 
 	 */
 	public int addConstantToConstantPool(String constantType, String value) {
-		Map<String, Integer> uniqueCPEntries = this.constantPool.getUniqueCPEntries();
-		int index = 0;
-		// the value is the key of the map
-		String key = value;
 		
-		if(uniqueCPEntries.containsKey(key)) {
-			return uniqueCPEntries.get(key);
+		int index = 0;
+		// the constantType+value form the key of the map
+		String key = constantType + value;
+		
+		// if key already exists, return its value
+		if((index = this.constantPool.getCPMapEntry(key)) != 0) {
+			return index;
 		}
 		
 		switch (constantType) {
@@ -197,14 +200,14 @@ public class Classfile {
 			index = this.constantPool.generateConstantDoubleInfo(doubleValue);
 			break;
 		case "STRING":
+			index = this.constantPool.generateConstantStringInfo(value);
 			break;
 		case "UTF8":
 			index = this.constantPool.generateConstantUTF8Info(value);
 			break;
 		}
 		
-		uniqueCPEntries.put(key, index);
-		
+		this.constantPool.addCPMapEntry(key, (short) index);
 		return index;
 	}
 	
@@ -253,11 +256,11 @@ public class Classfile {
 	private class ConstantPool {
 
 		private List<CPInfo> entryList;
-		private Map<String,Integer> uniqueCPEntries;
+		private Map<String,Short> cpEntryMap;
 		
 		private ConstantPool() {
-			entryList = new ArrayList<>();
-			uniqueCPEntries = new HashMap<>();
+			entryList = new ArrayList<CPInfo>();
+			cpEntryMap = new HashMap<String,Short>();
 		}
 		
 		/**
@@ -287,7 +290,7 @@ public class Classfile {
 		
 		/**
 		 * generateConstantLongInfo function. This function creates 
-		 * an LongInfo-entry meeting the 
+		 * a LongInfo-entry meeting the 
 		 * JVM-classfile-constantPool-CONSTANT_Long_info standard
 		 * in the constantPool. The generated entry is appended to 
 		 * the existing  List.
@@ -308,10 +311,14 @@ public class Classfile {
 		}
 		
 		/**
-		 * ToDO!!! generateConstantDoubleInfo function. 
+		 * generateConstantDoubleInfo function. This function creates 
+		 * a DoubleInfo-entry meeting the 
+		 * JVM-classfile-constantPool-CONSTANT_Dobule_info standard
+		 * in the constantPool. The generated entry is appended to 
+		 * the existing  List.
 		 * 
-		 * @author Marco
-		 * @since 27.04.2013
+		 * @author Marco, Robert
+		 * @since 29.04.2013
 		 * 
 		 */
 		private int generateConstantDoubleInfo(double value) {
@@ -326,17 +333,22 @@ public class Classfile {
 		}
 		
 		/**
-		 * ToDO!!! generateConstantStringInfo function. 
+		 * generateConstantStringInfo function. This function creates 
+		 * an StringInfo-entry meeting the 
+		 * JVM-classfile-constantPool-CONSTANT_String_info standard
+		 * in the constantPool. The generated entry is appended to 
+		 * the existing  List.
 		 * 
 		 * @author Marco
-		 * @since 27.04.2013
+		 * @since 29.04.2013
 		 * 
 		 */
 		private int generateConstantStringInfo(String value) {
+			short nameIndex = (short) this.generateConstantUTF8Info(value);
 			
-			ArrayList<Byte> info = ByteCalculator.stringToByteArrayList(value); 
+			ArrayList<Byte> info = ByteCalculator.shortToByteArrayList(nameIndex); 
 			
-			CPInfo stringInfo = new CPInfo((byte)0x08,info);
+			CPInfo stringInfo = new CPInfo((byte)0x08, info);
 			this.entryList.add(stringInfo);
 			
 			// return index + 1
@@ -415,23 +427,51 @@ public class Classfile {
 			return 0;
 		}
 		
-		public List<CPInfo> getEntryList() {
-			return entryList;
-		}
-
-		public void setEntryList(List<CPInfo> entryList) {
-			this.entryList = entryList;
-		}
-
-		public Map<String, Integer> getUniqueCPEntries() {
-			return uniqueCPEntries;
-		}
-
-		public void setUniqueCPEntries(Map<String, Integer> uniqueCPEntries) {
-			this.uniqueCPEntries = uniqueCPEntries;
+		/**
+		 * addCPMapEntry function. 
+		 * 
+		 * @author Robert, Marco
+		 * @since 29.04.2013
+		 * 
+		 */
+		public int addCPMapEntry(String key, short value) {
+			this.cpEntryMap.put(key, value);
+			return 0;
 		}
 		
+		/**
+		 * cpMapEntryExists function. 
+		 * 
+		 * @author Marco
+		 * @since 30.04.2013
+		 * 
+		 */
+		public boolean cpMapEntryExists(String key) {
+			if (this.cpEntryMap.containsKey(key)) {
+				return true;
+			}
+			return false;
+		}
 		
+		/**
+		 * getCPMapEntry function. This function checks, whether the key still
+		 * exists and if it does, it'll return the corresponding value, else 0;
+		 * 
+		 * @author Marco
+		 * @since 30.04.2013
+		 * 
+		 */
+		public Short getCPMapEntry(String key) {
+			if (cpMapEntryExists(key)) {
+				return this.cpEntryMap.get(key);
+			}
+			return 0;
+		}
+
+		
+		
+		
+				
 		/**
 		 * CPInfo class. This class represents all information needed
 		 * to create a JVM-classfile-constantPool-entry. 
