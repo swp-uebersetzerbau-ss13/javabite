@@ -20,6 +20,7 @@ public class SLRAutomatonTest {
 	SimpleT T_CLOSE=new SimpleT(")");
 	SimpleT T_ID=new SimpleT("id");
 	SimpleT T_EOF=new SimpleT("$");
+	SimpleT T_EPSILON=new SimpleT("[eps]");
 	
 	
 	
@@ -33,7 +34,7 @@ public class SLRAutomatonTest {
 	 * Pay atention to the type in the book ( E is F in the grammar at one place)
 	 */
 	
-	final Grammar<SimpleT,SimpleNT> g1=new Grammar<>(E,E_,T_EOF);
+	final Grammar<SimpleT,SimpleNT> g1=new Grammar<>(E,E_,T_EOF,T_EPSILON);
 	
 	private List<Symbol> list(Symbol... syms){
 		return Arrays.asList(syms);

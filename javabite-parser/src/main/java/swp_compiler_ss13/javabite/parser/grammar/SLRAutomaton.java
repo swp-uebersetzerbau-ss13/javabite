@@ -62,7 +62,6 @@ public class SLRAutomaton<T extends Symbol, NT extends Symbol> {
 		
 		int i=0;
 		while (!statesToVisit.isEmpty()){
-			if (i++>20) break;
 			State state=statesToVisit.pop();
 			state.closure_items=g.getClosure(state.kernel_items);
 			Map<Symbol,Map<NT,Set<Item<T,NT>>>> edge_to_kernel_set=new HashMap<>();
