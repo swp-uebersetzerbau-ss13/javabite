@@ -16,6 +16,12 @@ public class TokenJb implements Token {
 		this.type = type;
 	}
 	
+	public TokenJb(TokenType type, String value, int line, int column) {
+		this(type, value);
+		this.line = line;
+		this.column = column;
+	}
+	
 	@Override
 	public String getValue() {
 		return value;
@@ -34,5 +40,10 @@ public class TokenJb implements Token {
 	@Override
 	public Integer getColumn() {
 		return column;
+	}
+	
+	@Override
+	public String toString() {
+		return this.getClass().getSimpleName() + "\t\t-\t" + type + "\t-\t" + value + "(" + line + "," + column + ")";
 	}
 }

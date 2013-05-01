@@ -9,24 +9,8 @@ public class RealTokenJb extends TokenJb implements RealToken {
 		super(type, value);
 	}
 	
-	@Override
-	public String getValue() {
-		return super.getValue();
-	}
-
-	@Override
-	public TokenType getTokenType() {
-		return super.getTokenType();
-	}
-
-	@Override
-	public Integer getLine() {
-		return super.getLine();
-	}
-
-	@Override
-	public Integer getColumn() {
-		return super.getColumn();
+	public RealTokenJb(TokenType type, String value, int line, int column) {
+		super(type, value, line, column);
 	}
 
 	@Override
