@@ -16,15 +16,12 @@ public class LexerJb implements Lexer {
 	Pattern tokenPatterns;
 	Matcher matcher;
 	
-	LexerJb(InputStream stream) {
+	public LexerJb() {
 		StringBuffer buffer = new StringBuffer();
 		for (TokenType tokenType : TokenType.values()) {
 			switch (tokenType.name()) {
 				case "NUM":
 					buffer.append(String.format("|(?<%s>%s)", tokenType.name(), "[0-9]+((E|e)-?[0-9+])?"));
-					break;
-				case "REAL":
-					buffer.append(String.format("|(?<%s>%s)", tokenType.name(), "[0-9]+.[0-9]+((E|e)-?[0-9+])?"));
 					break;
 				case "TRUE":
 					buffer.append(String.format("|(?<%s>%s)", tokenType.name(), "true"));
@@ -35,10 +32,9 @@ public class LexerJb implements Lexer {
 			}
 			// TODO: see discussion in #9
 		}
-		
+				
 		System.out.println("Pattern: " + buffer);
 		tokenPatterns = Pattern.compile(new String(buffer.substring(1)));
-		setSourceStream(stream);
 	}
 	
 	@Override
@@ -74,16 +70,15 @@ public class LexerJb implements Lexer {
 	}
 	
 	public static void main(String[] args) {
-		String myString = "4 false 3 true 55";
-		System.out.println("Input: " + myString);
+		String myString = "4 false 3\ntrue55\nfalse";
+		System.out.println("Input: \"" + myString + "\"");
 		byte[] bytes = myString.getBytes();
 		InputStream is = new ByteArrayInputStream(bytes);
-		if (is != null) {
-			LexerJb lexer = new LexerJb(is);
-			Token t = lexer.getNextToken();
-			while (t != null) {
-				t = lexer.getNextToken();
-			}
+		LexerJb lexer = new LexerJb();
+		lexer.setSourceStream(is);
+		Token t = lexer.getNextToken();
+		while (t != null) {
+			t = lexer.getNextToken();
 		}
 	}
 }
