@@ -92,7 +92,8 @@ public class AlternativLexer implements Lexer {
 				} else if (type == JavabiteTokenType.TRUE || type == JavabiteTokenType.FALSE) {
 					token = new BoolTokenJb(tt, lexem, line, column);
 				} else {
-					token = new TokenJb(tt, lexem, line, column);
+					if (tt != null)
+						token = new TokenJb(tt, lexem, line, column);
 				}
 				
 				// add a NOT_A_TOKEN-token if necessary

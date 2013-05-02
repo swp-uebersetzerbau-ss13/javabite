@@ -36,6 +36,7 @@ public enum JavabiteTokenType {
 	REAL(TokenType.REAL, "[0-9]+\\.[0-9]+((E|e)-?[0-9+])?"),
 	STRING(TokenType.STRING, "\\\"(?:[^\\\"\\\\]+|\\\\.)*\\\""),
 	ID(TokenType.ID, "[a-zA-Z][a-zA-z0-9]*"),
+	COMMENT(null, "#[^\n]*"),
 	WHITESPACE(null,"[ \t\f\r]+"),
 	LINEBREAK(null,"[\n]+"),
 	EOF(TokenType.EOF, null),
