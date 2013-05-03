@@ -2,7 +2,8 @@ package swp_compiler_ss13.javabite.backend.temp3;
 
 import org.junit.Test;
 
-import swp_compiler_ss13.javabite.backend.temp3.Program.ProgramBuilder;
+import swp_compiler_ss13.javabite.backend.marco.proposal1.Operations;
+import swp_compiler_ss13.javabite.backend.marco.proposal1.Program.ProgramBuilder;
 
 public class ProgramTest {
 

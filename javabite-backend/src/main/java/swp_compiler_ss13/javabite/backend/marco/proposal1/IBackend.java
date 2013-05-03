@@ -4,8 +4,9 @@ import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
 
-public interface Backend {
+public interface IBackend
+{
 
-	Map<String, InputStream> generateTargetCode(List<Quadruple> tac);
+	Map<String, InputStream> generateTargetCode(List<IQuadruple> tac);
 
 }

@@ -2,9 +2,10 @@ package swp_compiler_ss13.javabite.backend.marco.proposal1;
 
 /**
  * @author robert
- *
+ * 
  */
-public class QuadrupleImpl implements Quadruple {
+public class QuadrupleImpl implements IQuadruple
+{
 
 	public QuadrupleImpl(Operator op, String arg1, String arg2, String res) {
 		this.op = op;
@@ -17,7 +18,7 @@ public class QuadrupleImpl implements Quadruple {
 	private String arg1;
 	private String arg2;
 	private String res;
-	
+
 	@Override
 	public Operator getOperator() {
 		return this.op;

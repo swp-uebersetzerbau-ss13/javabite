@@ -1,8 +1,7 @@
 package swp_compiler_ss13.javabite.backend.temp3;
 
-import swp_compiler_ss13.javabite.backend.temp3.Operation.OperationBuilder;
-
 import static swp_compiler_ss13.javabite.backend.Mnemonic.*;
+import swp_compiler_ss13.javabite.backend.temp3.Operation.OperationBuilder;
 
 public final class Operations {
 

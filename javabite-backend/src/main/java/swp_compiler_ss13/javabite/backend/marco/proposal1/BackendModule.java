@@ -14,62 +14,55 @@ import java.util.Iterator;
  * @since 27.04.2013
  * 
  */
-public class BackendModule implements Backend {
-	
+public class BackendModule implements IBackend
+{
+
 	private TACOptimizer tacOptimizer;
 	private Translator translator;
 	private TargetCodeOptimizer targetCodeOptimizer;
-	
+
 	public BackendModule() {
 		this.tacOptimizer = new TACOptimizer();
 		this.translator = new Translator();
 		this.targetCodeOptimizer = new TargetCodeOptimizer();
 	}
-	
+
 	@Override
-	public Map<String, InputStream> generateTargetCode(List<Quadruple> tac) {
-		
+	public Map<String, InputStream> generateTargetCode(List<IQuadruple> tac) {
+
 		// TAC Optimizer
-		
-		
+
 		// Translator
 		List<Classfile> classfileList = this.translator.translate(tac);
 		// ##### BeginTmpOutput #####
 		this.dirtyPrint(classfileList);
 		// ##### EndTmpOutput #####
-		
-		
+
 		// Target Code Optimizer
-		
+
 		return null;
 	}
-	
-	
-	
-	
-	
-	
-	
+
 	// DELETE LATER!!!!
 	public void dirtyPrint(List<Classfile> classfileList) {
 		Iterator<Classfile> classfileListIterator = classfileList.iterator();
-		while(classfileListIterator.hasNext()) {
+		while (classfileListIterator.hasNext()) {
 			Classfile classfile = classfileListIterator.next();
 			System.out.println(classfile.getName() + ": ");
-			
+
 			ArrayList<Byte> bytes = classfile.getBytes();
 			Iterator<Byte> bytesIterator = bytes.iterator();
-			
+
 			int i = 0;
-			while(bytesIterator.hasNext()) {
+			while (bytesIterator.hasNext()) {
 				Byte byteVal = bytesIterator.next();
-				String tmp = Integer.toHexString(((byteVal + 256)%256));
+				String tmp = Integer.toHexString(((byteVal + 256) % 256));
 				if (tmp.length() < 2) {
 					tmp = "0" + tmp;
 				}
-				
+
 				System.out.print(tmp + " ");
-				
+
 				i++;
 				if (i == 16) {
 					System.out.println("");

@@ -1,6 +1,7 @@
 package swp_compiler_ss13.javabite.backend.marco.proposal1;
 
-public interface Quadruple {
+public interface IQuadruple
+{
 
 	Operator getOperator();
 
@@ -13,7 +14,8 @@ public interface Quadruple {
 	/* Should print the Quadruple as a String */
 	String toString();
 
-	public enum Operator {
+	public enum Operator
+	{
 		/* Variable declaration */
 		DECLARE_LONG, DECLARE_DOUBLE, DECLARE_BOOL, DECLARE_STRING,
 
