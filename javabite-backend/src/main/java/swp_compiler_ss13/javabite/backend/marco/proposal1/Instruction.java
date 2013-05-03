@@ -18,6 +18,27 @@ public class Instruction
 		this.size = size;
 	}
 
+	/**
+	 * getBytes function. This function creates a Byte-List of all the
+	 * information meeting the JVM-instruction standard.
+	 * 
+	 * @author Marco
+	 * @since 03.05.2013
+	 * 
+	 */
+	public ArrayList<Byte> getBytes() {
+		ArrayList<Byte> instructionBytes = new ArrayList<Byte>();
+		
+		// get op byte
+		instructionBytes.add(this.mnemonic.getBytecode());
+		// get arguments' bytes
+		if (this.getArguments() != null) {
+			instructionBytes.addAll(this.getArguments());
+		}
+		
+		return instructionBytes;
+	}
+		
 	/*
 	 * TODO for MS2 public int getOffset() { return offset; }
 	 * 

@@ -2,6 +2,8 @@ package swp_compiler_ss13.javabite.backend.marco.proposal1;
 
 import java.util.List;
 import java.util.ArrayList;
+
+import swp_compiler_ss13.javabite.backend.marco.proposal1.IClassfile.VariableTypes;
 import swp_compiler_ss13.javabite.backend.marco.proposal1.IQuadruple.Operator;
 
 /**
@@ -39,9 +41,9 @@ public class Translator
 	 * @return instance of Classfile
 	 */
 	private Classfile generateNewFile(String name, String thisClassNameEIF,
-			String superClassNameEIF) {
+			String superClassNameEIF, Classfile.ClassfileAccessFlag... accessFlags) {
 		Classfile file = new Classfile(name, thisClassNameEIF,
-				superClassNameEIF);
+				superClassNameEIF, accessFlags);
 		this.classfileList.add(file);
 		return file;
 	}
@@ -60,9 +62,11 @@ public class Translator
 	public List<Classfile> translate(List<IQuadruple> tac) {
 		// always generate main.class file
 		Classfile mainClassfile = this.generateNewFile("main.class",
-				"Tests/Example", "java/lang/Object");
-		// always generate mainFunction in main.cass file
-		mainClassfile.addMethodToMethodArea("main", "([Ljava/lang/String;])V");
+				"Tests/Example", "java/lang/Object", 
+				Classfile.ClassfileAccessFlag.ACC_PUBLIC, Classfile.ClassfileAccessFlag.ACC_SUPER);
+		// always generate mainFunction in main.class file
+		mainClassfile.addMethodToMethodArea("main", "([Ljava/lang/String;])V", 
+				Classfile.MethodAccessFlag.ACC_PUBLIC, Classfile.MethodAccessFlag.ACC_STATIC);
 
 		// MS 1 translate everything into main.class file
 		if (tac != null) {
@@ -180,7 +184,7 @@ public class Translator
 
 			switch (operator) {
 			case DECLARE_STRING:
-				file.addVariableToMethodsCode(methodName, result, "STRING");
+				file.addVariableToMethodsCode(methodName, result, VariableTypes.STRING);
 				if (!arg1.equals("!")) {
 					newTac.add(new QuadrupleImpl(Operator.ASSIGN_STRING, arg1,
 							"!", result));
@@ -190,7 +194,7 @@ public class Translator
 				}
 				break;
 			case DECLARE_DOUBLE:
-				file.addVariableToMethodsCode(methodName, result, "DOUBLE");
+				file.addVariableToMethodsCode(methodName, result, VariableTypes.DOUBLE);
 				if (!arg1.equals("!")) {
 					newTac.add(new QuadrupleImpl(Operator.ASSIGN_DOUBLE, arg1,
 							"!", result));
@@ -200,7 +204,7 @@ public class Translator
 				}
 				break;
 			case DECLARE_LONG:
-				file.addVariableToMethodsCode(methodName, result, "LONG");
+				file.addVariableToMethodsCode(methodName, result, VariableTypes.LONG);
 				if (!arg1.equals("!")) {
 					newTac.add(new QuadrupleImpl(Operator.ASSIGN_LONG, arg1,
 							"!", result));
@@ -210,7 +214,7 @@ public class Translator
 				}
 				break;
 			case DECLARE_BOOL:
-				file.addVariableToMethodsCode(methodName, result, "BOOL");
+				file.addVariableToMethodsCode(methodName, result, VariableTypes.BOOL);
 				if (!arg1.equals("!")) {
 					newTac.add(new QuadrupleImpl(Operator.ASSIGN_BOOL, arg1,
 							"!", result));

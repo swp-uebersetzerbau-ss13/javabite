@@ -2,6 +2,7 @@ package swp_compiler_ss13.javabite.backend.marco.proposal1;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,25 +31,15 @@ public class Classfile implements IClassfile
 	private byte[] minorVersion = { (byte) 0x00, (byte) 0x00 };
 	private byte[] majorVersion = { (byte) 0x00, (byte) 0x33 };
 	protected ConstantPool constantPool;
-	// Access Flags TODO
+	private short accessFlags;
 	private short thisClassIndex;
 	private short superClassIndex;
+	private short interfaceCount;
 	// Interfaces
+	private short fieldsCount;
 	// FieldArea
 	protected MethodArea methodArea;
 	// AttribueArea
-
-	// TypeLengthMap
-	public static final HashMap<String, Short> typeLengthMap = new HashMap<String, Short>() {
-
-		private static final long serialVersionUID = 2549403784685766775L;
-		{
-			put("LONG", (short) 2);
-			put("DOUBLE", (short) 2);
-			put("STRING", (short) 1);
-			put("BOOL", (short) 1);
-		}
-	};
 
 	/**
 	 * Classfile constructor. This constructor instantiates the classfile's
@@ -64,14 +55,21 @@ public class Classfile implements IClassfile
 	 * @param superClassNameEIF
 	 *            string describing the superclass' classname encoded in
 	 *            internal form
+	 * @param accessFlags arbitrary amount of classfile access flags.
 	 */
 	public Classfile(String name, String thisClassNameEIF,
-			String superClassNameEIF) {
+			String superClassNameEIF, ClassfileAccessFlag... accessFlags) {
 
 		// set basic parameters
 		this.name = name;
 		this.thisClassNameEIF = thisClassNameEIF;
 		this.superClassNameEIF = superClassNameEIF;
+		this.interfaceCount = 0;
+		this.fieldsCount = 0;
+		
+		for (ClassfileAccessFlag a : accessFlags) {
+			this.accessFlags = (short)(this.accessFlags | a.getValue()); 
+		}
 
 		// instantiate constantPool, fieldArea, methodArea and attributeArea
 		this.constantPool = new ConstantPool();
@@ -102,7 +100,7 @@ public class Classfile implements IClassfile
 				this.superClassNameEIF));
 
 		// add initialize-method to methodArea and set invoke parameter
-		this.addMethodToMethodArea("<init>", "()V");
+		this.addMethodToMethodArea("<init>", "()V", Classfile.MethodAccessFlag.ACC_PUBLIC);
 		short initNATIndex = (short) this.constantPool
 				.generateConstantNameAndTypeInfo("<init>", "()V");
 		short methodrefIndex = (short) this.constantPool
@@ -145,20 +143,31 @@ public class Classfile implements IClassfile
 		ArrayList<Byte> classfileBytes = new ArrayList<Byte>();
 
 		// Metainformation
-		for (int i = 0; i < this.magic.length; i++) {
-			classfileBytes.add(this.magic[i]);
+		for (Byte b : this.magic) {
+			classfileBytes.add(b);
 		}
-		for (int i = 0; i < this.minorVersion.length; i++) {
-			classfileBytes.add(this.minorVersion[i]);
+		for (Byte b : this.minorVersion) {
+			classfileBytes.add(b);
 		}
-		for (int i = 0; i < this.majorVersion.length; i++) {
-			classfileBytes.add(this.majorVersion[i]);
+		for (Byte b : this.majorVersion) {
+			classfileBytes.add(b);
 		}
 
 		// get bytes of constantPool
-		for (Byte b : this.constantPool.getBytes()) {
-			classfileBytes.add(b);
-		}
+		classfileBytes.addAll(this.constantPool.getBytes());
+		// get access flags bytes
+		classfileBytes.addAll(ByteCalculator.shortToByteArrayList(this.accessFlags));
+		// get this class index bytes
+		classfileBytes.addAll(ByteCalculator.shortToByteArrayList(this.thisClassIndex));
+		// get super class index bytes
+		classfileBytes.addAll(ByteCalculator.shortToByteArrayList(this.superClassIndex));
+		// get interface count bytes
+		classfileBytes.addAll(ByteCalculator.shortToByteArrayList(this.interfaceCount));
+		// get fields count bytes
+		classfileBytes.addAll(ByteCalculator.shortToByteArrayList(this.fieldsCount));
+		// get bytes of methodArea
+		classfileBytes.addAll(this.methodArea.getBytes());
+		
 
 		// ruturn classfiles bytes
 		return classfileBytes;
@@ -233,9 +242,9 @@ public class Classfile implements IClassfile
 	 * @author Marco
 	 * @since 29.04.2013
 	 */
-	public int addMethodToMethodArea(String methodName, String methodDescriptor) {
+	public int addMethodToMethodArea(String methodName, String methodDescriptor, MethodAccessFlag... accessFlags) {
 
-		return this.methodArea.addMethod(methodName, methodDescriptor);
+		return this.methodArea.addMethod(methodName, methodDescriptor, accessFlags);
 	}
 
 	/**
@@ -245,7 +254,7 @@ public class Classfile implements IClassfile
 	 * @since 29.04.2013
 	 */
 	public void addVariableToMethodsCode(String methodName,
-			String variableName, String variableType) {
+			String variableName, VariableTypes variableType) {
 
 		this.methodArea.addVariableToMethodsCode(methodName, variableName,
 				variableType);
@@ -601,6 +610,11 @@ public class Classfile implements IClassfile
 		}
 	}
 
+	
+	
+	
+	
+	
 	/**
 	 * MethodArea class. This class represents all information needed to create
 	 * a JVM-classfile-methods-area.
@@ -619,6 +633,30 @@ public class Classfile implements IClassfile
 		}
 
 		/**
+		 * getBytes function. This function creates a Byte-List of all the
+		 * information meeting the JVM-classfile-methodsArea standard.
+		 * 
+		 * @author Marco
+		 * @since 03.05.2013
+		 * 
+		 */
+		private ArrayList<Byte> getBytes() {
+			ArrayList<Byte> methodAreaBytes = new ArrayList<Byte>();
+
+			// get u2 methods_count
+			ArrayList<Byte> length = ByteCalculator
+					.shortToByteArrayList((short) this.methodMap.size());
+			methodAreaBytes.addAll(length);
+
+			// get method_info - bytes of methods
+			for (Method method : this.methodMap.values()) {
+				methodAreaBytes.addAll(method.getBytes());
+			}
+
+			return methodAreaBytes;
+		}
+		
+		/**
 		 * addMethod function. This function adds and initializes a new method
 		 * to the methodList of this methodArea.
 		 * 
@@ -626,8 +664,8 @@ public class Classfile implements IClassfile
 		 * @since 29.04.2013
 		 * 
 		 */
-		private int addMethod(String methodName, String methodDescriptor) {
-			Method newMethod = new Method(methodName, methodDescriptor);
+		private int addMethod(String methodName, String methodDescriptor, MethodAccessFlag... accessFlags) {
+			Method newMethod = new Method(methodName, methodDescriptor, accessFlags);
 
 			methodMap.put(methodName, newMethod);
 
@@ -655,7 +693,7 @@ public class Classfile implements IClassfile
 		 * 
 		 */
 		private void addVariableToMethodsCode(String methodName,
-				String variableName, String variableType) {
+				String variableName, VariableTypes variableType) {
 
 			Method method = this.getMethodByMethodName(methodName);
 			method.addVariableToCodeAttribute(variableName, variableType);
@@ -707,10 +745,6 @@ public class Classfile implements IClassfile
 		 */
 		private class Method
 		{
-
-			private String methodName;
-			private String methodDescriptor;
-
 			// General method structure information
 			private short accessFlags;
 			private short nameIndex;
@@ -719,20 +753,48 @@ public class Classfile implements IClassfile
 			// Attributes
 			private CodeAttribute codeAttribute;
 
-			private Method(String methodName, String methodDescriptor) {
-				this.methodName = methodName;
-				this.methodName = methodDescriptor;
+			private Method(String methodName, String methodDescriptor, MethodAccessFlag... accessFlags) {
 
 				this.nameIndex = (short) Classfile.this
 						.addConstantToConstantPool("UTF8", methodName);
 				this.descriptorIndex = (short) Classfile.this
 						.addConstantToConstantPool("UTF8", methodDescriptor);
 
+				for (MethodAccessFlag a : accessFlags) {
+					this.accessFlags = (short)(this.accessFlags | a.getValue()); 
+				}
+				
 				this.attributesCount = 1;
 				short codeIndex = (short) Classfile.this
 						.addConstantToConstantPool("UTF8", "Code");
 				this.codeAttribute = new CodeAttribute(codeIndex);
 
+			}
+			
+			/**
+			 * getBytes function. This function creates a Byte-List of all the
+			 * information meeting the JVM-classfile-method standard.
+			 * 
+			 * @author Marco
+			 * @since 03.05.2013
+			 * 
+			 */
+			private ArrayList<Byte> getBytes() {
+				ArrayList<Byte> methodBytes = new ArrayList<Byte>();
+				
+				// get access flags bytes
+				methodBytes.addAll(ByteCalculator.shortToByteArrayList(this.accessFlags));
+				// get name index bytes
+				methodBytes.addAll(ByteCalculator.shortToByteArrayList(this.nameIndex));
+				// get descriptor index bytes
+				methodBytes.addAll(ByteCalculator.shortToByteArrayList(this.descriptorIndex));
+				// get attributes count bytes
+				methodBytes.addAll(ByteCalculator.shortToByteArrayList(this.attributesCount));
+				
+				// get bytes of code attribute
+				this.codeAttribute.getBytes();
+				
+				return methodBytes;
 			}
 
 			/**
@@ -743,7 +805,7 @@ public class Classfile implements IClassfile
 			 * 
 			 */
 			private void addVariableToCodeAttribute(String variableName,
-					String variableType) {
+					VariableTypes variableType) {
 
 				this.codeAttribute.addVariable(variableName, variableType);
 			}
@@ -808,9 +870,48 @@ public class Classfile implements IClassfile
 					this.maxLocals = 1;
 					this.exceptionTableLength = 0;
 					this.attributesCount = 0;
-					this.exceptionTableLength = 0;
-					this.attributesCount = 0;
 				};
+				
+				/**
+				 * getBytes function. This function creates a Byte-List of all the
+				 * information meeting the JVM-classfile-method-codeAttribute standard.
+				 * 
+				 * @author Marco
+				 * @since 03.05.2013
+				 * 
+				 */
+				private ArrayList<Byte> getBytes() {
+					ArrayList<Byte> codeAttributeBytes = new ArrayList<Byte>();
+					
+					// get code attribute name index bytes
+					codeAttributeBytes.addAll(ByteCalculator.shortToByteArrayList(this.codeIndex));
+					// get attribute length bytes
+					ArrayList<Byte> thisAttributeBytes = new ArrayList<Byte>();
+					
+					// get max stack bytes
+					thisAttributeBytes.addAll(ByteCalculator.shortToByteArrayList(this.maxStack));
+					// get max locals bytes
+					thisAttributeBytes.addAll(ByteCalculator.shortToByteArrayList(this.maxStack));
+					
+					// get code length and code bytes
+					ArrayList<Byte> codeBytes = new ArrayList<Byte>();
+					for (Instruction instruction : codeArea) {
+						codeBytes.addAll(instruction.getBytes());
+					}/*
+					thisAttributeBytes.addAll(ByteCalculator.intToByteArrayList(codeBytes.size()));
+					thisAttributeBytes.addAll(codeBytes);
+					
+					// get exception table length bytes
+					thisAttributeBytes.addAll(ByteCalculator.shortToByteArrayList(this.exceptionTableLength));
+					// get attributes count bytes
+					thisAttributeBytes.addAll(ByteCalculator.shortToByteArrayList(this.attributesCount));
+					
+					// put together attribute bytes and attribute count
+					codeAttributeBytes.addAll(ByteCalculator.intToByteArrayList(thisAttributeBytes.size()));
+					codeAttributeBytes.addAll(thisAttributeBytes);
+					*/
+					return codeAttributeBytes;
+				}
 
 				/**
 				 * addVariable function. This function adds a new variable to
@@ -822,12 +923,11 @@ public class Classfile implements IClassfile
 				 * 
 				 */
 				private void addVariable(String variableName,
-						String variableType) {
+						VariableTypes variableType) {
 
 					if (!this.variableMap.containsKey(variableName)) {
 						this.variableMap.put(variableName, this.maxLocals);
-						this.maxLocals += Classfile.typeLengthMap
-								.get(variableType);
+						this.maxLocals += variableType.getLength();
 					}
 				}
 
