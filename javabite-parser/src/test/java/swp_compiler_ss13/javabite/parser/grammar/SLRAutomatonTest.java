@@ -59,7 +59,7 @@ public class SLRAutomatonTest {
 	@Test
 	public void testAutomaton(){
 		SLRAutomaton<SimpleT, SimpleNT> automaton=new SLRAutomaton<>(g1);
-		assertEquals("should have exact this number of states",12,automaton.getNStates());
+		assertEquals("should have exact this number of states",13,automaton.getNStates());
 	}
 	
 	

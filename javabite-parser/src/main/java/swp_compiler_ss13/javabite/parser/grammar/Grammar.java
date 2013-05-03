@@ -66,6 +66,7 @@ public class Grammar<T extends Symbol, NT extends Symbol> {
 		Set<List<Symbol>> startTrans = new HashSet<>();
 		List<Symbol> startProdRight = new LinkedList<>();
 		startProdRight.add(start);
+		startProdRight.add(word_end);
 		startTrans.add(startProdRight);
 		this.productions.put(artificial_start_symbol, startTrans);
 		this.startSymbol = start;

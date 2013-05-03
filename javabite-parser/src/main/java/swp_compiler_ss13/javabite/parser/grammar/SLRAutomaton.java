@@ -24,6 +24,9 @@ public class SLRAutomaton<T extends Symbol, NT extends Symbol> {
 	public SLRAutomaton(Grammar<T,NT> referenceGrammar) {
 		this.g=referenceGrammar;
 		build();
+		for (State s : states){
+			logger.info("{}",s);
+		}
 	}
 	
 	/**
@@ -60,7 +63,6 @@ public class SLRAutomaton<T extends Symbol, NT extends Symbol> {
 		Stack<State> statesToVisit=new Stack<>();
 		statesToVisit.push(initialState);
 		
-		int i=0;
 		while (!statesToVisit.isEmpty()){
 			State state=statesToVisit.pop();
 			state.closure_items=g.getClosure(state.kernel_items);
@@ -69,6 +71,7 @@ public class SLRAutomaton<T extends Symbol, NT extends Symbol> {
 			for (Entry<NT,Set<Item<T,NT>>> prodSet : productions.entrySet()){
 				NT nt=prodSet.getKey();
 				for (Item<T,NT> prod : prodSet.getValue()){
+					
 					if (prod.isAtEnd()) continue;
 					Item<T,NT> new_item=prod.copy();
 					Symbol edge_symbol=new_item.shift();
@@ -102,6 +105,7 @@ public class SLRAutomaton<T extends Symbol, NT extends Symbol> {
 				}
 				state.transition.put(transition.getKey(),next);
 				statesToVisit.push(next);
+				
 			}
 		}
 		
@@ -113,6 +117,8 @@ public class SLRAutomaton<T extends Symbol, NT extends Symbol> {
 	Grammar<T,NT> g;
 	State initialState;
 	final Set<State> states=new HashSet<>();
+	final State acceptState=new State();
+	
 	Logger logger=LoggerFactory.getLogger(this.getClass());
 	
 	public int getNStates(){
@@ -142,13 +148,22 @@ public class SLRAutomaton<T extends Symbol, NT extends Symbol> {
 		
 		public String toString(){
 			String str="";
-			str+="--------------------------------------------\nState["+id+"]\n";
+			str+="--------------------------------------------\nState["+id+", accepts: "+isStateAccepting()+"]\n";
 			str+=kernel_items;
 			str+="\n++++++++++++++++++++++++\n"+closure_items+"\n++++++++++++++++++++++++\n";
 			for (Entry<Symbol,State> s : transition.entrySet())
 				str+=s.getKey()+"->"+s.getValue().id+",";
 			str+="\n--------------------------------------------\n";
 			return str;
+		}
+		public boolean isStateAccepting(){
+			Set<Item<T,NT>> art_kernel_items=kernel_items.get(g.artificial_start_symbol);
+			if (art_kernel_items==null || art_kernel_items.size()!=1){
+				return false;
+			}
+			Item<T,NT> unique_item=art_kernel_items.iterator().next();
+			
+			return unique_item.left.equals(g.productions.get(g.artificial_start_symbol).iterator().next());
 		}
 	}
 	
