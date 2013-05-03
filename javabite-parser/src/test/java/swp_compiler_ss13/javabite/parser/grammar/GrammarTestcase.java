@@ -1,14 +1,18 @@
 package swp_compiler_ss13.javabite.parser.grammar;
 
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import swp_compiler_ss13.javabite.parser.grammar.Grammar;
 import swp_compiler_ss13.javabite.parser.grammar.Item;
@@ -16,20 +20,27 @@ import swp_compiler_ss13.javabite.parser.grammar.Symbol;
 
 public class GrammarTestcase {
 	
+	// for both g1 and g2
 	SimpleT T_ADD=new SimpleT("+");
 	SimpleT T_MUL=new SimpleT("*");
 	SimpleT T_OPEN=new SimpleT("(");
 	SimpleT T_CLOSE=new SimpleT(")");
 	SimpleT T_ID=new SimpleT("id");
 	SimpleT T_EOF=new SimpleT("$");
-	
-	
+	SimpleT T_EPSILON=new SimpleT("[eps]");
 	
 	SimpleNT E=new SimpleNT("E");
 	SimpleNT T=new SimpleNT("T");
 	SimpleNT F=new SimpleNT("F");
 	SimpleNT E_=new SimpleNT("E'");
 	
+	// just for g2
+	SimpleNT EM=new SimpleNT("E'");
+	SimpleNT TM=new SimpleNT("T'");
+	SimpleNT S=new SimpleNT("S");
+	
+	
+	Logger logger=LoggerFactory.getLogger(this.getClass());
 	
 	
 	
@@ -39,7 +50,12 @@ public class GrammarTestcase {
 	 * Pay atention to the type in the book ( E is F in the grammar at one place)
 	 */
 	
-	final Grammar<SimpleT,SimpleNT> g1=new Grammar<>(E,E_,T_EOF);
+	final Grammar<SimpleT,SimpleNT> g1=new Grammar<>(E,E_,T_EOF,T_EPSILON);
+	/**
+	 * as postfix:
+	 * http://www.cs.uaf.edu/~cs331/notes/FirstFollow.pdf
+	 */
+	final Grammar<SimpleT,SimpleNT> g2=new Grammar<>(E,S,T_EOF,T_EPSILON);
 	
 	private List<Symbol> list(Symbol... syms){
 		return Arrays.asList(syms);
@@ -58,6 +74,13 @@ public class GrammarTestcase {
 		g1.addProduction(F, 
 				list(T_OPEN,E,T_CLOSE),
 				list(T_ID));
+		
+		
+		g2.addProduction(E, list(T,EM));
+		g2.addProduction(EM, list(T_ADD,T,EM),list(T_EPSILON));
+		g2.addProduction(T, list(F,TM));
+		g2.addProduction(TM, list(T_MUL,F,TM),list(T_EPSILON));
+		g2.addProduction(F, list(T_OPEN,E,T_CLOSE),list(T_ID));
 		
 	}
 	
@@ -110,94 +133,53 @@ public class GrammarTestcase {
 	
 	
 	@Test
-	public void testFirstSet(){
+	public void testFirstSetG1(){
 		Set<SimpleT> first= g1.getFirstSet(E);
 		assertTrue("Must contains at least this element",first.contains(T_OPEN));
 	}
 	
 	@Test
-	public void testFollowSet(){
+	public void testFollowSetG1(){
 		Set<SimpleT> follow= g1.getFollowSet(E);
 		assertTrue("Must contains at least this element",follow.contains(T_CLOSE));
 	}
 	
+	@Test
+	public void testFirstSetG2(){
+		Set<SimpleT> firstE= g2.getFirstSet(E);
+		Set<SimpleT> firstF= g2.getFirstSet(F);
+		Set<SimpleT> firstT= g2.getFirstSet(T);
+		Set<SimpleT> firstEM= g2.getFirstSet(EM);
+		Set<SimpleT> firstTM= g2.getFirstSet(TM);
+		
+		assertEquals(firstE, new HashSet(list(T_OPEN,T_ID)));
+		assertEquals(firstE,firstF);
+		assertEquals(firstE,firstT);
+		
+		assertEquals(firstEM, new HashSet(list(T_ADD,T_EPSILON)));
+		assertEquals(firstTM, new HashSet(list(T_MUL,T_EPSILON)));
+		
+	}
+	
+	@Test
+	public void testFollowSetG2(){
+		Set<SimpleT> followE= g2.getFollowSet(E);
+		assertEquals(new HashSet(list(T_CLOSE,T_EOF)),followE);
+		
+		Set<SimpleT> followEM= g2.getFollowSet(EM);
+		Set<SimpleT> followT= g2.getFollowSet(T);
+		Set<SimpleT> followTM= g2.getFollowSet(TM);
+		Set<SimpleT> followF= g2.getFollowSet(F);
+		
+		assertEquals(followE, followEM);
+		assertEquals(new HashSet(list(T_CLOSE,T_EOF,T_ADD)),followT);
+		assertEquals(followT, followTM);
+		assertEquals(new HashSet(list(T_CLOSE,T_EOF,T_ADD,T_MUL)),followF);
+		
+		
+	}
 	
 
 }
 
-class SimpleNT implements Symbol{
-	@Override
-	public String toString() {
-		return id;
-	}
 
-	public SimpleNT(String id) {
-		super();
-		this.id = id;
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		SimpleNT other = (SimpleNT) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		return true;
-	}
-
-	String id;
-}
-class SimpleT implements Symbol{
-	@Override
-	public String toString() {
-		return id ;
-	}
-
-	public SimpleT(String id) {
-		super();
-		this.id = id;
-	}
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		SimpleT other = (SimpleT) obj;
-		if (id == null) {
-			if (other.id != null)
-				return false;
-		} else if (!id.equals(other.id))
-			return false;
-		return true;
-	}
-
-	String id;
-}
