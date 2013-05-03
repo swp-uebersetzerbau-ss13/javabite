@@ -5,6 +5,10 @@ import swp_compiler_ss13.common.ast.nodes.unary.PrintNode;
 import swp_compiler_ss13.javabite.ast.nodes.StatementNodeJb;
 
 public class PrintNodeJb extends StatementNodeJb implements PrintNode {
+	public PrintNodeJb() {
+		super(ASTNodeType.PrintNode);
+	}
+
 	protected IdentifierNode rightValue;
 
 	public IdentifierNode getRightValue() {
@@ -13,5 +17,6 @@ public class PrintNodeJb extends StatementNodeJb implements PrintNode {
 
 	public void setRightValue(IdentifierNode rightValue) {
 		this.rightValue = rightValue;
+		addChild(rightValue, 0);
 	}
 }

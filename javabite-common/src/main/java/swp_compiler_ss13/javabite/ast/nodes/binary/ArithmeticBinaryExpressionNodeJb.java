@@ -4,4 +4,8 @@ import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
 
 public class ArithmeticBinaryExpressionNodeJb extends BinaryExpressionNodeJb implements
 		ArithmeticBinaryExpressionNode {
+
+	public ArithmeticBinaryExpressionNodeJb() {
+		super(ASTNodeType.ArithmeticBinaryExpressionNode);
+	}
 }

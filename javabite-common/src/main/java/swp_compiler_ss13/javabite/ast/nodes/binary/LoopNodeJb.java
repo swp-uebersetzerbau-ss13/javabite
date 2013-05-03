@@ -5,7 +5,10 @@ import swp_compiler_ss13.common.ast.nodes.binary.LoopNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 import swp_compiler_ss13.javabite.ast.nodes.StatementNodeJb;
 
-public class LoopNodeJb extends StatementNodeJb implements LoopNode {
+public abstract class LoopNodeJb extends StatementNodeJb implements LoopNode {
+	public LoopNodeJb(ASTNodeType myType) {
+		super(myType);
+	}
 	protected ExpressionNode condition;
 	protected BlockNode loopBody;
 	

@@ -1,73 +1,34 @@
 package swp_compiler_ss13.javabite.ast.nodes.binary;
 
-import java.util.Iterator;
-import java.util.List;
-
-import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.nodes.IdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.StatementNode;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
+import swp_compiler_ss13.javabite.ast.nodes.StatementNodeJb;
 
-public class AssignmentNodeJb implements AssignmentNode {
-
-	@Override
-	public ASTNodeType getNodeType() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Integer getNumberOfNodes() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Iterator<ASTNode> getDFSLTRNodeIterator() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<ASTNode> getChildren() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public ASTNode getParentNode() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setParentNode(ASTNode node) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
+public class AssignmentNodeJb extends StatementNodeJb implements AssignmentNode {
 	public IdentifierNode getLeftValue() {
-		// TODO Auto-generated method stub
-		return null;
+		return leftValue;
 	}
 
-	@Override
-	public void setLeftValue(IdentifierNode identifier) {
-		// TODO Auto-generated method stub
-
+	public void setLeftValue(IdentifierNode leftValue) {
+		this.leftValue = leftValue;
+		addChild(leftValue, 0);
 	}
 
-	@Override
 	public StatementNode getRightValue() {
-		// TODO Auto-generated method stub
-		return null;
+		return rightValue;
 	}
 
-	@Override
-	public void setRightValue(StatementNode node) {
-		// TODO Auto-generated method stub
+	public void setRightValue(StatementNode rightValue) {
+		this.rightValue = rightValue;
+		addChild(rightValue,1);
+	}
 
+	protected IdentifierNode leftValue;
+	protected StatementNode rightValue;
+
+	public AssignmentNodeJb() {
+		super(ASTNodeType.AssignmentNode);
 	}
 
 }
