@@ -7,7 +7,7 @@ import swp_compiler_ss13.common.backend.Backend;
 import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.parser.Parser;
-import swp_compiler_ss13.javabite.compiler.util.ModuleProvider;
+import swp_compiler_ss13.common.util.ModuleProvider;
 
 /**
  * main class for the JavaBite-compiler
