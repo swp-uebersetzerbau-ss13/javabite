@@ -12,6 +12,7 @@ import java.util.List;
  */
 public class Item<T extends Symbol, NT extends Symbol> {
 	
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -20,6 +21,7 @@ public class Item<T extends Symbol, NT extends Symbol> {
 		result = prime * result + ((right == null) ? 0 : right.hashCode());
 		return result;
 	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -28,7 +30,6 @@ public class Item<T extends Symbol, NT extends Symbol> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		@SuppressWarnings("rawtypes")
 		Item other = (Item) obj;
 		if (left == null) {
 			if (other.left != null)
@@ -42,6 +43,7 @@ public class Item<T extends Symbol, NT extends Symbol> {
 			return false;
 		return true;
 	}
+
 	/**
 	 * creates a item with the given sequences
 	 * @param left the values already read
