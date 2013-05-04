@@ -70,8 +70,7 @@ public class Translator
 
 		// MS 1 translate everything into main.class file
 		if (tac != null) {
-			tac = this.addVariablesToLocalVariableSpace(mainClassfile, "main",
-					tac);
+			tac = this.addVariablesToLocalVariableSpace(mainClassfile, "main", tac);
 			this.addTACConstantsToConstantPool(mainClassfile, tac);
 		}
 

@@ -39,6 +39,7 @@ public class Classfile implements IClassfile
 	private short fieldsCount;
 	// FieldArea
 	protected MethodArea methodArea;
+	private short attributesCount;
 	// AttribueArea
 
 	/**
@@ -66,6 +67,7 @@ public class Classfile implements IClassfile
 		this.superClassNameEIF = superClassNameEIF;
 		this.interfaceCount = 0;
 		this.fieldsCount = 0;
+		this.attributesCount = 0;
 		
 		for (ClassfileAccessFlag a : accessFlags) {
 			this.accessFlags = (short)(this.accessFlags | a.getValue()); 
@@ -167,7 +169,8 @@ public class Classfile implements IClassfile
 		classfileBytes.addAll(ByteCalculator.shortToByteArrayList(this.fieldsCount));
 		// get bytes of methodArea
 		classfileBytes.addAll(this.methodArea.getBytes());
-		
+		// get attributes count bytes
+		classfileBytes.addAll(ByteCalculator.shortToByteArrayList(this.attributesCount));
 
 		// ruturn classfiles bytes
 		return classfileBytes;
@@ -767,8 +770,8 @@ public class Classfile implements IClassfile
 				this.attributesCount = 1;
 				short codeIndex = (short) Classfile.this
 						.addConstantToConstantPool("UTF8", "Code");
+				
 				this.codeAttribute = new CodeAttribute(codeIndex);
-
 			}
 			
 			/**
@@ -792,7 +795,7 @@ public class Classfile implements IClassfile
 				methodBytes.addAll(ByteCalculator.shortToByteArrayList(this.attributesCount));
 				
 				// get bytes of code attribute
-				this.codeAttribute.getBytes();
+				methodBytes.addAll(this.codeAttribute.getBytes());
 				
 				return methodBytes;
 			}
@@ -885,19 +888,19 @@ public class Classfile implements IClassfile
 					
 					// get code attribute name index bytes
 					codeAttributeBytes.addAll(ByteCalculator.shortToByteArrayList(this.codeIndex));
-					// get attribute length bytes
+					// get remaining code attribute bytes
 					ArrayList<Byte> thisAttributeBytes = new ArrayList<Byte>();
 					
 					// get max stack bytes
 					thisAttributeBytes.addAll(ByteCalculator.shortToByteArrayList(this.maxStack));
 					// get max locals bytes
-					thisAttributeBytes.addAll(ByteCalculator.shortToByteArrayList(this.maxStack));
+					thisAttributeBytes.addAll(ByteCalculator.shortToByteArrayList(this.maxLocals));
 					
 					// get code length and code bytes
 					ArrayList<Byte> codeBytes = new ArrayList<Byte>();
 					for (Instruction instruction : codeArea) {
 						codeBytes.addAll(instruction.getBytes());
-					}/*
+					}
 					thisAttributeBytes.addAll(ByteCalculator.intToByteArrayList(codeBytes.size()));
 					thisAttributeBytes.addAll(codeBytes);
 					
@@ -909,7 +912,7 @@ public class Classfile implements IClassfile
 					// put together attribute bytes and attribute count
 					codeAttributeBytes.addAll(ByteCalculator.intToByteArrayList(thisAttributeBytes.size()));
 					codeAttributeBytes.addAll(thisAttributeBytes);
-					*/
+					
 					return codeAttributeBytes;
 				}
 
