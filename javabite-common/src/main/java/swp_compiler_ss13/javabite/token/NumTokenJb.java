@@ -15,6 +15,6 @@ public class NumTokenJb extends TokenJb implements NumToken {
 
 	@Override
 	public Long getLongValue() {
-		return Long.parseLong(getValue());
+		return (long)Double.parseDouble(getValue());
 	}	
 }
