@@ -1,21 +1,33 @@
 package swp_compiler_ss13.javabite.compiler;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.backend.Backend;
+import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
+import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.parser.Parser;
+import swp_compiler_ss13.common.parser.ReportLog;
 import swp_compiler_ss13.common.util.ModuleProvider;
 
 /**
  * main class for the JavaBite-compiler
- * 
- * @author flofreud
- *
  */
-public class JavabiteCompiler {
+public class JavabiteCompiler implements ReportLog {
 	final static Logger log = LoggerFactory.getLogger(JavabiteCompiler.class);
 	
 	Lexer lexer = null;
@@ -26,6 +38,8 @@ public class JavabiteCompiler {
 	public JavabiteCompiler() {
 		lexer = ModuleProvider.getLexerInstance();
 		parser = ModuleProvider.getParserInstance();
+		parser.setLexer(lexer);
+		parser.setReportLog(this);
 		codegen = ModuleProvider.getCodeGeneratorInstance();
 		backend = ModuleProvider.getBackendInstance();
 	}
@@ -56,6 +70,25 @@ public class JavabiteCompiler {
 		return setupOk;
 	}
 	
+	public void compile(File file) throws IntermediateCodeGeneratorException, IOException {
+		lexer.setSourceStream(new FileInputStream(file));
+		
+		AST ast = parser.getParsedAST();
+		
+		List<Quadruple> quadruples = codegen.generateIntermediateCode(ast);
+		Map<String, InputStream> results = backend.generateTargetCode(quadruples);
+		
+		for(Entry<String,InputStream> e:results.entrySet()) {
+			File outFile = new File(e.getKey());
+			if (outFile.exists()) {
+				throw new RuntimeException("This would override a file names " + e.getKey());
+			}
+			
+			FileOutputStream fos = new FileOutputStream(outFile);
+			
+			IOUtils.copy(e.getValue(), fos);
+		}
+	}
 	
 	public static void main(String[] args) {
 		System.out.println("Javabite-Compiler Basic Console");
@@ -66,5 +99,27 @@ public class JavabiteCompiler {
 			System.out.println("Compiler could not load all need modules");
 		}
 		
+		if (args.length < 1) {
+			System.out.println("Compiler need a source file as input");
+			return;
+		}
+			
+		File file = new File(args[0]);
+		
+		if (!file.exists()) {
+			System.out.println("Compiler need a source file as input");
+		}
+		
+		try {
+			compiler.compile(file);
+		} catch (IntermediateCodeGeneratorException | IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void reportError(String text, Integer line, Integer column,
+			String message) {
+		System.out.println("Error at (" + line + "," + column + ") around " + text + " : " + message);
 	}
 }
