@@ -63,7 +63,7 @@ public class LexerJb implements Lexer {
 		tokenQueue = new ArrayDeque<>(1000);
 		Matcher matcher = tokenPatterns.matcher(input);
 		
-		int line = 1, column = 0, notATokenStart = 0, notATokenLine = 0;
+		int line = 1, column = 1, notATokenStart = 0, notATokenLine = 0;
 		StringBuilder notAToken = new StringBuilder();
 		// loop input
 		while (matcher.find()) {
@@ -77,7 +77,7 @@ public class LexerJb implements Lexer {
 				Token token = null;
 				
 				if (type == JavabiteTokenType.LINEBREAK) {
-					line++;	column = 0; continue;
+					line++;	column = 1; continue;
 				} else if (type == JavabiteTokenType.NOTATOKEN) {
 					if (notAToken.length() == 0) {
 						notATokenStart = column; notATokenLine = line;
