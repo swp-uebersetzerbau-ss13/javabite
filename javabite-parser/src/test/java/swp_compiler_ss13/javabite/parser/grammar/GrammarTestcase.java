@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -13,6 +14,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.sun.corba.se.impl.javax.rmi.CORBA.Util;
 
 import swp_compiler_ss13.javabite.parser.grammar.Grammar;
 import swp_compiler_ss13.javabite.parser.grammar.Item;
@@ -100,35 +103,40 @@ public class GrammarTestcase {
 		assertTrue("There must exist 2 productions",g1.getProductions().get(T).size()==2);
 	}
 	
+	
 	@Test
 	public void testCorrectClosureI7(){
-		Map<SimpleNT,Set<Item<SimpleT,SimpleNT>>> res= g1.getClosure(T, new Item<SimpleT,SimpleNT>(
-				list(T,T_MUL), list(F)
-				));
-		assertTrue("There should be one transition",res.get(T).size()==0);
-		assertTrue("There should be two transitions",res.get(F).size()==2);
-		assertTrue("There should be no transition",res.get(E)==null);
-	}
-	
-	@Test
-	public void testCorrectClosureI0(){
-		Map<SimpleNT,Set<Item<SimpleT,SimpleNT>>> res= g1.getClosure(E_, new Item<SimpleT,SimpleNT>(
-				list(), list(E)
-				));
-		assertTrue("There should be transitions for 4 NTs",res.size()==4);
-		assertTrue("There should be one transition",res.get(E_).size()==0);
-		assertTrue("There should be two transition",res.get(E).size()==2);
-		assertTrue("There should be two transition",res.get(F).size()==2);
-		assertTrue("There should be two transition",res.get(T).size()==2);	
-	}
-	
-	@Test
-	public void testCorrectClosureI11(){
-		Map<SimpleNT,Set<Item<SimpleT,SimpleNT>>> res= g1.getClosure(F, new Item<SimpleT,SimpleNT>(
-				list(T_OPEN,E,T_CLOSE), list()
-				));
+		Map<SimpleNT,Set<Item<SimpleT,SimpleNT>>> param=new HashMap<>();
+		Set<Item<SimpleT,SimpleNT>> set=new HashSet<>();
+		Item<SimpleT,SimpleNT> it= new Item<SimpleT,SimpleNT>(list(T,T_MUL), list(F));
+		set.add(it);
+		param.put(T, set);
 		
-		assertTrue("There should be no additional NT",res.size()==1);
+		Map<SimpleNT,Set<Item<SimpleT,SimpleNT>>> res= g1.getClosure(param);
+		assertTrue(res.get(F).contains(new Item<>(list(), list(T_OPEN,E,T_CLOSE))));
+		assertTrue(res.get(F).contains(new Item<>(list(), list(T_ID))));
+		assertEquals("same size of result", 3,Utils.countItemsRecursive(res));
+	}
+
+	
+	@Test
+	public void testCorrectClosureI4(){
+		Map<SimpleNT,Set<Item<SimpleT,SimpleNT>>> param=new HashMap<>();
+		Set<Item<SimpleT,SimpleNT>> set=new HashSet<>();
+		Item<SimpleT,SimpleNT> it= new Item<SimpleT,SimpleNT>(list(T_OPEN), list(E,T_CLOSE));
+		set.add(it);
+		param.put(F, set);
+		
+		Map<SimpleNT,Set<Item<SimpleT,SimpleNT>>> res= g1.getClosure(param);
+		assertTrue(res.get(E).contains(new Item<>(list(), list(E,T_ADD,T))));
+		assertTrue(res.get(E).contains(new Item<>(list(), list(T))));
+		assertTrue(res.get(T).contains(new Item<>(list(), list(T,T_MUL,F))));
+		assertFalse(res.get(T).contains(new Item<>(list(), list(T,F))));
+		assertTrue(res.get(T).contains(new Item<>(list(), list(F))));
+		assertTrue(res.get(F).contains(new Item<>(list(), list(T_OPEN,E,T_CLOSE))));
+		assertTrue(res.get(F).contains(new Item<>(list(), list(T_ID))));
+		assertEquals("same size of result", 7,Utils.countItemsRecursive(res));
+		assertEquals("should be untouched", 1,Utils.countItemsRecursive(param));
 	}
 	
 	

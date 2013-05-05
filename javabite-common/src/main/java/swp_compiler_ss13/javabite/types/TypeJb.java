@@ -15,7 +15,7 @@ public class TypeJb extends Type{
 
 	@Override
 	public String getTypeName() {
-		return this.getTypeName();
+		return kind.name();
 	}
 
 	@Override

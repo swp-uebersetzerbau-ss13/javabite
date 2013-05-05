@@ -66,6 +66,7 @@ public class Grammar<T extends Symbol, NT extends Symbol> {
 		Set<List<Symbol>> startTrans = new HashSet<>();
 		List<Symbol> startProdRight = new LinkedList<>();
 		startProdRight.add(start);
+		startProdRight.add(word_end);
 		startTrans.add(startProdRight);
 		this.productions.put(artificial_start_symbol, startTrans);
 		this.startSymbol = start;
@@ -114,63 +115,56 @@ public class Grammar<T extends Symbol, NT extends Symbol> {
 	 * @return the closures
 	 */
 	public Map<NT, Set<Item<T, NT>>> getClosure(
-			Map<NT, Set<Item<T, NT>>> current) {
-		Map<NT, Set<Item<T, NT>>> res = new HashMap<>();
-		for (Entry<NT, Set<Item<T, NT>>> ent : current.entrySet()) {
-			for (Item<T, NT> prod : ent.getValue()) {
-				Map<NT, Set<Item<T, NT>>> single_res = getClosure(ent.getKey(),
-						prod);
-				res = utils.merge(res, single_res);
-			}
-		}
-		return res;
-	}
-
-	/**
-	 * gets the kernel element and returns every possible item in closure of @prod
-	 * 
-	 * @param nT
-	 *            the NonTermonal of the production
-	 * @param prod
-	 *            the production
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public Map<NT, Set<Item<T, NT>>> getClosure(NT nT, Item<T, NT> prod) {
+			Map<NT, Set<Item<T, NT>>> currents) {
 		Map<NT, Set<Item<T, NT>>> closures = new HashMap<>();
-
 		// Since the production itself is in the closure, it can be added
-		Set<Item<T, NT>> nTset = new HashSet<>();
-		closures.put(nT, nTset);
-
-		if (prod.right.isEmpty() || isTerminal(prod.right.get(0))) {
-			// nothing to do here
-		} else {
-			NT toCheck = (NT) prod.right.get(0);
-			Queue<NT> ntq = new LinkedList<>();
-			ntq.add(toCheck);
-			while (!ntq.isEmpty()) {
-				toCheck = ntq.poll();
-				if (closures.containsKey(toCheck))
-					continue;
-				nTset = new HashSet<>();
-				closures.put(toCheck, nTset);
-				for (List<Symbol> list : productions.get(toCheck)) {
-					nTset.add(new Item<T, NT>(new LinkedList<Symbol>(), list));
-					if (isNonTerminal(list.get(0))) {
-						ntq.add((NT) list.get(0));
+		
+		// deep copy
+		for (Entry<NT,Set<Item<T,NT>>> entry : currents.entrySet()){
+			closures.put(entry.getKey(), new HashSet<>(entry.getValue()));
+		}
+		
+		int items_old = -1;
+		int items_new = Utils.countItemsRecursive(closures);
+		do {
+			Map<NT, Set<Item<T, NT>>> new_closures = new HashMap<>();
+			
+			
+			for (NT s : closures.keySet()) {
+				for (Item<T, NT> it : closures.get(s)) {
+					
+					if (it.right.size()>0 && isNonTerminal(it.right.get(0))) {
+						NT current = (NT) it.right.get(0);
+						Set<Item<T, NT>> current_set = closures
+								.get(current);
+						if (current_set == null) {
+							current_set = new HashSet<Item<T, NT>>();
+							new_closures.put(current, current_set);
+						}
+						for (List<Symbol> current_prod : productions
+								.get(current)) {
+							current_set.add(new Item<T, NT>(
+									new LinkedList(), current_prod));
+						}
 					}
 				}
+				
 			}
-		}
+			closures.putAll(new_closures);
+			
+			items_old = items_new;
+			items_new = Utils.countItemsRecursive(closures);
+		} while (items_old < items_new);
 
+		
 		return closures;
-
 	}
 
 	/**
 	 * returns the first set for the nonterminal
-	 * @param nt nonterminal
+	 * 
+	 * @param nt
+	 *            nonterminal
 	 * @return the firstset
 	 */
 	public Set<T> getFirstSet(NT nt) {
@@ -197,39 +191,45 @@ public class Grammar<T extends Symbol, NT extends Symbol> {
 	 */
 	@SuppressWarnings("unchecked")
 	private void computeAllFirstSets() {
-		
+
 		/**
-		 * We use this method using the cardinality of the sets to see, if
-		 * the data has been changed in one iteration. It's the most reliable solution atm.
+		 * We use this method using the cardinality of the sets to see, if the
+		 * data has been changed in one iteration. It's the most reliable
+		 * solution atm.
 		 */
 		int cardinality_last = -1;
 		int cardinality_current = getCardinalityUnionFirstSets();
 		/**
-		 * In the first step, we have to find as much epsilon productions as possible.
-		 * If we make a mistake here, all the following steps will fail.
+		 * In the first step, we have to find as much epsilon productions as
+		 * possible. If we make a mistake here, all the following steps will
+		 * fail.
 		 */
 		do {
 			for (NT nt : productions.keySet()) {
 				Set<List<Symbol>> prods = productions.get(nt);
 				for (List<Symbol> prod : prods) {
 					// nt -> prod(0),...,prod(prod.size()-1)
-					if (prod.size()==0){
+					if (prod.size() == 0) {
 						logger.error("may not happen, an epsilon should be represented by the epsilonSymbol");
 					}
-					if (prod.size()==1 && prod.get(0).equals(epsilonSymbol)){
+					if (prod.size() == 1 && prod.get(0).equals(epsilonSymbol)) {
 						// trivial epsilon production
 						firstSets.get(nt).add(epsilonSymbol);
 					}
-					// check, if an epsilon production is possible within this production
-					boolean eps_possible=true;
-					for (Symbol s : prod){
-						if (isTerminal(s) || !firstSets.get((NT)s).contains(epsilonSymbol)){
-							eps_possible=false;
+					// check, if an epsilon production is possible within this
+					// production
+					boolean eps_possible = true;
+					for (Symbol s : prod) {
+						if (isTerminal(s)
+								|| !firstSets.get((NT) s).contains(
+										epsilonSymbol)) {
+							eps_possible = false;
 							break;
-						}	
+						}
 					}
-					// if an epsilon production is possible, add it to the first set
-					if (eps_possible){
+					// if an epsilon production is possible, add it to the first
+					// set
+					if (eps_possible) {
 						firstSets.get(nt).add(epsilonSymbol);
 					}
 				}
@@ -237,13 +237,12 @@ public class Grammar<T extends Symbol, NT extends Symbol> {
 			// check if the result has been changed and retry if so
 			cardinality_last = cardinality_current;
 			cardinality_current = getCardinalityUnionFirstSets();
-		
+
 		} while (cardinality_current > cardinality_last);
 
-		
 		/**
-		 * the next step to build the first sets with terminals.
-		 * We use the retry-if-changed method too.
+		 * the next step to build the first sets with terminals. We use the
+		 * retry-if-changed method too.
 		 */
 		cardinality_last = -1;
 		cardinality_current = getCardinalityUnionFirstSets();
@@ -251,39 +250,40 @@ public class Grammar<T extends Symbol, NT extends Symbol> {
 			for (NT nt : productions.keySet()) {
 				Set<List<Symbol>> prods = productions.get(nt);
 				for (List<Symbol> prod : prods) {
-					// check which production is the first without an epsilon production
+					// check which production is the first without an epsilon
+					// production
 					Symbol firstNonEpsilable = null;
-					LOOK_FOR_FIRST:
-					for (Symbol s : prod){
-						// nt -> prod(0),prod(1),...,s,prod(i+1),...,prod(prod.size()-1)
-						
-						if (isTerminal(s)){
-							firstNonEpsilable=s;
+					LOOK_FOR_FIRST: for (Symbol s : prod) {
+						// nt ->
+						// prod(0),prod(1),...,s,prod(i+1),...,prod(prod.size()-1)
+
+						if (isTerminal(s)) {
+							firstNonEpsilable = s;
 							break LOOK_FOR_FIRST;
-						}
-						else if (!firstSets.get((NT)s).contains(epsilonSymbol)){
-							firstNonEpsilable=s;
+						} else if (!firstSets.get((NT) s).contains(
+								epsilonSymbol)) {
+							firstNonEpsilable = s;
 							break LOOK_FOR_FIRST;
 						}
 					}
-					// firstNonEpsilable is the first production without an epsilon production
-					if (firstNonEpsilable==null){
+					// firstNonEpsilable is the first production without an
+					// epsilon production
+					if (firstNonEpsilable == null) {
 						firstSets.get(nt).add(epsilonSymbol);
-					}
-					else if (isTerminal(firstNonEpsilable)){
-						firstSets.get(nt).add((T)firstNonEpsilable);
-					}
-					else{
+					} else if (isTerminal(firstNonEpsilable)) {
+						firstSets.get(nt).add((T) firstNonEpsilable);
+					} else {
 						// isNonTerminal
-						firstSets.get(nt).addAll(firstSets.get((NT)firstNonEpsilable));
+						firstSets.get(nt).addAll(
+								firstSets.get((NT) firstNonEpsilable));
 					}
-					
+
 				}
 			}
 			// the same story as above....
 			cardinality_last = cardinality_current;
 			cardinality_current = getCardinalityUnionFirstSets();
-		
+
 		} while (cardinality_current > cardinality_last);
 
 	}
@@ -321,8 +321,7 @@ public class Grammar<T extends Symbol, NT extends Symbol> {
 	private void computeAllFollowSets() {
 		// first, add start production
 		followSets.get(artificial_start_symbol).add(word_end);
-		
-		
+
 		// second, add everything possible by using the first sets
 		for (NT nt : productions.keySet()) {
 			Set<List<Symbol>> prods = productions.get(nt);
@@ -360,30 +359,35 @@ public class Grammar<T extends Symbol, NT extends Symbol> {
 		do {
 			for (NT nt : productions.keySet()) {
 				Set<List<Symbol>> prods = productions.get(nt);
-				NEXT_PROD:
-				for (List<Symbol> prod : prods) {
+				NEXT_PROD: for (List<Symbol> prod : prods) {
 					// nt-> prod(0),...,prod(prod.size()-1)
 					// property holds:
-					// nt-> prod(0),...,prod(i-1),firstNonElipsableFromReverse,prod(i+1),...,prod(prod.size()-1)
-					// where: for all j=i+1..prod.size()-1 : epsilon is in First(j)
-					// abstract: A->aBb . First(b) contains epsilon -> add Follow(A) to Follow(B)
-					NT A=nt;
+					// nt->
+					// prod(0),...,prod(i-1),firstNonElipsableFromReverse,prod(i+1),...,prod(prod.size()-1)
+					// where: for all j=i+1..prod.size()-1 : epsilon is in
+					// First(j)
+					// abstract: A->aBb . First(b) contains epsilon -> add
+					// Follow(A) to Follow(B)
+					NT A = nt;
 					Symbol B;
-					int i=prod.size()-1;
-					if (isTerminal(prod.get(i))){
+					int i = prod.size() - 1;
+					if (isTerminal(prod.get(i))) {
 						continue NEXT_PROD;
 					}
-					do{
+					do {
 						// invatiant here: First(b) contains epsilon
-						B=prod.get(i);
+						B = prod.get(i);
 						followSets.get(B).addAll(followSets.get(A));
 						i--;
-					}while (i>=0&&isNonTerminal(prod.get(i))&&firstSets.get(prod.get(i)).contains(epsilonSymbol));
-					if (i>=0 && isNonTerminal(prod.get(i))){
-						B=prod.get(i);
+					} while (i >= 0
+							&& isNonTerminal(prod.get(i))
+							&& firstSets.get(prod.get(i)).contains(
+									epsilonSymbol));
+					if (i >= 0 && isNonTerminal(prod.get(i))) {
+						B = prod.get(i);
 						followSets.get(B).addAll(followSets.get(A));
 					}
-					
+
 				}
 			}
 			cardinality_last = cardinality_current;
@@ -394,6 +398,7 @@ public class Grammar<T extends Symbol, NT extends Symbol> {
 
 	/**
 	 * computes the cardinality of all the union of the followsets
+	 * 
 	 * @return the cardinality of the union
 	 */
 	private int getCardinalityUnionFollowSets() {
@@ -402,9 +407,10 @@ public class Grammar<T extends Symbol, NT extends Symbol> {
 			i += followSet.size();
 		return i;
 	}
-	
+
 	/**
 	 * computes the cardinality of all the union of the firstsets
+	 * 
 	 * @return the cardinality of the union
 	 */
 	private int getCardinalityUnionFirstSets() {
@@ -418,7 +424,6 @@ public class Grammar<T extends Symbol, NT extends Symbol> {
 		return productions;
 	}
 
-
 	/**
 	 * Since generics are not available in runtime, we need this little hacky
 	 * thing to identify, whether it's a terminal or not.
@@ -427,7 +432,7 @@ public class Grammar<T extends Symbol, NT extends Symbol> {
 	 *            the symbol
 	 * @return if it's an instance of NonTerminal
 	 */
-	private boolean isNonTerminal(Symbol s) {
+	boolean isNonTerminal(Symbol s) {
 		return productions.containsKey(s);
 	}
 
@@ -439,7 +444,7 @@ public class Grammar<T extends Symbol, NT extends Symbol> {
 	 *            the symbol
 	 * @return if it's an instance of Terminal
 	 */
-	private boolean isTerminal(Symbol s) {
+	boolean isTerminal(Symbol s) {
 		return !isNonTerminal(s);
 	}
 

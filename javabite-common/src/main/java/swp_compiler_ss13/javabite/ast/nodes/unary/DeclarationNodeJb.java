@@ -1,72 +1,37 @@
 package swp_compiler_ss13.javabite.ast.nodes.unary;
 
-import java.util.Iterator;
-import java.util.List;
+import java.util.Properties;
 
-import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
 import swp_compiler_ss13.common.types.Type;
+import swp_compiler_ss13.javabite.ast.ASTNodeJb;
 
-public class DeclarationNodeJb implements DeclarationNode {
-
-	@Override
-	public ASTNodeType getNodeType() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Integer getNumberOfNodes() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Iterator<ASTNode> getDFSLTRNodeIterator() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public List<ASTNode> getChildren() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public ASTNode getParentNode() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void setParentNode(ASTNode node) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
+public class DeclarationNodeJb extends ASTNodeJb implements DeclarationNode {
 	public String getIdentifier() {
-		// TODO Auto-generated method stub
-		return null;
+		return identifier;
 	}
 
-	@Override
-	public Type getType() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	public void setIdentifier(String identifier) {
-		// TODO Auto-generated method stub
-
+		this.identifier = identifier;
 	}
 
-	@Override
+	public Type getType() {
+		return type;
+	}
+
 	public void setType(Type type) {
-		// TODO Auto-generated method stub
-
+		this.type = type;
 	}
 
+	protected String identifier;
+	protected Type type;
+	
+	public DeclarationNodeJb() {
+		super(ASTNodeType.DeclarationNode);
+	}
+	@Override
+	protected void fillNodeProperties(Properties props) {
+		props.put("id",identifier);
+		props.put("type", type);
+	}
 }

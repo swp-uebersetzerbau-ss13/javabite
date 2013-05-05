@@ -1,11 +1,12 @@
 package swp_compiler_ss13.javabite.parser.grammar;
 
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
-public class utils {
+public class Utils {
 	/**
 	 * merges two sets 
 	 * @param a a set
@@ -14,18 +15,27 @@ public class utils {
 	 */
 	public static<NT extends Symbol,T extends Symbol> Map<NT,Set<Item<T,NT>>> merge(Map<NT,Set<Item<T,NT>>> a, Map<NT,Set<Item<T,NT>>> b){
 		Map<NT,Set<Item<T,NT>>> res= new HashMap<>();
-		res.putAll(a);
-		// for all in b
-		for (Entry<NT, Set<Item<T,NT>>> ent : b.entrySet()){
-			// a doesn't contain, just add
-			if (!res.containsKey(ent.getKey())){
-				res.put(ent.getKey(),ent.getValue());
+		for (NT nt : a.keySet()){
+			res.put(nt, new HashSet<>(a.get(nt)));
+		}
+		for (NT nt : b.keySet()){
+			if (res.containsKey(nt)){
+				res.get(nt).addAll(b.get(nt));
 			}
-			// a contains, merge
 			else{
-				res.get(ent.getKey()).addAll(ent.getValue());
+				res.put(nt, new HashSet<>(b.get(nt)));
 			}
 		}
 		return res;
+		
 	}
+	
+	public static<R,S extends Collection> int countItemsRecursive(Map<R, S> m){
+		int i=0;
+		for (Map.Entry<R,S> e : m.entrySet()){
+			i+=e.getValue().size();
+		}
+		return i;
+	}
+	
 }

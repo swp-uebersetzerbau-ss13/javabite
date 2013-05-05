@@ -7,6 +7,10 @@ import swp_compiler_ss13.javabite.ast.nodes.StatementNodeJb;
 
 public class BranchNodeJb extends StatementNodeJb implements BranchNode {
 
+	public BranchNodeJb() {
+		super(ASTNodeType.BranchNode);
+	}
+
 	protected ExpressionNode condition;
 	protected BlockNode BlockNodeOnTrue;
 	protected BlockNode BlockNodeOnFalse;
@@ -17,6 +21,7 @@ public class BranchNodeJb extends StatementNodeJb implements BranchNode {
 
 	public void setCondition(ExpressionNode condition) {
 		this.condition = condition;
+		addChild(condition, 0);
 	}
 
 	public BlockNode getBlockNodeOnTrue() {
@@ -25,6 +30,7 @@ public class BranchNodeJb extends StatementNodeJb implements BranchNode {
 
 	public void setBlockNodeOnTrue(BlockNode blockNodeOnTrue) {
 		BlockNodeOnTrue = blockNodeOnTrue;
+		addChild(blockNodeOnTrue, 1);
 	}
 
 	public BlockNode getBlockNodeOnFalse() {
@@ -33,6 +39,7 @@ public class BranchNodeJb extends StatementNodeJb implements BranchNode {
 
 	public void setBlockNodeOnFalse(BlockNode blockNodeOnFalse) {
 		BlockNodeOnFalse = blockNodeOnFalse;
+		addChild(blockNodeOnFalse, 2);
 	}
 
 }

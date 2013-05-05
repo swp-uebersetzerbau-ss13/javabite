@@ -1,6 +1,9 @@
 package swp_compiler_ss13.javabite.ast;
 
+import java.util.Iterator;
+
 import swp_compiler_ss13.common.ast.AST;
+import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
 import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
@@ -10,9 +13,8 @@ import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.types.Type;
-import swp_compiler_ss13.javabite.ast.ASTJb;
+import swp_compiler_ss13.javabite.ast.nodes.binary.ArithmeticBinaryExpressionNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.binary.AssignmentNodeJb;
-import swp_compiler_ss13.javabite.ast.nodes.binary.BinaryExpressionNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.leaf.BasicIdentifierNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.leaf.LiteralNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.marynary.BlockNodeJb;
@@ -102,7 +104,7 @@ public class ASTSource {
 		
 		AssignmentNode mul_node=new AssignmentNodeJb();
 		mul_node.setLeftValue(iidNodeI);
-		BinaryExpressionNode expressionNode=new BinaryExpressionNodeJb();
+		BinaryExpressionNode expressionNode=new ArithmeticBinaryExpressionNodeJb();
 		expressionNode.setLeftValue(iidNodeI);
 		expressionNode.setRightValue(iidNodeJ);
 		expressionNode.setOperator(BinaryOperator.MULTIPLICATION);
@@ -117,5 +119,15 @@ public class ASTSource {
 		return ast;
 	}
 	
+	public static void main(String[] args){
+		AST first=getFirstAST();
+		AST second=getSecondAST();
+		Iterator<ASTNode> firstIt=first.getDFSLTRIterator();
+		while (firstIt.hasNext()) System.out.println(firstIt.next());
+
+		Iterator<ASTNode> secondIt=second.getDFSLTRIterator();
+		while (secondIt.hasNext()) System.out.println(secondIt.next());
+	}
 	
+		
 }
