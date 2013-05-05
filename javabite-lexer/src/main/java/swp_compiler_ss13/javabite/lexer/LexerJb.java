@@ -112,7 +112,6 @@ public class LexerJb implements Lexer {
 		// add a NOT_A_TOKEN-token if necessary
 		if (notAToken.length() != 0) {
 			tokenQueue.add(new TokenJb(TokenType.NOT_A_TOKEN,notAToken.toString(),notATokenLine,notATokenStart));
-			notAToken = new StringBuilder();
 		}
 	}
 }
