@@ -91,7 +91,7 @@ public class TargetGrammar {
 	}
 	
 	/**
-	 * derivate given sourcecode and retuns a list of productions in the right order. 
+	 * derivate given sourcecode and retuns a list of productions in the reverse order. 
 	 * The derivation is always the rightmost derivation
 	 * @param sc the given word
 	 * @return the concrete derivation if the word is in the language. Otherwise undetermined result.

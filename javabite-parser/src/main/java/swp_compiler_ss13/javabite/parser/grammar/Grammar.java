@@ -146,6 +146,7 @@ public class Grammar<T extends Symbol, NT extends Symbol> {
 									current_prod));
 						}
 					}
+					
 				}
 
 			}
@@ -155,6 +156,14 @@ public class Grammar<T extends Symbol, NT extends Symbol> {
 			items_new = Utils.countItemsRecursive(closures);
 		} while (items_old < items_new);
 
+		for (NT nt : closures.keySet()){
+			for (Item<T,NT> it : closures.get(nt)){
+				if (it.right.size()==1 && epsilonSymbol.equals(it.right.get(0))){
+					it.right= new LinkedList<>();
+				}
+			}
+		}
+		
 		return closures;
 	}
 
@@ -508,5 +517,5 @@ public class Grammar<T extends Symbol, NT extends Symbol> {
 		ensureValidFollowSets();
 		return res;
 	}
-
+	
 }

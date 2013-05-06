@@ -3,6 +3,7 @@ package swp_compiler_ss13.javabite.parser.grammar;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Before;
@@ -33,6 +34,7 @@ public class SLRAutomatonTest {
 	 */
 	
 	final Grammar<SimpleT,SimpleNT> g1=new Grammar<>(E,E_,T_EOF,T_EPSILON);
+	final Grammar<SimpleT,SimpleNT> g2=new Grammar<>(E,E_,T_EOF,T_EPSILON);
 	
 	private List<Symbol> list(Symbol... syms){
 		return Arrays.asList(syms);
@@ -55,11 +57,15 @@ public class SLRAutomatonTest {
 				list(T_OPEN,E,T_CLOSE),
 				list(T_ID));
 		
+		g2.addProduction(E, list(E,F), list(T_EPSILON));
+		g2.addProduction(F,list(T_MUL));
+		
 	}
 	
 	@Test
 	public void testAutomaton(){
 		SLRAutomaton<SimpleT, SimpleNT> automaton=new SLRAutomaton<>(g1);
+		
 		assertEquals("should have exact this number of states",13,automaton.getNStates());
 	}
 	
@@ -69,6 +75,7 @@ public class SLRAutomatonTest {
 		
 		Word<SimpleT,SimpleNT> original=new Word<SimpleT,SimpleNT>(g1, listTok(T_ID));
 		List<Production<SimpleT,SimpleNT>> productions=automaton.getDerivationASsSequence(original);
+		Collections.reverse(productions);
 		Word<SimpleT,SimpleNT> derivated=Word.getWordFromRightMostDerivation(g1, productions); 
 		assertEquals("must be the same",original,derivated);
 	}
@@ -78,6 +85,7 @@ public class SLRAutomatonTest {
 		SLRAutomaton<SimpleT, SimpleNT> automaton=new SLRAutomaton<>(g1);
 		Word<SimpleT,SimpleNT> original=new Word<SimpleT,SimpleNT>(g1, listTok(T_ID,T_MUL,T_ID));
 		List<Production<SimpleT,SimpleNT>> productions=automaton.getDerivationASsSequence(original);
+		Collections.reverse(productions);
 		Word<SimpleT,SimpleNT> derivated=Word.getWordFromRightMostDerivation(g1, productions); 
 		assertEquals("must be the same",original,derivated);
 	}
@@ -87,6 +95,7 @@ public class SLRAutomatonTest {
 		SLRAutomaton<SimpleT, SimpleNT> automaton=new SLRAutomaton<>(g1);
 		Word<SimpleT,SimpleNT> original=new Word<SimpleT,SimpleNT>(g1, listTok(T_ID,T_MUL,T_ID,T_ADD,T_ID,T_MUL,T_OPEN,T_ID,T_ADD,T_ID,T_CLOSE,T_ADD,T_ID));
 		List<Production<SimpleT,SimpleNT>> productions=automaton.getDerivationASsSequence(original);
+		Collections.reverse(productions);
 		Word<SimpleT,SimpleNT> derivated=Word.getWordFromRightMostDerivation(g1, productions); 
 		assertEquals("must be the same",original,derivated);
 	}
@@ -96,6 +105,7 @@ public class SLRAutomatonTest {
 		SLRAutomaton<SimpleT, SimpleNT> automaton=new SLRAutomaton<>(g1);
 		Word<SimpleT,SimpleNT> original=new Word<SimpleT,SimpleNT>(g1, listTok(T_OPEN,T_ID,T_CLOSE));
 		List<Production<SimpleT,SimpleNT>> productions=automaton.getDerivationASsSequence(original);
+		Collections.reverse(productions);
 		Word<SimpleT,SimpleNT> derivated=Word.getWordFromRightMostDerivation(g1, productions); 
 		assertEquals("must be the same",original,derivated);
 	}
@@ -105,6 +115,7 @@ public class SLRAutomatonTest {
 		SLRAutomaton<SimpleT, SimpleNT> automaton=new SLRAutomaton<>(g1);
 		Word<SimpleT,SimpleNT> original=new Word<SimpleT,SimpleNT>(g1, listTok(T_ID,T_MUL,T_OPEN,T_ID,T_CLOSE));
 		List<Production<SimpleT,SimpleNT>> productions=automaton.getDerivationASsSequence(original);
+		Collections.reverse(productions);
 		Word<SimpleT,SimpleNT> derivated=Word.getWordFromRightMostDerivation(g1, productions); 
 		assertEquals("must be the same",original,derivated);
 	}
@@ -114,6 +125,7 @@ public class SLRAutomatonTest {
 		SLRAutomaton<SimpleT, SimpleNT> automaton=new SLRAutomaton<>(g1);
 		Word<SimpleT,SimpleNT> original=new Word<SimpleT,SimpleNT>(g1, listTok(T_OPEN,T_ID,T_CLOSE,T_MUL,T_ID));
 		List<Production<SimpleT,SimpleNT>> productions=automaton.getDerivationASsSequence(original);
+		Collections.reverse(productions);
 		Word<SimpleT,SimpleNT> derivated=Word.getWordFromRightMostDerivation(g1, productions); 
 		assertEquals("must be the same",original,derivated);
 	}
@@ -123,8 +135,41 @@ public class SLRAutomatonTest {
 		SLRAutomaton<SimpleT, SimpleNT> automaton=new SLRAutomaton<>(g1);
 		Word<SimpleT,SimpleNT> original=new Word<SimpleT,SimpleNT>(g1, listTok(T_OPEN,T_OPEN,T_ID,T_CLOSE,T_CLOSE));
 		List<Production<SimpleT,SimpleNT>> productions=automaton.getDerivationASsSequence(original);
+		Collections.reverse(productions);
 		Word<SimpleT,SimpleNT> derivated=Word.getWordFromRightMostDerivation(g1, productions); 
 		assertEquals("must be the same",original,derivated);
 	}
+	
+	@Test
+	public void testDerivationEpsilon(){
+		SLRAutomaton<SimpleT, SimpleNT> automaton=new SLRAutomaton<>(g2);
+		Word<SimpleT,SimpleNT> original=new Word<SimpleT,SimpleNT>(g2, listTok());
+		List<Production<SimpleT,SimpleNT>> productions=automaton.getDerivationASsSequence(original);
+		Collections.reverse(productions);
+		Word<SimpleT,SimpleNT> derivated=Word.getWordFromRightMostDerivation(g2, productions); 
+		assertEquals("must be the same",original,derivated);
+	}
+	
+	@Test
+	public void testDerivationEpsilonOneProd(){
+		SLRAutomaton<SimpleT, SimpleNT> automaton=new SLRAutomaton<>(g2);
+		Word<SimpleT,SimpleNT> original=new Word<SimpleT,SimpleNT>(g2, listTok(T_MUL));
+		List<Production<SimpleT,SimpleNT>> productions=automaton.getDerivationASsSequence(original);
+		Collections.reverse(productions);
+		Word<SimpleT,SimpleNT> derivated=Word.getWordFromRightMostDerivation(g2, productions); 
+		assertEquals("must be the same",original,derivated);
+	}
+	
+	@Test
+	public void testDerivationEpsilonMultipleProd(){
+		SLRAutomaton<SimpleT, SimpleNT> automaton=new SLRAutomaton<>(g2);
+		Word<SimpleT,SimpleNT> original=new Word<SimpleT,SimpleNT>(g2, listTok(T_MUL,T_MUL,T_MUL,T_MUL,T_MUL,T_MUL,T_MUL));
+		List<Production<SimpleT,SimpleNT>> productions=automaton.getDerivationASsSequence(original);
+		Collections.reverse(productions);
+		Word<SimpleT,SimpleNT> derivated=Word.getWordFromRightMostDerivation(g2, productions); 
+		assertEquals("must be the same",original,derivated);
+	}
+	
+	
 
 }

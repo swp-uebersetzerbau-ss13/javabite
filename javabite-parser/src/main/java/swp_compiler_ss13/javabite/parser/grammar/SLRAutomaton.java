@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 public class SLRAutomaton<T extends Symbol, NT extends Symbol> {
 	public SLRAutomaton(Grammar<T, NT> referenceGrammar) {
 		this.g = referenceGrammar;
-		this.g.removeEpsilonProductions();
+		//this.g.removeEpsilonProductions();
 		build();
 	}
 
@@ -212,8 +212,6 @@ public class SLRAutomaton<T extends Symbol, NT extends Symbol> {
 				}
 			}
 		}
-		// Output of the productions is in reverse order, so just reverse it
-		Collections.reverse(productions);
 		return productions;
 	}
 
