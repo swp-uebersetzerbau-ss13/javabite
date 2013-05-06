@@ -87,11 +87,11 @@ public class Item<T extends Symbol, NT extends Symbol> {
 	public String toString(){
 		String str="";
 		for (Symbol l : left){
-			str+=l;
+			str+=l+" ";
 		}
 		str+=".";
 		for (Symbol l : right){
-			str+=l;
+			str+=l+" ";
 		}
 		return str;
 		

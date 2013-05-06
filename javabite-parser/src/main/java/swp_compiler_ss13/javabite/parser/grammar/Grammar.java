@@ -1,5 +1,6 @@
 package swp_compiler_ss13.javabite.parser.grammar;
 
+import static swp_compiler_ss13.javabite.parser.grammar.Utils.*;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -118,45 +119,42 @@ public class Grammar<T extends Symbol, NT extends Symbol> {
 			Map<NT, Set<Item<T, NT>>> currents) {
 		Map<NT, Set<Item<T, NT>>> closures = new HashMap<>();
 		// Since the production itself is in the closure, it can be added
-		
+
 		// deep copy
-		for (Entry<NT,Set<Item<T,NT>>> entry : currents.entrySet()){
+		for (Entry<NT, Set<Item<T, NT>>> entry : currents.entrySet()) {
 			closures.put(entry.getKey(), new HashSet<>(entry.getValue()));
 		}
-		
+
 		int items_old = -1;
 		int items_new = Utils.countItemsRecursive(closures);
 		do {
 			Map<NT, Set<Item<T, NT>>> new_closures = new HashMap<>();
-			
-			
+
 			for (NT s : closures.keySet()) {
 				for (Item<T, NT> it : closures.get(s)) {
-					
-					if (it.right.size()>0 && isNonTerminal(it.right.get(0))) {
+
+					if (it.right.size() > 0 && isNonTerminal(it.right.get(0))) {
 						NT current = (NT) it.right.get(0);
-						Set<Item<T, NT>> current_set = closures
-								.get(current);
+						Set<Item<T, NT>> current_set = closures.get(current);
 						if (current_set == null) {
 							current_set = new HashSet<Item<T, NT>>();
 							new_closures.put(current, current_set);
 						}
 						for (List<Symbol> current_prod : productions
 								.get(current)) {
-							current_set.add(new Item<T, NT>(
-									new LinkedList(), current_prod));
+							current_set.add(new Item<T, NT>(new LinkedList(),
+									current_prod));
 						}
 					}
 				}
-				
+
 			}
 			closures.putAll(new_closures);
-			
+
 			items_old = items_new;
 			items_new = Utils.countItemsRecursive(closures);
 		} while (items_old < items_new);
 
-		
 		return closures;
 	}
 
@@ -402,10 +400,7 @@ public class Grammar<T extends Symbol, NT extends Symbol> {
 	 * @return the cardinality of the union
 	 */
 	private int getCardinalityUnionFollowSets() {
-		int i = 0;
-		for (Set<T> followSet : followSets.values())
-			i += followSet.size();
-		return i;
+		return countItemsRecursive(followSets);
 	}
 
 	/**
@@ -414,10 +409,7 @@ public class Grammar<T extends Symbol, NT extends Symbol> {
 	 * @return the cardinality of the union
 	 */
 	private int getCardinalityUnionFirstSets() {
-		int i = 0;
-		for (Set<T> followSet : firstSets.values())
-			i += followSet.size();
-		return i;
+		return countItemsRecursive(firstSets);
 	}
 
 	public final Map<NT, Set<List<Symbol>>> getProductions() {
@@ -459,6 +451,62 @@ public class Grammar<T extends Symbol, NT extends Symbol> {
 			}
 		}
 		return strb.toString();
+	}
+
+	public boolean removeEpsilonProductions() {
+		boolean res = false;
+		// remove first production
+		Set<List<Symbol>> backup=productions.remove(artificial_start_symbol);
+		int last_productions = -1;
+		int current_productions = countItemsRecursive(productions);
+		Set<NT> nullable =null;
+		do {
+			nullable= new HashSet<>();
+			for (NT nt : productions.keySet()) {
+				for (List<Symbol> prod : productions.get(nt)) {
+					if (prod.size() == 1
+							&& prod.iterator().next().equals(epsilonSymbol)) {
+						nullable.add(nt);
+					}
+				}
+			}
+			
+			for (NT nt : productions.keySet()) {
+				for (List<Symbol> prod : new HashSet<>(productions.get(nt))) {
+					int n=prod.size();
+					for (NT nullNT : nullable){
+						int target;
+						
+						if (-1!=(target=prod.indexOf(nullNT))){
+							List<Symbol> left=new LinkedList<>(prod.subList(0, target));
+							List<Symbol> right=new LinkedList<>(prod.subList(target+1, n));
+							left.addAll(right);
+							if (left.isEmpty()) left.add(epsilonSymbol);
+							productions.get(nt).add(left);
+											
+						}
+					}
+					
+				}
+			}
+			
+			last_productions=current_productions;
+			current_productions=countItemsRecursive(productions);
+		} while (last_productions < current_productions);
+
+		for (NT nt : nullable) {
+			for (List<Symbol> prod : new LinkedList<>(productions.get(nt))) {
+				if (prod.size() == 1
+						&& prod.iterator().next().equals(epsilonSymbol)) {
+					productions.get(nt).remove(prod);
+				}
+			}
+		}
+		
+		productions.put(artificial_start_symbol, backup);
+		ensureValidFirstSets();
+		ensureValidFollowSets();
+		return res;
 	}
 
 }

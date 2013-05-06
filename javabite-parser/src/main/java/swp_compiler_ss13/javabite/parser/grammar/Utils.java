@@ -1,8 +1,10 @@
 package swp_compiler_ss13.javabite.parser.grammar;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -37,5 +39,10 @@ public class Utils {
 		}
 		return i;
 	}
+	
+	static public List<Symbol> list(Symbol... syms){
+		return Arrays.asList(syms);
+	}
+	
 	
 }

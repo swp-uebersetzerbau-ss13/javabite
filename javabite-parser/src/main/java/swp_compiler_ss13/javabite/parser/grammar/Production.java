@@ -40,6 +40,6 @@ public class Production<T extends Symbol, NT extends Symbol> {
 		this.left = left;
 		this.right = right;
 	}
-	NT left;
-	List<Symbol> right;
+	public NT left;
+	public List<Symbol> right;
 }
