@@ -168,7 +168,7 @@ public class TargetGrammar {
 		 */
 		public SourceCode(List<Token> tarr) {
 			super(grammar, new LinkedList<Terminal>());
-			for (Token tok : tarr) add(new Terminal(tok));
+			for (Token tok : tarr) if(tok.getTokenType()!=TokenType.COMMENT) add(new Terminal(tok));
 		}
 		
 	}

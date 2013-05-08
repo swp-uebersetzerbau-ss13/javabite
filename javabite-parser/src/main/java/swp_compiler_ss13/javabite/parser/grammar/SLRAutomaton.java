@@ -16,6 +16,9 @@ import static swp_compiler_ss13.javabite.parser.grammar.Utils.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import swp_compiler_ss13.javabite.parser.grammar.exceptions.AmbiguityInDerivationGrammarException;
+import swp_compiler_ss13.javabite.parser.grammar.exceptions.WordNotInLanguageGrammarException;
+
 /**
  * Represents the Automaton of a SLR parser.
  * 
@@ -180,8 +183,18 @@ public class SLRAutomaton<T extends Symbol, NT extends Symbol> {
 						logger.error("\n{}", st.descriptionAsString());
 					}
 					
-					throw new RuntimeException("NOt cool");
-
+					if (nextStateTrans != null && !nextProdFollow.isEmpty()){
+						throw new AmbiguityInDerivationGrammarException();
+					}
+					else if (nextStateTrans == null && nextProdFollow.isEmpty()){
+						throw new WordNotInLanguageGrammarException();
+					}
+					else if (nextProdFollow.size() > 1){
+						throw new AmbiguityInDerivationGrammarException();
+					}
+					else{
+						// not possible
+					}
 				}
 				// do shift if possible
 				if (nextStateTrans != null) {

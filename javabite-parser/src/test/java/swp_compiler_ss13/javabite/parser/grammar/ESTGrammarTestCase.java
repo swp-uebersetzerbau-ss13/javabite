@@ -3,6 +3,9 @@ package swp_compiler_ss13.javabite.parser.grammar;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -10,13 +13,14 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.javabite.lexer.LexerJb;
+import swp_compiler_ss13.javabite.parser.grammar.exceptions.WordNotInLanguageGrammarException;
 import swp_compiler_ss13.javabite.parser.targetgrammar.TargetGrammar;
 import swp_compiler_ss13.javabite.parser.targetgrammar.TargetGrammar.Reduction;
 import swp_compiler_ss13.javabite.token.TokenJb;
+
 
 
 public class ESTGrammarTestCase {
@@ -172,6 +176,61 @@ public class ESTGrammarTestCase {
 				"return j;";
 		LexerJb lex=new LexerJb();
 		lex.setSourceStream(new ByteArrayInputStream(toCheck.getBytes()));
+		List<Token> tList=new LinkedList<>();
+		Token t;
+		do{
+			t=lex.getNextToken();
+			tList.add(t);
+		} while (t.getTokenType()!=TokenType.EOF);
+		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
+		List<Reduction> res= syn.derivate(sc);
+		logger.info("Source was\n {}\n",tList);
+		logger.info("res : {}",resAsReadableString(res));
+	}
+	
+	
+	@Test 
+	public void testLexerIntegration_add() throws FileNotFoundException{
+		testLexerIntegrationForFile(new File("../common/examples/m1/add.prog"));
+	}
+	
+	@Test 
+	public void testLexerIntegration_error_double_decl() throws FileNotFoundException{
+		testLexerIntegrationForFile(new File("../common/examples/m1/error_double_decl.prog"));
+	}
+	@Test (expected=WordNotInLanguageGrammarException.class)
+	public void testLexerIntegration_error_invalid_ids() throws FileNotFoundException{
+		testLexerIntegrationForFile(new File("../common/examples/m1/error_invalid_ids.prog"));
+	}
+	@Test (expected=WordNotInLanguageGrammarException.class)
+	public void testLexerIntegration_error_multiple_minus_e_notation() throws FileNotFoundException{
+		testLexerIntegrationForFile(new File("../common/examples/m1/error_multiple_minus_e_notation.prog"));
+	}
+	@Test (expected=WordNotInLanguageGrammarException.class)
+	public void testLexerIntegration_error_multiple_pluses_in_exp() throws FileNotFoundException{
+		testLexerIntegrationForFile(new File("../common/examples/m1/error_multiple_pluses_in_exp.prog"));
+	}
+	@Test
+	public void testLexerIntegration_error_undef_return() throws FileNotFoundException{
+		testLexerIntegrationForFile(new File("../common/examples/m1/error_undef_return.prog"));
+	}
+	@Test
+	public void testLexerIntegration_paratheses() throws FileNotFoundException{
+		testLexerIntegrationForFile(new File("../common/examples/m1/paratheses.prog"));
+	}
+	@Test
+	public void testLexerIntegration_simple_add() throws FileNotFoundException{
+		testLexerIntegrationForFile(new File("../common/examples/m1/simple_add.prog"));
+	}
+	@Test
+	public void testLexerIntegration_simple_mul() throws FileNotFoundException{
+		testLexerIntegrationForFile(new File("../common/examples/m1/simple_mul.prog"));
+	}
+	
+	public void testLexerIntegrationForFile(File path) throws FileNotFoundException{
+		
+		LexerJb lex=new LexerJb();
+		lex.setSourceStream(new FileInputStream(path));
 		List<Token> tList=new LinkedList<>();
 		Token t;
 		do{
