@@ -23,9 +23,13 @@ public class Instruction
 
 	public Instruction(final int size, final Mnemonic mnemonic,
 			List<Byte> arguments) {
+		this.size = size;
 		this.mnemonic = mnemonic;
 		this.arguments = arguments;
-		this.size = size;
+	}
+
+	public Instruction(int size, Mnemonic mnemonic) {
+		this(size, mnemonic, null);
 	}
 
 	/**

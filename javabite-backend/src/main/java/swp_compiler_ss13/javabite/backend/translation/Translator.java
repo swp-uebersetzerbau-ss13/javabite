@@ -238,13 +238,13 @@ public class Translator
 							"!", result));
 				}
 				break;
-			case DECLARE_BOOL:
+			case DECLARE_BOOLEAN:
 				file.addVariableToMethodsCode(methodName, result, VariableTypes.BOOL);
 				if (!arg1.equals("!")) {
-					newTac.add(new QuadrupleImpl(Operator.ASSIGN_BOOL, arg1,
+					newTac.add(new QuadrupleImpl(Operator.ASSIGN_BOOLEAN, arg1,
 							"!", result));
 				} else {
-					newTac.add(new QuadrupleImpl(Operator.ASSIGN_BOOL,
+					newTac.add(new QuadrupleImpl(Operator.ASSIGN_BOOLEAN,
 							"#FALSE", "!", result));
 				}
 				break;

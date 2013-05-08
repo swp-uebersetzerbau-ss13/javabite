@@ -1,12 +1,11 @@
 package swp_compiler_ss13.javabite.backend;
 
-import static swp_compiler_ss13.javabite.backend.Mnemonic.ArgumentType.*;
-
 /**
- * Mnemonic enum.
- * 
+ * <h1>Mnemonic-enum</h1>
+ * <p>
  * This enum holds all available bytecode mnemonics and their respective
  * bytecode bytes.
+ * </p>
  * 
  * @author eike
  * @since 21.04.2013 00:55:21
@@ -15,238 +14,224 @@ public enum Mnemonic
 {
 
 	// @formatter:off
-	NOP((byte) 0x00),
-	ACONST_NULL((byte) 0x01),
-	ICONST_M1((byte) 0x02),
-	ICONST_0((byte) 0x03),
-	ICONST_1((byte) 0x04),
-	ICONST_2((byte) 0x05),
-	ICONST_3((byte) 0x06),
-	ICONST_4((byte) 0x07),
-	ICONST_5((byte) 0x08),
-	LCONST_0((byte) 0x09),
-	LCONST_1((byte) 0x0A),
-	FCONST_0((byte) 0x0B),
-	FCONST_1((byte) 0x0C),
-	FCONST_2((byte) 0x0D),
-	DCONST_0((byte) 0x0E),
-	DCONST_1((byte) 0x0F),
-	BIPUSH((byte) 0x10, BYTE),
-	SIPUSH((byte) 0x11, BYTE,BYTE),
-	LDC((byte) 0x12, INDX),
-	LDC_W((byte) 0x13, INDX, INDX),
-	LDC2_W((byte) 0x14, INDX, INDX),
-	ILOAD((byte) 0x15, INDX),
-	LLOAD((byte) 0x16, INDX),
-	FLOAD((byte) 0x17, INDX),
-	DLOAD((byte) 0x18,INDX),
-	ALOAD((byte) 0x19, INDX),
-	ILOAD_0((byte) 0x1A),
-	ILOAD_1((byte) 0x1B),
-	ILOAD_2((byte) 0x1C),
-	ILOAD_3((byte) 0x1D),
-	LLOAD_0((byte) 0x1E),
-	LLOAD_1((byte) 0x1F),
-	LLOAD_2((byte) 0x20),
-	LLOAD_3((byte) 0x21),
-	FLOAD_0((byte) 0x22),
-	FLOAD_1((byte) 0x23),
-	FLOAD_2((byte) 0x24),
-	FLOAD_3((byte) 0x25),
-	DLOAD_0((byte) 0x26),
-	DLOAD_1((byte) 0x27),
-	DLOAD_2((byte) 0x28),
-	DLOAD_3((byte) 0x29),
-	ALOAD_0((byte) 0x2A),
-	ALOAD_1((byte) 0x2B),
-	ALOAD_2((byte) 0x2C),
-	ALOAD_3((byte) 0x2D),
-	IALOAD((byte) 0x2E),
-	LALOAD((byte) 0x2F),
-	FALOAD((byte) 0x30),
-	DALOAD((byte) 0x31),
-	AALOAD((byte) 0x32),
-	BALOAD((byte) 0x33),
-	CALOAD((byte) 0x34),
-	SALOAD((byte) 0x35),
-	ISTORE((byte) 0x36, INDX),
-	LSTORE((byte) 0x37, INDX),
-	FSTORE((byte) 0x38,INDX),
-	DSTORE((byte) 0x39, INDX),
-	ASTORE((byte) 0x3A, INDX),
-	ISTORE_0((byte) 0x3B),
-	ISTORE_1((byte) 0x3C),
-	ISTORE_2((byte) 0x3D),
-	ISTORE_3((byte) 0x3E),
-	LSTORE_0((byte) 0x3F),
-	LSTORE_1((byte) 0x40),
-	LSTORE_2((byte) 0x41),
-	LSTORE_3((byte) 0x42),
-	FSTORE_0((byte) 0x43),
-	FSTORE_1((byte) 0x44),
-	FSTORE_2((byte) 0x45),
-	FSTORE_3((byte) 0x46),
-	DSTORE_0((byte) 0x47),
-	DSTORE_1((byte) 0x48),
-	DSTORE_2((byte) 0x49),
-	DSTORE_3((byte) 0x4A),
-	ASTORE_0((byte) 0x4B),
-	ASTORE_1((byte) 0x4C),
-	ASTORE_2((byte) 0x4D),
-	ASTORE_3((byte) 0x4E),
-	IASTORE((byte) 0x4F),
-	LASTORE((byte) 0x50),
-	FASTORE((byte) 0x51),
-	DASTORE((byte) 0x52),
-	AASTORE((byte) 0x53),
-	BASTORE((byte) 0x54),
-	CASTORE((byte) 0x55),
-	SASTORE((byte) 0x56),
-	POP((byte) 0x57),
-	POP2((byte) 0x58),
-	DUP((byte) 0x59),
-	DUP_X1((byte) 0x5A),
-	DUP_X2((byte) 0x5B),
-	DUP2((byte) 0x5C),
-	DUP2_X1((byte) 0x5D),
-	DUP2_X2((byte) 0x5E),
-	SWAP((byte) 0x5F),
-	IADD((byte) 0x60),
-	LADD((byte) 0x61),
-	FADD((byte) 0x62),
-	DADD((byte) 0x63),
-	ISUB((byte) 0x64),
-	LSUB((byte) 0x65),
-	FSUB((byte) 0x66),
-	DSUB((byte) 0x67),
-	IMUL((byte) 0x68),
-	LMUL((byte) 0x69),
-	FMUL((byte) 0x6A),
-	DMUL((byte) 0x6B),
-	IDIV((byte) 0x6C),
-	LDIV((byte) 0x6D),
-	FDIV((byte) 0x6E),
-	DDIV((byte) 0x6F),
-	IREM((byte) 0x70),
-	LREM((byte) 0x71),
-	FREM((byte) 0x72),
-	DREM((byte) 0x73),
-	INEG((byte) 0x74),
-	LNEG((byte) 0x75),
-	FNEG((byte) 0x76),
-	DNEG((byte) 0x77),
-	ISHL((byte) 0x78),
-	LSHL((byte) 0x79),
-	ISHR((byte) 0x7A),
-	LSHR((byte) 0x7B),
-	IUSHR((byte) 0x7C),
-	LUSHR((byte) 0x7D),
-	IAND((byte) 0x7E),
-	LAND((byte) 0x7F),
-	IOR((byte) 0x80),
-	LOR((byte) 0x81),
-	IXOR((byte) 0x82),
-	LXOR((byte) 0x83),
-	IINC((byte) 0x84, INDX, BYTE),
-	I2L((byte) 0x85),
-	I2F((byte) 0x86),
-	I2D((byte) 0x87),
-	L2I((byte) 0x88),
-	L2F((byte) 0x89),
-	L2D((byte) 0x8A),
-	F2I((byte) 0x8B),
-	F2L((byte) 0x8C),
-	F2D((byte) 0x8D),
-	D2I((byte) 0x8E),
-	D2L((byte) 0x8F),
-	D2F((byte) 0x90),
-	I2B((byte) 0x91),
-	I2C((byte) 0x92),
-	I2S((byte) 0x93),
-	LCMP((byte) 0x94),
-	FCMPL((byte) 0x95),
-	FCMPG((byte) 0x96),
-	DCMPL((byte) 0x97),
-	DCMPG((byte) 0x98),
-	IFEQ((byte) 0x99, BYTE, BYTE),
-	IFNE((byte) 0x9A,BYTE, BYTE),
-	IFLT((byte) 0x9B, BYTE, BYTE),
-	IFGE((byte) 0x9C, BYTE,BYTE),
-	IFGT((byte) 0x9D, BYTE, BYTE),
-	IFLE((byte) 0x9E, BYTE, BYTE),
-	IF_ICMPEQ((byte) 0x9F, BYTE, BYTE),
-	IF_ICMPNE((byte) 0xA0, BYTE, BYTE),
-	IF_ICMPLT((byte) 0xA1, BYTE, BYTE),
-	IF_ICMPGE((byte) 0xA2, BYTE, BYTE),
-	IF_ICMPGT((byte) 0xA3, BYTE, BYTE),
-	IF_ICMPLE((byte) 0xA4, BYTE, BYTE),
-	IF_ACMPEQ((byte) 0xA5, BYTE, BYTE),
-	IF_ACMPNE((byte) 0xA6, BYTE, BYTE),
-	GOTO((byte) 0xA7, BYTE, BYTE),
-	JSR((byte) 0xA8),
-	RET((byte) 0xA9),
-	TABLESWITCH((byte) 0xAA),
-	// missing args
-	LOOKUPSWITCH((byte) 0xAB),
-	// missing args
-	IRETURN((byte) 0xAC),
-	LRETURN((byte) 0xAD),
-	FRETURN((byte) 0xAE),
-	DRETURN((byte) 0xAF),
-	ARETURN((byte) 0xB0),
-	RETURN((byte) 0xB1),
-	GETSTATIC((byte) 0xB2, INDX, INDX),
-	PUTSTATIC((byte) 0xB3, BYTE, BYTE),
-	GETFIELD((byte) 0xB4, INDX, INDX),
-	PUTFIELD((byte) 0xB5, BYTE, BYTE),
-	INVOKEVIRTUAL((byte) 0xB6, BYTE, BYTE),
-	INVOKESPECIAL((byte) 0xB7, BYTE, BYTE),
-	INVOKESTATIC((byte) 0xB8, BYTE, BYTE),
-	INVOKEINTERFACE((byte) 0xB9, BYTE, BYTE,BYTE, BYTE),
-	INVOKEDYNAMIC((byte) 0xBA, BYTE, BYTE, BYTE, BYTE),
-	NEW((byte) 0xBB, BYTE, BYTE),
-	NEWARRAY((byte) 0xBC, INDX),
-	ANEWARRAY((byte) 0xBD, BYTE, BYTE),
-	ARRAYLENGTH((byte) 0xBE),
-	ATHROW((byte) 0xBF),
-	CHECKCAST((byte) 0xC0, BYTE, BYTE),
-	INSTANCEOF((byte) 0xC1, BYTE, BYTE),
-	MONITORENTER((byte) 0xC2),
-	MONITOREXIT((byte) 0xC3),
-	WIDE((byte) 0xC4),
-	// missing args
-	MULTIANEWARRAY((byte) 0xC5, BYTE, BYTE, BYTE),
-	IFNULL((byte) 0xC6, BYTE,BYTE),
-	IFNONNULL((byte) 0xC7, BYTE, BYTE),
-	GOTO_W((byte) 0xC8,BYTE, BYTE, BYTE, BYTE),
-	JSR_W((byte) 0xC9, BYTE, BYTE, BYTE, BYTE),
-	BREAKPOINT((byte) 0xCA),
+	NOP             (0x00),
+	ACONST_NULL     (0x01),
+	ICONST_M1       (0x02),
+	ICONST_0        (0x03),
+	ICONST_1        (0x04),
+	ICONST_2        (0x05),
+	ICONST_3        (0x06),
+	ICONST_4        (0x07),
+	ICONST_5        (0x08),
+	LCONST_0        (0x09),
+	LCONST_1        (0x0A),
+	FCONST_0        (0x0B),
+	FCONST_1        (0x0C),
+	FCONST_2        (0x0D),
+	DCONST_0        (0x0E),
+	DCONST_1        (0x0F),
+	BIPUSH          (0x10, 1),
+	SIPUSH          (0x11, 2),
+	LDC             (0x12, 1),
+	LDC_W           (0x13, 2),
+	LDC2_W          (0x14, 2),
+	ILOAD           (0x15, 1),
+	LLOAD           (0x16, 1),
+	FLOAD           (0x17, 1),
+	DLOAD           (0x18, 1),
+	ALOAD           (0x19, 1),
+	ILOAD_0         (0x1A),
+	ILOAD_1         (0x1B),
+	ILOAD_2         (0x1C),
+	ILOAD_3         (0x1D),
+	LLOAD_0         (0x1E),
+	LLOAD_1         (0x1F),
+	LLOAD_2         (0x20),
+	LLOAD_3         (0x21),
+	FLOAD_0         (0x22),
+	FLOAD_1         (0x23),
+	FLOAD_2         (0x24),
+	FLOAD_3         (0x25),
+	DLOAD_0         (0x26),
+	DLOAD_1         (0x27),
+	DLOAD_2         (0x28),
+	DLOAD_3         (0x29),
+	ALOAD_0         (0x2A),
+	ALOAD_1         (0x2B),
+	ALOAD_2         (0x2C),
+	ALOAD_3         (0x2D),
+	IALOAD          (0x2E),
+	LALOAD          (0x2F),
+	FALOAD          (0x30),
+	DALOAD          (0x31),
+	AALOAD          (0x32),
+	BALOAD          (0x33),
+	CALOAD          (0x34),
+	SALOAD          (0x35),
+	ISTORE          (0x36, 1),
+	LSTORE          (0x37, 1),
+	FSTORE          (0x38, 1),
+	DSTORE          (0x39, 1),
+	ASTORE          (0x3A, 1),
+	ISTORE_0        (0x3B),
+	ISTORE_1        (0x3C),
+	ISTORE_2        (0x3D),
+	ISTORE_3        (0x3E),
+	LSTORE_0        (0x3F),
+	LSTORE_1        (0x40),
+	LSTORE_2        (0x41),
+	LSTORE_3        (0x42),
+	FSTORE_0        (0x43),
+	FSTORE_1        (0x44),
+	FSTORE_2        (0x45),
+	FSTORE_3        (0x46),
+	DSTORE_0        (0x47),
+	DSTORE_1        (0x48),
+	DSTORE_2        (0x49),
+	DSTORE_3        (0x4A),
+	ASTORE_0        (0x4B),
+	ASTORE_1        (0x4C),
+	ASTORE_2        (0x4D),
+	ASTORE_3        (0x4E),
+	IASTORE         (0x4F),
+	LASTORE         (0x50),
+	FASTORE         (0x51),
+	DASTORE         (0x52),
+	AASTORE         (0x53),
+	BASTORE         (0x54),
+	CASTORE         (0x55),
+	SASTORE         (0x56),
+	POP             (0x57),
+	POP2            (0x58),
+	DUP             (0x59),
+	DUP_X1          (0x5A),
+	DUP_X2          (0x5B),
+	DUP2            (0x5C),
+	DUP2_X1         (0x5D),
+	DUP2_X2         (0x5E),
+	SWAP            (0x5F),
+	IADD            (0x60),
+	LADD            (0x61),
+	FADD            (0x62),
+	DADD            (0x63),
+	ISUB            (0x64),
+	LSUB            (0x65),
+	FSUB            (0x66),
+	DSUB            (0x67),
+	IMUL            (0x68),
+	LMUL            (0x69),
+	FMUL            (0x6A),
+	DMUL            (0x6B),
+	IDIV            (0x6C),
+	LDIV            (0x6D),
+	FDIV            (0x6E),
+	DDIV            (0x6F),
+	IREM            (0x70),
+	LREM            (0x71),
+	FREM            (0x72),
+	DREM            (0x73),
+	INEG            (0x74),
+	LNEG            (0x75),
+	FNEG            (0x76),
+	DNEG            (0x77),
+	ISHL            (0x78),
+	LSHL            (0x79),
+	ISHR            (0x7A),
+	LSHR            (0x7B),
+	IUSHR           (0x7C),
+	LUSHR           (0x7D),
+	IAND            (0x7E),
+	LAND            (0x7F),
+	IOR             (0x80),
+	LOR             (0x81),
+	IXOR            (0x82),
+	LXOR            (0x83),
+	IINC            (0x84, 2),
+	I2L             (0x85),
+	I2F             (0x86),
+	I2D             (0x87),
+	L2I             (0x88),
+	L2F             (0x89),
+	L2D             (0x8A),
+	F2I             (0x8B),
+	F2L             (0x8C),
+	F2D             (0x8D),
+	D2I             (0x8E),
+	D2L             (0x8F),
+	D2F             (0x90),
+	I2B             (0x91),
+	I2C             (0x92),
+	I2S             (0x93),
+	LCMP            (0x94),
+	FCMPL           (0x95),
+	FCMPG           (0x96),
+	DCMPL           (0x97),
+	DCMPG           (0x98),
+	IFEQ            (0x99, 2),
+	IFNE            (0x9A, 2),
+	IFLT            (0x9B, 2),
+	IFGE            (0x9C, 2),
+	IFGT            (0x9D, 2),
+	IFLE            (0x9E, 2),
+	IF_ICMPEQ       (0x9F, 2),
+	IF_ICMPNE       (0xA0, 2),
+	IF_ICMPLT       (0xA1, 2),
+	IF_ICMPGE       (0xA2, 2),
+	IF_ICMPGT       (0xA3, 2),
+	IF_ICMPLE       (0xA4, 2),
+	IF_ACMPEQ       (0xA5, 2),
+	IF_ACMPNE       (0xA6, 2),
+	GOTO            (0xA7, 2),
+	JSR             (0xA8, 2),
+	RET             (0xA9, 1),
+	TABLESWITCH     (0xAA, 4), // also 4+
+	LOOKUPSWITCH    (0xAB, 4), // also 4+
+	IRETURN         (0xAC),
+	LRETURN         (0xAD),
+	FRETURN         (0xAE),
+	DRETURN         (0xAF),
+	ARETURN         (0xB0),
+	RETURN          (0xB1),
+	GETSTATIC       (0xB2, 2),
+	PUTSTATIC       (0xB3, 2),
+	GETFIELD        (0xB4, 2),
+	PUTFIELD        (0xB5, 2),
+	INVOKEVIRTUAL   (0xB6, 2),
+	INVOKESPECIAL   (0xB7, 2),
+	INVOKESTATIC    (0xB8, 2),
+	INVOKEINTERFACE (0xB9, 4),
+	INVOKEDYNAMIC   (0xBA, 4),
+	NEW             (0xBB, 2),
+	NEWARRAY        (0xBC, 1),
+	ANEWARRAY       (0xBD, 2),
+	ARRAYLENGTH     (0xBE),
+	ATHROW          (0xBF),
+	CHECKCAST       (0xC0, 2),
+	INSTANCEOF      (0xC1, 2),
+	MONITORENTER    (0xC2),
+	MONITOREXIT     (0xC3),
+	WIDE            (0xC4, 3), // also 5
+	MULTIANEWARRAY  (0xC5, 3),
+	IFNULL          (0xC6, 2),
+	IFNONNULL       (0xC7, 2),
+	GOTO_W          (0xC8, 4),
+	JSR_W           (0xC9, 4),
+	BREAKPOINT      (0xCA),
 	// 0xCB .. 0XFD not assigned
-	IMPDEP1((byte) 0xFE),
-	IMPDEP2((byte) 0xFF);
+	IMPDEP1         (0xFE),
+	IMPDEP2         (0xFF);
 	// @formatter:on
 
-	public static enum ArgumentType
-	{
-		BYTE, INDX
-	}
-
-	private final int size;
 	private final byte byteCode;
-	private final ArgumentType[] argumentTypes;
+	private final int argc;
 
-	private Mnemonic(byte hexCode, final ArgumentType... argumentTypes) {
-		this.byteCode = hexCode;
-		this.argumentTypes = argumentTypes;
-		this.size = 1 + (argumentTypes != null ? argumentTypes.length : 0);
+	private Mnemonic(int hexCode, int argc) {
+		this.byteCode = (byte) hexCode;
+		this.argc = argc;
 	}
 
-	public ArgumentType[] getArgumentTypes() {
-		return argumentTypes;
-	}
-
-	public int getArgumentCount() {
-		return argumentTypes.length;
+	private Mnemonic(int hexCode) {
+		this(hexCode, 0);
 	}
 
 	/**
@@ -258,6 +243,10 @@ public enum Mnemonic
 	 */
 	public String getMnemonic() {
 		return name();
+	}
+
+	public int getArgsCount() {
+		return argc;
 	}
 
 	/**
@@ -282,8 +271,99 @@ public enum Mnemonic
 		return byteCode;
 	}
 
-	public int getSize() {
-		return size;
+	private static Mnemonic varMnemonic(final String prefix, final int value) {
+		try {
+			final String name = prefix + "_"
+					+ (value == -1 ? "M1" : Integer.toString(value));
+			final Mnemonic m = valueOf(name);
+			return m;
+		} catch (IllegalArgumentException e) {
+			return valueOf(prefix);
+		}
+	}
+
+	public static Mnemonic ICONST(final int value) {
+		// if (value >= -1 && value <= 5)
+		return varMnemonic("ICONST", value);
+		// return null;
+	}
+
+	public static Mnemonic LCONST(final int value) {
+		// if (value >= 0 && value <= 1)
+		return varMnemonic("LCONST", value);
+		// return null;
+	}
+
+	public static Mnemonic FCONST(final int value) {
+		// if (value >= 0 && value <= 2)
+		return varMnemonic("FCONST", value);
+		// return null;
+	}
+
+	public static Mnemonic DCONST(final int value) {
+		// if (value >= 0 && value <= 1)
+		return varMnemonic("DCONST", value);
+		// return null;
+	}
+
+	public static Mnemonic ILOAD(final int value) {
+		// if (value >= 0 && value <= 3)
+		return varMnemonic("ILOAD", value);
+		// return null;
+	}
+
+	public static Mnemonic LLOAD(final int value) {
+		// if (value >= 0 && value <= 3)
+		return varMnemonic("LLOAD", value);
+		// return null;
+	}
+
+	public static Mnemonic FLOAD(final int value) {
+		// if (value >= 0 && value <= 3)
+		return varMnemonic("FLOAD", value);
+		// return null;
+	}
+
+	public static Mnemonic DLOAD(final int value) {
+		// if (value >= 0 && value <= 3)
+		return varMnemonic("DLOAD", value);
+		// return null;
+	}
+
+	public static Mnemonic ALOAD(final int value) {
+		// if (value >= 0 && value <= 3)
+		return varMnemonic("ALOAD", value);
+		// return null;
+	}
+
+	public static Mnemonic ISTORE(final int value) {
+		// if (value >= 0 && value <= 3)
+		return varMnemonic("ISTORE", value);
+		// return null;
+	}
+
+	public static Mnemonic LSTORE(final int value) {
+		// if (value >= 0 && value <= 3)
+		return varMnemonic("LSTORE", value);
+		// return null;
+	}
+
+	public static Mnemonic FSTORE(final int value) {
+		// if (value >= 0 && value <= 3)
+		return varMnemonic("FSTORE", value);
+		// return null;
+	}
+
+	public static Mnemonic DSTORE(final int value) {
+		// if (value >= 0 && value <= 3)
+		return varMnemonic("DSTORE", value);
+		// return null;
+	}
+
+	public static Mnemonic ASTORE(final int value) {
+		// if (value >= 0 && value <= 3)
+		return varMnemonic("ASTORE", value);
+		// return null;
 	}
 
 }

@@ -30,7 +30,7 @@ public class ControllerTemp
 					"doubleVar"));
 			add(new QuadrupleImpl(Operator.DECLARE_STRING, "#teststring", "!",
 					"stringVar"));
-			add(new QuadrupleImpl(Operator.DECLARE_BOOL, "#TRUE", "!", "bool1"));
+			add(new QuadrupleImpl(Operator.DECLARE_BOOLEAN, "#TRUE", "!", "bool1"));
 
 			/* Variable declaration */
 			/*

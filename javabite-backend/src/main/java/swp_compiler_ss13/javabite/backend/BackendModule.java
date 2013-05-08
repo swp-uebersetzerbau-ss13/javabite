@@ -8,11 +8,12 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import swp_compiler_ss13.common.backend.Backend;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.javabite.backend.translation.TACOptimizer;
 import swp_compiler_ss13.javabite.backend.translation.TargetCodeOptimizer;
 import swp_compiler_ss13.javabite.backend.translation.Translator;
-
 
 /**
  * BackendImpl class. Implementation of the interface "Backend".
@@ -47,20 +48,22 @@ public class BackendModule implements Backend
 		// ### currently empty ###
 
 		Map<String, InputStream> targetCodeS = createTargetCodeStreams(classfiles);
-		
-		// simple visualization 
+
+		// simple visualization
 		visualizeTargetCode(targetCodeS);
-		
+
 		return targetCodeS;
 	}
-	
-	private Map<String, InputStream> createTargetCodeStreams(Collection<IClassfile> classfiles) {
+
+	private Map<String, InputStream> createTargetCodeStreams(
+			Collection<IClassfile> classfiles) {
 		Map<String, InputStream> targetCodeIS = new HashMap<>();
-		
-		for(IClassfile classfile : classfiles) {
-			targetCodeIS.put(classfile.getName(), classfile.generateInputstream());
+
+		for (IClassfile classfile : classfiles) {
+			targetCodeIS.put(classfile.getName(),
+					classfile.generateInputstream());
 		}
-		
+
 		return targetCodeIS;
 	}
 
@@ -68,27 +71,28 @@ public class BackendModule implements Backend
 	 * print content of inputstreams to console
 	 */
 	private void visualizeTargetCode(Map<String, InputStream> targetCodeIS) {
-		
-		for(String classname : targetCodeIS.keySet()) {
+
+		for (String classname : targetCodeIS.keySet()) {
 
 			StringBuilder sb = new StringBuilder();
-			sb.append("Classname : "+ classname + "\n");
+			sb.append("Classname : " + classname + "\n");
 			sb.append("Content : \n\n");
-			
-			ByteArrayInputStream  is = (ByteArrayInputStream) targetCodeIS.get(classname);			
+
+			ByteArrayInputStream is = (ByteArrayInputStream) targetCodeIS
+					.get(classname);
 			DataInputStream dis = new DataInputStream(is);
-			
+
 			int i = 0;
 			byte b;
 			try {
-				while((b = (byte) dis.read()) != -1) {
+				while ((b = (byte) dis.read()) != -1) {
 					String tmp = Integer.toHexString(((b + 256) % 256));
 					if (tmp.length() < 2) {
 						sb.append(0).append(tmp).append(" ");
 					} else {
 						sb.append(tmp).append(" ");
 					}
-				
+
 					i++;
 					if (i == 16) {
 						sb.append("\n");
@@ -101,6 +105,5 @@ public class BackendModule implements Backend
 			System.out.println(sb.toString());
 		}
 	}
-
 
 }
