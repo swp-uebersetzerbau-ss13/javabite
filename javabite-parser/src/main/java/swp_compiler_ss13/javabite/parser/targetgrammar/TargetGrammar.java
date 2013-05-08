@@ -51,6 +51,7 @@ public class TargetGrammar {
 	
 	// Nonterminals of our grammar
 	NonTerminal program=new NonTerminal("program");
+	NonTerminal block=new NonTerminal("block");
 	NonTerminal decls=new NonTerminal("decls");
 	NonTerminal decl=new NonTerminal("decl");
 	NonTerminal type=new NonTerminal("type");
@@ -58,6 +59,10 @@ public class TargetGrammar {
 	NonTerminal stmt=new NonTerminal("stmt");
 	NonTerminal assign=new NonTerminal("assign");
 	NonTerminal loc=new NonTerminal("loc");
+	NonTerminal bool=new NonTerminal("bool");
+	NonTerminal join=new NonTerminal("join");
+	NonTerminal equality=new NonTerminal("equality");
+	NonTerminal rel=new NonTerminal("rel");
 	NonTerminal expr=new NonTerminal("expr");
 	NonTerminal term=new NonTerminal("term");
 	NonTerminal unary=new NonTerminal("unary");
@@ -75,13 +80,18 @@ public class TargetGrammar {
 		grammar=new Grammar<Terminal,NonTerminal>(program,artificial_start,t(TokenType.EOF),eps);
 		
 		grammar.addProduction(program, list(decls,stmts));
+		grammar.addProduction(block, list(t(TokenType.LEFT_BRACE),decls,stmts,t(TokenType.RIGHT_BRACE)));
 		grammar.addProduction(decls, list(decls,decl),list(eps));
 		grammar.addProduction(decl, list(type,t(TokenType.ID),t(TokenType.SEMICOLON)));
 		grammar.addProduction(type, list(t(TokenType.DOUBLE_SYMBOL)),list(t(TokenType.LONG_SYMBOL)));
 		grammar.addProduction(stmts, list(stmts,stmt),list(eps));
 		grammar.addProduction(stmt, list(assign,t(TokenType.SEMICOLON)),list(t(TokenType.RETURN),t(TokenType.ID),t(TokenType.SEMICOLON)));
-		grammar.addProduction(assign,list(loc,t(TokenType.ASSIGNOP),expr));
 		grammar.addProduction(loc,list(t(TokenType.ID)));
+		grammar.addProduction(assign,list(loc,t(TokenType.ASSIGNOP),expr),list(bool));
+		grammar.addProduction(bool,list(bool,t(TokenType.OR),join),list(join));
+		grammar.addProduction(join,list(join,t(TokenType.AND),equality),list(equality));
+		grammar.addProduction(equality,list(equality,t(TokenType.EQUALS),rel),list(equality,t(TokenType.NOT_EQUALS),rel),list(rel));
+		grammar.addProduction(rel,list(expr,t(TokenType.LESS),expr),list(expr,t(TokenType.LESS_OR_EQUAL),expr),list(expr,t(TokenType.GREATER),expr),list(expr,t(TokenType.GREATER_EQUAL),expr),list(expr));
 		grammar.addProduction(expr,list(expr,t(TokenType.PLUS),term),list(expr,t(TokenType.MINUS),term),list(term));
 		grammar.addProduction(term,list(term,t(TokenType.TIMES),unary),list(term,t(TokenType.DIVIDE),unary),list(unary));
 		grammar.addProduction(unary, list(t(TokenType.MINUS),unary), list(factor));

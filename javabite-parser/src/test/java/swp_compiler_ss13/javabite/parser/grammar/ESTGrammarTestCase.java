@@ -163,6 +163,28 @@ public class ESTGrammarTestCase {
 	}
 	
 	@Test
+	public void testLexerIntegrationVeryComplexAllElements(){
+		String toCheck="" +
+				"long i;" +
+				"long j;" +
+				"i=(2+2);" +
+				"j=2;" +
+				"return j;";
+		LexerJb lex=new LexerJb();
+		lex.setSourceStream(new ByteArrayInputStream(toCheck.getBytes()));
+		List<Token> tList=new LinkedList<>();
+		Token t;
+		do{
+			t=lex.getNextToken();
+			tList.add(t);
+		} while (t.getTokenType()!=TokenType.EOF);
+		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
+		List<Reduction> res= syn.derivate(sc);
+		logger.info("Source was\n {}\n",tList);
+		logger.info("res : {}",resAsReadableString(res));
+	}
+	
+	@Test
 	public void testLexerIntegrationSimple(){
 		String toCheck="long i;";
 		LexerJb lex=new LexerJb();
