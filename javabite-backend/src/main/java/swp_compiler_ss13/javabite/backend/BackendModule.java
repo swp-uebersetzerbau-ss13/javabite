@@ -26,10 +26,10 @@ public class BackendModule implements Backend
 {
 
 	@SuppressWarnings("unused")
-	private TACOptimizer tacOptimizer;
-	private Translator translator;
+	private final TACOptimizer tacOptimizer;
+	private final Translator translator;
 	@SuppressWarnings("unused")
-	private TargetCodeOptimizer targetCodeOptimizer;
+	private final TargetCodeOptimizer targetCodeOptimizer;
 
 	public BackendModule() {
 		this.tacOptimizer = new TACOptimizer();
@@ -38,16 +38,17 @@ public class BackendModule implements Backend
 	}
 
 	@Override
-	public Map<String, InputStream> generateTargetCode(List<Quadruple> tac) {
+	public Map<String, InputStream> generateTargetCode(final List<Quadruple> tac) {
 
 		// TAC Optimizer
 		// ### currently empty ###
 		// Translator
-		Collection<IClassfile> classfiles = this.translator.translate(tac);
+		final Collection<IClassfile> classfiles = this.translator
+				.translate(tac);
 		// Target Code Optimizer
 		// ### currently empty ###
 
-		Map<String, InputStream> targetCodeS = createTargetCodeStreams(classfiles);
+		final Map<String, InputStream> targetCodeS = createTargetCodeStreams(classfiles);
 
 		// simple visualization
 		visualizeTargetCode(targetCodeS);
@@ -56,10 +57,10 @@ public class BackendModule implements Backend
 	}
 
 	private Map<String, InputStream> createTargetCodeStreams(
-			Collection<IClassfile> classfiles) {
-		Map<String, InputStream> targetCodeIS = new HashMap<>();
+			final Collection<IClassfile> classfiles) {
+		final Map<String, InputStream> targetCodeIS = new HashMap<>();
 
-		for (IClassfile classfile : classfiles) {
+		for (final IClassfile classfile : classfiles) {
 			targetCodeIS.put(classfile.getName(),
 					classfile.generateInputstream());
 		}
@@ -70,23 +71,23 @@ public class BackendModule implements Backend
 	/*
 	 * print content of inputstreams to console
 	 */
-	private void visualizeTargetCode(Map<String, InputStream> targetCodeIS) {
+	private void visualizeTargetCode(final Map<String, InputStream> targetCodeIS) {
 
-		for (String classname : targetCodeIS.keySet()) {
+		for (final String classname : targetCodeIS.keySet()) {
 
-			StringBuilder sb = new StringBuilder();
+			final StringBuilder sb = new StringBuilder();
 			sb.append("Classname : " + classname + "\n");
 			sb.append("Content : \n\n");
 
-			ByteArrayInputStream is = (ByteArrayInputStream) targetCodeIS
+			final ByteArrayInputStream is = (ByteArrayInputStream) targetCodeIS
 					.get(classname);
-			DataInputStream dis = new DataInputStream(is);
+			final DataInputStream dis = new DataInputStream(is);
 
 			int i = 0;
 			byte b;
 			try {
 				while ((b = (byte) dis.read()) != -1) {
-					String tmp = Integer.toHexString(((b + 256) % 256));
+					final String tmp = Integer.toHexString(((b + 256) % 256));
 					if (tmp.length() < 2) {
 						sb.append(0).append(tmp).append(" ");
 					} else {
@@ -99,7 +100,7 @@ public class BackendModule implements Backend
 						i = 0;
 					}
 				}
-			} catch (IOException e) {
+			} catch (final IOException e) {
 				e.printStackTrace();
 			}
 			System.out.println(sb.toString());

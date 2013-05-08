@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import swp_compiler_ss13.common.backend.Quadruple;
-import swp_compiler_ss13.common.backend.Quadruple.*;
+import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.external.QuadrupleImpl;
 
 /**
@@ -30,7 +30,8 @@ public class ControllerTemp
 					"doubleVar"));
 			add(new QuadrupleImpl(Operator.DECLARE_STRING, "#teststring", "!",
 					"stringVar"));
-			add(new QuadrupleImpl(Operator.DECLARE_BOOLEAN, "#TRUE", "!", "bool1"));
+			add(new QuadrupleImpl(Operator.DECLARE_BOOLEAN, "#TRUE", "!",
+					"bool1"));
 
 			/* Variable declaration */
 			/*
@@ -111,11 +112,11 @@ public class ControllerTemp
 		}
 	};
 
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
 
-		StringBuilder sb = new StringBuilder();
+		final StringBuilder sb = new StringBuilder();
 
-		for (Quadruple quad : ControllerTemp.tac) {
+		for (final Quadruple quad : ControllerTemp.tac) {
 			sb.append(quad.getOperator());
 			sb.append(" | ");
 			sb.append(quad.getArgument1());
@@ -128,7 +129,7 @@ public class ControllerTemp
 
 		// System.out.println(sb.toString());
 
-		BackendModule backend = new BackendModule();
+		final BackendModule backend = new BackendModule();
 		backend.generateTargetCode(tac);
 	}
 

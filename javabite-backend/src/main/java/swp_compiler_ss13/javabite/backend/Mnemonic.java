@@ -225,12 +225,12 @@ public enum Mnemonic
 	private final byte byteCode;
 	private final int argc;
 
-	private Mnemonic(int hexCode, int argc) {
+	private Mnemonic(final int hexCode, final int argc) {
 		this.byteCode = (byte) hexCode;
 		this.argc = argc;
 	}
 
-	private Mnemonic(int hexCode) {
+	private Mnemonic(final int hexCode) {
 		this(hexCode, 0);
 	}
 
@@ -277,7 +277,7 @@ public enum Mnemonic
 					+ (value == -1 ? "M1" : Integer.toString(value));
 			final Mnemonic m = valueOf(name);
 			return m;
-		} catch (IllegalArgumentException e) {
+		} catch (final IllegalArgumentException e) {
 			return valueOf(prefix);
 		}
 	}

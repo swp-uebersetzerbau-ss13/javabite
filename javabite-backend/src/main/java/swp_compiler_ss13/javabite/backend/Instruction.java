@@ -1,5 +1,8 @@
 package swp_compiler_ss13.javabite.backend;
 
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.hexFromBytes;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.hexFromInt;
+
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -8,12 +11,17 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.*;
-
+/**
+ * This class represents a bytecode instruction, with its opcode and arguments.
+ * 
+ * @author eike
+ * @since 23.04.2013
+ * 
+ */
 public class Instruction
 {
-	
-	Logger logger=LoggerFactory.getLogger(this.getClass());
+
+	final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	// offset to predecessor
 	// private int offset;
@@ -22,13 +30,13 @@ public class Instruction
 	private final int size;
 
 	public Instruction(final int size, final Mnemonic mnemonic,
-			List<Byte> arguments) {
+			final List<Byte> arguments) {
 		this.size = size;
 		this.mnemonic = mnemonic;
 		this.arguments = arguments;
 	}
 
-	public Instruction(int size, Mnemonic mnemonic) {
+	public Instruction(final int size, final Mnemonic mnemonic) {
 		this(size, mnemonic, null);
 	}
 
@@ -41,44 +49,43 @@ public class Instruction
 	 * 
 	 */
 	public ArrayList<Byte> getBytes() {
-		ArrayList<Byte> instructionBytes = new ArrayList<Byte>();
-		
+		final ArrayList<Byte> instructionBytes = new ArrayList<Byte>();
+
 		// get op byte
 		instructionBytes.add(this.mnemonic.getBytecode());
 		// get arguments' bytes
 		if (this.getArguments() != null) {
 			instructionBytes.addAll(this.getArguments());
 		}
-		
+
 		return instructionBytes;
 	}
-	
-	public void writeTo(DataOutputStream outputStream) {
+
+	public void writeTo(final DataOutputStream outputStream) {
 		try {
 			outputStream.writeByte(this.mnemonic.getBytecode());
-			
-			if(logger.isDebugEnabled()) {
+
+			if (logger.isDebugEnabled()) {
 				logger.info("mnemonic bcode");
 				logger.info("{}", hexFromInt(this.mnemonic.getBytecode()));
 			}
-			
+
 			if (this.getArguments() != null) {
-				for(Byte b : this.getArguments()) {
+				for (final Byte b : this.getArguments()) {
 					outputStream.writeByte(b);
 				}
-				
-				if(logger.isDebugEnabled()) {
+
+				if (logger.isDebugEnabled()) {
 					logger.info("arguments");
 					logger.info("{}", hexFromBytes(this.getArguments()));
 				}
 			}
-		} catch (IOException e) {
+		} catch (final IOException e) {
 			e.printStackTrace();
 		}
-		
-		
+
 	}
-		
+
 	/*
 	 * TODO for MS2 public int getOffset() { return offset; }
 	 * 
@@ -90,7 +97,7 @@ public class Instruction
 		return mnemonic;
 	}
 
-	public void setMnemonic(Mnemonic mnemonic) {
+	public void setMnemonic(final Mnemonic mnemonic) {
 		this.mnemonic = mnemonic;
 	}
 
@@ -98,14 +105,12 @@ public class Instruction
 		return arguments;
 	}
 
-	public void setArguments(List<Byte> arguments) {
+	public void setArguments(final List<Byte> arguments) {
 		this.arguments = arguments;
 	}
 
 	public int getSize() {
 		return size;
 	}
-
-
 
 }

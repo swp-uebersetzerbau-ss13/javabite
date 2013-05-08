@@ -9,17 +9,18 @@ import swp_compiler_ss13.common.backend.Quadruple;
 public class QuadrupleImpl implements Quadruple
 {
 
-	public QuadrupleImpl(Operator op, String arg1, String arg2, String res) {
+	public QuadrupleImpl(final Operator op, final String arg1,
+			final String arg2, final String res) {
 		this.op = op;
 		this.arg1 = arg1;
 		this.arg2 = arg2;
 		this.res = res;
 	}
 
-	private Operator op;
-	private String arg1;
-	private String arg2;
-	private String res;
+	private final Operator op;
+	private final String arg1;
+	private final String arg2;
+	private final String res;
 
 	@Override
 	public Operator getOperator() {

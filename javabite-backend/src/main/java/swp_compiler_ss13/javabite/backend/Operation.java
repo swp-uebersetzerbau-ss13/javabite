@@ -5,9 +5,16 @@ import java.util.Arrays;
 import java.util.List;
 
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
-import swp_compiler_ss13.javabite.backend.Mnemonic;
-import swp_compiler_ss13.javabite.backend.Instruction;
 
+/**
+ * This class represents a list of instructions and maps every tac-operation to
+ * their bytecode equivalent. It is used to carry logical groups of
+ * instructions.
+ * 
+ * @author eike
+ * @since 23.04.2013
+ * 
+ */
 public class Operation
 {
 
@@ -53,7 +60,7 @@ public class Operation
 		 * @return instance of this builder
 		 */
 		public OperationBuilder add(final Mnemonic mnemonic,
-				final int argsSize, Byte... arguments) {
+				final int argsSize, final Byte... arguments) {
 			final int size;
 			final Instruction instruction;
 			if (mnemonic.getArgsCount() > 0) {
@@ -91,7 +98,7 @@ public class Operation
 
 	}
 
-	private List<Instruction> instructions;
+	private final List<Instruction> instructions;
 	private int size;
 	private Operator operator;
 

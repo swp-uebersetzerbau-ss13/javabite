@@ -27,55 +27,104 @@ public class Program
 			return newBuilder(0);
 		}
 
-//		private final int initialOffset;
-//		private int currentOffset;
-		private List<Operation> operations;
+		// private final int initialOffset;
+		// private int currentOffset;
+		private final List<Operation> operations;
 
 		private ProgramBuilder(final int initialOffset) {
-//			this.initialOffset = initialOffset;
-//			this.currentOffset = initialOffset;
+			// this.initialOffset = initialOffset;
+			// this.currentOffset = initialOffset;
 			this.operations = new ArrayList<>();
 		}
 
-		public ProgramBuilder add(Operation operation) {
+		public ProgramBuilder add(final Operation operation) {
 			operations.add(operation);
-//			for (Instruction instruction : operation.getInstructions()) {
-//				instruction.setOffset(instruction.getOffset() + currentOffset);
-//			}
-//			currentOffset += operation.getSize();
+			// for (Instruction instruction : operation.getInstructions()) {
+			// instruction.setOffset(instruction.getOffset() + currentOffset);
+			// }
+			// currentOffset += operation.getSize();
 			return this;
 		}
 
 		public Program build() {
 			return new Program(operations);
 		}
-		
-		public ProgramBuilder declareLong(final Quadruple q) { return this; }
-		public ProgramBuilder declareDouble(final Quadruple q) { return this; }
-		public ProgramBuilder declareString(final Quadruple q) { return this; }
-		public ProgramBuilder declareBoolean(final Quadruple q) { return this; }
-		
-		public ProgramBuilder longToDouble(final Quadruple q) { return this; }
-		public ProgramBuilder doubleToLong(final Quadruple q) { return this; }
-		
-		public ProgramBuilder assignLong(final Quadruple q) { return this; }
-		public ProgramBuilder assignDouble(final Quadruple q) { return this; }
-		public ProgramBuilder assignString(final Quadruple q) { return this; }
-		public ProgramBuilder assignBoolean(final Quadruple q) { return this; }
 
-		public ProgramBuilder addLong(final Quadruple q) { return this; }
-		public ProgramBuilder addDouble(final Quadruple q) { return this; }
+		public ProgramBuilder declareLong(final Quadruple q) {
+			return this;
+		}
 
-		public ProgramBuilder subLong(final Quadruple q) { return this; }
-		public ProgramBuilder subDouble(final Quadruple q) { return this; }
+		public ProgramBuilder declareDouble(final Quadruple q) {
+			return this;
+		}
 
-		public ProgramBuilder mulLong(final Quadruple q) { return this; }
-		public ProgramBuilder mulDouble(final Quadruple q) { return this; }
+		public ProgramBuilder declareString(final Quadruple q) {
+			return this;
+		}
 
-		public ProgramBuilder divLong(final Quadruple q) { return this; }
-		public ProgramBuilder divDouble(final Quadruple q) { return this; }
-		
-		public ProgramBuilder returnLong(final Quadruple q) { return this; }
+		public ProgramBuilder declareBoolean(final Quadruple q) {
+			return this;
+		}
+
+		public ProgramBuilder longToDouble(final Quadruple q) {
+			return this;
+		}
+
+		public ProgramBuilder doubleToLong(final Quadruple q) {
+			return this;
+		}
+
+		public ProgramBuilder assignLong(final Quadruple q) {
+			return this;
+		}
+
+		public ProgramBuilder assignDouble(final Quadruple q) {
+			return this;
+		}
+
+		public ProgramBuilder assignString(final Quadruple q) {
+			return this;
+		}
+
+		public ProgramBuilder assignBoolean(final Quadruple q) {
+			return this;
+		}
+
+		public ProgramBuilder addLong(final Quadruple q) {
+			return this;
+		}
+
+		public ProgramBuilder addDouble(final Quadruple q) {
+			return this;
+		}
+
+		public ProgramBuilder subLong(final Quadruple q) {
+			return this;
+		}
+
+		public ProgramBuilder subDouble(final Quadruple q) {
+			return this;
+		}
+
+		public ProgramBuilder mulLong(final Quadruple q) {
+			return this;
+		}
+
+		public ProgramBuilder mulDouble(final Quadruple q) {
+			return this;
+		}
+
+		public ProgramBuilder divLong(final Quadruple q) {
+			return this;
+		}
+
+		public ProgramBuilder divDouble(final Quadruple q) {
+			return this;
+		}
+
+		public ProgramBuilder returnLong(final Quadruple q) {
+			return this;
+		}
 
 	}
 
