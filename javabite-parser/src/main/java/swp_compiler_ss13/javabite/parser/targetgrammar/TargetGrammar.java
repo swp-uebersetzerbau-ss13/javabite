@@ -85,8 +85,8 @@ public class TargetGrammar {
 		grammar.addProduction(expr,list(expr,t(TokenType.PLUS),term),list(expr,t(TokenType.MINUS),term),list(term));
 		grammar.addProduction(term,list(term,t(TokenType.TIMES),unary),list(term,t(TokenType.DIVIDE),unary),list(unary));
 		grammar.addProduction(unary, list(t(TokenType.MINUS),unary), list(factor));
-		grammar.addProduction(factor, list(t(TokenType.NUM)), list(t(TokenType.REAL)),list(loc));
-
+		grammar.addProduction(factor, list(t(TokenType.NUM)), list(t(TokenType.REAL)),list(loc),list(t(TokenType.LEFT_PARAN),assign,t(TokenType.RIGHT_PARAN)));
+		
 		automaton=new SLRAutomaton<>(grammar);
 	}
 	

@@ -2,6 +2,7 @@ package swp_compiler_ss13.javabite.parser.grammar;
 
 import static org.junit.Assert.assertTrue;
 
+import java.io.ByteArrayInputStream;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -9,12 +10,14 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
+import swp_compiler_ss13.javabite.lexer.LexerJb;
 import swp_compiler_ss13.javabite.parser.targetgrammar.TargetGrammar;
 import swp_compiler_ss13.javabite.parser.targetgrammar.TargetGrammar.Reduction;
-import swp_compiler_ss13.javabite.token.RealTokenJb;
 import swp_compiler_ss13.javabite.token.TokenJb;
+
 
 public class ESTGrammarTestCase {
 
@@ -35,6 +38,21 @@ public class ESTGrammarTestCase {
 		List<Token> tList=new LinkedList<>();
 		tList.add(new TokenJb(TokenType.LONG_SYMBOL, "long"));
 		tList.add(new TokenJb(TokenType.ID, "i"));
+		tList.add(new TokenJb(TokenType.SEMICOLON,";"));
+		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
+		List<Reduction> res= syn.derivate(sc);
+		logger.info("derivation of tList {}",tList);
+		logger.info("res : {}",resAsReadableString(res));
+	}
+	
+	@Test
+	public void testSimpleDoubleDeclaration(){
+		List<Token> tList=new LinkedList<>();
+		tList.add(new TokenJb(TokenType.LONG_SYMBOL, "long"));
+		tList.add(new TokenJb(TokenType.ID, "i"));
+		tList.add(new TokenJb(TokenType.SEMICOLON,";"));
+		tList.add(new TokenJb(TokenType.LONG_SYMBOL, "long"));
+		tList.add(new TokenJb(TokenType.ID, "j"));
 		tList.add(new TokenJb(TokenType.SEMICOLON,";"));
 		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
 		List<Reduction> res= syn.derivate(sc);
@@ -103,6 +121,61 @@ public class ESTGrammarTestCase {
 		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
 		List<Reduction> res= syn.derivate(sc);
 		logger.info("derivation of tList {}",tList);
+		logger.info("res : {}",resAsReadableString(res));
+	}
+	
+	@Test
+	public void testLexerIntegrationComplex(){
+		String toCheck="long i;long j;";
+		LexerJb lex=new LexerJb();
+		lex.setSourceStream(new ByteArrayInputStream(toCheck.getBytes()));
+		List<Token> tList=new LinkedList<>();
+		Token t;
+		do{
+			t=lex.getNextToken();
+			tList.add(t);
+		} while (t.getTokenType()!=TokenType.EOF);
+		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
+		List<Reduction> res= syn.derivate(sc);
+		logger.info("Source was\n {}\n",tList);
+		logger.info("res : {}",resAsReadableString(res));
+	}
+	@Test
+	public void testLexerIntegrationVeryComplex(){
+		String toCheck="" +
+				"long i;" +
+				"long j;" +
+				"i=(j=2);" +
+				"j=2;" +
+				"return j;";
+		LexerJb lex=new LexerJb();
+		lex.setSourceStream(new ByteArrayInputStream(toCheck.getBytes()));
+		List<Token> tList=new LinkedList<>();
+		Token t;
+		do{
+			t=lex.getNextToken();
+			tList.add(t);
+		} while (t.getTokenType()!=TokenType.EOF);
+		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
+		List<Reduction> res= syn.derivate(sc);
+		logger.info("Source was\n {}\n",tList);
+		logger.info("res : {}",resAsReadableString(res));
+	}
+	
+	@Test
+	public void testLexerIntegrationSimple(){
+		String toCheck="long i;";
+		LexerJb lex=new LexerJb();
+		lex.setSourceStream(new ByteArrayInputStream(toCheck.getBytes()));
+		List<Token> tList=new LinkedList<>();
+		Token t;
+		do{
+			t=lex.getNextToken();
+			tList.add(t);
+		} while (t.getTokenType()!=TokenType.EOF);
+		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
+		List<Reduction> res= syn.derivate(sc);
+		logger.info("Source was\n {}\n",tList);
 		logger.info("res : {}",resAsReadableString(res));
 	}
 	
