@@ -1,18 +1,28 @@
 package swp_compiler_ss13.javabite.backend.marco.proposal1;
 
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.*;
 
 public class Instruction
 {
+	
+	Logger logger=LoggerFactory.getLogger(this.getClass());
 
 	// offset to predecessor
 	// private int offset;
 	private Mnemonic mnemonic;
-	private ArrayList<Byte> arguments;
+	private List<Byte> arguments;
 	private final int size;
 
 	public Instruction(final int size, final Mnemonic mnemonic,
-			ArrayList<Byte> arguments) {
+			List<Byte> arguments) {
 		this.mnemonic = mnemonic;
 		this.arguments = arguments;
 		this.size = size;
@@ -38,6 +48,32 @@ public class Instruction
 		
 		return instructionBytes;
 	}
+	
+	public void writeTo(DataOutputStream outputStream) {
+		try {
+			outputStream.writeByte(this.mnemonic.getBytecode());
+			
+			if(logger.isDebugEnabled()) {
+				logger.info("mnemonic bcode");
+				logger.info("{}", hexFromInt(this.mnemonic.getBytecode()));
+			}
+			
+			if (this.getArguments() != null) {
+				for(Byte b : this.getArguments()) {
+					outputStream.writeByte(b);
+				}
+				
+				if(logger.isDebugEnabled()) {
+					logger.info("arguments");
+					logger.info("{}", hexFromBytes(this.getArguments()));
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		
+	}
 		
 	/*
 	 * TODO for MS2 public int getOffset() { return offset; }
@@ -54,16 +90,18 @@ public class Instruction
 		this.mnemonic = mnemonic;
 	}
 
-	public ArrayList<Byte> getArguments() {
+	public List<Byte> getArguments() {
 		return arguments;
 	}
 
-	public void setArguments(ArrayList<Byte> arguments) {
+	public void setArguments(List<Byte> arguments) {
 		this.arguments = arguments;
 	}
 
 	public int getSize() {
 		return size;
 	}
+
+
 
 }

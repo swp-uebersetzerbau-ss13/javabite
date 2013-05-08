@@ -1,11 +1,20 @@
 package swp_compiler_ss13.javabite.backend.marco.proposal1;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.*;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Classfile class. This class represents all information needed to create a
@@ -15,9 +24,10 @@ import java.util.Map;
  * @since 27.04.2013
  * 
  */
-public class Classfile implements IClassfile
-{
+public class Classfile implements IClassfile {
 
+	Logger logger=LoggerFactory.getLogger(this.getClass());
+	
 	// Name of File
 	private String name;
 
@@ -35,12 +45,12 @@ public class Classfile implements IClassfile
 	private short thisClassIndex;
 	private short superClassIndex;
 	private short interfaceCount;
-	// Interfaces
+	// InterfacesArea left out
 	private short fieldsCount;
-	// FieldArea
+	// FieldArea left out
 	protected MethodArea methodArea;
 	private short attributesCount;
-	// AttribueArea
+	// AttribueArea left out
 
 	/**
 	 * Classfile constructor. This constructor instantiates the classfile's
@@ -108,13 +118,13 @@ public class Classfile implements IClassfile
 		short methodrefIndex = (short) this.constantPool
 				.generateConstantMethodrefInfo(this.thisClassIndex,
 						initNATIndex);
-		ArrayList<Byte> methodRefByteArrayList = ByteCalculator
-				.shortToByteArrayList(methodrefIndex);
+		List<Byte> methodRefByteList = ByteCalculator
+				.shortToByteList(methodrefIndex);
 
 		// add code to initialize-method
 		Instruction InstrAload = new Instruction(1, Mnemonic.ALOAD_0, null);
 		Instruction InstrInvokespecial = new Instruction(3,
-				Mnemonic.INVOKESPECIAL, methodRefByteArrayList);
+				Mnemonic.INVOKESPECIAL, methodRefByteList);
 		Instruction InstrReturn = new Instruction(1, Mnemonic.RETURN, null);
 		this.addInstructionToMethodsCode("<init>", InstrAload);
 		this.addInstructionToMethodsCode("<init>", InstrInvokespecial);
@@ -131,49 +141,60 @@ public class Classfile implements IClassfile
 	 * 
 	 */
 	public InputStream generateInputstream() {
-		return null;
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		DataOutputStream classfileDOS = new DataOutputStream(baos);
+		
+		this.writeTo(classfileDOS);
+		
+		return new ByteArrayInputStream(baos.toByteArray());
 	}
 
-	/**
-	 * getBytes function. (see interface iClassfile)
-	 * 
-	 * @author Marco
-	 * @since 27.04.2013
-	 * 
-	 */
-	public ArrayList<Byte> getBytes() {
-		ArrayList<Byte> classfileBytes = new ArrayList<Byte>();
+	
+	public void writeTo(OutputStream classfileOS) {
+		try {
+			if(logger.isDebugEnabled()) {
+				logger.debug("magic(4B), minorVersion(2B), majorVersion(2B)");
+				logger.debug("{} {} {}", hexFromBytes(magic), hexFromBytes(minorVersion), hexFromBytes(majorVersion));
+			}
+			
+			DataOutputStream classfileDOS = (DataOutputStream) classfileOS;
+			
+			// write metainformation
+			classfileDOS.write(this.magic);
+			classfileDOS.write(this.minorVersion);
+			classfileDOS.write(this.majorVersion);
+			
+			// write constantPool content
+			this.constantPool.writeTo(classfileDOS);
 
-		// Metainformation
-		for (Byte b : this.magic) {
-			classfileBytes.add(b);
-		}
-		for (Byte b : this.minorVersion) {
-			classfileBytes.add(b);
-		}
-		for (Byte b : this.majorVersion) {
-			classfileBytes.add(b);
-		}
+			classfileDOS.writeShort(this.accessFlags);
+			classfileDOS.writeShort(this.thisClassIndex);
+			classfileDOS.writeShort(this.superClassIndex);
+			classfileDOS.writeShort(this.interfaceCount);
+			classfileDOS.writeShort(this.fieldsCount);
+			
+			if(logger.isDebugEnabled()) {
+				logger.debug("accessFlags(2), thisClassIndex(2), superClassIndex(2), interfaceCount(2), fieldsCount(2)");
+				logger.debug("{} {} {} {} {}", 
+						hexFromShort(accessFlags), 
+						hexFromShort(thisClassIndex), 
+						hexFromShort(superClassIndex), 
+						hexFromShort(interfaceCount), 
+						hexFromShort(fieldsCount));
+			}
+			
+			this.methodArea.writeTo(classfileDOS);
 
-		// get bytes of constantPool
-		classfileBytes.addAll(this.constantPool.getBytes());
-		// get access flags bytes
-		classfileBytes.addAll(ByteCalculator.shortToByteArrayList(this.accessFlags));
-		// get this class index bytes
-		classfileBytes.addAll(ByteCalculator.shortToByteArrayList(this.thisClassIndex));
-		// get super class index bytes
-		classfileBytes.addAll(ByteCalculator.shortToByteArrayList(this.superClassIndex));
-		// get interface count bytes
-		classfileBytes.addAll(ByteCalculator.shortToByteArrayList(this.interfaceCount));
-		// get fields count bytes
-		classfileBytes.addAll(ByteCalculator.shortToByteArrayList(this.fieldsCount));
-		// get bytes of methodArea
-		classfileBytes.addAll(this.methodArea.getBytes());
-		// get attributes count bytes
-		classfileBytes.addAll(ByteCalculator.shortToByteArrayList(this.attributesCount));
-
-		// ruturn classfiles bytes
-		return classfileBytes;
+			classfileDOS.writeShort(this.attributesCount);
+		
+			if(logger.isDebugEnabled()) {
+				logger.debug("accessFlags(2), thisClassIndex(2), superClassIndex(2), interfaceCount(2), fieldsCount(2)");
+				logger.debug("{}", hexFromShort(this.attributesCount));
+			}
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -298,6 +319,7 @@ public class Classfile implements IClassfile
 	 */
 	private class ConstantPool
 	{
+		Logger logger=LoggerFactory.getLogger(this.getClass());
 
 		private List<CPInfo> entryList;
 		private Map<String, Short> cpEntryMap;
@@ -306,29 +328,24 @@ public class Classfile implements IClassfile
 			entryList = new ArrayList<CPInfo>();
 			cpEntryMap = new HashMap<String, Short>();
 		}
-
-		/**
-		 * getBytes function. This function creates a Byte-List of all the
-		 * information meeting the JVM-classfile-constantPool standard.
-		 * 
-		 * @author Marco
-		 * @since 27.04.2013
-		 * 
-		 */
-		private ArrayList<Byte> getBytes() {
-			ArrayList<Byte> constantPoolBytes = new ArrayList<Byte>();
-
-			// get u2 constant_pool_count
-			ArrayList<Byte> length = ByteCalculator
-					.shortToByteArrayList((short) this.entryList.size());
-			constantPoolBytes.addAll(length);
-
-			// get cp_info constant_pool[constant_pool_count-1]
-			for (CPInfo entry : entryList) {
-				constantPoolBytes.addAll(entry.getBytes());
+				
+		public void writeTo(DataOutputStream classfileDOS) {
+			
+			try {
+				if(logger.isDebugEnabled()) {
+					logger.debug("constantPool size");
+					logger.debug("{}", hexFromInt(this.entryList.size()));
+				}				
+				
+				classfileDOS.writeShort((short) this.entryList.size());
+				
+				for (CPInfo entry : entryList) {
+					entry.writeTo(classfileDOS);
+				}
+				
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-
-			return constantPoolBytes;
 		}
 
 		/**
@@ -386,8 +403,8 @@ public class Classfile implements IClassfile
 		private int generateConstantStringInfo(String value) {
 			short nameIndex = (short) this.generateConstantUTF8Info(value);
 
-			ArrayList<Byte> info = ByteCalculator
-					.shortToByteArrayList(nameIndex);
+			List<Byte> info = ByteCalculator
+					.shortToByteList(nameIndex);
 
 			CPInfo stringInfo = new CPInfo((byte) 0x08, info);
 			this.entryList.add(stringInfo);
@@ -409,8 +426,8 @@ public class Classfile implements IClassfile
 		private int generateConstantClassInfo(String value) {
 			short nameIndex = (short) this.generateConstantUTF8Info(value);
 
-			ArrayList<Byte> info = ByteCalculator
-					.shortToByteArrayList(nameIndex);
+			List<Byte> info = ByteCalculator
+					.shortToByteList(nameIndex);
 
 			CPInfo longInfo = new CPInfo((byte) 0x07, info);
 			this.entryList.add(longInfo);
@@ -434,7 +451,7 @@ public class Classfile implements IClassfile
 			ArrayList<Byte> info = new ArrayList<Byte>();
 			byte[] bytes = value.getBytes();
 			info.addAll(ByteCalculator
-					.shortToByteArrayList((short) bytes.length));
+					.shortToByteList((short) bytes.length));
 			info.addAll(ByteCalculator.byteArrayToByteArrayList(bytes));
 
 			CPInfo longInfo = new CPInfo((byte) 0x01, info);
@@ -480,9 +497,9 @@ public class Classfile implements IClassfile
 
 			if ((classIndex != 0) && (nameAndTypeIndex != 0)) {
 				ArrayList<Byte> info = new ArrayList<Byte>();
-				info.addAll(ByteCalculator.shortToByteArrayList(classIndex));
+				info.addAll(ByteCalculator.shortToByteList(classIndex));
 				info.addAll(ByteCalculator
-						.shortToByteArrayList(nameAndTypeIndex));
+						.shortToByteList(nameAndTypeIndex));
 
 				CPInfo methodrefInfo = new CPInfo((byte) 0x0A, info);
 				this.entryList.add(methodrefInfo);
@@ -514,9 +531,9 @@ public class Classfile implements IClassfile
 
 			if ((nameIndex != 0) && (descriptorIndex != 0)) {
 				ArrayList<Byte> info = new ArrayList<Byte>();
-				info.addAll(ByteCalculator.shortToByteArrayList(nameIndex));
+				info.addAll(ByteCalculator.shortToByteList(nameIndex));
 				info.addAll(ByteCalculator
-						.shortToByteArrayList(descriptorIndex));
+						.shortToByteList(descriptorIndex));
 
 				CPInfo nameAndTypeInfo = new CPInfo((byte) 0x0C, info);
 				this.entryList.add(nameAndTypeInfo);
@@ -584,40 +601,38 @@ public class Classfile implements IClassfile
 		 */
 		private class CPInfo
 		{
-
+			Logger logger=LoggerFactory.getLogger(this.getClass());
+		
 			// General CPInfo structure information
 			private byte tag;
-			private ArrayList<Byte> info;
+			private List<Byte> info;
 
-			private CPInfo(byte tag, ArrayList<Byte> info) {
+			// TODO: kill that List<Byte> 
+			private CPInfo(byte tag, List<Byte> info) {
 				this.tag = tag;
 				this.info = info;
 			}
 
-			/**
-			 * getBytes function. This function creates a Byte-List of all the
-			 * information meeting the JVM-classfile-constantPool-information
-			 * standard.
-			 * 
-			 * @author Marco
-			 * @since 27.04.2013
-			 * 
-			 */
-			private ArrayList<Byte> getBytes() {
-				ArrayList<Byte> cpinfoBytes = new ArrayList<Byte>();
-				cpinfoBytes.add(this.tag);
-				cpinfoBytes.addAll(this.info);
-
-				return cpinfoBytes;
+			public void writeTo(DataOutputStream classfileDOS) {
+				try {
+					classfileDOS.writeByte(this.tag);
+					for(Byte b : info) {
+						classfileDOS.writeByte(b);
+					}
+					
+					if(logger.isDebugEnabled()) {
+						logger.debug("CPInfo tag");
+						logger.debug("{}", hexFromInt(tag));
+						logger.debug("CPInfo info");
+						logger.debug("{}", hexFromBytes(info));
+					}
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
 		}
 	}
 
-	
-	
-	
-	
-	
 	/**
 	 * MethodArea class. This class represents all information needed to create
 	 * a JVM-classfile-methods-area.
@@ -628,35 +643,31 @@ public class Classfile implements IClassfile
 	 */
 	private class MethodArea
 	{
-
+		Logger logger=LoggerFactory.getLogger(this.getClass());
+		
 		private HashMap<String, Method> methodMap;
 
 		private MethodArea() {
 			this.methodMap = new HashMap<String, Method>();
 		}
 
-		/**
-		 * getBytes function. This function creates a Byte-List of all the
-		 * information meeting the JVM-classfile-methodsArea standard.
-		 * 
-		 * @author Marco
-		 * @since 03.05.2013
-		 * 
-		 */
-		private ArrayList<Byte> getBytes() {
-			ArrayList<Byte> methodAreaBytes = new ArrayList<Byte>();
-
-			// get u2 methods_count
-			ArrayList<Byte> length = ByteCalculator
-					.shortToByteArrayList((short) this.methodMap.size());
-			methodAreaBytes.addAll(length);
-
-			// get method_info - bytes of methods
-			for (Method method : this.methodMap.values()) {
-				methodAreaBytes.addAll(method.getBytes());
+		private void writeTo(DataOutputStream classfileDOS) {
+					
+			try {
+				classfileDOS.writeShort(this.methodMap.size());
+				
+				if(logger.isDebugEnabled()) {
+					logger.debug("method amount");
+					logger.debug("{}", hexFromShort((short) this.methodMap.size()));
+				}
+				
+				// get method_info - bytes of methods
+				for (Method method : this.methodMap.values()) {
+					method.writeTo(classfileDOS);
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-
-			return methodAreaBytes;
 		}
 		
 		/**
@@ -748,6 +759,8 @@ public class Classfile implements IClassfile
 		 */
 		private class Method
 		{
+			Logger logger=LoggerFactory.getLogger(this.getClass());
+			
 			// General method structure information
 			private short accessFlags;
 			private short nameIndex;
@@ -774,30 +787,27 @@ public class Classfile implements IClassfile
 				this.codeAttribute = new CodeAttribute(codeIndex);
 			}
 			
-			/**
-			 * getBytes function. This function creates a Byte-List of all the
-			 * information meeting the JVM-classfile-method standard.
-			 * 
-			 * @author Marco
-			 * @since 03.05.2013
-			 * 
-			 */
-			private ArrayList<Byte> getBytes() {
-				ArrayList<Byte> methodBytes = new ArrayList<Byte>();
+			private void writeTo(DataOutputStream classfileDOS) {
+				try {
+					classfileDOS.writeShort(this.accessFlags);
+					classfileDOS.writeShort(this.nameIndex);
+					classfileDOS.writeShort(this.descriptorIndex);
+					classfileDOS.writeShort(this.attributesCount);
+					
+					if(logger.isDebugEnabled()) {
+						logger.debug("accessFlags, nameIndex, descriptorIndex, attributesCount:");
+						logger.debug("{} {} {} {}",							
+								hexFromShort(accessFlags),
+								hexFromShort(nameIndex),
+								hexFromShort(descriptorIndex),
+								hexFromShort(attributesCount));
+					}
+					
+					codeAttribute.writeTo(classfileDOS);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 				
-				// get access flags bytes
-				methodBytes.addAll(ByteCalculator.shortToByteArrayList(this.accessFlags));
-				// get name index bytes
-				methodBytes.addAll(ByteCalculator.shortToByteArrayList(this.nameIndex));
-				// get descriptor index bytes
-				methodBytes.addAll(ByteCalculator.shortToByteArrayList(this.descriptorIndex));
-				// get attributes count bytes
-				methodBytes.addAll(ByteCalculator.shortToByteArrayList(this.attributesCount));
-				
-				// get bytes of code attribute
-				methodBytes.addAll(this.codeAttribute.getBytes());
-				
-				return methodBytes;
 			}
 
 			/**
@@ -825,7 +835,6 @@ public class Classfile implements IClassfile
 			 *         method.
 			 */
 			private short getIndexOfVariable(String variableName) {
-
 				return this.codeAttribute.getIndexOfVariable(variableName);
 			}
 
@@ -850,8 +859,9 @@ public class Classfile implements IClassfile
 			 * @since 28.04.2013
 			 * 
 			 */
-			private class CodeAttribute
-			{
+			private class CodeAttribute	{
+				
+				Logger logger=LoggerFactory.getLogger(this.getClass());
 
 				private HashMap<String, Short> variableMap;
 
@@ -875,45 +885,49 @@ public class Classfile implements IClassfile
 					this.attributesCount = 0;
 				};
 				
-				/**
-				 * getBytes function. This function creates a Byte-List of all the
-				 * information meeting the JVM-classfile-method-codeAttribute standard.
-				 * 
-				 * @author Marco
-				 * @since 03.05.2013
-				 * 
-				 */
-				private ArrayList<Byte> getBytes() {
-					ArrayList<Byte> codeAttributeBytes = new ArrayList<Byte>();
+				private void writeTo(DataOutputStream classfileDOS) {
 					
-					// get code attribute name index bytes
-					codeAttributeBytes.addAll(ByteCalculator.shortToByteArrayList(this.codeIndex));
-					// get remaining code attribute bytes
-					ArrayList<Byte> thisAttributeBytes = new ArrayList<Byte>();
+					ByteArrayOutputStream attributesBAOS = new ByteArrayOutputStream();
+					DataOutputStream attributesDOS = new DataOutputStream(attributesBAOS);
 					
-					// get max stack bytes
-					thisAttributeBytes.addAll(ByteCalculator.shortToByteArrayList(this.maxStack));
-					// get max locals bytes
-					thisAttributeBytes.addAll(ByteCalculator.shortToByteArrayList(this.maxLocals));
+					ByteArrayOutputStream codeBAOS = new ByteArrayOutputStream();
+					DataOutputStream codeDOS = new DataOutputStream(codeBAOS);
 					
-					// get code length and code bytes
-					ArrayList<Byte> codeBytes = new ArrayList<Byte>();
-					for (Instruction instruction : codeArea) {
-						codeBytes.addAll(instruction.getBytes());
+					try {
+						attributesDOS.writeShort(this.maxStack);
+						attributesDOS.writeShort(this.maxLocals);
+
+						
+						for(Instruction instruction : codeArea) {
+							instruction.writeTo(codeDOS);
+						}
+
+						attributesDOS.writeInt(codeDOS.size());
+						
+						attributesDOS.write(codeBAOS.toByteArray());
+						
+						attributesDOS.writeShort(this.exceptionTableLength);
+						attributesDOS.writeShort(this.attributesCount);
+						
+						classfileDOS.writeShort(this.codeIndex);
+						classfileDOS.writeInt(attributesDOS.size());
+						classfileDOS.write(attributesBAOS.toByteArray());	
+						
+						if(logger.isDebugEnabled()) {
+							logger.debug("codeIndex");
+							logger.debug("{}", hexFromInt(codeIndex));
+							logger.debug("code size");
+							logger.debug("{}", hexFromInt(codeDOS.size()));
+							logger.debug("code");							
+							logger.debug("{}", hexFromBytes(codeBAOS.toByteArray()));
+							logger.debug("attributes size");
+							logger.debug("{}", hexFromInt(attributesDOS.size()));
+							logger.debug("attributes");
+							logger.debug("{}", hexFromBytes(attributesBAOS.toByteArray()));
+						}
+					} catch (IOException e) {
+						e.printStackTrace();
 					}
-					thisAttributeBytes.addAll(ByteCalculator.intToByteArrayList(codeBytes.size()));
-					thisAttributeBytes.addAll(codeBytes);
-					
-					// get exception table length bytes
-					thisAttributeBytes.addAll(ByteCalculator.shortToByteArrayList(this.exceptionTableLength));
-					// get attributes count bytes
-					thisAttributeBytes.addAll(ByteCalculator.shortToByteArrayList(this.attributesCount));
-					
-					// put together attribute bytes and attribute count
-					codeAttributeBytes.addAll(ByteCalculator.intToByteArrayList(thisAttributeBytes.size()));
-					codeAttributeBytes.addAll(thisAttributeBytes);
-					
-					return codeAttributeBytes;
 				}
 
 				/**

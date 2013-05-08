@@ -1,8 +1,10 @@
 package swp_compiler_ss13.javabite.backend.marco.proposal1;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public interface IClassfile
 {
@@ -98,15 +100,11 @@ public interface IClassfile
 	 */
 	public InputStream generateInputstream();
 
+
 	/**
-	 * getBytes function. This function creates a Byte-List of all the necessary
-	 * classfile-information meeting the JVM-classfile standard.
-	 * 
-	 * @author Marco
-	 * @since 27.04.2013
 	 * 
 	 */
-	public ArrayList<Byte> getBytes();
+	public void writeTo(OutputStream os);
 
 	/**
 	 * getName function. This function returns the classfile's name.

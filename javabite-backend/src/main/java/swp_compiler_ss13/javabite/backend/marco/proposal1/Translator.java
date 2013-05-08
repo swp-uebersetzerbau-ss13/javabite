@@ -1,7 +1,9 @@
 package swp_compiler_ss13.javabite.backend.marco.proposal1;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
 
 import swp_compiler_ss13.javabite.backend.marco.proposal1.IClassfile.VariableTypes;
 import swp_compiler_ss13.javabite.backend.marco.proposal1.IQuadruple.Operator;
@@ -15,12 +17,6 @@ import swp_compiler_ss13.javabite.backend.marco.proposal1.IQuadruple.Operator;
  */
 public class Translator
 {
-	List<Classfile> classfileList;
-
-	public Translator() {
-		this.classfileList = new ArrayList<Classfile>();
-	}
-
 	/**
 	 * generateNewFile function. This function generates a new Classfile object
 	 * using its parameter name and appends it to the translator's classfile
@@ -40,11 +36,10 @@ public class Translator
 	 * 
 	 * @return instance of Classfile
 	 */
-	private Classfile generateNewFile(String name, String thisClassNameEIF,
+	private IClassfile generateClassile(String name, String thisClassNameEIF,
 			String superClassNameEIF, Classfile.ClassfileAccessFlag... accessFlags) {
-		Classfile file = new Classfile(name, thisClassNameEIF,
+		IClassfile file = new Classfile(name, thisClassNameEIF,
 				superClassNameEIF, accessFlags);
-		this.classfileList.add(file);
 		return file;
 	}
 
@@ -57,31 +52,60 @@ public class Translator
 	 * @param tac
 	 *            List of quadruple objects
 	 * 
-	 * @return List<Classfile>
+	 * @return Collection<IClassfile>
 	 */
-	public List<Classfile> translate(List<IQuadruple> tac) {
-		// always generate main.class file
-		Classfile mainClassfile = this.generateNewFile("main.class",
-				"Tests/Example", "java/lang/Object", 
+	public Collection<IClassfile> translate(List<IQuadruple> tac) {
+		// always start with main.class
+		return this.translate(tac, "main.class");
+	}
+	
+	private Collection<IClassfile> translate(List<IQuadruple> tac, String classfileName) {
+		
+		Collection<IClassfile> classfiles = new ArrayList<IClassfile>();
+		
+		IClassfile classfile = this.generateClassile(classfileName,
+				"tests/example", "java/lang/Object", 
 				Classfile.ClassfileAccessFlag.ACC_PUBLIC, Classfile.ClassfileAccessFlag.ACC_SUPER);
-		// always generate mainFunction in main.class file
-		mainClassfile.addMethodToMethodArea("main", "([Ljava/lang/String;])V", 
-				Classfile.MethodAccessFlag.ACC_PUBLIC, Classfile.MethodAccessFlag.ACC_STATIC);
 
+		String methodName;
+		
+		if(classfileName.equals("main.class")) {
+			methodName = "main";
+			// always generate mainFunction in main.class file
+			classfile.addMethodToMethodArea(methodName, "([Ljava/lang/String;])V", 
+					Classfile.MethodAccessFlag.ACC_PUBLIC, Classfile.MethodAccessFlag.ACC_STATIC);
+		} else {
+			// TODO: generate public dummy function in class - needed ?
+			methodName = "dummy";
+			classfile.addMethodToMethodArea(methodName, "()V", 
+					Classfile.MethodAccessFlag.ACC_PUBLIC);
+		}
+		
+		classfiles.addAll(generateClassfilesForStructsInTAC(tac));
+				
 		// MS 1 translate everything into main.class file
 		if (tac != null) {
-			tac = this.addVariablesToLocalVariableSpace(mainClassfile, "main", tac);
-			this.addTACConstantsToConstantPool(mainClassfile, tac);
+		
+			//TODO: add refs to structs to variable space ...
+			
+			tac = this.addVariablesToLocalVariableSpace(classfile, methodName, tac);
+			this.addTACConstantsToConstantPool(classfile, tac);
 		}
-
-		System.out.println(mainClassfile.getIndexOfVariableInMethod("main",
-				"longVar"));
-		System.out.println(mainClassfile.getIndexOfConstantInConstantPool(
-				"#100000".substring(1), "LONG"));
-
-		return this.classfileList;
+		
+		classfiles.add(classfile);		
+		
+		return classfiles;
 	}
 
+	private Collection<IClassfile> generateClassfilesForStructsInTAC(List<IQuadruple> tac) {
+		Collection<IClassfile> classfiles = new ArrayList<>();
+		// TODO: search for structs in tac and build new classes
+		// use translate(...,...)
+		return classfiles;
+	}
+	
+	
+	
 	/**
 	 * addTACConstantsToConstantPool function. This function parses the TAC and
 	 * adds all constants to the files constantPool.
@@ -92,8 +116,8 @@ public class Translator
 	 * @param classFile
 	 * @param tac
 	 */
-	public void addTACConstantsToConstantPool(Classfile classFile,
-			List<IQuadruple> tac) {
+	private void addTACConstantsToConstantPool(IClassfile classFile,
+			Collection<IQuadruple> tac) {
 
 		for (IQuadruple quad : tac) {
 
@@ -171,7 +195,7 @@ public class Translator
 	 * @since 29.04.2013
 	 * 
 	 */
-	public List<IQuadruple> addVariablesToLocalVariableSpace(Classfile file,
+	private List<IQuadruple> addVariablesToLocalVariableSpace(IClassfile file,
 			String methodName, List<IQuadruple> tac) {
 		List<IQuadruple> newTac = new ArrayList<IQuadruple>();
 

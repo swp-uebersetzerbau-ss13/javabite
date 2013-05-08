@@ -1,6 +1,14 @@
 package swp_compiler_ss13.javabite.backend.marco.proposal1;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ArrayList;
@@ -31,44 +39,65 @@ public class BackendModule implements IBackend
 	public Map<String, InputStream> generateTargetCode(List<IQuadruple> tac) {
 
 		// TAC Optimizer
-
+		// ### currently empty ###
 		// Translator
-		List<Classfile> classfileList = this.translator.translate(tac);
-		// ##### BeginTmpOutput #####
-		this.dirtyPrint(classfileList);
-		// ##### EndTmpOutput #####
-
+		Collection<IClassfile> classfiles = this.translator.translate(tac);
 		// Target Code Optimizer
+		// ### currently empty ###
 
-		return null;
+		Map<String, InputStream> targetCodeS = createTargetCodeStreams(classfiles);
+		
+		// simple visualization 
+		visualizeTargetCode(targetCodeS);
+		
+		return targetCodeS;
+	}
+	
+	private Map<String, InputStream> createTargetCodeStreams(Collection<IClassfile> classfiles) {
+		Map<String, InputStream> targetCodeIS = new HashMap<>();
+		
+		for(IClassfile classfile : classfiles) {
+			targetCodeIS.put(classfile.getName(), classfile.generateInputstream());
+		}
+		
+		return targetCodeIS;
 	}
 
-	// DELETE LATER!!!!
-	public void dirtyPrint(List<Classfile> classfileList) {
-		Iterator<Classfile> classfileListIterator = classfileList.iterator();
-		while (classfileListIterator.hasNext()) {
-			Classfile classfile = classfileListIterator.next();
-			System.out.println(classfile.getName() + ": ");
+	/*
+	 * print content of inputstreams to console
+	 */
+	private void visualizeTargetCode(Map<String, InputStream> targetCodeIS) {
+		
+		for(String classname : targetCodeIS.keySet()) {
 
-			ArrayList<Byte> bytes = classfile.getBytes();
-			Iterator<Byte> bytesIterator = bytes.iterator();
-
+			StringBuilder sb = new StringBuilder();
+			sb.append("Classname : "+ classname + "\n");
+			sb.append("Content : \n\n");
+			
+			ByteArrayInputStream  is = (ByteArrayInputStream) targetCodeIS.get(classname);			
+			DataInputStream dis = new DataInputStream(is);
+			
 			int i = 0;
-			while (bytesIterator.hasNext()) {
-				Byte byteVal = bytesIterator.next();
-				String tmp = Integer.toHexString(((byteVal + 256) % 256));
-				if (tmp.length() < 2) {
-					tmp = "0" + tmp;
+			byte b;
+			try {
+				while((b = (byte) dis.read()) != -1) {
+					String tmp = Integer.toHexString(((b + 256) % 256));
+					if (tmp.length() < 2) {
+						sb.append(0).append(tmp).append(" ");
+					} else {
+						sb.append(tmp).append(" ");
+					}
+				
+					i++;
+					if (i == 16) {
+						sb.append("\n");
+						i = 0;
+					}
 				}
-
-				System.out.print(tmp + " ");
-
-				i++;
-				if (i == 16) {
-					System.out.println("");
-					i = 0;
-				}
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
+			System.out.println(sb.toString());
 		}
 	}
 }
