@@ -1,7 +1,5 @@
 package swp_compiler_ss13.javabite.backend.temp3;
 
-import javax.annotation.Nonnull;
-
 import swp_compiler_ss13.javabite.backend.Mnemonic;
 
 public class Instruction {
@@ -13,7 +11,7 @@ public class Instruction {
 	private final int size;
 
 	public Instruction(final int size, final int offset,
-	    @Nonnull final Mnemonic mnemonic, Object... arguments) {
+	    final Mnemonic mnemonic, Object... arguments) {
 		this.offset = offset;
 		this.mnemonic = mnemonic;
 		this.arguments = arguments;

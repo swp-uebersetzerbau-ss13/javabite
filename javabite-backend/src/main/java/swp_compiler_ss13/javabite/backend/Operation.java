@@ -1,16 +1,17 @@
-package swp_compiler_ss13.javabite.backend.temp3;
+package swp_compiler_ss13.javabite.backend;
 
 import java.util.ArrayList;
 import java.util.List;
 
-
-import swp_compiler_ss13.javabite.backend.Mnemonic;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
+import swp_compiler_ss13.javabite.backend.Mnemonic;
 import swp_compiler_ss13.javabite.backend.temp3.Instruction;
 
-public class Operation {
+public class Operation
+{
 
-	public static class OperationBuilder {
+	public static class OperationBuilder
+	{
 
 		private final List<Instruction> instructions;
 
@@ -28,8 +29,9 @@ public class Operation {
 		}
 
 		public OperationBuilder add(final int size, final int offset,
-		    final Mnemonic mnemonic, Object... arguments) {
-			instructions.add(new Instruction(size, offset, mnemonic, arguments));
+				final Mnemonic mnemonic, Object... arguments) {
+			instructions
+					.add(new Instruction(size, offset, mnemonic, arguments));
 			return this;
 		}
 

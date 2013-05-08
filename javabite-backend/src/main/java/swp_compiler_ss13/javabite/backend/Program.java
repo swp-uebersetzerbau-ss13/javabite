@@ -1,13 +1,23 @@
-package swp_compiler_ss13.javabite.backend.temp3;
+package swp_compiler_ss13.javabite.backend;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import swp_compiler_ss13.javabite.backend.temp3.Instruction;
 
-public class Program {
+/**
+ * Representation of a program instruction block. Contains a list of operations
+ * which consist of instructions.
+ * 
+ * @author eike
+ * @since 02.05.2013 23:41:39
+ * 
+ */
+public class Program
+{
 
-	public static class ProgramBuilder {
+	public static class ProgramBuilder
+	{
 
 		public static ProgramBuilder newBuilder(final int initialOffset) {
 			return new ProgramBuilder(initialOffset);
@@ -30,7 +40,7 @@ public class Program {
 
 		public ProgramBuilder add(Operation operation) {
 			operations.add(operation);
-			for(Instruction instruction : operation.getInstructions()) {
+			for (Instruction instruction : operation.getInstructions()) {
 				instruction.setOffset(instruction.getOffset() + currentOffset);
 			}
 			currentOffset += operation.getSize();
