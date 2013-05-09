@@ -7,22 +7,18 @@ import java.util.Map;
 import java.util.Stack;
 
 import swp_compiler_ss13.common.ast.AST;
-import swp_compiler_ss13.common.ast.ASTNode;
+import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
-import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
-import swp_compiler_ss13.common.ast.nodes.unary.ArithmeticUnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.parser.SymbolTable;
 import swp_compiler_ss13.common.types.Type;
-import swp_compiler_ss13.common.types.primitive.DoubleType;
 import swp_compiler_ss13.javabite.ast.ASTNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.marynary.BlockNodeJb;
-import swp_compiler_ss13.javabite.codegen.ArithmeticBinaryExpressionNodeCG;
 
 /**
  * 
@@ -34,7 +30,7 @@ public class IRCodeGenerator implements IntermediateCodeGenerator {
 	/**
 	* The generated intermediate code
 	*/
-	static List<Quadruple> irCode;
+	public static List<Quadruple> irCode;
 	
 	/**
 	* List of used names. This is needed for single static assignment.
@@ -95,7 +91,7 @@ public class IRCodeGenerator implements IntermediateCodeGenerator {
 			//TODO
 			break;
 		case ArithmeticUnaryExpressionNode:
-			new ArithmeticBinaryExpressionNodeCG(node);
+			new ArithmeticBinaryExpressionNodeCG().convert((ArithmeticBinaryExpressionNode) node);
 			break;
 		case ArrayIdentifierNode:
 			//TODO

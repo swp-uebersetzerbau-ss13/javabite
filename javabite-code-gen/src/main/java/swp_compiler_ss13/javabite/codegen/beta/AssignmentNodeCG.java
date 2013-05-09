@@ -20,9 +20,8 @@ public class AssignmentNodeCG {
 
 
 	public void convert(AssignmentNode node) throws IntermediateCodeGeneratorException {
-		
 		BasicIdentifierNode id = (BasicIdentifierNode) node.getLeftValue();
-
+		
 		switch (id.getNodeType()) {
 		case BasicIdentifierNode:
 			StatementNode value = node.getRightValue();
@@ -34,23 +33,21 @@ public class AssignmentNodeCG {
 			
 			String idOrigName = id.getIdentifier();
 			String idRenamed = IRCodeGenerator.loadIdentifier(idOrigName);
-			System.out.println("ST "+IRCodeGenerator.currentSymbolTable.peek());
 			Type typeOfid = IRCodeGenerator.currentSymbolTable.peek().lookupType(idOrigName);
 			
 			String casted = rightValue;
 			if (typeOfid.getKind() == Kind.LONG && rightType.getKind() == Kind.DOUBLE) {
-			casted = IRCodeGenerator.createAndSaveTemporaryIdentifier(new DoubleType());
-			Quadruple cleft = QuadrupleFactory.castDoubleToLong(rightValue, casted);
-			IRCodeGenerator.irCode.add(cleft);
+				casted = IRCodeGenerator.createAndSaveTemporaryIdentifier(new DoubleType());
+				Quadruple cleft = QuadrupleFactory.castDoubleToLong(rightValue, casted);
+				IRCodeGenerator.irCode.add(cleft);
 			}
 			if (typeOfid.getKind() == Kind.DOUBLE && rightType.getKind() == Kind.LONG) {
-			casted = IRCodeGenerator.createAndSaveTemporaryIdentifier(new DoubleType());
-			Quadruple cleft = QuadrupleFactory.castLongToDouble(rightValue, casted);
-			IRCodeGenerator.irCode.add(cleft);
+				casted = IRCodeGenerator.createAndSaveTemporaryIdentifier(new DoubleType());
+				Quadruple cleft = QuadrupleFactory.castLongToDouble(rightValue, casted);
+				IRCodeGenerator.irCode.add(cleft);
 			}
 			
 			IRCodeGenerator.irCode.add(QuadrupleFactory.assign(typeOfid, casted, idRenamed));
-			
 			break;
 		default:
 			throw new IntermediateCodeGeneratorException("Unsupported identifer type");

@@ -26,6 +26,7 @@ public class BlockNodeCG {
 		IRCodeGenerator.currentSymbolTable.push(node.getSymbolTable());
 
 		Iterator<ASTNode> astDFSLTR = node.getDFSLTRNodeIterator();
+		//int counter=0;
 		while(astDFSLTR.hasNext()){
 			ASTNode astNode = astDFSLTR.next();
 			switch (astNode.getNodeType()){
@@ -34,9 +35,12 @@ public class BlockNodeCG {
 				decNCG.convert((DeclarationNode) astNode);
 				break;
 			default:
-				System.out.println(astNode.toString());
-				StatementNode statement = (StatementNode) astNode;
-				IRCodeGenerator.differentiateNode((ASTNodeJb) statement);
+				if((astDFSLTR.next()!=null)){
+					System.out.println(astNode.getNodeType());
+					StatementNode statement = (StatementNode) astNode;
+					IRCodeGenerator.differentiateNode((ASTNodeJb) statement);
+				}
+				else{}
 				break;
 			}
 		}
