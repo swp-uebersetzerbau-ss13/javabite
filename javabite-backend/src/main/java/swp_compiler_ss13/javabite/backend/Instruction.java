@@ -21,7 +21,8 @@ import org.slf4j.LoggerFactory;
 public class Instruction
 {
 
-	final Logger logger = LoggerFactory.getLogger(this.getClass());
+	private static final Logger logger = LoggerFactory
+			.getLogger(Instruction.class);
 
 	// offset to predecessor
 	// private int offset;
@@ -111,6 +112,16 @@ public class Instruction
 
 	public int getSize() {
 		return size;
+	}
+
+	@Override
+	public String toString() {
+		final StringBuilder sb = new StringBuilder();
+		sb.append(mnemonic.name());
+		for (final Byte b : arguments) {
+			sb.append(" ").append(b);
+		}
+		return sb.toString();
 	}
 
 }

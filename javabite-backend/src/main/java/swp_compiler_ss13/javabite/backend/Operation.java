@@ -118,10 +118,24 @@ public class Operation
 		return operator;
 	}
 
+	public int getInstructionCount() {
+		return instructions.size();
+	}
+
 	// public void setOffset(int offset) {
 	// for (final Instruction instruction : instructions) {
 	// offset += instruction.setOffset(offset);
 	// }
 	// }
+
+	@Override
+	public String toString() {
+		final String nl = System.getProperty("line.separator");
+		final StringBuilder sb = new StringBuilder();
+		for (final Instruction instruction : instructions) {
+			sb.append(instruction.toString()).append(nl);
+		}
+		return sb.toString();
+	}
 
 }

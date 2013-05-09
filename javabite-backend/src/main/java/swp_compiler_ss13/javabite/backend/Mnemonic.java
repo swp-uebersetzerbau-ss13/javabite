@@ -271,7 +271,7 @@ public enum Mnemonic
 		return byteCode;
 	}
 
-	private static Mnemonic varMnemonic(final String prefix, final int value) {
+	public static Mnemonic getMnemonic(final String prefix, final int value) {
 		try {
 			final String name = prefix + "_"
 					+ (value == -1 ? "M1" : Integer.toString(value));
@@ -284,85 +284,85 @@ public enum Mnemonic
 
 	public static Mnemonic ICONST(final int value) {
 		// if (value >= -1 && value <= 5)
-		return varMnemonic("ICONST", value);
+		return getMnemonic("ICONST", value);
 		// return null;
 	}
 
 	public static Mnemonic LCONST(final int value) {
 		// if (value >= 0 && value <= 1)
-		return varMnemonic("LCONST", value);
+		return getMnemonic("LCONST", value);
 		// return null;
 	}
 
 	public static Mnemonic FCONST(final int value) {
 		// if (value >= 0 && value <= 2)
-		return varMnemonic("FCONST", value);
+		return getMnemonic("FCONST", value);
 		// return null;
 	}
 
 	public static Mnemonic DCONST(final int value) {
 		// if (value >= 0 && value <= 1)
-		return varMnemonic("DCONST", value);
+		return getMnemonic("DCONST", value);
 		// return null;
 	}
 
 	public static Mnemonic ILOAD(final int value) {
 		// if (value >= 0 && value <= 3)
-		return varMnemonic("ILOAD", value);
+		return getMnemonic("ILOAD", value);
 		// return null;
 	}
 
 	public static Mnemonic LLOAD(final int value) {
 		// if (value >= 0 && value <= 3)
-		return varMnemonic("LLOAD", value);
+		return getMnemonic("LLOAD", value);
 		// return null;
 	}
 
 	public static Mnemonic FLOAD(final int value) {
 		// if (value >= 0 && value <= 3)
-		return varMnemonic("FLOAD", value);
+		return getMnemonic("FLOAD", value);
 		// return null;
 	}
 
 	public static Mnemonic DLOAD(final int value) {
 		// if (value >= 0 && value <= 3)
-		return varMnemonic("DLOAD", value);
+		return getMnemonic("DLOAD", value);
 		// return null;
 	}
 
 	public static Mnemonic ALOAD(final int value) {
 		// if (value >= 0 && value <= 3)
-		return varMnemonic("ALOAD", value);
+		return getMnemonic("ALOAD", value);
 		// return null;
 	}
 
 	public static Mnemonic ISTORE(final int value) {
 		// if (value >= 0 && value <= 3)
-		return varMnemonic("ISTORE", value);
+		return getMnemonic("ISTORE", value);
 		// return null;
 	}
 
 	public static Mnemonic LSTORE(final int value) {
 		// if (value >= 0 && value <= 3)
-		return varMnemonic("LSTORE", value);
+		return getMnemonic("LSTORE", value);
 		// return null;
 	}
 
 	public static Mnemonic FSTORE(final int value) {
 		// if (value >= 0 && value <= 3)
-		return varMnemonic("FSTORE", value);
+		return getMnemonic("FSTORE", value);
 		// return null;
 	}
 
 	public static Mnemonic DSTORE(final int value) {
 		// if (value >= 0 && value <= 3)
-		return varMnemonic("DSTORE", value);
+		return getMnemonic("DSTORE", value);
 		// return null;
 	}
 
 	public static Mnemonic ASTORE(final int value) {
 		// if (value >= 0 && value <= 3)
-		return varMnemonic("ASTORE", value);
+		return getMnemonic("ASTORE", value);
 		// return null;
 	}
 

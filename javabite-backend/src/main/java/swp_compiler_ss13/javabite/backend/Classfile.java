@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -299,7 +300,7 @@ public class Classfile implements IClassfile
 	 */
 	@Override
 	public void addVariableToMethodsCode(final String methodName,
-			final String variableName, final VariableTypes variableType) {
+			final String variableName, final VariableType variableType) {
 
 		this.methodArea.addVariableToMethodsCode(methodName, variableName,
 				variableType);
@@ -328,8 +329,22 @@ public class Classfile implements IClassfile
 	@Override
 	public void addInstructionToMethodsCode(final String methodName,
 			final Instruction instruction) {
-
 		this.methodArea.addInstructionToMethodsCode(methodName, instruction);
+	}
+
+	/**
+	 * addInstructionsToMethodsCode function. (see iterface iClassfile)
+	 * 
+	 * @author eike
+	 * @since 09.05.2013
+	 */
+	@Override
+	public void addInstructionsToMethodsCode(String methodName,
+			Collection<Instruction> instructions) {
+		for (final Instruction instruction : instructions) {
+			this.methodArea
+					.addInstructionToMethodsCode(methodName, instruction);
+		}
 	}
 
 	/**
@@ -735,7 +750,7 @@ public class Classfile implements IClassfile
 		 * 
 		 */
 		private void addVariableToMethodsCode(final String methodName,
-				final String variableName, final VariableTypes variableType) {
+				final String variableName, final VariableType variableType) {
 
 			final Method method = this.getMethodByMethodName(methodName);
 			method.addVariableToCodeAttribute(variableName, variableType);
@@ -847,7 +862,7 @@ public class Classfile implements IClassfile
 			 * 
 			 */
 			private void addVariableToCodeAttribute(final String variableName,
-					final VariableTypes variableType) {
+					final VariableType variableType) {
 
 				this.codeAttribute.addVariable(variableName, variableType);
 			}
@@ -974,7 +989,7 @@ public class Classfile implements IClassfile
 				 * 
 				 */
 				private void addVariable(final String variableName,
-						final VariableTypes variableType) {
+						final VariableType variableType) {
 
 					if (!this.variableMap.containsKey(variableName)) {
 						this.variableMap.put(variableName, this.maxLocals);
