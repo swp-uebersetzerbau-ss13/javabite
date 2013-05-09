@@ -10,6 +10,11 @@ import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.javabite.ast.ASTNodeJb;
 
+/**
+ * 
+ * @author Alpin Sahin und Florian Mercks
+ *
+ */
 public class BlockNodeCG {
 	
 

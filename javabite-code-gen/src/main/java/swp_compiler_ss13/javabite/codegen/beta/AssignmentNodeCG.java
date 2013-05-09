@@ -13,7 +13,7 @@ import swp_compiler_ss13.javabite.ast.ASTNodeJb;
 
 /**
  * 
- * @author florian
+ * @author Alpin Sahin und Florian Mercks
  *
  */
 public class AssignmentNodeCG {

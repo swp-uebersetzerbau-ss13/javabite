@@ -13,6 +13,11 @@ import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 
+/**
+ * 
+ * @author AMS
+ *
+ */
 public class JavaBiteCodeGenerator implements IntermediateCodeGenerator {
 	
 	List<Quadruple> quadruples;

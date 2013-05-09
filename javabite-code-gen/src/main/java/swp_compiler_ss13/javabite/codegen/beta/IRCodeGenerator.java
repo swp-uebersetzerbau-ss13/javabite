@@ -10,6 +10,7 @@ import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
+import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ArithmeticUnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
@@ -26,7 +27,7 @@ import swp_compiler_ss13.javabite.codegen.BasicIdentifierNodeCG;
 
 /**
  * 
- * @author AMS
+ * @author Alpin Sahin und Florian Mercks
  *
  */
 public class IRCodeGenerator implements IntermediateCodeGenerator {
@@ -104,7 +105,7 @@ public class IRCodeGenerator implements IntermediateCodeGenerator {
 			new AssignmentNodeCG().convert((AssignmentNode)node);
 			break;
 		case BasicIdentifierNode:
-			new BasicIdentifierNodeCG().convert((BasicIdentifierNode)node);
+			BasicIdentifierNodeCG.convert((BasicIdentifierNode)node);
 			break;
 		case BlockNode:
 			BlockNodeCG.convert((BlockNodeJb)node);
@@ -122,7 +123,7 @@ public class IRCodeGenerator implements IntermediateCodeGenerator {
 			//TODO
 			break;
 		case LiteralNode:
-			//TODO
+			new LiteralNodeCG().convert((LiteralNode) node);
 			break;
 		case LogicBinaryExpressionNode:
 			//TODO
@@ -140,7 +141,8 @@ public class IRCodeGenerator implements IntermediateCodeGenerator {
 			//TODO
 			break;
 		case StructIdentifierNode:
-			//TODO			break;
+			//TODO			
+			break;
 		case WhileNode:
 			//TODO
 			break;
