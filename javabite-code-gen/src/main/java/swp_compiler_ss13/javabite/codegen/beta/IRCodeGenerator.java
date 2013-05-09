@@ -23,7 +23,6 @@ import swp_compiler_ss13.common.types.primitive.DoubleType;
 import swp_compiler_ss13.javabite.ast.ASTNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.marynary.BlockNodeJb;
 import swp_compiler_ss13.javabite.codegen.ArithmeticBinaryExpressionNodeCG;
-import swp_compiler_ss13.javabite.codegen.BasicIdentifierNodeCG;
 
 /**
  * 
@@ -105,7 +104,7 @@ public class IRCodeGenerator implements IntermediateCodeGenerator {
 			new AssignmentNodeCG().convert((AssignmentNode)node);
 			break;
 		case BasicIdentifierNode:
-			BasicIdentifierNodeCG.convert((BasicIdentifierNode)node);
+			new BasicIdentifierNodeCG().convert((BasicIdentifierNode)node);
 			break;
 		case BlockNode:
 			BlockNodeCG.convert((BlockNodeJb)node);

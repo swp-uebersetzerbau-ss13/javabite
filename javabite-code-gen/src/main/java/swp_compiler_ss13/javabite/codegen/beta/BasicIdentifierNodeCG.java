@@ -10,6 +10,7 @@ public class BasicIdentifierNodeCG {
 		String identifier = node.getIdentifier();
 		Type identifierType = IRCodeGenerator.currentSymbolTable.peek().lookupType(identifier);
 		String actualIdentifier = IRCodeGenerator.loadIdentifier(identifier);
+		System.out.println("Push "+actualIdentifier);
 		IRCodeGenerator.intermediateResults.push(actualIdentifier);
 		IRCodeGenerator.intermediateTypes.push(identifierType);
 	}

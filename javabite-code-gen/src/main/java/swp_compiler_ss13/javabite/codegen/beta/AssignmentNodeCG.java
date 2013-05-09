@@ -34,6 +34,7 @@ public class AssignmentNodeCG {
 			
 			String idOrigName = id.getIdentifier();
 			String idRenamed = IRCodeGenerator.loadIdentifier(idOrigName);
+			System.out.println("ST "+IRCodeGenerator.currentSymbolTable.peek());
 			Type typeOfid = IRCodeGenerator.currentSymbolTable.peek().lookupType(idOrigName);
 			
 			String casted = rightValue;
