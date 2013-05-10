@@ -4,9 +4,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import swp_compiler_ss13.javabite.backend.Mnemonic;
-
-public class MnemonicTests {
+public class MnemonicTests
+{
 
 	static final Mnemonic NOP = Mnemonic.NOP;
 	static final int NOP_CODE = 0x00;

@@ -66,7 +66,8 @@ public interface IClassfile
 	public enum VariableType
 	{
 
-		LONG((short) 2), DOUBLE((short) 2), STRING((short) 1), BOOLEAN((short) 1);
+		LONG((short) 2), DOUBLE((short) 2), STRING((short) 1), BOOLEAN(
+				(short) 1);
 
 		private final short length;
 

@@ -59,7 +59,7 @@ public class Translator
 	 * 
 	 * @return instance of Classfile
 	 */
-	private IClassfile generateClassile(final String name,
+	private IClassfile generateClassfile(final String name,
 			final String thisClassNameEIF, final String superClassNameEIF,
 			final Classfile.ClassfileAccessFlag... accessFlags) {
 		final IClassfile file = new Classfile(name, thisClassNameEIF,
@@ -88,7 +88,7 @@ public class Translator
 
 		final Collection<IClassfile> classfiles = new ArrayList<IClassfile>();
 
-		final IClassfile classfile = this.generateClassile(classfileName,
+		final IClassfile classfile = this.generateClassfile(classfileName,
 				"tests/example", "java/lang/Object",
 				Classfile.ClassfileAccessFlag.ACC_PUBLIC,
 				Classfile.ClassfileAccessFlag.ACC_SUPER);
@@ -264,7 +264,7 @@ public class Translator
 			default:
 				continue;
 			}
-			
+
 			file.addVariableToMethodsCode(methodName, result, varType);
 
 			if (!SYM_IGNORE.equals(arg1)) {

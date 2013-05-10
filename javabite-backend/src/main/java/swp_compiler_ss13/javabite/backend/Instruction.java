@@ -5,8 +5,6 @@ import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.hexFromInt;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,11 +25,11 @@ public class Instruction
 	// offset to predecessor
 	// private int offset;
 	private Mnemonic mnemonic;
-	private List<Byte> arguments;
+	private byte[] arguments;
 	private final int size;
 
 	public Instruction(final int size, final Mnemonic mnemonic,
-			final List<Byte> arguments) {
+			final byte... arguments) {
 		this.size = size;
 		this.mnemonic = mnemonic;
 		this.arguments = arguments;
@@ -49,18 +47,18 @@ public class Instruction
 	 * @since 03.05.2013
 	 * 
 	 */
-	public ArrayList<Byte> getBytes() {
-		final ArrayList<Byte> instructionBytes = new ArrayList<Byte>();
-
-		// get op byte
-		instructionBytes.add(this.mnemonic.getBytecode());
-		// get arguments' bytes
-		if (this.getArguments() != null) {
-			instructionBytes.addAll(this.getArguments());
-		}
-
-		return instructionBytes;
-	}
+	// public ArrayList<Byte> getBytess() {
+	// final ArrayList<Byte> instructionBytes = new ArrayList<Byte>();
+	//
+	// // get op byte
+	// instructionBytes.add(this.mnemonic.getBytecode());
+	// // get arguments' bytes
+	// if (this.getArguments() != null) {
+	// instructionBytes.addAll(this.getArguments());
+	// }
+	//
+	// return instructionBytes;
+	// }
 
 	public void writeTo(final DataOutputStream outputStream) {
 		try {
@@ -102,24 +100,35 @@ public class Instruction
 		this.mnemonic = mnemonic;
 	}
 
-	public List<Byte> getArguments() {
+	public byte[] getArguments() {
 		return arguments;
 	}
 
-	public void setArguments(final List<Byte> arguments) {
+	public void setArguments(final byte[] arguments) {
 		this.arguments = arguments;
 	}
 
-	public int getSize() {
+	public int getByteCount() {
 		return size;
+	}
+
+	public byte[] toByteArray() {
+		final byte[] bytes = new byte[size];
+		bytes[0] = mnemonic.getBytecode();
+		if (arguments != null) {
+			System.arraycopy(arguments, 0, bytes, 1, arguments.length);
+		}
+		return bytes;
 	}
 
 	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
 		sb.append(mnemonic.name());
-		for (final Byte b : arguments) {
-			sb.append(" ").append(b);
+		if (arguments != null) {
+			for (final byte b : arguments) {
+				sb.append(" ").append(b);
+			}
 		}
 		return sb.toString();
 	}

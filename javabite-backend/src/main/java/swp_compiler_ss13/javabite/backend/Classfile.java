@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import swp_compiler_ss13.javabite.backend.utils.ByteCalculator;
+import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
 
 /**
  * Classfile class. This class represents all information needed to create a
@@ -129,14 +130,16 @@ public class Classfile implements IClassfile
 		final short methodrefIndex = (short) this.constantPool
 				.generateConstantMethodrefInfo(this.thisClassIndex,
 						initNATIndex);
-		final List<Byte> methodRefByteList = ByteCalculator
-				.shortToByteList(methodrefIndex);
+		// final List<Byte> methodRefByteList = ByteCalculator
+		// .shortToByteList(methodrefIndex);
+		final byte[] methodRefByteArray = ByteUtils
+				.shortToByteArray(methodrefIndex);
 
 		// add code to initialize-method
 		final Instruction InstrAload = new Instruction(1, Mnemonic.ALOAD_0,
 				null);
 		final Instruction InstrInvokespecial = new Instruction(3,
-				Mnemonic.INVOKESPECIAL, methodRefByteList);
+				Mnemonic.INVOKESPECIAL, methodRefByteArray);
 		final Instruction InstrReturn = new Instruction(1, Mnemonic.RETURN,
 				null);
 		this.addInstructionToMethodsCode("<init>", InstrAload);
@@ -339,8 +342,8 @@ public class Classfile implements IClassfile
 	 * @since 09.05.2013
 	 */
 	@Override
-	public void addInstructionsToMethodsCode(String methodName,
-			Collection<Instruction> instructions) {
+	public void addInstructionsToMethodsCode(final String methodName,
+			final Collection<Instruction> instructions) {
 		for (final Instruction instruction : instructions) {
 			this.methodArea
 					.addInstructionToMethodsCode(methodName, instruction);
