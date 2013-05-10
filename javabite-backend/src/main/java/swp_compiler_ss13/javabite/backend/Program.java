@@ -83,23 +83,30 @@ public class Program
 			return this;
 		}
 
-		private ProgramBuilder convertNum(final Quadruple q,
-				final String loadOp, final Mnemonic convertOp,
-				final String storeOp) {
+		/*
+		 * TODO: add support for assigning other local variables than prescribed
+		 * by loadOp!
+		 * 
+		 * TODO: loadOp only valid for index <= 255, for index <= 65536 use WIDE
+		 * 
+		 */
+		private ProgramBuilder assignValue(final Quadruple q,
+				final String dataType, final String loadOp,
+				final Mnemonic convertOp, final String storeOp) {
 			final OperationBuilder op = OperationBuilder.newBuilder();
 			if (isConstant(q.getArgument1())) {
 				final short index = classfile.getIndexOfConstantInConstantPool(
-						q.getArgument1(), Translator.TYPE_LONG);
+						q.getArgument1(), dataType);
 				op.add(Mnemonic.LDC2_W, 2, toByteArray(index));
 			} else {
 				final short index = classfile.getIndexOfVariableInMethod(
 						methodName, q.getArgument1());
-				// NOTE: LLOAD only valid for index <= 255, for index <= 65536
-				// use WIDE
 				op.add(Mnemonic.getMnemonic(loadOp, index), 1,
 						toByteArray(index));
 			}
-			op.add(convertOp);
+			if (convertOp != null) {
+				op.add(convertOp);
+			}
 			final short index = classfile.getIndexOfVariableInMethod(
 					methodName, q.getResult());
 			op.add(Mnemonic.getMnemonic(storeOp, index), 1, toByteArray(index));
@@ -107,62 +114,96 @@ public class Program
 		}
 
 		public ProgramBuilder longToDouble(final Quadruple q) {
-			return convertNum(q, "LLOAD", Mnemonic.L2D, "DSTORE");
+			return assignValue(q, "LONG", "LLOAD", Mnemonic.L2D, "DSTORE");
 		}
 
 		public ProgramBuilder doubleToLong(final Quadruple q) {
-			return convertNum(q, "DLOAD", Mnemonic.D2L, "LSTORE");
+			return assignValue(q, "DOUBLE", "DLOAD", Mnemonic.D2L, "LSTORE");
 		}
 
 		public ProgramBuilder assignLong(final Quadruple q) {
-			return this;
+			return assignValue(q, "LONG", "LLOAD", null, "LSTORE");
 		}
 
 		public ProgramBuilder assignDouble(final Quadruple q) {
-			return this;
+			return assignValue(q, "DOUBLE", "DLOAD", null, "DSTORE");
 		}
 
 		public ProgramBuilder assignString(final Quadruple q) {
+			// TODO implement
 			return this;
 		}
 
 		public ProgramBuilder assignBoolean(final Quadruple q) {
+			// TODO implement
 			return this;
+		}
+
+		private ProgramBuilder calculate(final Quadruple q,
+				final String dataType, final String loadOp,
+				final Mnemonic calcOp, final String storeOp) {
+			final OperationBuilder op = OperationBuilder.newBuilder();
+			if (isConstant(q.getArgument1())) {
+				final short index = classfile.getIndexOfConstantInConstantPool(
+						q.getArgument1(), dataType);
+				op.add(Mnemonic.LDC2_W, 2, toByteArray(index));
+			} else {
+				final short index = classfile.getIndexOfVariableInMethod(
+						methodName, q.getArgument1());
+				op.add(Mnemonic.getMnemonic(loadOp, index), 1,
+						toByteArray(index));
+			}
+			if (isConstant(q.getArgument2())) {
+				final short index = classfile.getIndexOfConstantInConstantPool(
+						q.getArgument2(), dataType);
+				op.add(Mnemonic.LDC2_W, 2, toByteArray(index));
+			} else {
+				final short index = classfile.getIndexOfVariableInMethod(
+						methodName, q.getArgument2());
+				op.add(Mnemonic.getMnemonic(loadOp, index), 1,
+						toByteArray(index));
+			}
+			op.add(calcOp);
+			final short index = classfile.getIndexOfVariableInMethod(
+					methodName, q.getResult());
+			op.add(Mnemonic.getMnemonic(storeOp, index), 1, toByteArray(index));
+			return add(op.build());
 		}
 
 		public ProgramBuilder addLong(final Quadruple q) {
-			return this;
+			return calculate(q, "LONG", "LLOAD", Mnemonic.LADD, "LSTORE");
 		}
 
 		public ProgramBuilder addDouble(final Quadruple q) {
-			return this;
+			return calculate(q, "DOUBLE", "DLOAD", Mnemonic.DADD, "DSTORE");
 		}
 
 		public ProgramBuilder subLong(final Quadruple q) {
-			return this;
+			return calculate(q, "LONG", "LLOAD", Mnemonic.LSUB, "LSTORE");
 		}
 
 		public ProgramBuilder subDouble(final Quadruple q) {
-			return this;
+			return calculate(q, "DOUBLE", "DLOAD", Mnemonic.DADD, "DSTORE");
 		}
 
 		public ProgramBuilder mulLong(final Quadruple q) {
-			return this;
+			return calculate(q, "LONG", "LLOAD", Mnemonic.LMUL, "LSTORE");
 		}
 
 		public ProgramBuilder mulDouble(final Quadruple q) {
-			return this;
+			return calculate(q, "DOUBLE", "DLOAD", Mnemonic.DMUL, "DSTORE");
 		}
 
 		public ProgramBuilder divLong(final Quadruple q) {
-			return this;
+			return calculate(q, "LONG", "LLOAD", Mnemonic.LDIV, "LSTORE");
 		}
 
 		public ProgramBuilder divDouble(final Quadruple q) {
-			return this;
+			return calculate(q, "DOUBLE", "DLOAD", Mnemonic.DDIV, "DSTORE");
 		}
 
 		public ProgramBuilder returnLong(final Quadruple q) {
+			// TODO implement
 			return this;
 		}
 
