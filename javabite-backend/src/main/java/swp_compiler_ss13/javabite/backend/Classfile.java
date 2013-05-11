@@ -1,6 +1,5 @@
 package swp_compiler_ss13.javabite.backend;
 
-import static swp_compiler_ss13.javabite.backend.utils.ByteCalculator.*;
 import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.hexFromBytes;
 import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.hexFromInt;
 import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.hexFromShort;
@@ -34,7 +33,8 @@ import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
 public class Classfile implements IClassfile
 {
 
-	Logger logger = LoggerFactory.getLogger(this.getClass());
+	private static final Logger logger = LoggerFactory
+			.getLogger(Classfile.class);
 
 	// Name of File
 	private final String name;
@@ -91,7 +91,8 @@ public class Classfile implements IClassfile
 		this.attributesCount = 0;
 
 		for (final ClassfileAccessFlag accessFlag : accessFlags) {
-			this.accessFlags = (short) (this.accessFlags | accessFlag.getValue());
+			this.accessFlags = (short) (this.accessFlags | accessFlag
+					.getValue());
 		}
 
 		// instantiate constantPool, fieldArea, methodArea and attributeArea
