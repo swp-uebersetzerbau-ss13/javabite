@@ -9,6 +9,9 @@ import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.Classfile;
 import swp_compiler_ss13.javabite.backend.IClassfile;
+import swp_compiler_ss13.javabite.backend.IClassfile.VariableType;
+import swp_compiler_ss13.javabite.backend.Program;
+import swp_compiler_ss13.javabite.backend.Program.ProgramBuilder;
 import swp_compiler_ss13.javabite.backend.external.QuadrupleImpl;
 
 /**
@@ -56,7 +59,7 @@ public class Translator
 	 * 
 	 * @return instance of Classfile
 	 */
-	private IClassfile generateClassile(final String name,
+	private IClassfile generateClassfile(final String name,
 			final String thisClassNameEIF, final String superClassNameEIF,
 			final Classfile.ClassfileAccessFlag... accessFlags) {
 		final IClassfile file = new Classfile(name, thisClassNameEIF,
@@ -85,7 +88,7 @@ public class Translator
 
 		final Collection<IClassfile> classfiles = new ArrayList<IClassfile>();
 
-		final IClassfile classfile = this.generateClassile(classfileName,
+		final IClassfile classfile = this.generateClassfile(classfileName,
 				"tests/example", "java/lang/Object",
 				Classfile.ClassfileAccessFlag.ACC_PUBLIC,
 				Classfile.ClassfileAccessFlag.ACC_SUPER);
@@ -115,7 +118,7 @@ public class Translator
 
 			tac = addVariablesToLocalVariableSpace(classfile, methodName, tac);
 			addConstantsToConstantPool(classfile, tac);
-			extractInstructionsFromOperations(classfile, tac);
+			extractInstructionsFromOperations(classfile, methodName, tac);
 		}
 
 		classfiles.add(classfile);
@@ -232,31 +235,37 @@ public class Translator
 			final Quadruple quad = tacIter.next();
 			final Operator op;
 			final String defValue;
+			final String arg1 = quad.getArgument1();
+			final String result = quad.getResult();
+			final Quadruple q;
+			final VariableType varType;
 
 			switch (quad.getOperator()) {
 			case DECLARE_STRING:
 				op = Operator.ASSIGN_STRING;
 				defValue = DEF_STRING;
+				varType = VariableType.STRING;
 				break;
 			case DECLARE_LONG:
 				op = Operator.ASSIGN_LONG;
 				defValue = DEF_LONG;
+				varType = VariableType.LONG;
 				break;
 			case DECLARE_DOUBLE:
 				op = Operator.ASSIGN_DOUBLE;
 				defValue = DEF_DOUBLE;
+				varType = VariableType.DOUBLE;
 				break;
 			case DECLARE_BOOLEAN:
 				op = Operator.ASSIGN_BOOLEAN;
 				defValue = DEF_BOOLEAN;
+				varType = VariableType.BOOLEAN;
 				break;
 			default:
 				continue;
 			}
 
-			final String arg1 = quad.getArgument1();
-			final String result = quad.getResult();
-			final Quadruple q;
+			file.addVariableToMethodsCode(methodName, result, varType);
 
 			if (!SYM_IGNORE.equals(arg1)) {
 				q = new QuadrupleImpl(op, arg1, SYM_IGNORE, result);
@@ -281,8 +290,78 @@ public class Translator
 	 * @param tac
 	 */
 	private static void extractInstructionsFromOperations(
-			final IClassfile classfile, final List<Quadruple> tac) {
+			final IClassfile classfile, final String methodName,
+			final List<Quadruple> tac) {
+		final ProgramBuilder pb = ProgramBuilder.newBuilder(classfile,
+				methodName);
 
+		for (final Quadruple quad : tac) {
+			switch (quad.getOperator()) {
+			case ADD_DOUBLE:
+				pb.addDouble(quad);
+				break;
+			case ADD_LONG:
+				pb.addLong(quad);
+				break;
+			case ASSIGN_BOOLEAN:
+				pb.assignBoolean(quad);
+				break;
+			case ASSIGN_DOUBLE:
+				pb.assignDouble(quad);
+				break;
+			case ASSIGN_LONG:
+				pb.assignLong(quad);
+				break;
+			case ASSIGN_STRING:
+				pb.assignString(quad);
+				break;
+			case DECLARE_BOOLEAN:
+				pb.declareBoolean(quad);
+				break;
+			case DECLARE_DOUBLE:
+				pb.declareDouble(quad);
+				break;
+			case DECLARE_LONG:
+				pb.declareLong(quad);
+				break;
+			case DECLARE_STRING:
+				pb.declareString(quad);
+				break;
+			case DIV_DOUBLE:
+				pb.divDouble(quad);
+				break;
+			case DIV_LONG:
+				pb.divLong(quad);
+				break;
+			case DOUBLE_TO_LONG:
+				pb.doubleToLong(quad);
+				break;
+			case LONG_TO_DOUBLE:
+				pb.longToDouble(quad);
+				break;
+			case MUL_DOUBLE:
+				pb.mulDouble(quad);
+				break;
+			case MUL_LONG:
+				pb.mulLong(quad);
+				break;
+			case RETURN:
+				pb.returnLong(quad);
+				break;
+			case SUB_DOUBLE:
+				pb.subDouble(quad);
+				break;
+			case SUB_LONG:
+				pb.subLong(quad);
+				break;
+			default:
+				break;
+
+			}
+		}
+
+		final Program pr = pb.build();
+		classfile.addInstructionsToMethodsCode("main", pr.toInstructionsList());
 	}
 
 }

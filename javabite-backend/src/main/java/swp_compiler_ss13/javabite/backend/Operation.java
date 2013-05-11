@@ -1,7 +1,7 @@
 package swp_compiler_ss13.javabite.backend;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
@@ -60,7 +60,7 @@ public class Operation
 		 * @return instance of this builder
 		 */
 		public OperationBuilder add(final Mnemonic mnemonic,
-				final int argsSize, final Byte... arguments) {
+				final int argsSize, final byte... arguments) {
 			final int size;
 			final Instruction instruction;
 			if (mnemonic.getArgsCount() > 0) {
@@ -71,8 +71,7 @@ public class Operation
 									+ mnemonic.getArgsCount());
 				} else {
 					size = 1 + argsSize;
-					instruction = new Instruction(size, mnemonic,
-							Arrays.asList(arguments));
+					instruction = new Instruction(size, mnemonic, arguments);
 				}
 			} else {
 				size = 1;
@@ -110,18 +109,38 @@ public class Operation
 		return instructions;
 	}
 
-	public int getSize() {
-		return size;
-	}
-
 	public Operator getOperator() {
 		return operator;
 	}
 
-	// public void setOffset(int offset) {
-	// for (final Instruction instruction : instructions) {
-	// offset += instruction.setOffset(offset);
-	// }
-	// }
+	public int getInstructionCount() {
+		return instructions.size();
+	}
+
+	public int getByteCount() {
+		return size;
+	}
+
+	public byte[] toByteArray() {
+		final ByteBuffer bb = ByteBuffer.allocate(size);
+		if (instructions != null) {
+			for (final Instruction instruction : instructions) {
+				bb.put(instruction.toByteArray());
+			}
+		}
+		return bb.array();
+	}
+
+	@Override
+	public String toString() {
+		final String nl = System.getProperty("line.separator");
+		final StringBuilder sb = new StringBuilder();
+		if (instructions != null) {
+			for (final Instruction instruction : instructions) {
+				sb.append(instruction.toString()).append(nl);
+			}
+		}
+		return sb.toString();
+	}
 
 }

@@ -2,6 +2,7 @@ package swp_compiler_ss13.javabite.backend;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Collection;
 
 public interface IClassfile
 {
@@ -62,14 +63,15 @@ public interface IClassfile
 	 * @author Marco
 	 * @since 03.05.2013
 	 */
-	public enum VariableTypes
+	public enum VariableType
 	{
 
-		LONG((short) 2), DOUBLE((short) 2), STRING((short) 1), BOOL((short) 1);
+		LONG((short) 2), DOUBLE((short) 2), STRING((short) 1), BOOLEAN(
+				(short) 1);
 
 		private final short length;
 
-		VariableTypes(final short length) {
+		VariableType(final short length) {
 			this.length = length;
 		}
 
@@ -174,7 +176,7 @@ public interface IClassfile
 	 *            String variableType of the variable.
 	 */
 	public void addVariableToMethodsCode(String methodName,
-			String variableName, VariableTypes variableType);
+			String variableName, VariableType variableType);
 
 	/**
 	 * getIndexOfVariableInMethod function. This function looks up the index of
@@ -208,4 +210,17 @@ public interface IClassfile
 	 */
 	public void addInstructionToMethodsCode(String methodName,
 			Instruction instruction);
+
+	/**
+	 * addInstructionsToMethodsCode function. This function adds new
+	 * Instructions to the codeArea of the codeAttribute of the provided method
+	 * of the methodArea of this classfile.
+	 * 
+	 * @author eike
+	 * @since 09.05.2013
+	 * @param methodName
+	 * @param instructions
+	 */
+	public void addInstructionsToMethodsCode(String methodName,
+			Collection<Instruction> instructions);
 }

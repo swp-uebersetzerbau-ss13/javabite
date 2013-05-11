@@ -10,6 +10,11 @@ import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.javabite.ast.ASTNodeJb;
 
+/**
+ * 
+ * @author Alpin Sahin und Florian Mercks
+ *
+ */
 public class BlockNodeCG {
 	
 
@@ -21,6 +26,7 @@ public class BlockNodeCG {
 		IRCodeGenerator.currentSymbolTable.push(node.getSymbolTable());
 
 		Iterator<ASTNode> astDFSLTR = node.getDFSLTRNodeIterator();
+		//int counter=0;
 		while(astDFSLTR.hasNext()){
 			ASTNode astNode = astDFSLTR.next();
 			switch (astNode.getNodeType()){
@@ -29,9 +35,12 @@ public class BlockNodeCG {
 				decNCG.convert((DeclarationNode) astNode);
 				break;
 			default:
-				System.out.println(astNode.toString());
-				StatementNode statement = (StatementNode) astNode;
-				IRCodeGenerator.differentiateNode((ASTNodeJb) statement);
+				if((astDFSLTR.next()!=null)){
+					System.out.println(astNode.getNodeType());
+					StatementNode statement = (StatementNode) astNode;
+					IRCodeGenerator.differentiateNode((ASTNodeJb) statement);
+				}
+				else{}
 				break;
 			}
 		}
