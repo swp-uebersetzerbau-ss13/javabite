@@ -85,7 +85,7 @@ public class BackendModule implements Backend {
 					.get(classname);
 			final DataInputStream dis = new DataInputStream(is);
 			
-			File testFile = new File("C:/Users/admin/Desktop/EmptyMain.class");
+			File testFile = new File("/home/eike/EmptyMain.class");
 			FileOutputStream outStream;
 			
 			try {
@@ -94,7 +94,6 @@ public class BackendModule implements Backend {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			
 			
 			int i = 0;
 			byte b;

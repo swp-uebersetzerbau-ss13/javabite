@@ -3,6 +3,8 @@ package swp_compiler_ss13.javabite.backend;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.javabite.backend.Operation.OperationBuilder;
@@ -22,6 +24,8 @@ public class Program
 
 	public static class ProgramBuilder
 	{
+		
+		private static final Pattern P_CONST_SIGN = Pattern.compile("#.*?");
 
 		public static ProgramBuilder newBuilder(final int initialOffset,
 				final IClassfile classfile, final String methodName) {
@@ -56,6 +60,11 @@ public class Program
 		private boolean isConstant(final String s) {
 			return s.startsWith(Translator.SYM_CONST);
 		}
+		
+		private String removeConstantSign(final String s) {
+			final Matcher m = P_CONST_SIGN.matcher(s);
+			return m.replaceAll("");
+		}
 
 		public ProgramBuilder declareLong(final Quadruple q) {
 			return this;
@@ -87,7 +96,7 @@ public class Program
 			final OperationBuilder op = OperationBuilder.newBuilder();
 			if (isConstant(q.getArgument1())) {
 				final short index = classfile.getIndexOfConstantInConstantPool(
-						q.getArgument1(), dataType);
+						removeConstantSign(q.getArgument1()), dataType);
 				op.add(Mnemonic.LDC2_W, 2, ByteUtils.shortToByteArray(index));
 			} else {
 				final short index = classfile.getIndexOfVariableInMethod(
@@ -154,7 +163,7 @@ public class Program
 			final OperationBuilder op = OperationBuilder.newBuilder();
 			if (isConstant(q.getArgument1())) {
 				final short index = classfile.getIndexOfConstantInConstantPool(
-						q.getArgument1(), dataType);
+						removeConstantSign(q.getArgument1()), dataType);
 				op.add(Mnemonic.LDC2_W, 2, ByteUtils.shortToByteArray(index));
 			} else {
 				final short index = classfile.getIndexOfVariableInMethod(

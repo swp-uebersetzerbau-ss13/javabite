@@ -918,7 +918,7 @@ public class Classfile implements IClassfile
 
 				// General codeAttribute structure information
 				private final short codeIndex;
-				private final short maxStack;
+				private short maxStack;
 				private short maxLocals;
 				private final ArrayList<Instruction> codeArea;
 				private final short exceptionTableLength;
@@ -945,6 +945,8 @@ public class Classfile implements IClassfile
 					final ByteArrayOutputStream codeBAOS = new ByteArrayOutputStream();
 					final DataOutputStream codeDOS = new DataOutputStream(
 							codeBAOS);
+					
+					this.maxStack = calculateMaxStack();
 
 					try {
 						attributesDOS.writeShort(this.maxStack);
@@ -982,6 +984,11 @@ public class Classfile implements IClassfile
 					} catch (final IOException e) {
 						e.printStackTrace();
 					}
+				}
+				
+				private short calculateMaxStack() {
+					// TODO
+					return 4;
 				}
 
 				/**
