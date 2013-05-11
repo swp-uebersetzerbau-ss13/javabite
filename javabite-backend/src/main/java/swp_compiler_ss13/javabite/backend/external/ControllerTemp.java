@@ -1,11 +1,10 @@
-package swp_compiler_ss13.javabite.backend;
+package swp_compiler_ss13.javabite.backend.external;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import swp_compiler_ss13.common.backend.Quadruple;
-import swp_compiler_ss13.common.backend.Quadruple.Operator;
-import swp_compiler_ss13.javabite.backend.external.QuadrupleImpl;
+import swp_compiler_ss13.javabite.backend.BackendModule;
 
 /**
  * ControllerTemp class. Implementation of a temporary controller to instantiate
@@ -24,17 +23,17 @@ public class ControllerTemp
 		 */
 		private static final long serialVersionUID = 6319892294145882549L;
 		{
-			add(new QuadrupleImpl(Operator.DECLARE_LONG, "#100000", "!",
-					"longVar"));
-			add(new QuadrupleImpl(Operator.DECLARE_DOUBLE, "#100000", "!",
-					"doubleVar"));
+			//add(new QuadrupleImpl(Operator.DECLARE_LONG, "#100000", "!",
+					//"longVar"));
+			//add(new QuadrupleImpl(Operator.DECLARE_DOUBLE, "#100000", "!",
+					//"doubleVar"));
 			// add(new QuadrupleImpl(Operator.DECLARE_STRING, "#teststring",
 			// "!",
 			// "stringVar"));
 			// add(new QuadrupleImpl(Operator.DECLARE_BOOLEAN, "#TRUE", "!",
 			// "bool1"));
-			add(new QuadrupleImpl(Operator.LONG_TO_DOUBLE, "longVar", "!",
-					"doubleVar"));
+			//add(new QuadrupleImpl(Operator.LONG_TO_DOUBLE, "longVar", "!",
+					//"doubleVar"));
 
 			/* Variable declaration */
 			/*

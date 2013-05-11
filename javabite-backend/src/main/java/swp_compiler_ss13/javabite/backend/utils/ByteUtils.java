@@ -6,7 +6,7 @@ public class ByteUtils
 {
 
 	public static byte[] shortToByteArray(final short x) {
-		return new byte[] { (byte) (x & 0xff), (byte) ((x >> 8) & 0xff) };
+		return new byte[] {(byte) ((x >> 8) & 0xff), (byte) (x & 0xff)};
 	}
 
 	public static String hexFromInt(final byte b) {

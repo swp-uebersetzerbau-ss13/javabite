@@ -89,7 +89,7 @@ public class Translator
 		final Collection<IClassfile> classfiles = new ArrayList<IClassfile>();
 
 		final IClassfile classfile = this.generateClassfile(classfileName,
-				"tests/example", "java/lang/Object",
+				"EmptyMain", "java/lang/Object",
 				Classfile.ClassfileAccessFlag.ACC_PUBLIC,
 				Classfile.ClassfileAccessFlag.ACC_SUPER);
 
@@ -99,7 +99,7 @@ public class Translator
 			methodName = "main";
 			// always generate mainFunction in main.class file
 			classfile.addMethodToMethodArea(methodName,
-					"([Ljava/lang/String;])V",
+					"([Ljava/lang/String;)V",
 					Classfile.MethodAccessFlag.ACC_PUBLIC,
 					Classfile.MethodAccessFlag.ACC_STATIC);
 		} else {

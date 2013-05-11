@@ -129,7 +129,7 @@ public class Classfile implements IClassfile
 		final short initNATIndex = (short) this.constantPool
 				.generateConstantNameAndTypeInfo("<init>", "()V");
 		final short methodrefIndex = (short) this.constantPool
-				.generateConstantMethodrefInfo(this.thisClassIndex,
+				.generateConstantMethodrefInfo(this.superClassIndex,
 						initNATIndex);
 		final byte[] methodRefByteArray = ByteUtils
 				.shortToByteArray(methodrefIndex);
@@ -158,6 +158,10 @@ public class Classfile implements IClassfile
 		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		final DataOutputStream classfileDOS = new DataOutputStream(baos);
 
+		//TMP
+		Instruction ret = new Instruction(1 ,Mnemonic.RETURN);
+		this.addInstructionToMethodsCode("main", ret);
+		
 		this.writeTo(classfileDOS);
 
 		return new ByteArrayInputStream(baos.toByteArray());
@@ -372,10 +376,11 @@ public class Classfile implements IClassfile
 			try {
 				if (logger.isDebugEnabled()) {
 					logger.debug("constantPool size");
-					logger.debug("{}", hexFromInt(this.entryList.size()));
+					logger.debug("{}", hexFromInt(this.entryList.size() + 1));
 				}
-
-				classfileDOS.writeShort((short) this.entryList.size());
+				
+				// specification determines size as size of cp plus 1
+				classfileDOS.writeShort((short) (this.entryList.size() + 1));
 
 				for (final CPInfo entry : entryList) {
 					entry.writeTo(classfileDOS);

@@ -8,6 +8,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.io.*;
+
+import org.apache.commons.io.IOUtils;
 
 import swp_compiler_ss13.common.backend.Backend;
 import swp_compiler_ss13.common.backend.Quadruple;
@@ -22,8 +25,7 @@ import swp_compiler_ss13.javabite.backend.translation.Translator;
  * @since 27.04.2013
  * 
  */
-public class BackendModule implements Backend
-{
+public class BackendModule implements Backend {
 
 	@SuppressWarnings("unused")
 	private final TACOptimizer tacOptimizer;
@@ -82,7 +84,18 @@ public class BackendModule implements Backend
 			final ByteArrayInputStream is = (ByteArrayInputStream) targetCodeIS
 					.get(classname);
 			final DataInputStream dis = new DataInputStream(is);
-
+			
+			File testFile = new File("C:/Users/admin/Desktop/EmptyMain.class");
+			FileOutputStream outStream;
+			
+			try {
+				outStream = new FileOutputStream(testFile);
+				IOUtils.copy(dis, outStream);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			
 			int i = 0;
 			byte b;
 			try {
