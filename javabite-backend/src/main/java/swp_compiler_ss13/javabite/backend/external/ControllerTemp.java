@@ -28,18 +28,17 @@ public class ControllerTemp
 			add(new QuadrupleImpl(Operator.DECLARE_LONG, "#2", "!", "longVar"));
 			add(new QuadrupleImpl(Operator.DECLARE_DOUBLE, "#100.123", "!",
 					"doubleVar"));
-//
-//			add(new QuadrupleImpl(Operator.DOUBLE_TO_LONG, "doubleVar", "!",
-//					"longVar"));
-//			add(new QuadrupleImpl(Operator.RETURN, "longVar", "!", "!"));
+			//add(new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!",
+			//		"longVar2"));
+			//add(new QuadrupleImpl(Operator.DOUBLE_TO_LONG, "doubleVar", "!",
+			//		"longVar2"));
+			//add(new QuadrupleImpl(Operator.ADD_LONG, "longVar", "longVar2",
+			//		"longVar2"));
+			//add(new QuadrupleImpl(Operator.RETURN, "longVar2", "!", "!"));
 
-			// add(new QuadrupleImpl(Operator.DECLARE_STRING, "#teststring",
-			// "!",
-			// "stringVar"));
-			// add(new QuadrupleImpl(Operator.DECLARE_BOOLEAN, "#TRUE", "!",
-			// "bool1"));
-			// add(new QuadrupleImpl(Operator.LONG_TO_DOUBLE, "longVar", "!",
-			// "doubleVar"));
+	
+			
+			
 
 			/* Variable declaration */
 			/*

@@ -408,9 +408,11 @@ public class Classfile implements IClassfile
 
 			final CPInfo longInfo = new CPInfo((byte) 0x05, info);
 			this.entryList.add(longInfo);
+			final CPInfo longInfo2ndPartDummy = new CPInfo();
+			this.entryList.add(longInfo2ndPartDummy);
 
-			// return index + 1
-			return this.entryList.size();
+			// return index
+			return this.entryList.size() - 1;
 		}
 
 		/**
@@ -430,9 +432,11 @@ public class Classfile implements IClassfile
 
 			final CPInfo doubleInfo = new CPInfo((byte) 0x06, info);
 			this.entryList.add(doubleInfo);
+			final CPInfo doubleInfo2ndPartDummy = new CPInfo();
+			this.entryList.add(doubleInfo2ndPartDummy);
 
-			// return index + 1
-			return this.entryList.size();
+			// return index
+			return this.entryList.size() - 1;
 		}
 
 		/**
@@ -656,22 +660,30 @@ public class Classfile implements IClassfile
 				this.tag = tag;
 				this.info = info;
 			}
+			
+			private CPInfo() {
+				this.tag = 0;
+				this.info = null;
+			}
 
 			public void writeTo(final DataOutputStream classfileDOS) {
-				try {
-					classfileDOS.writeByte(this.tag);
-					for (final Byte b : info) {
-						classfileDOS.writeByte(b);
-					}
+				// write only, if CPInfo is no dummy entry
+				if (this.info != null) {
+					try {
+						classfileDOS.writeByte(this.tag);
+						for (final Byte b : info) {
+							classfileDOS.writeByte(b);
+						}
 
-					if (logger.isDebugEnabled()) {
-						logger.debug("CPInfo tag");
-						logger.debug("{}", hexFromInt(tag));
-						logger.debug("CPInfo info");
-						logger.debug("{}", hexFromBytes(info));
+						if (logger.isDebugEnabled()) {
+							logger.debug("CPInfo tag");
+							logger.debug("{}", hexFromInt(tag));
+							logger.debug("CPInfo info");
+							logger.debug("{}", hexFromBytes(info));
+						}
+					} catch (final IOException e) {
+						e.printStackTrace();
 					}
-				} catch (final IOException e) {
-					e.printStackTrace();
 				}
 			}
 		}

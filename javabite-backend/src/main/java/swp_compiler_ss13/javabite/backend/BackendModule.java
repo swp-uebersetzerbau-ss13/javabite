@@ -85,7 +85,7 @@ public class BackendModule implements Backend {
 					.get(classname);
 			final DataInputStream dis = new DataInputStream(is);
 			
-			File testFile = new File("/home/eike/EmptyMain.class");
+			File testFile = new File("C:/Users/admin/Desktop/EmptyMain.class");
 			FileOutputStream outStream;
 			
 			try {
