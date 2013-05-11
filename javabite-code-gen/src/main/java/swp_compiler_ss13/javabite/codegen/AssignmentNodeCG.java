@@ -10,39 +10,38 @@ import swp_compiler_ss13.common.types.Type.Kind;
 import swp_compiler_ss13.common.types.primitive.DoubleType;
 import swp_compiler_ss13.javabite.ast.ASTNodeJb;
 
-
-/**
-*
-* @author Alpin Sahin und Florian Mercks
-*
-*/
 public class AssignmentNodeCG {
 
 
 	public void convert(AssignmentNode node) throws IntermediateCodeGeneratorException {
-		BasicIdentifierNode id = (BasicIdentifierNode) node.getLeftValue();
-		
-		switch (id.getNodeType()) {
+		// get the identifier, for now BasicIdentifier
+		BasicIdentifierNode identifier = (BasicIdentifierNode) node.getLeftValue();
+		// for now only BasicIdentifier to find
+		switch (identifier.getNodeType()) {
 		case BasicIdentifierNode:
 			StatementNode value = node.getRightValue();
 			
 			JavaBiteCodeGenerator.differentiateNode((ASTNodeJb) value);
 			
-			String rightValue = JavaBiteCodeGenerator.intermediateResults.pop();
-			Type rightType = JavaBiteCodeGenerator.intermediateTypes.pop();
+			String rightValue = JavaBiteCodeGenerator.temporaryResultOutputs.pop();
+			Type rightType = JavaBiteCodeGenerator.temporaryTypes.pop();
+			// get the identifier and his type
+			String idOrigName = identifier.getIdentifier();
+			String idRenamed = JavaBiteCodeGenerator.getIdentifier(idOrigName);
+			Type typeOfid = JavaBiteCodeGenerator.latestSymbolTable.peek().lookupType(idOrigName);
 			
-			String idOrigName = id.getIdentifier();
-			String idRenamed = JavaBiteCodeGenerator.loadIdentifier(idOrigName);
-			Type typeOfid = JavaBiteCodeGenerator.currentSymbolTable.peek().lookupType(idOrigName);
-			
+			// if the left identifier long, the right value double, if not then use rightValue
+			// cast the right type from double to long
 			String casted = rightValue;
 			if (typeOfid.getKind() == Kind.LONG && rightType.getKind() == Kind.DOUBLE) {
-				casted = JavaBiteCodeGenerator.createAndSaveTemporaryIdentifier(new DoubleType());
+				casted = JavaBiteCodeGenerator.createAndAddTemporaryIdentifier(new DoubleType());
 				Quadruple cleft = QuadrupleFactory.castDoubleToLong(rightValue, casted);
 				JavaBiteCodeGenerator.quadruples.add(cleft);
 			}
+			// if the left identifier double, the right value long, if not then use rightValue
+			// cast the right type from long to double 
 			if (typeOfid.getKind() == Kind.DOUBLE && rightType.getKind() == Kind.LONG) {
-				casted = JavaBiteCodeGenerator.createAndSaveTemporaryIdentifier(new DoubleType());
+				casted = JavaBiteCodeGenerator.createAndAddTemporaryIdentifier(new DoubleType());
 				Quadruple cleft = QuadrupleFactory.castLongToDouble(rightValue, casted);
 				JavaBiteCodeGenerator.quadruples.add(cleft);
 			}

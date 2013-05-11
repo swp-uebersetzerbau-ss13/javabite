@@ -4,11 +4,7 @@ package swp_compiler_ss13.javabite.codegen;
 import swp_compiler_ss13.common.backend.Quadruple;
 
 /**
-* Implementation of the quadruple interface. Instances of this class are
-* immutable.
-*
-* @author "Frank Zechert"
-* @version 1
+* Implementation of the quadruple interface
 */
 public class QuadrupleImpl implements Quadruple {
 

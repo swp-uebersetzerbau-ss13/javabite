@@ -8,9 +8,10 @@ public class BasicIdentifierNodeCG {
 
 	public void convert(BasicIdentifierNode node) throws IntermediateCodeGeneratorException{
 		String identifier = node.getIdentifier();
-		Type identifierType = JavaBiteCodeGenerator.currentSymbolTable.peek().lookupType(identifier);
-		String actualIdentifier = JavaBiteCodeGenerator.loadIdentifier(identifier);
-		JavaBiteCodeGenerator.intermediateResults.push(actualIdentifier);
-		JavaBiteCodeGenerator.intermediateTypes.push(identifierType);
+		Type identifierType = JavaBiteCodeGenerator.latestSymbolTable.peek().lookupType(identifier);
+		// get current the identifier, maybe it is overwritten
+		String actualIdentifier = JavaBiteCodeGenerator.getIdentifier(identifier);
+		JavaBiteCodeGenerator.temporaryResultOutputs.push(actualIdentifier);
+		JavaBiteCodeGenerator.temporaryTypes.push(identifierType);
 	}
 }

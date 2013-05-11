@@ -9,18 +9,20 @@ public class LiteralNodeCG{
 	public void convert(LiteralNode node) throws IntermediateCodeGeneratorException {
 		String literal = node.getLiteral();
 		Type type = node.getLiteralType();
-		JavaBiteCodeGenerator.intermediateTypes.push(type);
+		JavaBiteCodeGenerator.temporaryTypes.push(type);
 		switch (type.getKind()) {
-			case DOUBLE:
 			case LONG:
-				JavaBiteCodeGenerator.intermediateResults.push("#" + literal);
+				JavaBiteCodeGenerator.temporaryResultOutputs.push("#" + literal);
+				break;
+			case DOUBLE:
+				JavaBiteCodeGenerator.temporaryResultOutputs.push("#" + literal);
 				break;
 			case STRING:
-				JavaBiteCodeGenerator.intermediateResults.push("#\"" + literal + "\"");
+				JavaBiteCodeGenerator.temporaryResultOutputs.push("#\"" + literal + "\"");
 				break;
 			default:
-				throw new IntermediateCodeGeneratorException("Literal node of type " + node.getLiteralType().toString()
-						+ " is not supported");
+				throw new IntermediateCodeGeneratorException("The type " + node.getLiteralType().toString()
+						+ " for literal node is not supported!");
 		}
 	}
 }

@@ -35,39 +35,41 @@ public class JavaBiteCodeGenerator implements IntermediateCodeGenerator {
 	/**
 	* List of used names. This is needed for single static assignment.
 	*/
-	static List<String> usedNames;
+	static List<String> usedVariableNames;
 	
 	/**
-	* The stack of identifier renames
+	* The stack of the latest Identifier names.
 	*/
-	static Stack<Map<String, String>> currentScopeRenames;
+	static Stack<Map<String, String>> latestIdentifierNames;
 	
 	/**
 	* The stack of symbol tables
 	*/
-	static Stack<SymbolTable> currentSymbolTable;
+	static Stack<SymbolTable> latestSymbolTable;
 	
 	/**
 	* Store for intermediate results
 	*/
-	static Stack<String> intermediateResults;
+	static Stack<String> temporaryResultOutputs;
 	
-	static Stack<Type> intermediateTypes;
+	static Stack<Type> temporaryTypes;
 	
 	/**
 	* Constructor for the intermediate code generator
 	*/
 	public JavaBiteCodeGenerator() {
 		quadruples = new LinkedList<>();
-		usedNames = new LinkedList<>();
-		currentScopeRenames = new Stack<>();
-		currentSymbolTable = new Stack<>();
-		intermediateResults = new Stack<>();
-		intermediateTypes = new Stack<>();
+		usedVariableNames = new LinkedList<>();
+		latestIdentifierNames = new Stack<>();
+		latestSymbolTable = new Stack<>();
+		temporaryResultOutputs = new Stack<>();
+		temporaryTypes = new Stack<>();
 	}
 
 
-	
+	/**
+	 * generates the intermediate code for the given AST 
+	 */
 	@Override
 	public List<Quadruple> generateIntermediateCode(AST ast)
 			throws IntermediateCodeGeneratorException {
@@ -147,22 +149,36 @@ public class JavaBiteCodeGenerator implements IntermediateCodeGenerator {
 	}
 
 
-
-	public static String saveIdentifier(String identifier,
+	/**
+	 * declare the identifier
+	 * @param identifier
+	 * @param type
+	 * @return
+	 * @throws IntermediateCodeGeneratorException
+	 */
+	public static String addIdentifier(String identifier,
 			Type type) throws IntermediateCodeGeneratorException {
-		if (!usedNames.contains(identifier)) {
-			usedNames.add(identifier);
-			currentScopeRenames.peek().put(identifier, identifier);
+		
+		/* looks up if the identifier name is already used
+		 * create a temporary variable that keeps a new name for the variable,
+		 * if the identifier has been used
+		 */
+		if (usedVariableNames.contains(identifier)) {
+			// rename is required to keep single static assignment
+			String newVariableName = latestSymbolTable.peek().getNextFreeTemporary();
+			latestSymbolTable.peek().putTemporary(newVariableName, type);
+			usedVariableNames.add(newVariableName);
+			latestIdentifierNames.peek().put(identifier, newVariableName);
+			quadruples.add(QuadrupleFactory.declaration(newVariableName, type));
+			return newVariableName;
+		}
+		 //if the identifier name not in the usedVariableNames,
+		 //add the new identifier name into the usedVariablenNames
+		else {
+			usedVariableNames.add(identifier);
+			latestIdentifierNames.peek().put(identifier, identifier);
 			quadruples.add(QuadrupleFactory.declaration(identifier, type));
 			return identifier;
-		} else {
-			// rename is required to keep single static assignment
-			String newName = currentSymbolTable.peek().getNextFreeTemporary();
-			currentSymbolTable.peek().putTemporary(newName, type);
-			usedNames.add(newName);
-			currentScopeRenames.peek().put(identifier, newName);
-			quadruples.add(QuadrupleFactory.declaration(newName, type));
-			return newName;
 		}
 	}
 
@@ -171,24 +187,26 @@ public class JavaBiteCodeGenerator implements IntermediateCodeGenerator {
 	* Load the given identifier and return its actual name (if renaming was
 	* done)
 	*
-	* @param id
+	* @param identifier
 	* The identifier name to load
 	* @return The actual name of the identifier
 	* @throws IntermediateCodeGeneratorException
 	* Identifier was not found
 	*/
-	public static String loadIdentifier(String id) throws IntermediateCodeGeneratorException {
+	public static String getIdentifier(String identifier) throws IntermediateCodeGeneratorException {
+		//Copy the all used names from latestIdentifierNames to a temporary variable
 		@SuppressWarnings("unchecked")
-		Stack<Map<String, String>> renameScopes = (Stack<Map<String, String>>) JavaBiteCodeGenerator.currentScopeRenames.clone();
+		Stack<Map<String, String>> namesInBlocks = (Stack<Map<String, String>>) JavaBiteCodeGenerator.latestIdentifierNames.clone();
 		try {
 			while (true) {
-			Map<String, String> renamedIds = renameScopes.pop();
-				if (renamedIds.containsKey(id)) {
-					return renamedIds.get(id);
+			Map<String, String> currentIdentifiers = namesInBlocks.pop();
+				if (currentIdentifiers.containsKey(identifier)) {
+					return currentIdentifiers.get(identifier);
 				}
 			}
-		} catch (EmptyStackException e) {
-		throw new IntermediateCodeGeneratorException("Undeclared variable found: " + id);
+		} 
+		catch (EmptyStackException e) {
+			throw new IntermediateCodeGeneratorException(identifier + " is not declared!");
 		}
 	}
 
@@ -203,13 +221,13 @@ public class JavaBiteCodeGenerator implements IntermediateCodeGenerator {
 	* @throws IntermediateCodeGeneratorException
 	* An error occurred
 	*/
-	public static String createAndSaveTemporaryIdentifier(Type type) throws IntermediateCodeGeneratorException {
-		String id = currentSymbolTable.peek().getNextFreeTemporary();
-		currentSymbolTable.peek().putTemporary(id, type);
-		usedNames.add(id);
-		currentScopeRenames.peek().put(id, id);
-		JavaBiteCodeGenerator.quadruples.add(QuadrupleFactory.declaration(id, type));
-		return id;
+	public static String createAndAddTemporaryIdentifier(Type type) throws IntermediateCodeGeneratorException {
+		String identifier = latestSymbolTable.peek().getNextFreeTemporary();
+		latestSymbolTable.peek().putTemporary(identifier, type);
+		usedVariableNames.add(identifier);
+		latestIdentifierNames.peek().put(identifier, identifier);
+		JavaBiteCodeGenerator.quadruples.add(QuadrupleFactory.declaration(identifier, type));
+		return identifier;
 	}
 
 }

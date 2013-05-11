@@ -9,11 +9,6 @@ import swp_compiler_ss13.common.types.primitive.DoubleType;
 import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.javabite.ast.ASTNodeJb;
 
-/**
- * 
- * @author Alpin Sahin und Florian Mercks
- *
- */
 public class ArithmeticBinaryExpressionNodeCG {
 
 	/**
@@ -28,42 +23,53 @@ public class ArithmeticBinaryExpressionNodeCG {
 		JavaBiteCodeGenerator.differentiateNode((ASTNodeJb) node.getRightValue());
 	
 		
-		Type rightType = JavaBiteCodeGenerator.intermediateTypes.pop();
-		Type leftType = JavaBiteCodeGenerator.intermediateTypes.pop();
+		Type rightType = JavaBiteCodeGenerator.temporaryTypes.pop();
+		Type leftType = JavaBiteCodeGenerator.temporaryTypes.pop();
 	
-		String rightValue = JavaBiteCodeGenerator.intermediateResults.pop();
-		String leftValue = JavaBiteCodeGenerator.intermediateResults.pop();
-	
+		String rightValue = JavaBiteCodeGenerator.temporaryResultOutputs.pop();
+		String leftValue = JavaBiteCodeGenerator.temporaryResultOutputs.pop();
+		// operations for long type arguments
 		if (leftType.getKind() == Kind.LONG && rightType.getKind() == Kind.LONG) {
-			// Just long types
-			String temp = JavaBiteCodeGenerator.createAndSaveTemporaryIdentifier(new LongType());
+			// long binary operations
+			String temp = JavaBiteCodeGenerator.createAndAddTemporaryIdentifier(new LongType());
 			Quadruple tac = QuadrupleFactory.longArithmeticBinaryOperation(node.getOperator(), leftValue, rightValue,temp);
 			JavaBiteCodeGenerator.quadruples.add(tac);
-			JavaBiteCodeGenerator.intermediateResults.push(temp);
-			JavaBiteCodeGenerator.intermediateTypes.push(new LongType());
-		} else {
-			// double types or mix of double and long
-			String castLeft = leftValue;
+			JavaBiteCodeGenerator.temporaryResultOutputs.push(temp);
+			JavaBiteCodeGenerator.temporaryTypes.push(new LongType());
+		} 
+		// if one of the arguments or both of them are double 
+		else {
+			// if the left argument is long, then cast it to double
+			String castLeft;
 			if (leftType.getKind() == Kind.LONG) {
-			// cast the left value to double
-			castLeft = JavaBiteCodeGenerator.createAndSaveTemporaryIdentifier(new DoubleType());
-			Quadruple cleft = QuadrupleFactory.castLongToDouble(leftValue, castLeft);
-			JavaBiteCodeGenerator.quadruples.add(cleft);
-		}
-	
-		String castRight = rightValue;
-		if (rightType.getKind() == Kind.LONG) {
-			// cast the right value to double
-			castRight = JavaBiteCodeGenerator.createAndSaveTemporaryIdentifier(new DoubleType());
-			Quadruple cright = QuadrupleFactory.castLongToDouble(rightValue, castRight);
-			JavaBiteCodeGenerator.quadruples.add(cright);
-		}
+				// cast the left value to double
+				castLeft = JavaBiteCodeGenerator.createAndAddTemporaryIdentifier(new DoubleType());
+				Quadruple cleft = QuadrupleFactory.castLongToDouble(leftValue, castLeft);
+				JavaBiteCodeGenerator.quadruples.add(cleft);
+			}
+			// if not long, then use its current value
+			else{
+				castLeft = leftValue;
+			}
+			// if the right argument is long, then cast it to double
+			String castRight;
+			if (rightType.getKind() == Kind.LONG) {
+				// cast the right value to double
+				castRight = JavaBiteCodeGenerator.createAndAddTemporaryIdentifier(new DoubleType());
+				Quadruple cright = QuadrupleFactory.castLongToDouble(rightValue, castRight);
+				JavaBiteCodeGenerator.quadruples.add(cright);
+			}
+			// if not long, then use its current value
+			else{
+				castRight = rightValue;
+			}
+			
 			// double binary operation
-			String temp = JavaBiteCodeGenerator.createAndSaveTemporaryIdentifier(new DoubleType());
+			String temp = JavaBiteCodeGenerator.createAndAddTemporaryIdentifier(new DoubleType());
 			Quadruple tac = QuadrupleFactory.doubleArithmeticBinaryOperation(node.getOperator(), castLeft, castRight,temp);
 			JavaBiteCodeGenerator.quadruples.add(tac);
-			JavaBiteCodeGenerator.intermediateResults.push(temp);
-			JavaBiteCodeGenerator.intermediateTypes.push(new DoubleType());
+			JavaBiteCodeGenerator.temporaryResultOutputs.push(temp);
+			JavaBiteCodeGenerator.temporaryTypes.push(new DoubleType());
 		}
 	}
 }

@@ -10,20 +10,14 @@ import swp_compiler_ss13.common.types.Type;
 
 
 /**
-* This factory generates quadruples for the given instructions
-*
-* @author "Frank Zechert"
-* @version 1
+* This factory for generating quadruples for the given instructions
 */
 public class QuadrupleFactory {
-
-	
-	
 	
 	/**
 	* create a quadruple to represent the variable declaration
 	*
-	* @param id
+	* @param identifier
 	* The name of the declared variable
 	* @param type
 	* The type of the declared variable
@@ -31,19 +25,19 @@ public class QuadrupleFactory {
 	* @throws IntermediateCodeGeneratorException
 	* Thrown if an unknown type is declared
 	*/
-	public static Quadruple declaration(String id, Type type) throws IntermediateCodeGeneratorException {
+	public static Quadruple declaration(String identifier, Type type) throws IntermediateCodeGeneratorException {
 		switch (type.getKind()) {
 		case DOUBLE:
-			return new QuadrupleImpl(Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, id);
+			return new QuadrupleImpl(Operator.DECLARE_DOUBLE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, identifier);
 		case LONG:
-			return new QuadrupleImpl(Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, id);
+			return new QuadrupleImpl(Operator.DECLARE_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, identifier);
 		default:
-			throw new IntermediateCodeGeneratorException("Unsupported type " + type.toString());
+			throw new IntermediateCodeGeneratorException(type.toString()+" is not supported!");
 		}
 	}
 
 	/**
-	* Create a new binaryOperator Quadruple for Arguments of Type long
+	* Create a binaryOperator quadruple for arguments of long type
 	*
 	* @param operator
 	* The binary operator
@@ -74,7 +68,7 @@ public class QuadrupleFactory {
 	}
 
 	/**
-	* Create a new binaryOperator Quadruple for Arguments of Type double
+	* Create a binaryOperator quadruple for arguments of double type
 	*
 	* @param operator
 	* The binary operator
@@ -105,7 +99,7 @@ public class QuadrupleFactory {
 	}
 
 	/**
-	* Create a new cast from long to double
+	* Create a quadruple for cast from long to double
 	*
 	* @param from
 	* The long to cast from
@@ -124,7 +118,7 @@ public class QuadrupleFactory {
 	* The double to cast from
 	* @param to
 	* The long to cast to
-	* @return The tac quadurple
+	* @return The tac quadruple
 	*/
 	public static Quadruple castDoubleToLong(String from, String to) {
 		return new QuadrupleImpl(Operator.DOUBLE_TO_LONG, from, Quadruple.EmptyArgument, to);
@@ -150,12 +144,12 @@ public class QuadrupleFactory {
 		case LONG:
 			return new QuadrupleImpl(Operator.ASSIGN_LONG, from, Quadruple.EmptyArgument, to);
 		default:
-			throw new IntermediateCodeGeneratorException("Unsupport assignment type");
+			throw new IntermediateCodeGeneratorException("Unsupported assignment type");
 		}
 	}
 
 	/**
-	* Generate unary minus quadruples for long or double
+	* Create a unary minus quadruple
 	*
 	* @param typeOfId
 	* The type of the identifier (long or double)

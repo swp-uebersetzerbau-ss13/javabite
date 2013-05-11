@@ -12,19 +12,21 @@ public class ArithmeticUnaryExpressionNodeCG {
 
 	public void convert(ArithmeticUnaryExpressionNode node)
 			throws IntermediateCodeGeneratorException {
+		
+		// if the operator is not MINUS, then here is not the right place
 		if (node.getOperator() != UnaryOperator.MINUS) {
-			throw new IntermediateCodeGeneratorException("Unsupported arithmetic unary operator");
+			throw new IntermediateCodeGeneratorException("This arithmetic unary operator is not supported!");
 		}
 		
-		ExpressionNode rightNode = node.getRightValue();
+		ExpressionNode rightValue = node.getRightValue();
 
-		JavaBiteCodeGenerator.differentiateNode((ASTNodeJb) rightNode);
+		JavaBiteCodeGenerator.differentiateNode((ASTNodeJb) rightValue);
 
-		String rightResult = JavaBiteCodeGenerator.intermediateResults.pop();
-		Type rightType = JavaBiteCodeGenerator.intermediateTypes.peek();
+		String rightResult = JavaBiteCodeGenerator.temporaryResultOutputs.pop();
+		Type rightType = JavaBiteCodeGenerator.temporaryTypes.peek();
 
-		String temp = JavaBiteCodeGenerator.createAndSaveTemporaryIdentifier((DoubleType) rightType);
+		String temp = JavaBiteCodeGenerator.createAndAddTemporaryIdentifier((DoubleType) rightType);
 		JavaBiteCodeGenerator.quadruples.add(QuadrupleFactory.unaryMinus(rightType, rightResult, temp));
-		JavaBiteCodeGenerator.intermediateResults.push(temp);
-}
+		JavaBiteCodeGenerator.temporaryResultOutputs.push(temp);
+	}
 }

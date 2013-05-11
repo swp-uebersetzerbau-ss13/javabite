@@ -21,12 +21,12 @@ public class BlockNodeCG {
 	
 	public static void convert(BlockNode node) throws IntermediateCodeGeneratorException {
 		// push new renaming scope
-		JavaBiteCodeGenerator.currentScopeRenames.push(new HashMap<String, String>());
+		JavaBiteCodeGenerator.latestIdentifierNames.push(new HashMap<String, String>());
 		// push current symbol table
-		JavaBiteCodeGenerator.currentSymbolTable.push(node.getSymbolTable());
+		JavaBiteCodeGenerator.latestSymbolTable.push(node.getSymbolTable());
 
+		// find out whether it is declaration node or an other node
 		Iterator<ASTNode> astDFSLTR = node.getDFSLTRNodeIterator();
-		//int counter=0;
 		while(astDFSLTR.hasNext()){
 			ASTNode astNode = astDFSLTR.next();
 			switch (astNode.getNodeType()){
@@ -44,24 +44,10 @@ public class BlockNodeCG {
 				break;
 			}
 		}
-		// get declarations
-//		Iterator<DeclarationNode> declIterator = node.getDeclarationIterator();
-//		while (declIterator.hasNext()) {
-//			DeclarationNodeCG decNCG = new DeclarationNodeCG();
-//			decNCG.convert(declIterator.next());
-//		}
-//
-//		//Iterator<StatementNode> statementIterator = node.getStatementIterator();
-//		 
-//		
-//		while (statementIterator.hasNext()) {
-//			StatementNode statement = statementIterator.next();
-//			IRCodeGenerator.differentiateNode((ASTNodeJb) statement);
-//		}
 
 		// pop the symbol scope and the renaming scope
-		JavaBiteCodeGenerator.currentScopeRenames.pop();
-		JavaBiteCodeGenerator.currentSymbolTable.pop();
+		JavaBiteCodeGenerator.latestIdentifierNames.pop();
+		JavaBiteCodeGenerator.latestSymbolTable.pop();
 		}
 
 }
