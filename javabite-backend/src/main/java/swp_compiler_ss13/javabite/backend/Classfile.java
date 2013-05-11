@@ -1,5 +1,6 @@
 package swp_compiler_ss13.javabite.backend;
 
+import static swp_compiler_ss13.javabite.backend.utils.ByteCalculator.*;
 import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.hexFromBytes;
 import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.hexFromInt;
 import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.hexFromShort;
@@ -88,8 +89,8 @@ public class Classfile implements IClassfile
 		this.fieldsCount = 0;
 		this.attributesCount = 0;
 
-		for (final ClassfileAccessFlag a : accessFlags) {
-			this.accessFlags = (short) (this.accessFlags | a.getValue());
+		for (final ClassfileAccessFlag accessFlag : accessFlags) {
+			this.accessFlags = (short) (this.accessFlags | accessFlag.getValue());
 		}
 
 		// instantiate constantPool, fieldArea, methodArea and attributeArea
@@ -108,7 +109,7 @@ public class Classfile implements IClassfile
 	 * @since 28.04.2013
 	 * 
 	 */
-	private int initializeClassfile() {
+	private void initializeClassfile() {
 		// initialize constantPool
 
 		// add thisClassNameEIF to ConstantPool, get back the index in the
@@ -128,8 +129,7 @@ public class Classfile implements IClassfile
 		final short methodrefIndex = (short) this.constantPool
 				.generateConstantMethodrefInfo(this.thisClassIndex,
 						initNATIndex);
-		final List<Byte> methodRefByteList = ByteCalculator
-				.shortToByteList(methodrefIndex);
+		final List<Byte> methodRefByteList = shortToByteList(methodrefIndex);
 
 		// add code to initialize-method
 		final Instruction InstrAload = new Instruction(1, Mnemonic.ALOAD_0,
@@ -141,8 +141,6 @@ public class Classfile implements IClassfile
 		this.addInstructionToMethodsCode("<init>", InstrAload);
 		this.addInstructionToMethodsCode("<init>", InstrInvokespecial);
 		this.addInstructionToMethodsCode("<init>", InstrReturn);
-
-		return 0;
 	}
 
 	/**
