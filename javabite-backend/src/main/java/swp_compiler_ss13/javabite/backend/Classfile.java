@@ -59,7 +59,6 @@ public class Classfile implements IClassfile
 	// FieldArea left out
 	protected MethodArea methodArea;
 	private final short attributesCount;
-
 	// AttribueArea left out
 
 	/**
