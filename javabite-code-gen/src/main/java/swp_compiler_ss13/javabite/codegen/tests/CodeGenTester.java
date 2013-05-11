@@ -25,7 +25,7 @@ import swp_compiler_ss13.javabite.ast.nodes.leaf.LiteralNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.marynary.BlockNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.unary.DeclarationNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.unary.ReturnNodeJb;
-import swp_compiler_ss13.javabite.codegen.beta.IRCodeGenerator;
+import swp_compiler_ss13.javabite.codegen.JavaBiteCodeGenerator;
 import swp_compiler_ss13.javabite.types.TypeJb;
 
 public class CodeGenTester {
@@ -135,11 +135,11 @@ public class CodeGenTester {
 	public static void main(String[] args){
 		
 		AST ast = getSecondAST();
-		IRCodeGenerator codegen = new IRCodeGenerator();
+		JavaBiteCodeGenerator codegen = new JavaBiteCodeGenerator();
 		try {
 			codegen.generateIntermediateCode(ast);
-			System.out.println("Size "+IRCodeGenerator.irCode.size());
-			for(Quadruple quad : IRCodeGenerator.irCode){
+			System.out.println("Size "+JavaBiteCodeGenerator.quadruples.size());
+			for(Quadruple quad : JavaBiteCodeGenerator.quadruples){
 				System.out.println(quad.getOperator()+" "+quad.getArgument1()+" "+quad.getArgument2()+" "+quad.getResult());
 			}
 			

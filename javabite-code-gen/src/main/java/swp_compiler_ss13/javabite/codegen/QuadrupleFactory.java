@@ -1,4 +1,4 @@
-package swp_compiler_ss13.javabite.codegen.beta;
+package swp_compiler_ss13.javabite.codegen;
 
 
 import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
