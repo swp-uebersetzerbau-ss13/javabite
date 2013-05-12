@@ -118,7 +118,7 @@ public class TargetGrammar {
 	 * @author Till
 	 *
 	 */
-	public class Reduction{
+	public class Reduction {
 		List<Object> right_side=new LinkedList<>();
 		NonTerminal left_side;
 		Reduction(Production<Terminal,NonTerminal> production) {
@@ -131,7 +131,7 @@ public class TargetGrammar {
 			left_side=production.left;
 		}
 		public String toString(){
-		return left_side+"->"+right_side;
+		return left_side.toString()+"->"+right_side.toString();
 		}
 		
 		/**

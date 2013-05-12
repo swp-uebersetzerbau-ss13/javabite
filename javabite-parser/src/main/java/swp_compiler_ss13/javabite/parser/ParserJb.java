@@ -6,6 +6,7 @@ import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.parser.Parser;
 import swp_compiler_ss13.common.parser.ReportLog;
 
+
 public class ParserJb implements Parser {
 	protected ReportLog reportLog;
 	protected Lexer lexer;
