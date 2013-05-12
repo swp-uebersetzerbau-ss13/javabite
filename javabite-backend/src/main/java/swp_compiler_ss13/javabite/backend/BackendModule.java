@@ -11,15 +11,8 @@ import java.util.Map;
 import java.io.*;
 
 import org.apache.commons.io.IOUtils;
-import org.gjt.jclasslib.browser.BrowserComponent;
-import org.gjt.jclasslib.browser.BrowserDesktopManager;
-import org.gjt.jclasslib.browser.BrowserServices;
-import org.gjt.jclasslib.structures.ClassFile;
-import org.gjt.jclasslib.structures.InvalidByteCodeException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.sun.org.apache.bcel.internal.classfile.JavaClass;
 
 import swp_compiler_ss13.common.backend.Backend;
 import swp_compiler_ss13.common.backend.Quadruple;
@@ -107,6 +100,13 @@ public class BackendModule implements Backend {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
+			
+			try {
+				logger.info("Classfile written to: " + testFile.getCanonicalPath());
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			
 			int i = 0;
 			byte b;
 			try {
