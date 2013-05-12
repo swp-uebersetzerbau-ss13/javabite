@@ -7,30 +7,25 @@ import java.util.List;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 
 /**
- * This class represents a list of instructions and maps every tac-operation to
- * their bytecode equivalent. It is used to carry logical groups of
- * instructions.
+ * This class represents a list of instructions and maps every tac-operation to their bytecode equivalent. It is used to carry logical groups of instructions.
  * 
  * @author eike
  * @since 23.04.2013
  * 
  */
-public class Operation
-{
+public class Operation {
 
 	/**
 	 * <h1>OperationBuilder-class</h1>
 	 * <p>
-	 * This class provides the builder pattern to create new instances of the
-	 * Operation-class.
+	 * This class provides the builder pattern to create new instances of the Operation-class.
 	 * </p>
 	 * 
 	 * @author eike
 	 * @since 07.05.2013 00:41:08
 	 * 
 	 */
-	public static class OperationBuilder
-	{
+	public static class OperationBuilder {
 
 		// private int offset = 0;
 		private final List<Instruction> instructions;
@@ -59,16 +54,12 @@ public class Operation
 		 *            arguments to be passed along the bytecode instruction
 		 * @return instance of this builder
 		 */
-		public OperationBuilder add(final Mnemonic mnemonic,
-				final int argsSize, final byte... arguments) {
+		public OperationBuilder add(final Mnemonic mnemonic, final int argsSize, final byte... arguments) {
 			final int size;
 			final Instruction instruction;
 			if (mnemonic.getArgsCount() > 0) {
-				if (arguments == null
-						|| arguments.length != mnemonic.getArgsCount()) {
-					throw new RuntimeException(
-							"unexpected number of arguments: 0, expected "
-									+ mnemonic.getArgsCount());
+				if (arguments == null || arguments.length != mnemonic.getArgsCount()) {
+					throw new RuntimeException("unexpected number of arguments: 0, expected " + mnemonic.getArgsCount());
 				} else {
 					size = 1 + argsSize;
 					instruction = new Instruction(size, mnemonic, arguments);

@@ -9,6 +9,7 @@ import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.Classfile;
 import swp_compiler_ss13.javabite.backend.IClassfile;
+import swp_compiler_ss13.javabite.backend.IClassfile.ConstantType;
 import swp_compiler_ss13.javabite.backend.IClassfile.VariableType;
 import swp_compiler_ss13.javabite.backend.Program;
 import swp_compiler_ss13.javabite.backend.Program.ProgramBuilder;
@@ -21,8 +22,7 @@ import swp_compiler_ss13.javabite.backend.external.QuadrupleImpl;
  * @since 27.04.2013
  * 
  */
-public class Translator
-{
+public class Translator {
 
 	public static final String SYM_CONST = "#";
 	public static final String SYM_IGNORE = "!";
@@ -35,15 +35,8 @@ public class Translator
 	public static final String DEF_BOOLEAN = CONST_FALSE;
 	public static final String DEF_STRING = "#\"\"";
 
-	public static final String TYPE_LONG = "LONG";
-	public static final String TYPE_DOUBLE = "DOUBLE";
-	public static final String TYPE_BOOLEAN = "BOOLEAN";
-	public static final String TYPE_STRING = "STRING";
-
 	/**
-	 * generateNewFile function. This function generates a new Classfile object
-	 * using its parameter name and appends it to the translator's classfile
-	 * list.
+	 * generateNewFile function. This function generates a new Classfile object using its parameter name and appends it to the translator's classfile list.
 	 * 
 	 * @author Marco
 	 * @since 27.04.2013
@@ -51,19 +44,15 @@ public class Translator
 	 * @param name
 	 *            string describing the classfile's name
 	 * @param thisClassNameEIF
-	 *            string describing this classname of the class described in
-	 *            this classfile encoded in internal form
+	 *            string describing this classname of the class described in this classfile encoded in internal form
 	 * @param superClassNameEIF
-	 *            string describing the superclass' classname of the class
-	 *            described in this classfile encoded in internal form
+	 *            string describing the superclass' classname of the class described in this classfile encoded in internal form
 	 * 
 	 * @return instance of Classfile
 	 */
-	private IClassfile generateClassfile(final String name,
-			final String thisClassNameEIF, final String superClassNameEIF,
+	private IClassfile generateClassfile(final String name, final String thisClassNameEIF, final String superClassNameEIF,
 			final Classfile.ClassfileAccessFlag... accessFlags) {
-		final IClassfile file = new Classfile(name, thisClassNameEIF,
-				superClassNameEIF, accessFlags);
+		final IClassfile file = new Classfile(name, thisClassNameEIF, superClassNameEIF, accessFlags);
 		return file;
 	}
 
@@ -83,14 +72,11 @@ public class Translator
 		return this.translate(tac, "main.class");
 	}
 
-	private Collection<IClassfile> translate(List<Quadruple> tac,
-			final String classfileName) {
+	private Collection<IClassfile> translate(List<Quadruple> tac, final String classfileName) {
 
 		final Collection<IClassfile> classfiles = new ArrayList<IClassfile>();
 
-		final IClassfile classfile = this.generateClassfile(classfileName,
-				"EmptyMain", "java/lang/Object",
-				Classfile.ClassfileAccessFlag.ACC_PUBLIC,
+		final IClassfile classfile = this.generateClassfile(classfileName, "EmptyMain", "java/lang/Object", Classfile.ClassfileAccessFlag.ACC_PUBLIC,
 				Classfile.ClassfileAccessFlag.ACC_SUPER);
 
 		String methodName;
@@ -98,15 +84,11 @@ public class Translator
 		if (classfileName.equals("main.class")) {
 			methodName = "main";
 			// always generate mainFunction in main.class file
-			classfile.addMethodToMethodArea(methodName,
-					"([Ljava/lang/String;)V",
-					Classfile.MethodAccessFlag.ACC_PUBLIC,
-					Classfile.MethodAccessFlag.ACC_STATIC);
+			classfile.addMethodToMethodArea(methodName, "([Ljava/lang/String;)V", Classfile.MethodAccessFlag.ACC_PUBLIC, Classfile.MethodAccessFlag.ACC_STATIC);
 		} else {
 			// TODO: generate public dummy function in class - needed ?
 			methodName = "dummy";
-			classfile.addMethodToMethodArea(methodName, "()V",
-					Classfile.MethodAccessFlag.ACC_PUBLIC);
+			classfile.addMethodToMethodArea(methodName, "()V", Classfile.MethodAccessFlag.ACC_PUBLIC);
 		}
 
 		classfiles.addAll(generateClassfilesForStructsInTAC(tac));
@@ -126,8 +108,7 @@ public class Translator
 		return classfiles;
 	}
 
-	private Collection<IClassfile> generateClassfilesForStructsInTAC(
-			final List<Quadruple> tac) {
+	private Collection<IClassfile> generateClassfilesForStructsInTAC(final List<Quadruple> tac) {
 		final Collection<IClassfile> classfiles = new ArrayList<>();
 		// TODO: search for structs in tac and build new classes
 		// use translate(...,...)
@@ -135,8 +116,7 @@ public class Translator
 	}
 
 	/**
-	 * addTACConstantsToConstantPool function. This function parses the TAC and
-	 * adds all constants to the files constantPool.
+	 * addTACConstantsToConstantPool function. This function parses the TAC and adds all constants to the files constantPool.
 	 * 
 	 * @author Robert, Marco
 	 * @since 29.04.2013
@@ -144,8 +124,7 @@ public class Translator
 	 * @param classFile
 	 * @param tac
 	 */
-	private static void addConstantsToConstantPool(final IClassfile classFile,
-			final List<Quadruple> tac) {
+	private static void addConstantsToConstantPool(final IClassfile classFile, final List<Quadruple> tac) {
 
 		for (final Quadruple quad : tac) {
 
@@ -153,37 +132,29 @@ public class Translator
 			final String arg1 = quad.getArgument1();
 			final String arg2 = quad.getArgument2();
 
-			if (operator == Quadruple.Operator.ADD_LONG
-					|| operator == Quadruple.Operator.SUB_LONG
-					|| operator == Quadruple.Operator.MUL_LONG
+			if (operator == Quadruple.Operator.ADD_LONG || operator == Quadruple.Operator.SUB_LONG || operator == Quadruple.Operator.MUL_LONG
 					|| operator == Quadruple.Operator.DIV_LONG) {
 
 				if (arg1.startsWith(SYM_CONST)) {
-					classFile.addConstantToConstantPool(TYPE_LONG,
-							arg1.substring(1));
+					classFile.addConstantToConstantPool(ConstantType.LONG, arg1.substring(1));
 				}
 				if (arg2.startsWith(SYM_CONST)) {
-					classFile.addConstantToConstantPool(TYPE_LONG,
-							arg2.substring(1));
+					classFile.addConstantToConstantPool(ConstantType.LONG, arg2.substring(1));
 				}
 			}
 
-			if (operator == Quadruple.Operator.ADD_DOUBLE
-					|| operator == Quadruple.Operator.SUB_DOUBLE
-					|| operator == Quadruple.Operator.MUL_DOUBLE
+			if (operator == Quadruple.Operator.ADD_DOUBLE || operator == Quadruple.Operator.SUB_DOUBLE || operator == Quadruple.Operator.MUL_DOUBLE
 					|| operator == Quadruple.Operator.DIV_DOUBLE) {
 
 				if (arg1.startsWith(SYM_CONST)) {
-					classFile.addConstantToConstantPool(TYPE_DOUBLE,
-							arg1.substring(1));
+					classFile.addConstantToConstantPool(ConstantType.DOUBLE, arg1.substring(1));
 				}
 				if (arg2.startsWith(SYM_CONST)) {
-					classFile.addConstantToConstantPool(TYPE_DOUBLE,
-							arg2.substring(1));
+					classFile.addConstantToConstantPool(ConstantType.DOUBLE, arg2.substring(1));
 				}
 			}
 
-			final String type = getDataTypeOfOperator(operator);
+			final ConstantType type = getDataTypeOfOperator(operator);
 
 			if (type != null && arg1.startsWith(SYM_CONST)) {
 				classFile.addConstantToConstantPool(type, arg1.substring(1));
@@ -192,8 +163,7 @@ public class Translator
 	}
 
 	/**
-	 * This method maps operators to their respective data types, eg.
-	 * ASSIGN_LONG maps to TYPE_LONG, because it assigns a long!
+	 * This method maps operators to their respective data types, eg. ASSIGN_LONG maps to ConstantType.LONG, because it assigns a long!
 	 * 
 	 * @author eike
 	 * @since 09.05.2013
@@ -201,36 +171,30 @@ public class Translator
 	 * @param operator
 	 * @return
 	 */
-	private static String getDataTypeOfOperator(final Operator operator) {
+	private static ConstantType getDataTypeOfOperator(final Operator operator) {
 		switch (operator) {
 		case ASSIGN_LONG:
-			return TYPE_LONG;
+			return ConstantType.LONG;
 		case ASSIGN_DOUBLE:
-			return TYPE_DOUBLE;
+			return ConstantType.DOUBLE;
 		case ASSIGN_STRING:
-			return TYPE_STRING;
-		case ASSIGN_BOOLEAN:
-			return TYPE_BOOLEAN;
+			return ConstantType.STRING;
 		default:
 			return null;
 		}
 	}
 
 	/**
-	 * addVariablesToLocalVariableSpace function. This function allocates space
-	 * for all variable declarations and will convert them into assignments, if
-	 * they have an initial value;
+	 * addVariablesToLocalVariableSpace function. This function allocates space for all variable declarations and will convert them into assignments, if they
+	 * have an initial value;
 	 * 
 	 * @author Marco
 	 * @since 29.04.2013
 	 * 
 	 */
-	private static List<Quadruple> addVariablesToLocalVariableSpace(
-			final IClassfile file, final String methodName,
-			final List<Quadruple> tac) {
+	private static List<Quadruple> addVariablesToLocalVariableSpace(final IClassfile file, final String methodName, final List<Quadruple> tac) {
 
-		for (final ListIterator<Quadruple> tacIter = tac.listIterator(); tacIter
-				.hasNext();) {
+		for (final ListIterator<Quadruple> tacIter = tac.listIterator(); tacIter.hasNext();) {
 
 			final Quadruple quad = tacIter.next();
 			final Operator op;
@@ -289,11 +253,8 @@ public class Translator
 	 * @param classfile
 	 * @param tac
 	 */
-	private static void extractInstructionsFromOperations(
-			final IClassfile classfile, final String methodName,
-			final List<Quadruple> tac) {
-		final ProgramBuilder pb = ProgramBuilder.newBuilder(classfile,
-				methodName);
+	private static void extractInstructionsFromOperations(final IClassfile classfile, final String methodName, final List<Quadruple> tac) {
+		final ProgramBuilder pb = ProgramBuilder.newBuilder(classfile, methodName);
 
 		for (final Quadruple quad : tac) {
 			switch (quad.getOperator()) {

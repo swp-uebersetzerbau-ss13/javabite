@@ -45,8 +45,7 @@ public class BackendModule implements Backend {
 		// TAC Optimizer
 		// ### currently empty ###
 		// Translator
-		final Collection<IClassfile> classfiles = this.translator
-				.translate(tac);
+		final Collection<IClassfile> classfiles = this.translator.translate(tac);
 		// Target Code Optimizer
 		// ### currently empty ###
 
@@ -58,13 +57,11 @@ public class BackendModule implements Backend {
 		return targetCodeS;
 	}
 
-	private Map<String, InputStream> createTargetCodeStreams(
-			final Collection<IClassfile> classfiles) {
+	private Map<String, InputStream> createTargetCodeStreams(final Collection<IClassfile> classfiles) {
 		final Map<String, InputStream> targetCodeIS = new HashMap<>();
 
 		for (final IClassfile classfile : classfiles) {
-			targetCodeIS.put(classfile.getName(),
-					classfile.generateInputstream());
+			targetCodeIS.put(classfile.getName(), classfile.generateInputstream());
 		}
 
 		return targetCodeIS;
@@ -81,20 +78,19 @@ public class BackendModule implements Backend {
 			sb.append("Classname : " + classname + "\n");
 			sb.append("Content : \n\n");
 
-			final ByteArrayInputStream is = (ByteArrayInputStream) targetCodeIS
-					.get(classname);
+			final ByteArrayInputStream is = (ByteArrayInputStream) targetCodeIS.get(classname);
 			final DataInputStream dis = new DataInputStream(is);
-			
+
 			File testFile = new File("C:/Users/admin/Desktop/EmptyMain.class");
 			FileOutputStream outStream;
-			
+
 			try {
 				outStream = new FileOutputStream(testFile);
 				IOUtils.copy(dis, outStream);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			
+
 			int i = 0;
 			byte b;
 			try {

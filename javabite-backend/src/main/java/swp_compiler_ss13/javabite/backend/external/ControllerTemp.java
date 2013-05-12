@@ -8,15 +8,13 @@ import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.BackendModule;
 
 /**
- * ControllerTemp class. Implementation of a temporary controller to instantiate
- * the backend and call the function "generateTargetCode()".
+ * ControllerTemp class. Implementation of a temporary controller to instantiate the backend and call the function "generateTargetCode()".
  * 
  * @author Marco
  * @since 27.04.2013
  * 
  */
-public class ControllerTemp
-{
+public class ControllerTemp {
 
 	static List<Quadruple> tac = new ArrayList<Quadruple>() {
 		/**
@@ -26,95 +24,61 @@ public class ControllerTemp
 		{
 
 			add(new QuadrupleImpl(Operator.DECLARE_LONG, "#2", "!", "longVar"));
-			add(new QuadrupleImpl(Operator.DECLARE_DOUBLE, "#100.123", "!",
-					"doubleVar"));
-			//add(new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!",
-			//		"longVar2"));
-			//add(new QuadrupleImpl(Operator.DOUBLE_TO_LONG, "doubleVar", "!",
-			//		"longVar2"));
-			//add(new QuadrupleImpl(Operator.ADD_LONG, "longVar", "longVar2",
-			//		"longVar2"));
-			//add(new QuadrupleImpl(Operator.RETURN, "longVar2", "!", "!"));
-
-	
-			
-			
+			add(new QuadrupleImpl(Operator.DECLARE_DOUBLE, "#100.123", "!", "doubleVar"));
+			// add(new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!",
+			// "longVar2"));
+			// add(new QuadrupleImpl(Operator.DOUBLE_TO_LONG, "doubleVar", "!",
+			// "longVar2"));
+			// add(new QuadrupleImpl(Operator.ADD_LONG, "longVar", "longVar2",
+			// "longVar2"));
+			// add(new QuadrupleImpl(Operator.RETURN, "longVar2", "!", "!"));
 
 			/* Variable declaration */
 			/*
-			 * add(new QuadrupleImpl(Operator.DECLARE_LONG, "#100", "!",
-			 * "long1")); add(new QuadrupleImpl(Operator.DECLARE_LONG, "#200",
-			 * "!", "long2")); add(new QuadrupleImpl(Operator.SUB_LONG, "long1",
-			 * "long2", "long3"));
+			 * add(new QuadrupleImpl(Operator.DECLARE_LONG, "#100", "!", "long1")); add(new QuadrupleImpl(Operator.DECLARE_LONG, "#200", "!", "long2")); add(new
+			 * QuadrupleImpl(Operator.SUB_LONG, "long1", "long2", "long3"));
 			 * 
-			 * add(new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "long1"));
-			 * add(new QuadrupleImpl(Operator.DECLARE_LONG, "#100", "!",
-			 * "long2"));
+			 * add(new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "long1")); add(new QuadrupleImpl(Operator.DECLARE_LONG, "#100", "!", "long2"));
 			 * 
-			 * add(new QuadrupleImpl(Operator.DECLARE_DOUBLE,"!","!","double1"
-			 * )); add(new
-			 * QuadrupleImpl(Operator.DECLARE_DOUBLE,"#2.0","!","double2"));
+			 * add(new QuadrupleImpl(Operator.DECLARE_DOUBLE,"!","!","double1" )); add(new QuadrupleImpl(Operator.DECLARE_DOUBLE,"#2.0","!","double2"));
 			 * 
-			 * add(new QuadrupleImpl(Operator.DECLARE_BOOL,"!","!","bool1"));
-			 * add(new
-			 * QuadrupleImpl(Operator.DECLARE_BOOL,"#FALSE","!","bool2"));
+			 * add(new QuadrupleImpl(Operator.DECLARE_BOOL,"!","!","bool1")); add(new QuadrupleImpl(Operator.DECLARE_BOOL,"#FALSE","!","bool2"));
 			 * 
-			 * add(new QuadrupleImpl(Operator.DECLARE_STRING, "!", "!",
-			 * "string1")); add(new QuadrupleImpl(Operator.DECLARE_STRING,
-			 * "#\"TEST\"", "!", "string2"));
+			 * add(new QuadrupleImpl(Operator.DECLARE_STRING, "!", "!", "string1")); add(new QuadrupleImpl(Operator.DECLARE_STRING, "#\"TEST\"", "!",
+			 * "string2"));
 			 * 
-			 * add(new QuadrupleImpl(Operator.LONG_TO_DOUBLE,
-			 * "#long1","!","doubl1")); add(new
-			 * QuadrupleImpl(Operator.DOUBLE_TO_LONG, "#double2", "!",
+			 * add(new QuadrupleImpl(Operator.LONG_TO_DOUBLE, "#long1","!","doubl1")); add(new QuadrupleImpl(Operator.DOUBLE_TO_LONG, "#double2", "!",
 			 * "long1"));
 			 * 
-			 * add(new QuadrupleImpl(Operator.ASSIGN_LONG, "#3", "!", "long1"));
-			 * add(new QuadrupleImpl(Operator.ASSIGN_LONG, "long2", "!",
-			 * "long1"));
+			 * add(new QuadrupleImpl(Operator.ASSIGN_LONG, "#3", "!", "long1")); add(new QuadrupleImpl(Operator.ASSIGN_LONG, "long2", "!", "long1"));
 			 * 
-			 * add(new QuadrupleImpl(Operator.ASSIGN_DOUBLE, "#3.0", "!",
-			 * "double1")); add(new QuadrupleImpl(Operator.ASSIGN_DOUBLE,
-			 * "#double2", "!", "double1"));
+			 * add(new QuadrupleImpl(Operator.ASSIGN_DOUBLE, "#3.0", "!", "double1")); add(new QuadrupleImpl(Operator.ASSIGN_DOUBLE, "#double2", "!",
+			 * "double1"));
 			 * 
-			 * add(new QuadrupleImpl(Operator.ASSIGN_BOOL, "#FALSE", "!",
-			 * "bool1")); add(new QuadrupleImpl(Operator.ASSIGN_BOOL, "bool2",
-			 * "!", "bool1"));
+			 * add(new QuadrupleImpl(Operator.ASSIGN_BOOL, "#FALSE", "!", "bool1")); add(new QuadrupleImpl(Operator.ASSIGN_BOOL, "bool2", "!", "bool1"));
 			 * 
-			 * add(new QuadrupleImpl(Operator.ASSIGN_STRING, "#\"TEST\"", "!",
-			 * "string1")); add(new QuadrupleImpl(Operator.ASSIGN_STRING,
-			 * "string2", "!", "string1"));
+			 * add(new QuadrupleImpl(Operator.ASSIGN_STRING, "#\"TEST\"", "!", "string1")); add(new QuadrupleImpl(Operator.ASSIGN_STRING, "string2", "!",
+			 * "string1"));
 			 * 
-			 * add(new QuadrupleImpl(Operator.ADD_LONG, "#3", "#2", "long3"));
-			 * add(new QuadrupleImpl(Operator.ADD_LONG, "long1", "long2",
-			 * "long3"));
+			 * add(new QuadrupleImpl(Operator.ADD_LONG, "#3", "#2", "long3")); add(new QuadrupleImpl(Operator.ADD_LONG, "long1", "long2", "long3"));
 			 * 
-			 * add(new QuadrupleImpl(Operator.ADD_DOUBLE, "#3.0", "#3.0",
-			 * "double3")); add(new QuadrupleImpl(Operator.ADD_DOUBLE,
-			 * "double1", "double2", "double3"));
+			 * add(new QuadrupleImpl(Operator.ADD_DOUBLE, "#3.0", "#3.0", "double3")); add(new QuadrupleImpl(Operator.ADD_DOUBLE, "double1", "double2",
+			 * "double3"));
 			 * 
-			 * add(new QuadrupleImpl(Operator.SUB_LONG, "#3", "#3", "long3"));
-			 * add(new QuadrupleImpl(Operator.SUB_LONG, "long1",
-			 * "long2","long3"));
+			 * add(new QuadrupleImpl(Operator.SUB_LONG, "#3", "#3", "long3")); add(new QuadrupleImpl(Operator.SUB_LONG, "long1", "long2","long3"));
 			 * 
-			 * add(new QuadrupleImpl(Operator.SUB_DOUBLE, "#3.0", "#3.0",
-			 * "double3")); add(new QuadrupleImpl(Operator.SUB_DOUBLE,
-			 * "double1", "#double2", "double3"));
+			 * add(new QuadrupleImpl(Operator.SUB_DOUBLE, "#3.0", "#3.0", "double3")); add(new QuadrupleImpl(Operator.SUB_DOUBLE, "double1", "#double2",
+			 * "double3"));
 			 * 
-			 * add(new QuadrupleImpl(Operator.MUL_LONG, "#3", "#3", "long3"));
-			 * add(new QuadrupleImpl(Operator.MUL_LONG, "long1",
-			 * "long2","long3"));
+			 * add(new QuadrupleImpl(Operator.MUL_LONG, "#3", "#3", "long3")); add(new QuadrupleImpl(Operator.MUL_LONG, "long1", "long2","long3"));
 			 * 
-			 * add(new QuadrupleImpl(Operator.MUL_DOUBLE, "#3.0", "#3.0",
-			 * "double3")); add(new QuadrupleImpl(Operator.MUL_DOUBLE,
-			 * "double1", "#double2", "double3"));
+			 * add(new QuadrupleImpl(Operator.MUL_DOUBLE, "#3.0", "#3.0", "double3")); add(new QuadrupleImpl(Operator.MUL_DOUBLE, "double1", "#double2",
+			 * "double3"));
 			 * 
-			 * add(new QuadrupleImpl(Operator.DIV_LONG, "#3", "#3", "long3"));
-			 * add(new QuadrupleImpl(Operator.DIV_LONG, "long1",
-			 * "long2","long3"));
+			 * add(new QuadrupleImpl(Operator.DIV_LONG, "#3", "#3", "long3")); add(new QuadrupleImpl(Operator.DIV_LONG, "long1", "long2","long3"));
 			 * 
-			 * add(new QuadrupleImpl(Operator.DIV_DOUBLE, "#3.0", "#3.0",
-			 * "double3")); add(new QuadrupleImpl(Operator.DIV_DOUBLE,
-			 * "double1", "#double2", "double3"));
+			 * add(new QuadrupleImpl(Operator.DIV_DOUBLE, "#3.0", "#3.0", "double3")); add(new QuadrupleImpl(Operator.DIV_DOUBLE, "double1", "#double2",
+			 * "double3"));
 			 */
 		}
 	};

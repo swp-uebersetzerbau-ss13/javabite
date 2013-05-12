@@ -7,7 +7,6 @@ package swp_compiler_ss13.javabite.backend.translation;
  * @since 27.04.2013
  * 
  */
-public class TargetCodeOptimizer
-{
+public class TargetCodeOptimizer {
 
 }
