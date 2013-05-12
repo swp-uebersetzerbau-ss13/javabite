@@ -65,8 +65,8 @@ public class Instruction
 			outputStream.writeByte(this.mnemonic.getBytecode());
 
 			if (logger.isDebugEnabled()) {
-				logger.info("mnemonic bcode");
-				logger.info("{}", hexFromInt(this.mnemonic.getBytecode()));
+				logger.debug("mnemonic bcode");
+				logger.debug("{}", hexFromInt(this.mnemonic.getBytecode()));
 			}
 
 			if (this.getArguments() != null) {
@@ -75,8 +75,8 @@ public class Instruction
 				}
 
 				if (logger.isDebugEnabled()) {
-					logger.info("arguments");
-					logger.info("{}", hexFromBytes(this.getArguments()));
+					logger.debug("arguments");
+					logger.debug("{}", hexFromBytes(this.getArguments()));
 				}
 			}
 		} catch (final IOException e) {

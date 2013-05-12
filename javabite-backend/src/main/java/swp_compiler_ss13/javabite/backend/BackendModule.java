@@ -11,6 +11,15 @@ import java.util.Map;
 import java.io.*;
 
 import org.apache.commons.io.IOUtils;
+import org.gjt.jclasslib.browser.BrowserComponent;
+import org.gjt.jclasslib.browser.BrowserDesktopManager;
+import org.gjt.jclasslib.browser.BrowserServices;
+import org.gjt.jclasslib.structures.ClassFile;
+import org.gjt.jclasslib.structures.InvalidByteCodeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.sun.org.apache.bcel.internal.classfile.JavaClass;
 
 import swp_compiler_ss13.common.backend.Backend;
 import swp_compiler_ss13.common.backend.Quadruple;
@@ -27,6 +36,10 @@ import swp_compiler_ss13.javabite.backend.translation.Translator;
  */
 public class BackendModule implements Backend {
 
+
+	private static final Logger logger = LoggerFactory
+			.getLogger(BackendModule.class);
+	
 	@SuppressWarnings("unused")
 	private final TACOptimizer tacOptimizer;
 	private final Translator translator;
@@ -85,7 +98,8 @@ public class BackendModule implements Backend {
 					.get(classname);
 			final DataInputStream dis = new DataInputStream(is);
 			
-			File testFile = new File("C:/Users/admin/Desktop/EmptyMain.class");
+			File testFile = new File("EmptyMain.class");
+
 			FileOutputStream outStream;
 			
 			try {
@@ -94,7 +108,7 @@ public class BackendModule implements Backend {
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-			
+						
 			int i = 0;
 			byte b;
 			try {
