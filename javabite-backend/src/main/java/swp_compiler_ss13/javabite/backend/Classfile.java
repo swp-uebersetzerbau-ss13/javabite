@@ -914,11 +914,12 @@ public class Classfile implements IClassfile {
 				}
 
 				private short calculateMaxStack() {
+					short maxStackSize = 0;
 					short stackSize = 0;
 					for(final Instruction instruction : codeArea) {
 						
 					}
-					return stackSize;
+					return maxStackSize;
 				}
 
 				/**
