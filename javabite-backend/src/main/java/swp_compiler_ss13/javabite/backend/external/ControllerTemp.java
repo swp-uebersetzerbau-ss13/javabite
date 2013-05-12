@@ -24,23 +24,43 @@ public class ControllerTemp
 		 */
 		private static final long serialVersionUID = 6319892294145882549L;
 		{
-
-			add(new QuadrupleImpl(Operator.DECLARE_LONG, "#2", "!", "longVar"));
-			add(new QuadrupleImpl(Operator.DECLARE_DOUBLE, "#100.123", "!",
-					"doubleVar"));
-			//add(new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!",
-			//		"longVar2"));
-			//add(new QuadrupleImpl(Operator.DOUBLE_TO_LONG, "doubleVar", "!",
-			//		"longVar2"));
-			//add(new QuadrupleImpl(Operator.ADD_LONG, "longVar", "longVar2",
-			//		"longVar2"));
-			//add(new QuadrupleImpl(Operator.RETURN, "longVar2", "!", "!"));
-
-	
+			// add.prog
+			/*
+			add(new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "l"));
+			add(new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "t1"));
+			add(new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "t2"));
+			add(new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "t3"));
+			add(new QuadrupleImpl(Operator.ADD_LONG, "#10", "#23", "t1"));
+			add(new QuadrupleImpl(Operator.SUB_LONG, "t1", "#23", "t1"));
+			add(new QuadrupleImpl(Operator.DIV_LONG, "#100", "#2", "t2"));
+			add(new QuadrupleImpl(Operator.ADD_LONG, "t1", "t2", "t1"));
+			add(new QuadrupleImpl(Operator.SUB_LONG, "t1", "#30", "t1"));
+			add(new QuadrupleImpl(Operator.DIV_LONG, "#-9", "#3", "t3"));
+			add(new QuadrupleImpl(Operator.ADD_LONG, "t1", "t3", "t1"));
+			add(new QuadrupleImpl(Operator.ASSIGN_LONG, "t1", "!", "l"));
+			add(new QuadrupleImpl(Operator.RETURN, "!", "!", "l"));
+			*/
 			
+			// simple_add.prog
+			/*
+			add(new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "l"));
+			add(new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "t1"));
+			add(new QuadrupleImpl(Operator.ADD_LONG, "#3", "#3", "t1"));
+			add(new QuadrupleImpl(Operator.ASSIGN_LONG, "t1", "!", "l"));
+			add(new QuadrupleImpl(Operator.RETURN, "!", "!", "l"));
+			*/
+			
+			// simple_mul.prog
+			/*
+			add(new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "l"));
+			add(new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "t1"));
+			add(new QuadrupleImpl(Operator.MUL_LONG, "#3", "#3", "t1"));
+			add(new QuadrupleImpl(Operator.ASSIGN_LONG, "t1", "!", "l"));
+			add(new QuadrupleImpl(Operator.RETURN, "!", "!", "l"));
+			*/
 			
 
-			/* Variable declaration */
+			/* Quadruple Examples */
 			/*
 			 * add(new QuadrupleImpl(Operator.DECLARE_LONG, "#100", "!",
 			 * "long1")); add(new QuadrupleImpl(Operator.DECLARE_LONG, "#200",

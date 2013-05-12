@@ -54,12 +54,12 @@ public class Classfile implements IClassfile
 	private short thisClassIndex;
 	private short superClassIndex;
 	private final short interfaceCount;
-	// InterfacesArea left out
+	// InterfaceArea left out
 	private final short fieldsCount;
 	// FieldArea left out
 	protected MethodArea methodArea;
 	private final short attributesCount;
-	// AttribueArea left out
+	// AttributeArea left out
 
 	/**
 	 * Classfile constructor. This constructor instantiates the classfile's
