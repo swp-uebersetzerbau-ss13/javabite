@@ -7,8 +7,9 @@ import swp_compiler_ss13.common.types.Type;
 public class DeclarationNodeCG {
 	
 	public void convert(DeclarationNode node) throws IntermediateCodeGeneratorException {
+		// get the identifier and its type, then add the identifier
 		String identifier = node.getIdentifier();
 		Type identifierType = node.getType();
-		JavaBiteCodeGenerator.addIdentifier(identifier, identifierType);
+		IntermediateCodeGeneratorJb.addIdentifier(identifier, identifierType);
 	}
 }

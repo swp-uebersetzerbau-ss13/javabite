@@ -19,57 +19,58 @@ public class ArithmeticBinaryExpressionNodeCG {
 	*/
 	public void convert(ArithmeticBinaryExpressionNode node)throws IntermediateCodeGeneratorException {
 			
-		JavaBiteCodeGenerator.differentiateNode((ASTNodeJb)node.getLeftValue());
-		JavaBiteCodeGenerator.differentiateNode((ASTNodeJb) node.getRightValue());
+		IntermediateCodeGeneratorJb.differentiateNode((ASTNodeJb)node.getLeftValue());
+		IntermediateCodeGeneratorJb.differentiateNode((ASTNodeJb) node.getRightValue());
 	
 		
-		Type rightType = JavaBiteCodeGenerator.temporaryTypes.pop();
-		Type leftType = JavaBiteCodeGenerator.temporaryTypes.pop();
+		Type rightType = IntermediateCodeGeneratorJb.temporaryTypes.pop();
+		Type leftType = IntermediateCodeGeneratorJb.temporaryTypes.pop();
 	
-		String rightValue = JavaBiteCodeGenerator.temporaryResultOutputs.pop();
-		String leftValue = JavaBiteCodeGenerator.temporaryResultOutputs.pop();
+		String rightValue = IntermediateCodeGeneratorJb.temporaryResultOutputs.pop();
+		String leftValue = IntermediateCodeGeneratorJb.temporaryResultOutputs.pop();
 		// operations for long type arguments
-		if (leftType.getKind() == Kind.LONG && rightType.getKind() == Kind.LONG) {
-			// long binary operations
-			String temp = JavaBiteCodeGenerator.createAndAddTemporaryIdentifier(new LongType());
-			Quadruple tac = QuadrupleFactory.longArithmeticBinaryOperation(node.getOperator(), leftValue, rightValue,temp);
-			JavaBiteCodeGenerator.quadruples.add(tac);
-			JavaBiteCodeGenerator.temporaryResultOutputs.push(temp);
-			JavaBiteCodeGenerator.temporaryTypes.push(new LongType());
-		} 
-		// if one of the arguments or both of them are double 
-		else {
+		if (leftType.getKind() == Kind.DOUBLE || rightType.getKind() == Kind.DOUBLE) {
 			// if the left argument is long, then cast it to double
-			String castLeft;
+			String left;
 			if (leftType.getKind() == Kind.LONG) {
 				// cast the left value to double
-				castLeft = JavaBiteCodeGenerator.createAndAddTemporaryIdentifier(new DoubleType());
-				Quadruple cleft = QuadrupleFactory.castLongToDouble(leftValue, castLeft);
-				JavaBiteCodeGenerator.quadruples.add(cleft);
+				left = IntermediateCodeGeneratorJb.createAndAddTemporaryIdentifier(new DoubleType());
+				Quadruple quadruple = QuadrupleFactoryJb.generateCastLongToDouble(leftValue, left);
+				IntermediateCodeGeneratorJb.quadruples.add(quadruple);
 			}
 			// if not long, then use its current value
 			else{
-				castLeft = leftValue;
+				left = leftValue;
 			}
 			// if the right argument is long, then cast it to double
-			String castRight;
+			String right;
 			if (rightType.getKind() == Kind.LONG) {
 				// cast the right value to double
-				castRight = JavaBiteCodeGenerator.createAndAddTemporaryIdentifier(new DoubleType());
-				Quadruple cright = QuadrupleFactory.castLongToDouble(rightValue, castRight);
-				JavaBiteCodeGenerator.quadruples.add(cright);
+				right = IntermediateCodeGeneratorJb.createAndAddTemporaryIdentifier(new DoubleType());
+				Quadruple quadruple = QuadrupleFactoryJb.generateCastLongToDouble(rightValue, right);
+				IntermediateCodeGeneratorJb.quadruples.add(quadruple);
 			}
 			// if not long, then use its current value
 			else{
-				castRight = rightValue;
+				right = rightValue;
 			}
 			
 			// double binary operation
-			String temp = JavaBiteCodeGenerator.createAndAddTemporaryIdentifier(new DoubleType());
-			Quadruple tac = QuadrupleFactory.doubleArithmeticBinaryOperation(node.getOperator(), castLeft, castRight,temp);
-			JavaBiteCodeGenerator.quadruples.add(tac);
-			JavaBiteCodeGenerator.temporaryResultOutputs.push(temp);
-			JavaBiteCodeGenerator.temporaryTypes.push(new DoubleType());
+			String tmpId = IntermediateCodeGeneratorJb.createAndAddTemporaryIdentifier(new DoubleType());
+			Quadruple quadruple = QuadrupleFactoryJb.generateDoubleAritmeticBinOp(node.getOperator(), left, right,tmpId);
+			IntermediateCodeGeneratorJb.quadruples.add(quadruple);
+			IntermediateCodeGeneratorJb.temporaryResultOutputs.push(tmpId);
+			IntermediateCodeGeneratorJb.temporaryTypes.push(new DoubleType());
+		
+		} 
+		// if one of the arguments or both of them are double 
+		else {
+			// long binary operations
+			String tmpId = IntermediateCodeGeneratorJb.createAndAddTemporaryIdentifier(new LongType());
+			Quadruple quadruple = QuadrupleFactoryJb.generateLongArithmeticBinOp(node.getOperator(), leftValue, rightValue,tmpId);
+			IntermediateCodeGeneratorJb.quadruples.add(quadruple);
+			IntermediateCodeGeneratorJb.temporaryResultOutputs.push(tmpId);
+			IntermediateCodeGeneratorJb.temporaryTypes.push(new LongType());
 		}
 	}
 }

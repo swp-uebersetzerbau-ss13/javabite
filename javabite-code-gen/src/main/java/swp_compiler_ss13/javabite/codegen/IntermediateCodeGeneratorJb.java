@@ -1,6 +1,5 @@
 package swp_compiler_ss13.javabite.codegen;
 
-import java.util.EmptyStackException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -25,43 +24,46 @@ import swp_compiler_ss13.javabite.ast.nodes.marynary.BlockNodeJb;
  * @author Alpin Sahin und Florian Mercks
  *
  */
-public class JavaBiteCodeGenerator implements IntermediateCodeGenerator {
+public class IntermediateCodeGeneratorJb implements IntermediateCodeGenerator {
 
 	/**
-	* The generated quadruples
-	*/
+	 * The list of generated quadruples
+	 */
 	public static List<Quadruple> quadruples;
 	
 	/**
-	* List of used names. This is needed for single static assignment.
-	*/
+	 * List of used variable (identifier) names
+	 */
 	static List<String> usedVariableNames;
 	
 	/**
-	* The stack of the latest Identifier names.
-	*/
+	 * The stack of the latest Identifier names.
+	 */
 	static Stack<Map<String, String>> latestIdentifierNames;
 	
 	/**
-	* The stack of symbol tables
-	*/
-	static Stack<SymbolTable> latestSymbolTable;
+	 * The stack of symbol tables
+	 */
+	static Stack<SymbolTable> symbolTable;
 	
 	/**
-	* Store for intermediate results
-	*/
+	 * temporary result outputs, used while loading a result of a variable
+	 */
 	static Stack<String> temporaryResultOutputs;
 	
+	/**
+	 * temporary types, used while loading a result of a variable
+	 */
 	static Stack<Type> temporaryTypes;
 	
 	/**
 	* Constructor for the intermediate code generator
 	*/
-	public JavaBiteCodeGenerator() {
+	public IntermediateCodeGeneratorJb() {
 		quadruples = new LinkedList<>();
 		usedVariableNames = new LinkedList<>();
 		latestIdentifierNames = new Stack<>();
-		latestSymbolTable = new Stack<>();
+		symbolTable = new Stack<>();
 		temporaryResultOutputs = new Stack<>();
 		temporaryTypes = new Stack<>();
 	}
@@ -69,6 +71,7 @@ public class JavaBiteCodeGenerator implements IntermediateCodeGenerator {
 
 	/**
 	 * generates the intermediate code for the given AST 
+	 * @param ast
 	 */
 	@Override
 	public List<Quadruple> generateIntermediateCode(AST ast)
@@ -79,14 +82,10 @@ public class JavaBiteCodeGenerator implements IntermediateCodeGenerator {
 	}
 
 	/**
-	* call the method that handles the node in the AST
-	*
-	* @param node
-	* The node to handle
-	 * @return 
-	* @throws IntermediateCodeGeneratorException
-	* An error occurred
-	*/
+	 * handles the the node
+	 * @param node
+	 * @throws IntermediateCodeGeneratorException
+	 */
 	public static void differentiateNode(ASTNodeJb node) throws IntermediateCodeGeneratorException {
 		switch (node.getNodeType()) {
 		case ArithmeticBinaryExpressionNode:
@@ -165,11 +164,11 @@ public class JavaBiteCodeGenerator implements IntermediateCodeGenerator {
 		 */
 		if (usedVariableNames.contains(identifier)) {
 			// rename is required to keep single static assignment
-			String newVariableName = latestSymbolTable.peek().getNextFreeTemporary();
-			latestSymbolTable.peek().putTemporary(newVariableName, type);
+			String newVariableName = symbolTable.peek().getNextFreeTemporary();
+			symbolTable.peek().putTemporary(newVariableName, type);
 			usedVariableNames.add(newVariableName);
 			latestIdentifierNames.peek().put(identifier, newVariableName);
-			quadruples.add(QuadrupleFactory.declaration(newVariableName, type));
+			quadruples.add(QuadrupleFactoryJb.declaration(newVariableName, type));
 			return newVariableName;
 		}
 		 //if the identifier name not in the usedVariableNames,
@@ -177,15 +176,15 @@ public class JavaBiteCodeGenerator implements IntermediateCodeGenerator {
 		else {
 			usedVariableNames.add(identifier);
 			latestIdentifierNames.peek().put(identifier, identifier);
-			quadruples.add(QuadrupleFactory.declaration(identifier, type));
+			quadruples.add(QuadrupleFactoryJb.declaration(identifier, type));
 			return identifier;
 		}
 	}
 
 		
 	/**
-	* Load the given identifier and return its actual name (if renaming was
-	* done)
+	* Get the given identifier and return its current name 
+	* (if renaming was done)
 	*
 	* @param identifier
 	* The identifier name to load
@@ -196,18 +195,18 @@ public class JavaBiteCodeGenerator implements IntermediateCodeGenerator {
 	public static String getIdentifier(String identifier) throws IntermediateCodeGeneratorException {
 		//Copy the all used names from latestIdentifierNames to a temporary variable
 		@SuppressWarnings("unchecked")
-		Stack<Map<String, String>> namesInBlocks = (Stack<Map<String, String>>) JavaBiteCodeGenerator.latestIdentifierNames.clone();
-		try {
-			while (true) {
-			Map<String, String> currentIdentifiers = namesInBlocks.pop();
-				if (currentIdentifiers.containsKey(identifier)) {
-					return currentIdentifiers.get(identifier);
-				}
+		Stack<Map<String, String>> namesInBlocks = (Stack<Map<String, String>>) IntermediateCodeGeneratorJb.latestIdentifierNames.clone();
+		String id="";
+		while (!namesInBlocks.isEmpty()) {
+		Map<String, String> currentIdentifiers = namesInBlocks.pop();
+			if (currentIdentifiers.containsKey(identifier)) {
+				id= currentIdentifiers.get(identifier);
 			}
-		} 
-		catch (EmptyStackException e) {
-			throw new IntermediateCodeGeneratorException(identifier + " is not declared!");
 		}
+		if(id==""){
+			throw new IntermediateCodeGeneratorException("Identifier "+id+" is not declared!");
+		}
+		return id;
 	}
 
 	
@@ -222,11 +221,17 @@ public class JavaBiteCodeGenerator implements IntermediateCodeGenerator {
 	* An error occurred
 	*/
 	public static String createAndAddTemporaryIdentifier(Type type) throws IntermediateCodeGeneratorException {
-		String identifier = latestSymbolTable.peek().getNextFreeTemporary();
-		latestSymbolTable.peek().putTemporary(identifier, type);
+		// find a name for the temporary identifier
+		String identifier = symbolTable.peek().getNextFreeTemporary();
+		// add the temporary identifier in the list of used variables
 		usedVariableNames.add(identifier);
+		// add the temporary identifier in the list of latest identifiers
 		latestIdentifierNames.peek().put(identifier, identifier);
-		JavaBiteCodeGenerator.quadruples.add(QuadrupleFactory.declaration(identifier, type));
+		// set the temporary identifier with its type in symbol table
+		symbolTable.peek().putTemporary(identifier, type);		
+		// generate the quadruple for its declaration and add it to the list
+		Quadruple declarationQuadruple = QuadrupleFactoryJb.declaration(identifier, type);
+		IntermediateCodeGeneratorJb.quadruples.add(declarationQuadruple);
 		return identifier;
 	}
 

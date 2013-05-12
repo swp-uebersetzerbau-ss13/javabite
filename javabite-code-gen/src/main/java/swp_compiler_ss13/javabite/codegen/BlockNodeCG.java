@@ -18,12 +18,11 @@ import swp_compiler_ss13.javabite.ast.ASTNodeJb;
 public class BlockNodeCG {
 	
 
-	
 	public static void convert(BlockNode node) throws IntermediateCodeGeneratorException {
-		// push new renaming scope
-		JavaBiteCodeGenerator.latestIdentifierNames.push(new HashMap<String, String>());
-		// push current symbol table
-		JavaBiteCodeGenerator.latestSymbolTable.push(node.getSymbolTable());
+		// push a new identifier name list to latestIdentifierNames stack
+		IntermediateCodeGeneratorJb.latestIdentifierNames.push(new HashMap<String, String>());
+		// push the symbol table to symbolTable stack
+		IntermediateCodeGeneratorJb.symbolTable.push(node.getSymbolTable());
 
 		// find out whether it is declaration node or an other node
 		Iterator<ASTNode> astDFSLTR = node.getDFSLTRNodeIterator();
@@ -38,16 +37,15 @@ public class BlockNodeCG {
 				if((astDFSLTR.next()!=null)){
 					System.out.println(astNode.getNodeType());
 					StatementNode statement = (StatementNode) astNode;
-					JavaBiteCodeGenerator.differentiateNode((ASTNodeJb) statement);
+					IntermediateCodeGeneratorJb.differentiateNode((ASTNodeJb) statement);
 				}
-				else{}
 				break;
 			}
 		}
 
 		// pop the symbol scope and the renaming scope
-		JavaBiteCodeGenerator.latestIdentifierNames.pop();
-		JavaBiteCodeGenerator.latestSymbolTable.pop();
+		IntermediateCodeGeneratorJb.latestIdentifierNames.pop();
+		IntermediateCodeGeneratorJb.symbolTable.pop();
 		}
 
 }

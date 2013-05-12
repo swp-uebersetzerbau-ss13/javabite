@@ -7,18 +7,21 @@ import swp_compiler_ss13.common.types.Type;
 public class LiteralNodeCG{
 
 	public void convert(LiteralNode node) throws IntermediateCodeGeneratorException {
+		// get literal and its type
 		String literal = node.getLiteral();
 		Type type = node.getLiteralType();
-		JavaBiteCodeGenerator.temporaryTypes.push(type);
+		// push the type to temporaryTypes
+		IntermediateCodeGeneratorJb.temporaryTypes.push(type);
+		// handle the type for long, double or string
 		switch (type.getKind()) {
 			case LONG:
-				JavaBiteCodeGenerator.temporaryResultOutputs.push("#" + literal);
+				IntermediateCodeGeneratorJb.temporaryResultOutputs.push("#" + literal);
 				break;
 			case DOUBLE:
-				JavaBiteCodeGenerator.temporaryResultOutputs.push("#" + literal);
+				IntermediateCodeGeneratorJb.temporaryResultOutputs.push("#" + literal);
 				break;
 			case STRING:
-				JavaBiteCodeGenerator.temporaryResultOutputs.push("#\"" + literal + "\"");
+				IntermediateCodeGeneratorJb.temporaryResultOutputs.push("#\"" + literal + "\"");
 				break;
 			default:
 				throw new IntermediateCodeGeneratorException("The type " + node.getLiteralType().toString()

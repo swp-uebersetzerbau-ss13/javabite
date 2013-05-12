@@ -20,13 +20,13 @@ public class ArithmeticUnaryExpressionNodeCG {
 		
 		ExpressionNode rightValue = node.getRightValue();
 
-		JavaBiteCodeGenerator.differentiateNode((ASTNodeJb) rightValue);
+		IntermediateCodeGeneratorJb.differentiateNode((ASTNodeJb) rightValue);
 
-		String rightResult = JavaBiteCodeGenerator.temporaryResultOutputs.pop();
-		Type rightType = JavaBiteCodeGenerator.temporaryTypes.peek();
+		String rightResult = IntermediateCodeGeneratorJb.temporaryResultOutputs.pop();
+		Type rightType = IntermediateCodeGeneratorJb.temporaryTypes.peek();
 
-		String temp = JavaBiteCodeGenerator.createAndAddTemporaryIdentifier((DoubleType) rightType);
-		JavaBiteCodeGenerator.quadruples.add(QuadrupleFactory.unaryMinus(rightType, rightResult, temp));
-		JavaBiteCodeGenerator.temporaryResultOutputs.push(temp);
+		String temp = IntermediateCodeGeneratorJb.createAndAddTemporaryIdentifier((DoubleType) rightType);
+		IntermediateCodeGeneratorJb.quadruples.add(QuadrupleFactoryJb.genaerateUnaryMinus(rightType, rightResult, temp));
+		IntermediateCodeGeneratorJb.temporaryResultOutputs.push(temp);
 	}
 }

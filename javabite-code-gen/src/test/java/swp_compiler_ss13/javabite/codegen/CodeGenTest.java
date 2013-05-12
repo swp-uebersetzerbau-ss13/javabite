@@ -117,7 +117,7 @@ public class CodeGenTest {
 	 */
 	@Test
 	public void test() throws IntermediateCodeGeneratorException {
-		IntermediateCodeGenerator gen = new JavaBiteCodeGenerator();
+		IntermediateCodeGenerator gen = new IntermediateCodeGeneratorJb();
 		List<Quadruple> tac = gen.generateIntermediateCode(ast);
 		for (Quadruple q : tac) {
 			System.out.println(String.format("(%s|%s|%s|%s)", q.getOperator(), q.getArgument1(), q.getArgument2(),

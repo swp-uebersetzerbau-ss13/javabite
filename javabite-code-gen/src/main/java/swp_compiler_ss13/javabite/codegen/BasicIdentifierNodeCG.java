@@ -7,11 +7,12 @@ import swp_compiler_ss13.common.types.Type;
 public class BasicIdentifierNodeCG {
 
 	public void convert(BasicIdentifierNode node) throws IntermediateCodeGeneratorException{
+		// get the identifier and its type
 		String identifier = node.getIdentifier();
-		Type identifierType = JavaBiteCodeGenerator.latestSymbolTable.peek().lookupType(identifier);
+		Type identifierType = IntermediateCodeGeneratorJb.symbolTable.peek().lookupType(identifier);
 		// get current the identifier, maybe it is overwritten
-		String actualIdentifier = JavaBiteCodeGenerator.getIdentifier(identifier);
-		JavaBiteCodeGenerator.temporaryResultOutputs.push(actualIdentifier);
-		JavaBiteCodeGenerator.temporaryTypes.push(identifierType);
+		String actualIdentifier = IntermediateCodeGeneratorJb.getIdentifier(identifier);
+		IntermediateCodeGeneratorJb.temporaryResultOutputs.push(actualIdentifier);
+		IntermediateCodeGeneratorJb.temporaryTypes.push(identifierType);
 	}
 }
