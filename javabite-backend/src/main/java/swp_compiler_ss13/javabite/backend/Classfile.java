@@ -917,7 +917,10 @@ public class Classfile implements IClassfile {
 					short maxStackSize = 0;
 					short stackSize = 0;
 					for(final Instruction instruction : codeArea) {
-						
+						stackSize += instruction.getStackChange();
+						if(stackSize > maxStackSize) {
+							maxStackSize = stackSize;
+						}
 					}
 					return maxStackSize;
 				}
