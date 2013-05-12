@@ -11,6 +11,8 @@ import java.util.Map;
 import java.io.*;
 
 import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import swp_compiler_ss13.common.backend.Backend;
 import swp_compiler_ss13.common.backend.Quadruple;
@@ -27,6 +29,10 @@ import swp_compiler_ss13.javabite.backend.translation.Translator;
  */
 public class BackendModule implements Backend {
 
+
+	private static final Logger logger = LoggerFactory
+			.getLogger(BackendModule.class);
+	
 	@SuppressWarnings("unused")
 	private final TACOptimizer tacOptimizer;
 	private final Translator translator;
@@ -85,14 +91,20 @@ public class BackendModule implements Backend {
 					.get(classname);
 			final DataInputStream dis = new DataInputStream(is);
 			
-			File testFile = new File("C:/Users/admin/Desktop/EmptyMain.class");
+			File testFile = new File("EmptyMain.class");
 			FileOutputStream outStream;
-			
+
 			try {
 				outStream = new FileOutputStream(testFile);
 				IOUtils.copy(dis, outStream);
 			} catch (Exception e) {
 				e.printStackTrace();
+			}
+			
+			try {
+				logger.info("Classfile written to: " + testFile.getCanonicalPath());
+			} catch (IOException e1) {
+				e1.printStackTrace();
 			}
 			
 			int i = 0;
