@@ -17,13 +17,13 @@ import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.javabite.ast.ASTJb;
+import swp_compiler_ss13.javabite.ast.SymbolTableJb;
 import swp_compiler_ss13.javabite.ast.nodes.binary.ArithmeticBinaryExpressionNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.binary.AssignmentNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.leaf.BasicIdentifierNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.leaf.LiteralNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.marynary.BlockNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.unary.DeclarationNodeJb;
-import swp_compiler_ss13.javabite.codegen.tests.STTable;
 
 
 /**
@@ -47,7 +47,7 @@ public class CodeGenTest {
 		ast = new ASTJb();
 		//first BlockNode is the whole program
 		BlockNode program = new BlockNodeJb();
-		program.setSymbolTable(new STTable());
+		program.setSymbolTable(new SymbolTableJb());
 		ast.setRootNode(program);
 		//declare i
 		DeclarationNode i = new DeclarationNodeJb();
