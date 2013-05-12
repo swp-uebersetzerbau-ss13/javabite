@@ -25,12 +25,13 @@ public class Instruction {
 	private Mnemonic mnemonic;
 	private byte[] arguments;
 	private final int size;
-	//private final short stackChange;
+	private final int stackChange;
 
 	public Instruction(final int size, final Mnemonic mnemonic, final byte... arguments) {
 		this.size = size;
 		this.mnemonic = mnemonic;
 		this.arguments = arguments;
+		this.stackChange = this.mnemonic.getStackChange();
 	}
 
 	public Instruction(final int size, final Mnemonic mnemonic) {
@@ -127,6 +128,10 @@ public class Instruction {
 			}
 		}
 		return sb.toString();
+	}
+
+	public int getStackChange() {
+		return stackChange;
 	}
 
 }

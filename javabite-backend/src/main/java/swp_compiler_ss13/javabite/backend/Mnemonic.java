@@ -258,6 +258,7 @@ public enum Mnemonic {
 		return argc;
 	}
 
+
 	/**
 	 * Returns the bytecode operation byte as a string in hexadecimal format, eg. 01 or 5A. This is the string representation of the byte, and is created by
 	 * calling Integer.toHexString(int). Note that the hexadecimal prefix 0x is missing. This prefix is intentionally omitted, so that this method can be used
@@ -370,6 +371,10 @@ public enum Mnemonic {
 		// if (value >= 0 && value <= 3)
 		return getMnemonic("ASTORE", value);
 		// return null;
+	}
+
+	public int getStackChange() {
+		return stackChange;
 	}
 
 }
