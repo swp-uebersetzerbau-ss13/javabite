@@ -99,16 +99,14 @@ public class BackendModule implements Backend {
 			final DataInputStream dis = new DataInputStream(is);
 			
 			File testFile = new File("EmptyMain.class");
-
 			FileOutputStream outStream;
-			
+
 			try {
 				outStream = new FileOutputStream(testFile);
 				IOUtils.copy(dis, outStream);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-						
 			int i = 0;
 			byte b;
 			try {

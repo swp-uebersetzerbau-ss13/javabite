@@ -4,8 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-public class MnemonicTests
-{
+public class MnemonicTests {
 
 	static final Mnemonic NOP = Mnemonic.NOP;
 	static final int NOP_CODE = 0x00;

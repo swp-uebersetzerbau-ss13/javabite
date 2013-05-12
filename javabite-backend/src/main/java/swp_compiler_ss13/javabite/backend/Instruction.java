@@ -16,20 +16,18 @@ import org.slf4j.LoggerFactory;
  * @since 23.04.2013
  * 
  */
-public class Instruction
-{
+public class Instruction {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(Instruction.class);
+	private static final Logger logger = LoggerFactory.getLogger(Instruction.class);
 
 	// offset to predecessor
 	// private int offset;
 	private Mnemonic mnemonic;
 	private byte[] arguments;
 	private final int size;
+	//private final short stackChange;
 
-	public Instruction(final int size, final Mnemonic mnemonic,
-			final byte... arguments) {
+	public Instruction(final int size, final Mnemonic mnemonic, final byte... arguments) {
 		this.size = size;
 		this.mnemonic = mnemonic;
 		this.arguments = arguments;
@@ -40,8 +38,7 @@ public class Instruction
 	}
 
 	/**
-	 * getBytes function. This function creates a Byte-List of all the
-	 * information meeting the JVM-instruction standard.
+	 * getBytes function. This function creates a Byte-List of all the information meeting the JVM-instruction standard.
 	 * 
 	 * @author Marco
 	 * @since 03.05.2013
@@ -88,8 +85,7 @@ public class Instruction
 	/*
 	 * TODO for MS2 public int getOffset() { return offset; }
 	 * 
-	 * public int setOffset(int offset) { this.offset = offset; return offset +
-	 * size; }
+	 * public int setOffset(int offset) { this.offset = offset; return offset + size; }
 	 */
 
 	public Mnemonic getMnemonic() {
@@ -127,7 +123,7 @@ public class Instruction
 		sb.append(mnemonic.name());
 		if (arguments != null) {
 			for (final byte b : arguments) {
-				sb.append(" ").append(b);
+				sb.append(" ").append(String.format("%02X", b));
 			}
 		}
 		return sb.toString();
