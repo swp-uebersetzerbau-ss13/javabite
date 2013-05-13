@@ -3,7 +3,6 @@ package swp_compiler_ss13.javabite.parser;
 import java.util.LinkedList;
 import java.util.List;
 
-import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;

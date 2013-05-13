@@ -57,6 +57,21 @@ public class ASTGeneratorTest {
 		AST ast=instance.generateAST();
 	}
 	
+	@Test
+	public void testSimpleDoubleInvalidDeclaration(){
+		List<Token> tList=new LinkedList<>();
+		tList.add(new TokenJb(TokenType.LONG_SYMBOL, "long"));
+		tList.add(new TokenJb(TokenType.ID, "i"));
+		tList.add(new TokenJb(TokenType.SEMICOLON,";"));
+		tList.add(new TokenJb(TokenType.LONG_SYMBOL, "long"));
+		tList.add(new TokenJb(TokenType.ID, "i"));
+		tList.add(new TokenJb(TokenType.SEMICOLON,";"));
+		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
+		List<Reduction> res= syn.derivateDFLeftToRight(sc);
+		instance=new ASTGenerator(res);
+		AST ast=instance.generateAST();
+	}
+	
 	
 	@Test
 	public void testSimpleStatement(){

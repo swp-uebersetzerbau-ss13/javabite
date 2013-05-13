@@ -26,6 +26,7 @@ import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.types.Type;
 import swp_compiler_ss13.common.types.Type.Kind;
 import swp_compiler_ss13.javabite.ast.ASTJb;
+import swp_compiler_ss13.javabite.ast.SymbolTableJb;
 import swp_compiler_ss13.javabite.ast.nodes.binary.ArithmeticBinaryExpressionNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.binary.AssignmentNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.leaf.BasicIdentifierNodeJb;
@@ -88,7 +89,7 @@ public class ASTGenerator {
 		// Generate new Block
 		BlockNode root = new BlockNodeJb();
 		currentBlocks.push(root);
-
+		root.setSymbolTable(new SymbolTableJb());
 		// delete next reductions' list production from it
 		this.reductions.remove(0);
 
