@@ -1,7 +1,5 @@
 package swp_compiler_ss13.javabite.codegen.tests;
 
-import java.util.HashMap;
-
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
 import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode;
@@ -13,11 +11,10 @@ import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
-import swp_compiler_ss13.common.optimization.Liveliness;
 import swp_compiler_ss13.common.parser.SymbolTable;
 import swp_compiler_ss13.common.types.Type;
 import swp_compiler_ss13.javabite.ast.ASTJb;
-import swp_compiler_ss13.javabite.ast.ASTSource;
+import swp_compiler_ss13.javabite.ast.SymbolTableJb;
 import swp_compiler_ss13.javabite.ast.nodes.binary.ArithmeticBinaryExpressionNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.binary.AssignmentNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.leaf.BasicIdentifierNodeJb;
@@ -38,7 +35,7 @@ public class CodeGenTester {
 	 * @return
 	 */
 	static public AST getFirstAST(){
-		SymbolTable sTable = new STTable();
+		SymbolTable sTable = new SymbolTableJb();
 		sTable.insert("i", new TypeJb(Type.Kind.LONG));
 		BasicIdentifierNode iidNode=new BasicIdentifierNodeJb();
 		iidNode.setIdentifier("i");
@@ -73,7 +70,7 @@ public class CodeGenTester {
 	 * @return
 	 */
 	static public AST getSecondAST(){
-		SymbolTable sTable = new STTable();
+		SymbolTable sTable = new SymbolTableJb();
 		sTable.insert("i", new TypeJb(Type.Kind.LONG));
 		sTable.insert("j", new TypeJb(Type.Kind.LONG));
 		BasicIdentifierNode iidNodeI=new BasicIdentifierNodeJb();
