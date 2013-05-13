@@ -2,10 +2,12 @@ package swp_compiler_ss13.javabite.parser.targetgrammar;
 
 import static swp_compiler_ss13.javabite.parser.grammar.Utils.list;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,9 +87,9 @@ public class TargetGrammar {
 		grammar.addProduction(decl, list(type,t(TokenType.ID),t(TokenType.SEMICOLON)));
 		grammar.addProduction(type, list(t(TokenType.DOUBLE_SYMBOL)),list(t(TokenType.LONG_SYMBOL)));
 		grammar.addProduction(stmts, list(stmts,stmt),list(eps));
-		grammar.addProduction(stmt, list(assign,t(TokenType.SEMICOLON)),list(t(TokenType.RETURN),t(TokenType.ID),t(TokenType.SEMICOLON)));
+		grammar.addProduction(stmt, list(assign,t(TokenType.SEMICOLON)),list(t(TokenType.RETURN),loc,t(TokenType.SEMICOLON)));
 		grammar.addProduction(loc,list(t(TokenType.ID)));
-		grammar.addProduction(assign,list(loc,t(TokenType.ASSIGNOP),expr),list(bool));
+		grammar.addProduction(assign,list(loc,t(TokenType.ASSIGNOP),assign),list(bool));
 		grammar.addProduction(bool,list(bool,t(TokenType.OR),join),list(join));
 		grammar.addProduction(join,list(join,t(TokenType.AND),equality),list(equality));
 		grammar.addProduction(equality,list(equality,t(TokenType.EQUALS),rel),list(equality,t(TokenType.NOT_EQUALS),rel),list(rel));
@@ -106,12 +108,80 @@ public class TargetGrammar {
 	 * @param sc the given word
 	 * @return the concrete derivation if the word is in the language. Otherwise undetermined result.
 	 */
-	public List<Reduction> derivate(SourceCode sc){
+	public List<Reduction> derivateDFRightToLeft(SourceCode sc){
 		List<Production<Terminal, NonTerminal>> productions= automaton.getDerivationASsSequence(sc);
 		List<Reduction> reductions=new LinkedList<>();
 		for (Production<Terminal,NonTerminal> p : productions) reductions.add(new Reduction(p));	
 		return reductions;
 	}
+	
+	
+	public List<Reduction> derivateDFLeftToRight(SourceCode sc){
+		List<Reduction> rtl=derivateDFRightToLeft(sc);
+		HashMap<NonTerminal,Stack<Node>> seen=new HashMap<>();
+		for (Reduction reduction : rtl) seen.put(reduction.left_side,new Stack<Node>());
+		Node n=null;
+		for (Reduction production : rtl){
+			n = new Node();
+			n.nt=production.left_side;
+			n.edges=production.right_side;
+			n.reduction=production;
+			Node[] new_children=new Node[n.edges.size()];
+			for (int i=n.edges.size()-1;i>=0;i--){
+				Object o=n.edges.get(i);
+				if (o instanceof Token){
+					// add primitive Tree
+					Token tok=(Token)o;
+					Leaf leaf= new Leaf();
+					leaf.t=tok;
+					leaf.edges.add(tok);
+					new_children[i]=leaf;
+				}
+				else{
+					NonTerminal nt=(NonTerminal)o;
+					// add more complex tree
+					// get the last produced
+					Node append=seen.get(nt).pop();
+					new_children[i]=append;
+				}
+				n.children=Arrays.asList(new_children);
+			}
+			seen.get(n.nt).add(n);
+		}
+		return n.getLeftToRight();
+	}
+	
+	
+	class Leaf extends Node{
+		Token t;
+		@Override
+		List<Reduction> getLeftToRight() {
+			return new LinkedList<>();
+		}
+		
+	}
+	class Node{
+		@Override
+		public String toString() {
+			return nt+"[edges=" + edges + ", children=" + children +"]";
+		}
+		Reduction reduction;
+		List<Node> children=new LinkedList<>();
+		List<Object> edges=new LinkedList<>();
+		NonTerminal nt;
+		List<Reduction> getLeftToRight(){
+			
+			List<Reduction> res=new LinkedList<>();
+			res.add(this.reduction);
+			for (Node child : children) res.addAll(child.getLeftToRight());
+			// simple node
+			return res;
+			
+		}
+		
+	}
+	
+	
 	
 	/**
 	 * Represents a concrete production related to our grammar
@@ -131,7 +201,16 @@ public class TargetGrammar {
 			left_side=production.left;
 		}
 		public String toString(){
-		return left_side.toString()+"->"+right_side.toString();
+			String res= left_side.toString()+"->";
+			for (Object o :right_side){
+				if (o instanceof Token){
+					res+=((Token)o).getTokenType();
+				}
+				else{
+					res+=o;
+				}
+			}
+			return res;
 		}
 		
 		/**
