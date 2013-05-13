@@ -93,6 +93,7 @@ public class Program {
 			} else {
 				final short index = classfile.getIndexOfVariableInMethod(methodName, q.getArgument1());
 				assert index > 0;
+//				op.add(Mnemonic.getMnemonic(loadOp), 1, ByteUtils.shortToByteArray(index));
 				op.add(Mnemonic.getMnemonic(loadOp, index), 1, ByteUtils.shortToByteArray(index));
 			}
 			if (convertOp != null) {

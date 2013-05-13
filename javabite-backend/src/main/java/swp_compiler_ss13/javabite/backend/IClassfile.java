@@ -194,7 +194,7 @@ public interface IClassfile {
 	 *            String name of the variable
 	 * @return index of the variable in local variable space of the code attribute of the specified method
 	 */
-	public short getIndexOfVariableInMethod(String methodName, String variableName);
+	public short getIndexOfVariableInMethod(final String methodName, final String variableName);
 
 	/**
 	 * addInstructionToMethodsCode function. This function adds a new Instruction to the codeArea of the codeAttribute of the provided method of the methodArea

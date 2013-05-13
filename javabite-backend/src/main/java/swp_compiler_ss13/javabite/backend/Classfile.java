@@ -270,7 +270,7 @@ public class Classfile implements IClassfile {
 	public short getIndexOfConstantInConstantPool(final ConstantType constantType, final String constantName) {
 		return this.constantPool.getIndexOfConstant(constantType, constantName);
 	};
-
+	
 	/**
 	 * addMethodToMethodArea function. (see interface iClassfile)
 	 * 
