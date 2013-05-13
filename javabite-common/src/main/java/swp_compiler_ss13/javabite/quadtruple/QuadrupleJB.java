@@ -1,4 +1,4 @@
-package swp_compiler_ss13.javabite.codegen;
+package swp_compiler_ss13.javabite.quadtruple;
 
 
 import swp_compiler_ss13.common.backend.Quadruple;
@@ -10,7 +10,7 @@ import swp_compiler_ss13.common.backend.Quadruple;
  * @author Alpin Sahin
  *
  */
-public class QuadrupleImpl implements Quadruple {
+public class QuadrupleJB implements Quadruple {
 
 	/**
 	 * The quadruple operator
@@ -39,7 +39,7 @@ public class QuadrupleImpl implements Quadruple {
 	 * @param arg2
 	 * @param res
 	 */
-	public QuadrupleImpl(Operator operator, String arg1, String arg2, String res) {
+	public QuadrupleJB(Operator operator, String arg1, String arg2, String res) {
 		this.operator = operator;
 		this.arg1 = arg1;
 		this.arg2 = arg2;
