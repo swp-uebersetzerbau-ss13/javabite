@@ -1,4 +1,4 @@
-package swp_compiler_ss13.javabite.parser.grammar;
+package swp_compiler_ss13.javabite.parser.grammar.targetgrammar;
 
 import static org.junit.Assert.assertTrue;
 
