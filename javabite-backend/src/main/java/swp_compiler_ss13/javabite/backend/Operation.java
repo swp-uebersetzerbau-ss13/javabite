@@ -4,6 +4,9 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 
 /**
@@ -26,6 +29,10 @@ public class Operation {
 	 * 
 	 */
 	public static class OperationBuilder {
+		
+		private static final Logger logger = LoggerFactory
+				.getLogger(OperationBuilder.class);
+		
 
 		// private int offset = 0;
 		private final List<Instruction> instructions;
@@ -59,7 +66,8 @@ public class Operation {
 			final Instruction instruction;
 			if (mnemonic.getArgsCount() > 0) {
 				if (arguments == null || arguments.length != mnemonic.getArgsCount()) {
-					throw new RuntimeException("unexpected number of arguments: 0, expected " + mnemonic.getArgsCount());
+					logger.debug(mnemonic.toString());
+					throw new RuntimeException("unexpected number of arguments: " + arguments.length + "  , expected " + mnemonic.getArgsCount());
 				} else {
 					size = 1 + argsSize;
 					instruction = new Instruction(size, mnemonic, arguments);

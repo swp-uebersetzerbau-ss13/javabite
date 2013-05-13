@@ -270,7 +270,7 @@ public class Classfile implements IClassfile {
 	public short getIndexOfConstantInConstantPool(final ConstantType constantType, final String constantName) {
 		return this.constantPool.getIndexOfConstant(constantType, constantName);
 	};
-
+	
 	/**
 	 * addMethodToMethodArea function. (see interface iClassfile)
 	 * 
@@ -878,6 +878,7 @@ public class Classfile implements IClassfile {
 
 					try {
 						attributesDOS.writeShort(this.maxStack);
+						logger.debug("MAX_STACK: " + this.maxStack);
 						attributesDOS.writeShort(this.maxLocals);
 
 						for (final Instruction instruction : codeArea) {
