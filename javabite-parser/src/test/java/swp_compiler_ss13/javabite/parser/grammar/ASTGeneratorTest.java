@@ -10,13 +10,15 @@ import org.slf4j.LoggerFactory;
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
+import swp_compiler_ss13.common.parser.SymbolTable;
+import swp_compiler_ss13.common.types.Type.Kind;
 import swp_compiler_ss13.javabite.parser.astGenerator.ASTGenerator;
 import swp_compiler_ss13.javabite.parser.targetgrammar.TargetGrammar;
 import swp_compiler_ss13.javabite.parser.targetgrammar.TargetGrammar.Reduction;
 import swp_compiler_ss13.javabite.token.NumTokenJb;
 import swp_compiler_ss13.javabite.token.RealTokenJb;
 import swp_compiler_ss13.javabite.token.TokenJb;
-
+import static org.junit.Assert.*;
 
 /**
  * TODO: validate results
@@ -39,6 +41,7 @@ public class ASTGeneratorTest {
 		List<Reduction> res= syn.derivateDFLeftToRight(sc);
 		instance=new ASTGenerator(res);
 		AST ast=instance.generateAST();
+		
 	}
 	
 	
@@ -121,9 +124,8 @@ public class ASTGeneratorTest {
 		AST ast=instance.generateAST();
 	}
 	
-	
 	@Test
-	public void testLexerIntegrationVeryComplex(){
+	public void testComplexProgram(){
 		List<Token> tList = new LinkedList<>();
 		// long i;
 		tList.add(new TokenJb(TokenType.LONG_SYMBOL, "long"));
@@ -155,6 +157,48 @@ public class ASTGeneratorTest {
 		List<Reduction> res= syn.derivateDFLeftToRight(sc);
 		instance=new ASTGenerator(res);
 		AST ast=instance.generateAST();
+	}
+	
+	@Test
+	public void testComplexProgramSymbolTable(){
+		List<Token> tList = new LinkedList<>();
+		// long i;
+		tList.add(new TokenJb(TokenType.LONG_SYMBOL, "long"));
+		tList.add(new TokenJb(TokenType.ID, "i"));
+		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
+		// long j;
+		tList.add(new TokenJb(TokenType.LONG_SYMBOL, "long"));
+		tList.add(new TokenJb(TokenType.ID, "j"));
+		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
+		// i=(2+2);
+		tList.add(new TokenJb(TokenType.ID, "i"));
+		tList.add(new TokenJb(TokenType.ASSIGNOP, "="));
+		tList.add(new TokenJb(TokenType.LEFT_PARAN, "("));
+		tList.add(new NumTokenJb(TokenType.NUM, "2"));
+		tList.add(new TokenJb(TokenType.PLUS, "+"));
+		tList.add(new NumTokenJb(TokenType.NUM, "2"));
+		tList.add(new TokenJb(TokenType.RIGHT_PARAN, ")"));
+		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
+		// j=2;
+		tList.add(new TokenJb(TokenType.ID, "j"));
+		tList.add(new TokenJb(TokenType.ASSIGNOP, "="));
+		tList.add(new NumTokenJb(TokenType.NUM, "2"));
+		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
+		// return j;
+		tList.add(new TokenJb(TokenType.RETURN, "return"));
+		tList.add(new TokenJb(TokenType.ID, "j"));
+		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
+		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
+		List<Reduction> res= syn.derivateDFLeftToRight(sc);
+		instance=new ASTGenerator(res);
+		AST ast=instance.generateAST();
+		SymbolTable table=ast.getRootNode().getSymbolTable();
+		assertTrue("should be declared",table.isDeclared("i"));
+		assertTrue("should be declared",table.isDeclared("j"));
+		assertFalse("should be not declared",table.isDeclared("ij"));
+		assertEquals("should be the same",Kind.LONG,table.lookupType("i").getKind());
+		assertEquals("should be the same",Kind.LONG,table.lookupType("j").getKind());
+		assertNull("should not exist",table.lookupType("ij"));
 	}
 	
 	
