@@ -29,6 +29,7 @@ public abstract class ASTNodeJb implements ASTNode, Iterable<ASTNode>{
 	 * @return
 	 */
 	final protected ASTNode addChild(ASTNode child,int index){
+		child.setParentNode(this);
 		return children.put(index, child);
 	}
 	
