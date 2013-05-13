@@ -20,6 +20,7 @@ import swp_compiler_ss13.common.ast.nodes.unary.ArithmeticUnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode;
+import swp_compiler_ss13.common.lexer.NumToken;
 import swp_compiler_ss13.common.lexer.RealToken;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.types.Type;
@@ -54,7 +55,8 @@ import swp_compiler_ss13.javabite.types.TypeJb;
  * the reduction list used by this class has to meet the following format:
  * S->aABe, A->Abc, A->b, B->d
  * 
- * @author Marco
+ * @TODO: remove string representation dependency 
+ * @author Marco , Till
  * @since 11.05.2013
  * 
  */
@@ -71,9 +73,9 @@ public class ASTGenerator {
 		this.currentBlocks = new Stack<BlockNode>();
 	}
 
-	public AST generateAST() {
+	public ASTJb generateAST() {
 		// generate AST
-		AST ast = new ASTJb();
+		ASTJb ast = new ASTJb();
 
 		// MS1 version
 		BlockNode rootNode = this.useProgramProduction();
@@ -129,7 +131,6 @@ public class ASTGenerator {
 		// use decl productions functions according to the specific production
 		switch (thisReduction.toString()) {
 		case "decl->typeIDSEMICOLON":
-			// TODO validate
 			decl=new DeclarationNodeJb();
 			decl.setType(useTypeProduction());
 			String id=(((Token)thisReduction.getRightSide().get(1)).getValue());
@@ -451,22 +452,18 @@ public class ASTGenerator {
 			factor = this.useLocProduction();
 			break;
 		case "factor->NUM":
-			// Tmp get value of num
-			// TODO work with Symbols?
-			Token num=(Token)thisReduction.getRightSide().get(0);
-			String strval=num.getValue();
+			NumToken num=(NumToken)thisReduction.getRightSide().get(0);
+			Long l=num.getLongValue();
 			
 			LiteralNode numNode = new LiteralNodeJb();
-			numNode.setLiteral(strval);
+			numNode.setLiteral(l.toString());
 			numNode.setLiteralType(new TypeJb(Type.Kind.LONG));
 
 			factor = numNode;
 			break;
 		case "factor->REAL":
-			// TMP get value of real
-			// TODO work with Symbols?
-			Token real=(Token)thisReduction.getRightSide().get(0);
-			String val=real.getValue();
+			RealToken real=(RealToken)thisReduction.getRightSide().get(0);
+			Double val=real.getDoubleValue();
 			
 			LiteralNode realNode = new LiteralNodeJb();
 			realNode.setLiteral(val.toString());
@@ -489,8 +486,7 @@ public class ASTGenerator {
 			factor = falseNode;
 			break;
 		case "factor->string":
-			// Tmp get value of string
-			// TODO work with Symbols?
+			// Tmp get value of string ... not necessary in MS1
 			TargetGrammar.Reduction stringVal = this.reductions.get(0);
 			this.reductions.remove(0);
 
