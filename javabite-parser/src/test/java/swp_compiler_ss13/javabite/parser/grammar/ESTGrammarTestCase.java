@@ -44,7 +44,19 @@ public class ESTGrammarTestCase {
 		tList.add(new TokenJb(TokenType.ID, "i"));
 		tList.add(new TokenJb(TokenType.SEMICOLON,";"));
 		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
-		List<Reduction> res= syn.derivate(sc);
+		List<Reduction> res= syn.derivateDFRightToLeft(sc);
+		logger.info("derivation of tList {}",tList);
+		logger.info("res : {}",resAsReadableString(res));
+	}
+	
+	@Test
+	public void testSimpleLR(){
+		List<Token> tList=new LinkedList<>();
+		tList.add(new TokenJb(TokenType.LONG_SYMBOL, "long"));
+		tList.add(new TokenJb(TokenType.ID, "i"));
+		tList.add(new TokenJb(TokenType.SEMICOLON,";"));
+		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
+		List<Reduction> res= syn.derivateDFLeftToRight(sc);
 		logger.info("derivation of tList {}",tList);
 		logger.info("res : {}",resAsReadableString(res));
 	}
@@ -59,7 +71,7 @@ public class ESTGrammarTestCase {
 		tList.add(new TokenJb(TokenType.ID, "j"));
 		tList.add(new TokenJb(TokenType.SEMICOLON,";"));
 		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
-		List<Reduction> res= syn.derivate(sc);
+		List<Reduction> res= syn.derivateDFRightToLeft(sc);
 		logger.info("derivation of tList {}",tList);
 		logger.info("res : {}",resAsReadableString(res));
 	}
@@ -72,7 +84,7 @@ public class ESTGrammarTestCase {
 		tList.add(new TokenJb(TokenType.REAL,"2.0"));
 		tList.add(new TokenJb(TokenType.SEMICOLON,";"));
 		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
-		List<Reduction> res= syn.derivate(sc);
+		List<Reduction> res= syn.derivateDFRightToLeft(sc);
 		logger.info("derivation of tList {}",tList);
 		logger.info("res : {}",resAsReadableString(res));
 	}
@@ -88,7 +100,7 @@ public class ESTGrammarTestCase {
 		tList.add(new TokenJb(TokenType.REAL,"2.0"));
 		tList.add(new TokenJb(TokenType.SEMICOLON,";"));
 		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
-		List<Reduction> res= syn.derivate(sc);
+		List<Reduction> res= syn.derivateDFRightToLeft(sc);
 		logger.info("derivation of tList {}",tList);
 		logger.info("res : {}",resAsReadableString(res));
 	}
@@ -105,7 +117,7 @@ public class ESTGrammarTestCase {
 		tList.add(new TokenJb(TokenType.REAL,"2"));
 		tList.add(new TokenJb(TokenType.SEMICOLON,";"));
 		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
-		List<Reduction> res= syn.derivate(sc);
+		List<Reduction> res= syn.derivateDFRightToLeft(sc);
 		logger.info("derivation of tList {}",tList);
 		logger.info("res : {}",resAsReadableString(res));
 	}
@@ -123,7 +135,7 @@ public class ESTGrammarTestCase {
 		tList.add(new TokenJb(TokenType.ID,"2"));
 		tList.add(new TokenJb(TokenType.SEMICOLON,";"));
 		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
-		List<Reduction> res= syn.derivate(sc);
+		List<Reduction> res= syn.derivateDFRightToLeft(sc);
 		logger.info("derivation of tList {}",tList);
 		logger.info("res : {}",resAsReadableString(res));
 	}
@@ -140,7 +152,7 @@ public class ESTGrammarTestCase {
 			tList.add(t);
 		} while (t.getTokenType()!=TokenType.EOF);
 		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
-		List<Reduction> res= syn.derivate(sc);
+		List<Reduction> res= syn.derivateDFRightToLeft(sc);
 		logger.info("Source was\n {}\n",tList);
 		logger.info("res : {}",resAsReadableString(res));
 	}
@@ -161,7 +173,7 @@ public class ESTGrammarTestCase {
 			tList.add(t);
 		} while (t.getTokenType()!=TokenType.EOF);
 		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
-		List<Reduction> res= syn.derivate(sc);
+		List<Reduction> res= syn.derivateDFRightToLeft(sc);
 		logger.info("Source was\n {}\n",tList);
 		logger.info("res : {}",resAsReadableString(res));
 	}
@@ -183,7 +195,7 @@ public class ESTGrammarTestCase {
 			tList.add(t);
 		} while (t.getTokenType()!=TokenType.EOF);
 		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
-		List<Reduction> res= syn.derivate(sc);
+		List<Reduction> res= syn.derivateDFRightToLeft(sc);
 		logger.info("Source was\n {}\n",tList);
 		logger.info("res : {}",resAsReadableString(res));
 	}
@@ -238,7 +250,7 @@ public class ESTGrammarTestCase {
 			tList.add(t);
 		} while (t.getTokenType()!=TokenType.EOF);
 		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
-		List<Reduction> res= syn.derivate(sc);
+		List<Reduction> res= syn.derivateDFRightToLeft(sc);
 		logger.info("Source was\n {}\n",tList);
 		logger.info("res : {}",resAsReadableString(res));
 	}
@@ -255,7 +267,7 @@ public class ESTGrammarTestCase {
 			tList.add(t);
 		} while (t.getTokenType()!=TokenType.EOF);
 		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
-		List<Reduction> res= syn.derivate(sc);
+		List<Reduction> res= syn.derivateDFRightToLeft(sc);
 		logger.info("Source was\n {}\n",tList);
 		logger.info("res : {}",resAsReadableString(res));
 	}
