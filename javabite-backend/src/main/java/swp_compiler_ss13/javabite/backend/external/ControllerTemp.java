@@ -22,7 +22,6 @@ public class ControllerTemp {
 		 */
 		private static final long serialVersionUID = 6319892294145882549L;
 		{
-
 			// add.prog
 			/*
 			add(new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "l"));
@@ -41,13 +40,13 @@ public class ControllerTemp {
 			*/
 			
 			// simple_add.prog
-			/*
+			
 			add(new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "l"));
 			add(new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "t1"));
 			add(new QuadrupleImpl(Operator.ADD_LONG, "#3", "#3", "t1"));
 			add(new QuadrupleImpl(Operator.ASSIGN_LONG, "t1", "!", "l"));
 			add(new QuadrupleImpl(Operator.RETURN, "!", "!", "l"));
-			*/
+			
 			
 			// simple_mul.prog
 			/*
