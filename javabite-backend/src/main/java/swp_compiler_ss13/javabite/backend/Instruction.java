@@ -25,7 +25,7 @@ public class Instruction {
 	private Mnemonic mnemonic;
 	private byte[] arguments;
 	private final int size;
-	private final int stackChange;
+	private final short stackChange;
 
 	public Instruction(final int size, final Mnemonic mnemonic, final byte... arguments) {
 		this.size = size;
@@ -130,7 +130,7 @@ public class Instruction {
 		return sb.toString();
 	}
 
-	public int getStackChange() {
+	public short getStackChange() {
 		return stackChange;
 	}
 
