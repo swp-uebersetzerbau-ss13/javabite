@@ -115,5 +115,13 @@ public class SymbolTableJb implements SymbolTable {
 		SymbolTableInfo(Type type) {
 			this.type = type;
 		}
+		@Override
+		public String toString() {
+			return "["+type+", "+liveliness+"]";
+		}
+	}
+	
+	public String toString(){
+		return table.toString();
 	}
 }

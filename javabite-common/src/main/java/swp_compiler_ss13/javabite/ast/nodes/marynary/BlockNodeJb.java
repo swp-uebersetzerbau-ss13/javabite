@@ -5,6 +5,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import swp_compiler_ss13.common.ast.nodes.StatementNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
@@ -16,14 +19,23 @@ public class BlockNodeJb extends StatementNodeJb implements BlockNode {
 		super(ASTNodeType.BlockNode);
 	}
 
+	final protected Logger logger=LoggerFactory.getLogger(this.getClass());
 	final protected List<DeclarationNode> declarations=new LinkedList<>();
 	final protected List<StatementNode> statements=new LinkedList<>();
 	SymbolTable symbolTable;
 	
+	/**
+	 * adds the production and assures, that it exists
+	 */
 	@Override
 	public void addDeclaration(DeclarationNode declaration) {
 		declarations.add(declaration);
 		addChild(declaration, declarations.size());
+		if (symbolTable.isDeclared(declaration.getIdentifier())){
+			logger.error("declaration already inserted ... should be catched by the semantic analysis later. dec: {}",declaration);
+		}
+		symbolTable.insert(declaration.getIdentifier(),declaration.getType());
+		
 	}
 
 	@Override
