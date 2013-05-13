@@ -1,6 +1,5 @@
 package swp_compiler_ss13.javabite.parser.grammar;
 
-import java.io.ByteArrayInputStream;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -11,13 +10,19 @@ import org.slf4j.LoggerFactory;
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
-import swp_compiler_ss13.javabite.lexer.LexerJb;
 import swp_compiler_ss13.javabite.parser.astGenerator.ASTGenerator;
 import swp_compiler_ss13.javabite.parser.targetgrammar.TargetGrammar;
 import swp_compiler_ss13.javabite.parser.targetgrammar.TargetGrammar.Reduction;
-import swp_compiler_ss13.javabite.parser.targetgrammar.TargetGrammar.SourceCode;
+import swp_compiler_ss13.javabite.token.NumTokenJb;
+import swp_compiler_ss13.javabite.token.RealTokenJb;
 import swp_compiler_ss13.javabite.token.TokenJb;
 
+
+/**
+ * TODO: validate results
+ * @author Till
+ *
+ */
 public class ASTGeneratorTest {
 	ASTGenerator instance;
 	Logger logger=LoggerFactory.getLogger(this.getClass());
@@ -32,10 +37,8 @@ public class ASTGeneratorTest {
 		tList.add(new TokenJb(TokenType.SEMICOLON,";"));
 		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
 		List<Reduction> res= syn.derivateDFLeftToRight(sc);
-		logger.info("res : {}",resAsReadableString(res));
 		instance=new ASTGenerator(res);
 		AST ast=instance.generateAST();
-		logger.info("root node ->"+ast.getRootNode());
 	}
 	
 	
@@ -50,10 +53,8 @@ public class ASTGeneratorTest {
 		tList.add(new TokenJb(TokenType.SEMICOLON,";"));
 		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
 		List<Reduction> res= syn.derivateDFLeftToRight(sc);
-		logger.info("res : {}",resAsReadableString(res));
 		instance=new ASTGenerator(res);
 		AST ast=instance.generateAST();
-		logger.info("root node ->"+ast.getRootNode());
 	}
 	
 	
@@ -62,14 +63,12 @@ public class ASTGeneratorTest {
 		List<Token> tList=new LinkedList<>();
 		tList.add(new TokenJb(TokenType.ID, "i"));
 		tList.add(new TokenJb(TokenType.ASSIGNOP, "="));
-		tList.add(new TokenJb(TokenType.REAL,"2.0"));
+		tList.add(new RealTokenJb(TokenType.REAL,"2.0"));
 		tList.add(new TokenJb(TokenType.SEMICOLON,";"));
 		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
 		List<Reduction> res= syn.derivateDFLeftToRight(sc);
-		logger.info("res : {}",resAsReadableString(res));
 		instance=new ASTGenerator(res);
 		AST ast=instance.generateAST();
-		logger.info("root node ->"+ast.getRootNode());
 	}
 	
 	
@@ -81,14 +80,12 @@ public class ASTGeneratorTest {
 		tList.add(new TokenJb(TokenType.SEMICOLON,";"));
 		tList.add(new TokenJb(TokenType.ID, "i"));
 		tList.add(new TokenJb(TokenType.ASSIGNOP, "="));
-		tList.add(new TokenJb(TokenType.REAL,"2.0"));
+		tList.add(new RealTokenJb(TokenType.REAL,"2.0"));
 		tList.add(new TokenJb(TokenType.SEMICOLON,";"));
 		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
 		List<Reduction> res= syn.derivateDFLeftToRight(sc);
-		logger.info("res : {}",resAsReadableString(res));
 		instance=new ASTGenerator(res);
 		AST ast=instance.generateAST();
-		logger.info("root node ->"+ast.getRootNode());
 	}
 	
 	@Test
@@ -99,40 +96,50 @@ public class ASTGeneratorTest {
 		tList.add(new TokenJb(TokenType.SEMICOLON,";"));
 		tList.add(new TokenJb(TokenType.ID, "i"));
 		tList.add(new TokenJb(TokenType.ASSIGNOP, "="));
-		tList.add(new TokenJb(TokenType.REAL,"2.0"));
+		tList.add(new RealTokenJb(TokenType.REAL,"2.0"));
 		tList.add(new TokenJb(TokenType.DIVIDE,"/"));
-		tList.add(new TokenJb(TokenType.REAL,"2"));
+		tList.add(new NumTokenJb(TokenType.NUM,"2"));
 		tList.add(new TokenJb(TokenType.SEMICOLON,";"));
 		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
 		List<Reduction> res= syn.derivateDFLeftToRight(sc);
-		logger.info("res : {}",resAsReadableString(res));
 		instance=new ASTGenerator(res);
 		AST ast=instance.generateAST();
-		logger.info("root node ->"+ast.getRootNode());
 	}
 	
 	
 	@Test
 	public void testLexerIntegrationVeryComplex(){
-		String toCheck="" +
-				"long i;" +
-				"long j;" +
-				"i=(j=2);" +
-				"j=2;" +
-				"return j;";
-		LexerJb lex=new LexerJb();
-		lex.setSourceStream(new ByteArrayInputStream(toCheck.getBytes()));
-		List<Token> tList=new LinkedList<>();
-		Token t;
-		do{
-			t=lex.getNextToken();
-			tList.add(t);
-		} while (t.getTokenType()!=TokenType.EOF);
+		List<Token> tList = new LinkedList<>();
+		// long i;
+		tList.add(new TokenJb(TokenType.LONG_SYMBOL, "long"));
+		tList.add(new TokenJb(TokenType.ID, "i"));
+		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
+		// long j;
+		tList.add(new TokenJb(TokenType.LONG_SYMBOL, "long"));
+		tList.add(new TokenJb(TokenType.ID, "j"));
+		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
+		// i=(2+2);
+		tList.add(new TokenJb(TokenType.ID, "i"));
+		tList.add(new TokenJb(TokenType.ASSIGNOP, "="));
+		tList.add(new TokenJb(TokenType.LEFT_PARAN, "("));
+		tList.add(new NumTokenJb(TokenType.NUM, "2"));
+		tList.add(new TokenJb(TokenType.PLUS, "+"));
+		tList.add(new NumTokenJb(TokenType.NUM, "2"));
+		tList.add(new TokenJb(TokenType.RIGHT_PARAN, ")"));
+		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
+		// j=2;
+		tList.add(new TokenJb(TokenType.ID, "j"));
+		tList.add(new TokenJb(TokenType.ASSIGNOP, "="));
+		tList.add(new NumTokenJb(TokenType.NUM, "2"));
+		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
+		// return j;
+		tList.add(new TokenJb(TokenType.RETURN, "return"));
+		tList.add(new TokenJb(TokenType.ID, "j"));
+		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
 		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
 		List<Reduction> res= syn.derivateDFLeftToRight(sc);
 		instance=new ASTGenerator(res);
 		AST ast=instance.generateAST();
-		logger.info("root node ->"+ast.getRootNode());
 	}
 	
 	

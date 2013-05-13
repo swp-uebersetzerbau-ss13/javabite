@@ -13,8 +13,15 @@ import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.javabite.parser.targetgrammar.TargetGrammar;
 import swp_compiler_ss13.javabite.parser.targetgrammar.TargetGrammar.Reduction;
+import swp_compiler_ss13.javabite.token.NumTokenJb;
+import swp_compiler_ss13.javabite.token.RealTokenJb;
 import swp_compiler_ss13.javabite.token.TokenJb;
 
+/**
+ * TODO: validate results
+ * @author Till
+ *
+ */
 public class ESTGrammarTestCase {
 
 	Logger logger = LoggerFactory.getLogger(ESTGrammarTestCase.class);
@@ -33,27 +40,7 @@ public class ESTGrammarTestCase {
 		tList.add(new TokenJb(TokenType.ID, "i"));
 		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
 		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
-<<<<<<< HEAD
-		List<Reduction> res= syn.derivateDFRightToLeft(sc);
-		logger.info("derivation of tList {}",tList);
-		logger.info("res : {}",resAsReadableString(res));
-	}
-	
-	@Test
-	public void testSimpleLR(){
-		List<Token> tList=new LinkedList<>();
-		tList.add(new TokenJb(TokenType.LONG_SYMBOL, "long"));
-		tList.add(new TokenJb(TokenType.ID, "i"));
-		tList.add(new TokenJb(TokenType.SEMICOLON,";"));
-		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
-		List<Reduction> res= syn.derivateDFLeftToRight(sc);
-		logger.info("derivation of tList {}",tList);
-		logger.info("res : {}",resAsReadableString(res));
-=======
-		List<Reduction> res = syn.derivate(sc);
-		logger.info("derivation of tList {}", tList);
-		logger.info("res : {}", resAsReadableString(res));
->>>>>>> 4f8da34f9b5f068ed57a8365eabae08adca1f16c
+		List<Reduction> res = syn.derivateDFRightToLeft(sc);
 	}
 
 	@Test
@@ -66,15 +53,7 @@ public class ESTGrammarTestCase {
 		tList.add(new TokenJb(TokenType.ID, "j"));
 		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
 		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
-<<<<<<< HEAD
-		List<Reduction> res= syn.derivateDFRightToLeft(sc);
-		logger.info("derivation of tList {}",tList);
-		logger.info("res : {}",resAsReadableString(res));
-=======
-		List<Reduction> res = syn.derivate(sc);
-		logger.info("derivation of tList {}", tList);
-		logger.info("res : {}", resAsReadableString(res));
->>>>>>> 4f8da34f9b5f068ed57a8365eabae08adca1f16c
+		List<Reduction> res = syn.derivateDFRightToLeft(sc);
 	}
 
 	@Test
@@ -82,18 +61,10 @@ public class ESTGrammarTestCase {
 		List<Token> tList = new LinkedList<>();
 		tList.add(new TokenJb(TokenType.ID, "i"));
 		tList.add(new TokenJb(TokenType.ASSIGNOP, "="));
-		tList.add(new TokenJb(TokenType.REAL, "2.0"));
+		tList.add(new RealTokenJb(TokenType.REAL, "2.0"));
 		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
 		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
-<<<<<<< HEAD
-		List<Reduction> res= syn.derivateDFRightToLeft(sc);
-		logger.info("derivation of tList {}",tList);
-		logger.info("res : {}",resAsReadableString(res));
-=======
-		List<Reduction> res = syn.derivate(sc);
-		logger.info("derivation of tList {}", tList);
-		logger.info("res : {}", resAsReadableString(res));
->>>>>>> 4f8da34f9b5f068ed57a8365eabae08adca1f16c
+		List<Reduction> res = syn.derivateDFRightToLeft(sc);
 	}
 
 	@Test
@@ -104,18 +75,10 @@ public class ESTGrammarTestCase {
 		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
 		tList.add(new TokenJb(TokenType.ID, "i"));
 		tList.add(new TokenJb(TokenType.ASSIGNOP, "="));
-		tList.add(new TokenJb(TokenType.REAL, "2.0"));
+		tList.add(new RealTokenJb(TokenType.REAL, "2.0"));
 		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
 		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
-<<<<<<< HEAD
-		List<Reduction> res= syn.derivateDFRightToLeft(sc);
-		logger.info("derivation of tList {}",tList);
-		logger.info("res : {}",resAsReadableString(res));
-=======
-		List<Reduction> res = syn.derivate(sc);
-		logger.info("derivation of tList {}", tList);
-		logger.info("res : {}", resAsReadableString(res));
->>>>>>> 4f8da34f9b5f068ed57a8365eabae08adca1f16c
+		List<Reduction> res = syn.derivateDFRightToLeft(sc);
 	}
 
 	@Test
@@ -126,20 +89,12 @@ public class ESTGrammarTestCase {
 		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
 		tList.add(new TokenJb(TokenType.ID, "i"));
 		tList.add(new TokenJb(TokenType.ASSIGNOP, "="));
-		tList.add(new TokenJb(TokenType.REAL, "2.0"));
+		tList.add(new RealTokenJb(TokenType.REAL, "2.0"));
 		tList.add(new TokenJb(TokenType.PLUS, "+"));
-		tList.add(new TokenJb(TokenType.REAL, "2"));
+		tList.add(new NumTokenJb(TokenType.REAL, "2"));
 		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
 		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
-<<<<<<< HEAD
-		List<Reduction> res= syn.derivateDFRightToLeft(sc);
-		logger.info("derivation of tList {}",tList);
-		logger.info("res : {}",resAsReadableString(res));
-=======
-		List<Reduction> res = syn.derivate(sc);
-		logger.info("derivation of tList {}", tList);
-		logger.info("res : {}", resAsReadableString(res));
->>>>>>> 4f8da34f9b5f068ed57a8365eabae08adca1f16c
+		List<Reduction> res = syn.derivateDFRightToLeft(sc);
 	}
 
 	@Test
@@ -150,37 +105,12 @@ public class ESTGrammarTestCase {
 		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
 		tList.add(new TokenJb(TokenType.ID, "i"));
 		tList.add(new TokenJb(TokenType.ASSIGNOP, "="));
-		tList.add(new TokenJb(TokenType.REAL, "2.0"));
+		tList.add(new RealTokenJb(TokenType.REAL, "2.0"));
 		tList.add(new TokenJb(TokenType.PLUS, "+"));
-		tList.add(new TokenJb(TokenType.ID, "2"));
+		tList.add(new NumTokenJb(TokenType.ID, "2"));
 		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
 		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
-<<<<<<< HEAD
-		List<Reduction> res= syn.derivateDFRightToLeft(sc);
-		logger.info("derivation of tList {}",tList);
-		logger.info("res : {}",resAsReadableString(res));
-	}
-	
-	@Test
-	public void testLexerIntegrationComplex(){
-		String toCheck="long i;long j;";
-		LexerJb lex=new LexerJb();
-		lex.setSourceStream(new ByteArrayInputStream(toCheck.getBytes()));
-		List<Token> tList=new LinkedList<>();
-		Token t;
-		do{
-			t=lex.getNextToken();
-			tList.add(t);
-		} while (t.getTokenType()!=TokenType.EOF);
-		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
-		List<Reduction> res= syn.derivateDFRightToLeft(sc);
-		logger.info("Source was\n {}\n",tList);
-		logger.info("res : {}",resAsReadableString(res));
-=======
-		List<Reduction> res = syn.derivate(sc);
-		logger.info("derivation of tList {}", tList);
-		logger.info("res : {}", resAsReadableString(res));
->>>>>>> 4f8da34f9b5f068ed57a8365eabae08adca1f16c
+		List<Reduction> res = syn.derivateDFRightToLeft(sc);
 	}
 
 	@Test
@@ -195,15 +125,7 @@ public class ESTGrammarTestCase {
 		tList.add(new TokenJb(TokenType.ID, "j"));
 		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
 		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
-<<<<<<< HEAD
-		List<Reduction> res= syn.derivateDFRightToLeft(sc);
-		logger.info("Source was\n {}\n",tList);
-		logger.info("res : {}",resAsReadableString(res));
-=======
-		List<Reduction> res = syn.derivate(sc);
-		logger.info("Source was\n {}\n", tList);
-		logger.info("res : {}", resAsReadableString(res));
->>>>>>> 4f8da34f9b5f068ed57a8365eabae08adca1f16c
+		List<Reduction> res = syn.derivateDFRightToLeft(sc);
 	}
 
 	@Test
@@ -223,63 +145,20 @@ public class ESTGrammarTestCase {
 		tList.add(new TokenJb(TokenType.LEFT_PARAN, "("));
 		tList.add(new TokenJb(TokenType.ID, "j"));
 		tList.add(new TokenJb(TokenType.ASSIGNOP, "="));
-		tList.add(new TokenJb(TokenType.NUM, "2"));
+		tList.add(new NumTokenJb(TokenType.NUM, "2"));
 		tList.add(new TokenJb(TokenType.RIGHT_PARAN, ")"));
 		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
 		// j=2;
 		tList.add(new TokenJb(TokenType.ID, "j"));
 		tList.add(new TokenJb(TokenType.ASSIGNOP, "="));
-		tList.add(new TokenJb(TokenType.NUM, "2"));
+		tList.add(new NumTokenJb(TokenType.NUM, "2"));
 		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
 		// return j;
 		tList.add(new TokenJb(TokenType.RETURN, "return"));
 		tList.add(new TokenJb(TokenType.ID, "j"));
 		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
 		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
-<<<<<<< HEAD
-		List<Reduction> res= syn.derivateDFRightToLeft(sc);
-		logger.info("Source was\n {}\n",tList);
-		logger.info("res : {}",resAsReadableString(res));
-	}
-	
-	
-	@Test 
-	public void testLexerIntegration_add() throws FileNotFoundException{
-		testLexerIntegrationForFile(new File("../common/examples/m1/add.prog"));
-	}
-	
-	@Test 
-	public void testLexerIntegration_error_double_decl() throws FileNotFoundException{
-		testLexerIntegrationForFile(new File("../common/examples/m1/error_double_decl.prog"));
-	}
-	@Test (expected=WordNotInLanguageGrammarException.class)
-	public void testLexerIntegration_error_invalid_ids() throws FileNotFoundException{
-		testLexerIntegrationForFile(new File("../common/examples/m1/error_invalid_ids.prog"));
-	}
-	@Test (expected=WordNotInLanguageGrammarException.class)
-	public void testLexerIntegration_error_multiple_minus_e_notation() throws FileNotFoundException{
-		testLexerIntegrationForFile(new File("../common/examples/m1/error_multiple_minus_e_notation.prog"));
-	}
-	@Test (expected=WordNotInLanguageGrammarException.class)
-	public void testLexerIntegration_error_multiple_pluses_in_exp() throws FileNotFoundException{
-		testLexerIntegrationForFile(new File("../common/examples/m1/error_multiple_pluses_in_exp.prog"));
-	}
-	@Test
-	public void testLexerIntegration_error_undef_return() throws FileNotFoundException{
-		testLexerIntegrationForFile(new File("../common/examples/m1/error_undef_return.prog"));
-	}
-	@Test
-	public void testLexerIntegration_paratheses() throws FileNotFoundException{
-		testLexerIntegrationForFile(new File("../common/examples/m1/paratheses.prog"));
-	}
-	@Test
-	public void testLexerIntegration_simple_add() throws FileNotFoundException{
-		testLexerIntegrationForFile(new File("../common/examples/m1/simple_add.prog"));
-=======
-		List<Reduction> res = syn.derivate(sc);
-		logger.info("Source was\n {}\n", tList);
-		logger.info("res : {}", resAsReadableString(res));
->>>>>>> 4f8da34f9b5f068ed57a8365eabae08adca1f16c
+		List<Reduction> res = syn.derivateDFRightToLeft(sc);
 	}
 
 	@Test
@@ -297,9 +176,9 @@ public class ESTGrammarTestCase {
 		tList.add(new TokenJb(TokenType.ID, "i"));
 		tList.add(new TokenJb(TokenType.ASSIGNOP, "="));
 		tList.add(new TokenJb(TokenType.LEFT_PARAN, "("));
-		tList.add(new TokenJb(TokenType.NUM, "2"));
+		tList.add(new NumTokenJb(TokenType.NUM, "2"));
 		tList.add(new TokenJb(TokenType.PLUS, "+"));
-		tList.add(new TokenJb(TokenType.NUM, "2"));
+		tList.add(new NumTokenJb(TokenType.NUM, "2"));
 		tList.add(new TokenJb(TokenType.RIGHT_PARAN, ")"));
 		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
 		// j=2;
@@ -312,15 +191,7 @@ public class ESTGrammarTestCase {
 		tList.add(new TokenJb(TokenType.ID, "j"));
 		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
 		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
-<<<<<<< HEAD
-		List<Reduction> res= syn.derivateDFRightToLeft(sc);
-		logger.info("Source was\n {}\n",tList);
-		logger.info("res : {}",resAsReadableString(res));
-=======
-		List<Reduction> res = syn.derivate(sc);
-		logger.info("Source was\n {}\n", tList);
-		logger.info("res : {}", resAsReadableString(res));
->>>>>>> 4f8da34f9b5f068ed57a8365eabae08adca1f16c
+		List<Reduction> res = syn.derivateDFRightToLeft(sc);
 	}
 
 	@Test
@@ -331,15 +202,7 @@ public class ESTGrammarTestCase {
 		tList.add(new TokenJb(TokenType.ID, "i"));
 		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
 		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
-<<<<<<< HEAD
-		List<Reduction> res= syn.derivateDFRightToLeft(sc);
-		logger.info("Source was\n {}\n",tList);
-		logger.info("res : {}",resAsReadableString(res));
-=======
-		List<Reduction> res = syn.derivate(sc);
-		logger.info("Source was\n {}\n", tList);
-		logger.info("res : {}", resAsReadableString(res));
->>>>>>> 4f8da34f9b5f068ed57a8365eabae08adca1f16c
+		List<Reduction> res = syn.derivateDFRightToLeft(sc);
 	}
 
 	private String resAsReadableString(List<Reduction> res) {
