@@ -28,6 +28,9 @@ project(':common'){
 		main {
 			java { srcDir 'interfaces/src' }
 		}
+		test {
+			java { srcDir 'interfaces/test' }
+		}
 	}
 }
 project(':javabite-compiler') {
@@ -46,7 +49,10 @@ project(':javabite-compiler') {
 	}
 }
 project(':javabite-lexer') {
-	dependencies { compile project(':javabite-common') }
+	dependencies { 
+		compile project(':javabite-common') 
+		testCompile project(':common').sourceSets.test.output
+	}
 }
 project(':javabite-parser') {
 	dependencies { compile project(':javabite-common') }
