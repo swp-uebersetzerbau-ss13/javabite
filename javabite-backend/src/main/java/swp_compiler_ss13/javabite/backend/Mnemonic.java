@@ -227,12 +227,12 @@ public enum Mnemonic {
 	// @formatter:on
 
 	private final byte byteCode;
-	private final int stackChange;
+	private final short stackChange;
 	private final int argc;
 
 	private Mnemonic(final int hexCode, final int stackChange, final int argc) {
 		this.byteCode = (byte) hexCode;
-		this.stackChange = stackChange;
+		this.stackChange = (short) stackChange;
 		this.argc = argc;
 	}
 
@@ -373,7 +373,7 @@ public enum Mnemonic {
 		// return null;
 	}
 
-	public int getStackChange() {
+	public short getStackChange() {
 		return stackChange;
 	}
 
