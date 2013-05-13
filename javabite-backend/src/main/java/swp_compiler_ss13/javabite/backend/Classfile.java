@@ -23,7 +23,8 @@ import swp_compiler_ss13.javabite.backend.utils.ByteCalculator;
 import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
 
 /**
- * Classfile class. This class represents all information needed to create a JVM-classfile.
+ * Classfile class. This class represents all information needed to create a
+ * JVM-classfile.
  * 
  * @author Marco
  * @since 27.04.2013
@@ -31,7 +32,8 @@ import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
  */
 public class Classfile implements IClassfile {
 
-	private static final Logger logger = LoggerFactory.getLogger(Classfile.class);
+	private static final Logger logger = LoggerFactory
+			.getLogger(Classfile.class);
 
 	// Name of File
 	private final String name;
@@ -42,7 +44,8 @@ public class Classfile implements IClassfile {
 	private final String superClassNameEIF;
 
 	// General Classfile structure information
-	private final byte[] magic = { (byte) 0xca, (byte) 0xfe, (byte) 0xba, (byte) 0xbe };
+	private final byte[] magic = { (byte) 0xca, (byte) 0xfe, (byte) 0xba,
+			(byte) 0xbe };
 	private final byte[] minorVersion = { (byte) 0x00, (byte) 0x00 };
 	private final byte[] majorVersion = { (byte) 0x00, (byte) 0x33 };
 	protected ConstantPool constantPool;
@@ -55,11 +58,13 @@ public class Classfile implements IClassfile {
 	// FieldArea left out
 	protected MethodArea methodArea;
 	private final short attributesCount;
+
 	// AttributeArea left out
 
 	/**
-	 * Classfile constructor. This constructor instantiates the classfile's constantPool, fieldArea, methodArea and attributeArea and sets basic classfile
-	 * information.
+	 * Classfile constructor. This constructor instantiates the classfile's
+	 * constantPool, fieldArea, methodArea and attributeArea and sets basic
+	 * classfile information.
 	 * 
 	 * @author Marco
 	 * @since 27.04.2013
@@ -68,11 +73,14 @@ public class Classfile implements IClassfile {
 	 * @param thisClassNameEIF
 	 *            string describing this classname encoded in internal form
 	 * @param superClassNameEIF
-	 *            string describing the superclass' classname encoded in internal form
+	 *            string describing the superclass' classname encoded in
+	 *            internal form
 	 * @param accessFlags
 	 *            arbitrary amount of classfile access flags.
 	 */
-	public Classfile(final String name, final String thisClassNameEIF, final String superClassNameEIF, final ClassfileAccessFlag... accessFlags) {
+	public Classfile(final String name, final String thisClassNameEIF,
+			final String superClassNameEIF,
+			final ClassfileAccessFlag... accessFlags) {
 
 		// set basic parameters
 		this.name = name;
@@ -83,7 +91,8 @@ public class Classfile implements IClassfile {
 		this.attributesCount = 0;
 
 		for (final ClassfileAccessFlag accessFlag : accessFlags) {
-			this.accessFlags = (short) (this.accessFlags | accessFlag.getValue());
+			this.accessFlags = (short) (this.accessFlags | accessFlag
+					.getValue());
 		}
 
 		// instantiate constantPool, fieldArea, methodArea and attributeArea
@@ -95,7 +104,8 @@ public class Classfile implements IClassfile {
 	}
 
 	/**
-	 * initializeClassfile function. This function initializes the classfile. It sets basic constantPool values and creates an init function.
+	 * initializeClassfile function. This function initializes the classfile. It
+	 * sets basic constantPool values and creates an init function.
 	 * 
 	 * @author Marco
 	 * @since 28.04.2013
@@ -106,21 +116,31 @@ public class Classfile implements IClassfile {
 
 		// add thisClassNameEIF to ConstantPool, get back the index in the
 		// constantPool and set this.thisClass to it
-		this.thisClassIndex = (short) (this.addConstantToConstantPool(ConstantType.CLASS, this.thisClassNameEIF));
+		this.thisClassIndex = (short) (this.addConstantToConstantPool(
+				ConstantType.CLASS, this.thisClassNameEIF));
 		// add superClassNameEIF to ConstantPool, get back the index in the
 		// constantPool and set this.superClass to it
-		this.superClassIndex = (short) (this.addConstantToConstantPool(ConstantType.CLASS, this.superClassNameEIF));
+		this.superClassIndex = (short) (this.addConstantToConstantPool(
+				ConstantType.CLASS, this.superClassNameEIF));
 
 		// add initialize-method to methodArea and set invoke parameter
-		this.addMethodToMethodArea("<init>", "()V", Classfile.MethodAccessFlag.ACC_PUBLIC);
-		final short initNATIndex = (short) this.constantPool.generateConstantNameAndTypeInfo("<init>", "()V");
-		final short methodrefIndex = (short) this.constantPool.generateConstantMethodrefInfo(this.superClassIndex, initNATIndex);
-		final byte[] methodRefByteArray = ByteUtils.shortToByteArray(methodrefIndex);
+		this.addMethodToMethodArea("<init>", "()V",
+				Classfile.MethodAccessFlag.ACC_PUBLIC);
+		final short initNATIndex = (short) this.constantPool
+				.generateConstantNameAndTypeInfo("<init>", "()V");
+		final short methodrefIndex = (short) this.constantPool
+				.generateConstantMethodrefInfo(this.superClassIndex,
+						initNATIndex);
+		final byte[] methodRefByteArray = ByteUtils
+				.shortToByteArray(methodrefIndex);
 
 		// add code to initialize-method
-		final Instruction InstrAload = new Instruction(1, Mnemonic.ALOAD_0, null);
-		final Instruction InstrInvokespecial = new Instruction(3, Mnemonic.INVOKESPECIAL, methodRefByteArray);
-		final Instruction InstrReturn = new Instruction(1, Mnemonic.RETURN, null);
+		final Instruction InstrAload = new Instruction(1, Mnemonic.ALOAD_0,
+				null);
+		final Instruction InstrInvokespecial = new Instruction(3,
+				Mnemonic.INVOKESPECIAL, methodRefByteArray);
+		final Instruction InstrReturn = new Instruction(1, Mnemonic.RETURN,
+				null);
 		this.addInstructionToMethodsCode("<init>", InstrAload);
 		this.addInstructionToMethodsCode("<init>", InstrInvokespecial);
 		this.addInstructionToMethodsCode("<init>", InstrReturn);
@@ -138,10 +158,6 @@ public class Classfile implements IClassfile {
 		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		final DataOutputStream classfileDOS = new DataOutputStream(baos);
 
-		// TMP
-		Instruction ret = new Instruction(1, Mnemonic.RETURN);
-		this.addInstructionToMethodsCode("main", ret);
-
 		this.writeTo(classfileDOS);
 
 		return new ByteArrayInputStream(baos.toByteArray());
@@ -152,7 +168,8 @@ public class Classfile implements IClassfile {
 		try {
 			if (logger.isDebugEnabled()) {
 				logger.debug("magic(4B), minorVersion(2B), majorVersion(2B)");
-				logger.debug("{} {} {}", hexFromBytes(magic), hexFromBytes(minorVersion), hexFromBytes(majorVersion));
+				logger.debug("{} {} {}", hexFromBytes(magic),
+						hexFromBytes(minorVersion), hexFromBytes(majorVersion));
 			}
 
 			final DataOutputStream classfileDOS = (DataOutputStream) classfileOS;
@@ -173,7 +190,9 @@ public class Classfile implements IClassfile {
 
 			if (logger.isDebugEnabled()) {
 				logger.debug("accessFlags(2), thisClassIndex(2), superClassIndex(2), interfaceCount(2), fieldsCount(2)");
-				logger.debug("{} {} {} {} {}", hexFromShort(accessFlags), hexFromShort(thisClassIndex), hexFromShort(superClassIndex),
+				logger.debug("{} {} {} {} {}", hexFromShort(accessFlags),
+						hexFromShort(thisClassIndex),
+						hexFromShort(superClassIndex),
 						hexFromShort(interfaceCount), hexFromShort(fieldsCount));
 			}
 
@@ -204,13 +223,40 @@ public class Classfile implements IClassfile {
 	}
 
 	/**
+	 * addDataForSystemCall function. (see interface iClassfile)
+	 * 
+	 * @author Marco
+	 * @since 13.05.2013
+	 */
+	@Override
+	public short addDataForSystemCall(String systemFunctionName,
+			String systemFunctionNameDescriptor, String superClassNameEIF) {
+		// add constants
+		this.addConstantToConstantPool(ConstantType.UTF8, systemFunctionName);
+		this.addConstantToConstantPool(ConstantType.UTF8,
+				systemFunctionNameDescriptor);
+		short superClassIndex = (short) this.addConstantToConstantPool(
+				ConstantType.CLASS, superClassNameEIF);
+		// add NAT
+		final short initNATIndex = (short) this.constantPool
+				.generateConstantNameAndTypeInfo(systemFunctionName,
+						systemFunctionNameDescriptor);
+		// add methodRef
+		final short methodrefIndex = (short) this.constantPool
+				.generateConstantMethodrefInfo(superClassIndex,
+						initNATIndex);
+		return methodrefIndex;
+	}
+
+	/**
 	 * addConstantToConstantPool function. (see interface iClassfile)
 	 * 
 	 * @author Marco
 	 * @since 28.04.2013
 	 */
 	@Override
-	public int addConstantToConstantPool(final ConstantType constantType, final String value) {
+	public int addConstantToConstantPool(final ConstantType constantType,
+			final String value) {
 
 		int index = 0;
 		// the constantType+value form the key of the map
@@ -247,12 +293,14 @@ public class Classfile implements IClassfile {
 
 	@Override
 	public int addLongConstantToConstantPool(final long value) {
-		return addConstantToConstantPool(ConstantType.LONG, Long.toString(value));
+		return addConstantToConstantPool(ConstantType.LONG,
+				Long.toString(value));
 	}
 
 	@Override
 	public int addDoubleConstantToConstantPool(final double value) {
-		return addConstantToConstantPool(ConstantType.DOUBLE, Double.toString(value));
+		return addConstantToConstantPool(ConstantType.DOUBLE,
+				Double.toString(value));
 	}
 
 	@Override
@@ -267,10 +315,11 @@ public class Classfile implements IClassfile {
 	 * @since 30.04.2013
 	 */
 	@Override
-	public short getIndexOfConstantInConstantPool(final ConstantType constantType, final String constantName) {
+	public short getIndexOfConstantInConstantPool(
+			final ConstantType constantType, final String constantName) {
 		return this.constantPool.getIndexOfConstant(constantType, constantName);
 	};
-	
+
 	/**
 	 * addMethodToMethodArea function. (see interface iClassfile)
 	 * 
@@ -278,9 +327,12 @@ public class Classfile implements IClassfile {
 	 * @since 29.04.2013
 	 */
 	@Override
-	public int addMethodToMethodArea(final String methodName, final String methodDescriptor, final MethodAccessFlag... accessFlags) {
+	public int addMethodToMethodArea(final String methodName,
+			final String methodDescriptor,
+			final MethodAccessFlag... accessFlags) {
 
-		return this.methodArea.addMethod(methodName, methodDescriptor, accessFlags);
+		return this.methodArea.addMethod(methodName, methodDescriptor,
+				accessFlags);
 	}
 
 	/**
@@ -290,9 +342,11 @@ public class Classfile implements IClassfile {
 	 * @since 29.04.2013
 	 */
 	@Override
-	public void addVariableToMethodsCode(final String methodName, final String variableName, final VariableType variableType) {
+	public void addVariableToMethodsCode(final String methodName,
+			final String variableName, final VariableType variableType) {
 
-		this.methodArea.addVariableToMethodsCode(methodName, variableName, variableType);
+		this.methodArea.addVariableToMethodsCode(methodName, variableName,
+				variableType);
 	}
 
 	/**
@@ -302,9 +356,11 @@ public class Classfile implements IClassfile {
 	 * @since 30.04.2013
 	 */
 	@Override
-	public short getIndexOfVariableInMethod(final String methodName, final String variableName) {
+	public byte getIndexOfVariableInMethod(final String methodName,
+			final String variableName) {
 
-		return this.methodArea.getIndexOfVariableInMethod(methodName, variableName);
+		return this.methodArea.getIndexOfVariableInMethod(methodName,
+				variableName);
 	}
 
 	/**
@@ -314,7 +370,8 @@ public class Classfile implements IClassfile {
 	 * @since 30.04.2013
 	 */
 	@Override
-	public void addInstructionToMethodsCode(final String methodName, final Instruction instruction) {
+	public void addInstructionToMethodsCode(final String methodName,
+			final Instruction instruction) {
 		this.methodArea.addInstructionToMethodsCode(methodName, instruction);
 	}
 
@@ -325,14 +382,17 @@ public class Classfile implements IClassfile {
 	 * @since 09.05.2013
 	 */
 	@Override
-	public void addInstructionsToMethodsCode(final String methodName, final Collection<Instruction> instructions) {
+	public void addInstructionsToMethodsCode(final String methodName,
+			final Collection<Instruction> instructions) {
 		for (final Instruction instruction : instructions) {
-			this.methodArea.addInstructionToMethodsCode(methodName, instruction);
+			this.methodArea
+					.addInstructionToMethodsCode(methodName, instruction);
 		}
 	}
 
 	/**
-	 * ConstantPool class. This class represents all information needed to create a JVM-classfile-constantPool being part of every JVM-Classfile.
+	 * ConstantPool class. This class represents all information needed to
+	 * create a JVM-classfile-constantPool being part of every JVM-Classfile.
 	 * 
 	 * @author Marco
 	 * @since 27.04.2013
@@ -370,7 +430,9 @@ public class Classfile implements IClassfile {
 		}
 
 		/**
-		 * generateConstantLongInfo function. This function creates a LongInfo-entry meeting the JVM-classfile-constantPool-CONSTANT_Long_info standard in the
+		 * generateConstantLongInfo function. This function creates a
+		 * LongInfo-entry meeting the
+		 * JVM-classfile-constantPool-CONSTANT_Long_info standard in the
 		 * constantPool. The generated entry is appended to the existing List.
 		 * 
 		 * @author Marco
@@ -379,7 +441,8 @@ public class Classfile implements IClassfile {
 		 */
 		private int generateConstantLongInfo(final long value) {
 
-			final ArrayList<Byte> info = ByteCalculator.longToByteArrayList(value);
+			final ArrayList<Byte> info = ByteCalculator
+					.longToByteArrayList(value);
 
 			final CPInfo longInfo = new CPInfo((byte) 0x05, info);
 			this.entryList.add(longInfo);
@@ -391,8 +454,10 @@ public class Classfile implements IClassfile {
 		}
 
 		/**
-		 * generateConstantDoubleInfo function. This function creates a DoubleInfo-entry meeting the JVM-classfile-constantPool-CONSTANT_Dobule_info standard in
-		 * the constantPool. The generated entry is appended to the existing List.
+		 * generateConstantDoubleInfo function. This function creates a
+		 * DoubleInfo-entry meeting the
+		 * JVM-classfile-constantPool-CONSTANT_Dobule_info standard in the
+		 * constantPool. The generated entry is appended to the existing List.
 		 * 
 		 * @author Marco, Robert
 		 * @since 29.04.2013
@@ -400,7 +465,8 @@ public class Classfile implements IClassfile {
 		 */
 		private int generateConstantDoubleInfo(final double value) {
 
-			final ArrayList<Byte> info = ByteCalculator.doubleToByteArrayList(value);
+			final ArrayList<Byte> info = ByteCalculator
+					.doubleToByteArrayList(value);
 
 			final CPInfo doubleInfo = new CPInfo((byte) 0x06, info);
 			this.entryList.add(doubleInfo);
@@ -412,15 +478,18 @@ public class Classfile implements IClassfile {
 		}
 
 		/**
-		 * generateConstantStringInfo function. This function creates an StringInfo-entry meeting the JVM-classfile-constantPool-CONSTANT_String_info standard
-		 * in the constantPool. The generated entry is appended to the existing List.
+		 * generateConstantStringInfo function. This function creates an
+		 * StringInfo-entry meeting the
+		 * JVM-classfile-constantPool-CONSTANT_String_info standard in the
+		 * constantPool. The generated entry is appended to the existing List.
 		 * 
 		 * @author Marco
 		 * @since 29.04.2013
 		 * 
 		 */
 		private int generateConstantStringInfo(final String value) {
-			final short nameIndex = (short) this.generateConstantUTF8Info(value);
+			final short nameIndex = (short) this
+					.generateConstantUTF8Info(value);
 
 			final List<Byte> info = ByteCalculator.shortToByteList(nameIndex);
 
@@ -432,15 +501,18 @@ public class Classfile implements IClassfile {
 		}
 
 		/**
-		 * generateConstantClassInfo function. This function creates an ClassInfo-entry meeting the JVM-classfile-constantPool-CONSTANT_Class_info standard in
-		 * the constantPool. The generated entry is appended to the existing List.
+		 * generateConstantClassInfo function. This function creates an
+		 * ClassInfo-entry meeting the
+		 * JVM-classfile-constantPool-CONSTANT_Class_info standard in the
+		 * constantPool. The generated entry is appended to the existing List.
 		 * 
 		 * @author Marco
 		 * @since 28.04.2013
 		 * 
 		 */
 		private int generateConstantClassInfo(final String value) {
-			final short nameIndex = (short) this.generateConstantUTF8Info(value);
+			final short nameIndex = (short) this
+					.generateConstantUTF8Info(value);
 
 			final List<Byte> info = ByteCalculator.shortToByteList(nameIndex);
 
@@ -452,7 +524,9 @@ public class Classfile implements IClassfile {
 		}
 
 		/**
-		 * generateConstantUTF8Info function. This function creates an UTF8Info-entry meeting the JVM-classfile-constantPool-CONSTANT_Utf8_info standard in the
+		 * generateConstantUTF8Info function. This function creates an
+		 * UTF8Info-entry meeting the
+		 * JVM-classfile-constantPool-CONSTANT_Utf8_info standard in the
 		 * constantPool. The generated entry is appended to the existing List.
 		 * 
 		 * @author Marco
@@ -474,7 +548,8 @@ public class Classfile implements IClassfile {
 		}
 
 		/**
-		 * getIndexOfConstant function. This function looks up the index of a constant.
+		 * getIndexOfConstant function. This function looks up the index of a
+		 * constant.
 		 * 
 		 * possible constantTypes: LONG, DOUBLE, CLASS, STRING, UTF8
 		 * 
@@ -486,8 +561,10 @@ public class Classfile implements IClassfile {
 		 *            String type of the constant
 		 * @return index of the constant in this constant pool.
 		 */
-		public short getIndexOfConstant(final ConstantType constantType, final String constantName) {
-			final Short index = this.cpEntryMap.get(constantType.name() + constantName);
+		public short getIndexOfConstant(final ConstantType constantType,
+				final String constantName) {
+			final Short index = this.cpEntryMap.get(constantType.name()
+					+ constantName);
 			if (index != null) {
 				return index;
 			} else {
@@ -496,13 +573,16 @@ public class Classfile implements IClassfile {
 		};
 
 		/**
-		 * generateConstantMethodrefInfo function. This function creates an MethodrefInfo-entry meeting the JVM-classfile-constantPool-CONSTANT_Methodref_info
-		 * standard in the constantPool. The generated entry is appended to the existing List.
+		 * generateConstantMethodrefInfo function. This function creates an
+		 * MethodrefInfo-entry meeting the
+		 * JVM-classfile-constantPool-CONSTANT_Methodref_info standard in the
+		 * constantPool. The generated entry is appended to the existing List.
 		 * 
 		 * @author Marco
 		 * @since 30.04.2013
 		 */
-		private int generateConstantMethodrefInfo(final short classIndex, final short nameAndTypeIndex) {
+		private int generateConstantMethodrefInfo(final short classIndex,
+				final short nameAndTypeIndex) {
 
 			if ((classIndex != 0) && (nameAndTypeIndex != 0)) {
 				final ArrayList<Byte> info = new ArrayList<Byte>();
@@ -512,7 +592,8 @@ public class Classfile implements IClassfile {
 				final CPInfo methodrefInfo = new CPInfo((byte) 0x0A, info);
 				this.entryList.add(methodrefInfo);
 
-				this.addCPMapEntry("METHODREF" + classIndex + "." + nameAndTypeIndex, (short) this.entryList.size());
+				this.addCPMapEntry("METHODREF" + classIndex + "."
+						+ nameAndTypeIndex, (short) this.entryList.size());
 
 				// return index + 1
 				return this.entryList.size();
@@ -522,16 +603,20 @@ public class Classfile implements IClassfile {
 		}
 
 		/**
-		 * generateConstantNameAndTypeInfo function. This function creates an NameAndTypeInfo-entry meeting the
-		 * JVM-classfile-constantPool-CONSTANT_NameAndType_info standard in the constantPool. The generated entry is appended to the existing List.
+		 * generateConstantNameAndTypeInfo function. This function creates an
+		 * NameAndTypeInfo-entry meeting the
+		 * JVM-classfile-constantPool-CONSTANT_NameAndType_info standard in the
+		 * constantPool. The generated entry is appended to the existing List.
 		 * 
 		 * @author Marco
 		 * @since 30.04.2013
 		 * 
 		 */
-		private int generateConstantNameAndTypeInfo(final String name, final String descriptor) {
+		private int generateConstantNameAndTypeInfo(final String name,
+				final String descriptor) {
 			final short nameIndex = this.getCPMapEntry("UTF8" + name);
-			final short descriptorIndex = this.getCPMapEntry("UTF8" + descriptor);
+			final short descriptorIndex = this.getCPMapEntry("UTF8"
+					+ descriptor);
 
 			if ((nameIndex != 0) && (descriptorIndex != 0)) {
 				final ArrayList<Byte> info = new ArrayList<Byte>();
@@ -541,7 +626,8 @@ public class Classfile implements IClassfile {
 				final CPInfo nameAndTypeInfo = new CPInfo((byte) 0x0C, info);
 				this.entryList.add(nameAndTypeInfo);
 
-				this.addCPMapEntry("NAMEANDTYPE" + name + descriptor, (short) this.entryList.size());
+				this.addCPMapEntry("NAMEANDTYPE" + name + descriptor,
+						(short) this.entryList.size());
 
 				// return index + 1
 				return this.entryList.size();
@@ -577,7 +663,8 @@ public class Classfile implements IClassfile {
 		}
 
 		/**
-		 * getCPMapEntry function. This function checks, whether the key still exists and if it does, it'll return the corresponding value, else 0;
+		 * getCPMapEntry function. This function checks, whether the key still
+		 * exists and if it does, it'll return the corresponding value, else 0;
 		 * 
 		 * @author Marco
 		 * @since 30.04.2013
@@ -591,8 +678,10 @@ public class Classfile implements IClassfile {
 		}
 
 		/**
-		 * CPInfo class. This class represents all information needed to create a JVM-classfile-constantPool-entry. The constantPool of a JVM-classfile has
-		 * entries of different kinds, but every entry consists of a tag and of a Byte-List containing further information.
+		 * CPInfo class. This class represents all information needed to create
+		 * a JVM-classfile-constantPool-entry. The constantPool of a
+		 * JVM-classfile has entries of different kinds, but every entry
+		 * consists of a tag and of a Byte-List containing further information.
 		 * 
 		 * @author Marco
 		 * @since 27.04.2013
@@ -640,7 +729,8 @@ public class Classfile implements IClassfile {
 	}
 
 	/**
-	 * MethodArea class. This class represents all information needed to create a JVM-classfile-methods-area.
+	 * MethodArea class. This class represents all information needed to create
+	 * a JVM-classfile-methods-area.
 	 * 
 	 * @author Marco
 	 * @since 28.04.2013
@@ -662,7 +752,8 @@ public class Classfile implements IClassfile {
 
 				if (logger.isDebugEnabled()) {
 					logger.debug("method amount");
-					logger.debug("{}", hexFromShort((short) this.methodMap.size()));
+					logger.debug("{}",
+							hexFromShort((short) this.methodMap.size()));
 				}
 
 				// get method_info - bytes of methods
@@ -675,14 +766,18 @@ public class Classfile implements IClassfile {
 		}
 
 		/**
-		 * addMethod function. This function adds and initializes a new method to the methodList of this methodArea.
+		 * addMethod function. This function adds and initializes a new method
+		 * to the methodList of this methodArea.
 		 * 
 		 * @author Marco
 		 * @since 29.04.2013
 		 * 
 		 */
-		private int addMethod(final String methodName, final String methodDescriptor, final MethodAccessFlag... accessFlags) {
-			final Method newMethod = new Method(methodName, methodDescriptor, accessFlags);
+		private int addMethod(final String methodName,
+				final String methodDescriptor,
+				final MethodAccessFlag... accessFlags) {
+			final Method newMethod = new Method(methodName, methodDescriptor,
+					accessFlags);
 
 			methodMap.put(methodName, newMethod);
 
@@ -690,7 +785,8 @@ public class Classfile implements IClassfile {
 		}
 
 		/**
-		 * getMethod function. This function gets the method described by the paramter methodName
+		 * getMethod function. This function gets the method described by the
+		 * paramter methodName
 		 * 
 		 * @author Marco
 		 * @since 29.04.2013
@@ -708,15 +804,18 @@ public class Classfile implements IClassfile {
 		 * @since 29.04.2013
 		 * 
 		 */
-		private void addVariableToMethodsCode(final String methodName, final String variableName, final VariableType variableType) {
+		private void addVariableToMethodsCode(final String methodName,
+				final String variableName, final VariableType variableType) {
 
 			final Method method = this.getMethodByMethodName(methodName);
 			method.addVariableToCodeAttribute(variableName, variableType);
 		}
 
 		/**
-		 * getIndexOfVariableInMethod function. This function looks up the specified method in method are of this classfile and calls the function
-		 * getIndexOfVariable() on this method using the specified variable name.
+		 * getIndexOfVariableInMethod function. This function looks up the
+		 * specified method in method are of this classfile and calls the
+		 * function getIndexOfVariable() on this method using the specified
+		 * variable name.
 		 * 
 		 * @author Marco
 		 * @since 30.04.2013
@@ -724,27 +823,33 @@ public class Classfile implements IClassfile {
 		 *            String name of the method
 		 * @param variableName
 		 *            String name of the variable
-		 * @return index of the variable in local variable space of the code attribute of the specified method
+		 * @return index of the variable in local variable space of the code
+		 *         attribute of the specified method
 		 */
-		private short getIndexOfVariableInMethod(final String methodName, final String variableName) {
+		private byte getIndexOfVariableInMethod(final String methodName,
+				final String variableName) {
 			final Method method = this.getMethodByMethodName(methodName);
 			return method.getIndexOfVariable(variableName);
 		}
 
 		/**
-		 * addInstructionToMethodsCode function. This function adds a new Instruction to the codeArea of the codeAttribute of the provided method.
+		 * addInstructionToMethodsCode function. This function adds a new
+		 * Instruction to the codeArea of the codeAttribute of the provided
+		 * method.
 		 * 
 		 * @author Marco
 		 * @since 30.04.2013
 		 * 
 		 */
-		private void addInstructionToMethodsCode(final String methodName, final Instruction instruction) {
+		private void addInstructionToMethodsCode(final String methodName,
+				final Instruction instruction) {
 			final Method method = this.getMethodByMethodName(methodName);
 			method.addInstructionToCodeAttribute(instruction);
 		}
 
 		/**
-		 * Method class. This class represents all information needed to create a JVM-classfile-Method.
+		 * Method class. This class represents all information needed to create
+		 * a JVM-classfile-Method.
 		 * 
 		 * @author Marco
 		 * @since 28.04.2013
@@ -761,17 +866,24 @@ public class Classfile implements IClassfile {
 			// Attributes
 			private final CodeAttribute codeAttribute;
 
-			private Method(final String methodName, final String methodDescriptor, final MethodAccessFlag... accessFlags) {
+			private Method(final String methodName,
+					final String methodDescriptor,
+					final MethodAccessFlag... accessFlags) {
 
-				this.nameIndex = (short) Classfile.this.addConstantToConstantPool(ConstantType.UTF8, methodName);
-				this.descriptorIndex = (short) Classfile.this.addConstantToConstantPool(ConstantType.UTF8, methodDescriptor);
+				this.nameIndex = (short) Classfile.this
+						.addConstantToConstantPool(ConstantType.UTF8,
+								methodName);
+				this.descriptorIndex = (short) Classfile.this
+						.addConstantToConstantPool(ConstantType.UTF8,
+								methodDescriptor);
 
 				for (final MethodAccessFlag a : accessFlags) {
 					this.accessFlags = (short) (this.accessFlags | a.getValue());
 				}
 
 				this.attributesCount = 1;
-				final short codeIndex = (short) Classfile.this.addConstantToConstantPool(ConstantType.UTF8, "Code");
+				final short codeIndex = (short) Classfile.this
+						.addConstantToConstantPool(ConstantType.UTF8, "Code");
 
 				this.codeAttribute = new CodeAttribute(codeIndex);
 			}
@@ -785,7 +897,9 @@ public class Classfile implements IClassfile {
 
 					if (logger.isDebugEnabled()) {
 						logger.debug("accessFlags, nameIndex, descriptorIndex, attributesCount:");
-						logger.debug("{} {} {} {}", hexFromShort(accessFlags), hexFromShort(nameIndex), hexFromShort(descriptorIndex),
+						logger.debug("{} {} {} {}", hexFromShort(accessFlags),
+								hexFromShort(nameIndex),
+								hexFromShort(descriptorIndex),
 								hexFromShort(attributesCount));
 					}
 
@@ -803,38 +917,44 @@ public class Classfile implements IClassfile {
 			 * @since 29.04.2013
 			 * 
 			 */
-			private void addVariableToCodeAttribute(final String variableName, final VariableType variableType) {
+			private void addVariableToCodeAttribute(final String variableName,
+					final VariableType variableType) {
 
 				this.codeAttribute.addVariable(variableName, variableType);
 			}
 
 			/**
-			 * getIndexOfVariable function. This function looks up the variable name in the code attribute of this method.
+			 * getIndexOfVariable function. This function looks up the variable
+			 * name in the code attribute of this method.
 			 * 
 			 * @author Marco
 			 * @since 30.04.2013
 			 * @param variableName
 			 *            String name of the variable
-			 * @return index of the variable in local variable space of this method.
+			 * @return index of the variable in local variable space of this
+			 *         method.
 			 */
-			private short getIndexOfVariable(final String variableName) {
+			private byte getIndexOfVariable(final String variableName) {
 				return this.codeAttribute.getIndexOfVariable(variableName);
 			}
 
 			/**
-			 * addInstructionToCodeAttribute function. This function adds a new Instruction to the codeArea of the codeAttribute of this method.
+			 * addInstructionToCodeAttribute function. This function adds a new
+			 * Instruction to the codeArea of the codeAttribute of this method.
 			 * 
 			 * @author Marco
 			 * @since 30.04.2013
 			 * 
 			 */
-			private void addInstructionToCodeAttribute(final Instruction instruction) {
+			private void addInstructionToCodeAttribute(
+					final Instruction instruction) {
 
 				this.codeAttribute.addInstruction(instruction);
 			}
 
 			/**
-			 * CodeAttribute class. This class represents all information needed to create a JVM-classfile-Method-CodeAttribute.
+			 * CodeAttribute class. This class represents all information needed
+			 * to create a JVM-classfile-Method-CodeAttribute.
 			 * 
 			 * @author Marco
 			 * @since 28.04.2013
@@ -844,7 +964,8 @@ public class Classfile implements IClassfile {
 
 				Logger logger = LoggerFactory.getLogger(this.getClass());
 
-				private final HashMap<String, Short> variableMap;
+				// variable space is 1 byte long
+				private final HashMap<String, Byte> variableMap;
 
 				// General codeAttribute structure information
 				private final short codeIndex;
@@ -857,7 +978,7 @@ public class Classfile implements IClassfile {
 				private CodeAttribute(final short codeIndex) {
 					this.codeIndex = codeIndex;
 
-					this.variableMap = new HashMap<String, Short>();
+					this.variableMap = new HashMap<String, Byte>();
 					this.codeArea = new ArrayList<Instruction>();
 
 					this.maxStack = 1;
@@ -869,10 +990,12 @@ public class Classfile implements IClassfile {
 				private void writeTo(final DataOutputStream classfileDOS) {
 
 					final ByteArrayOutputStream attributesBAOS = new ByteArrayOutputStream();
-					final DataOutputStream attributesDOS = new DataOutputStream(attributesBAOS);
+					final DataOutputStream attributesDOS = new DataOutputStream(
+							attributesBAOS);
 
 					final ByteArrayOutputStream codeBAOS = new ByteArrayOutputStream();
-					final DataOutputStream codeDOS = new DataOutputStream(codeBAOS);
+					final DataOutputStream codeDOS = new DataOutputStream(
+							codeBAOS);
 
 					this.maxStack = calculateMaxStack();
 
@@ -902,11 +1025,13 @@ public class Classfile implements IClassfile {
 							logger.debug("code size");
 							logger.debug("{}", hexFromInt(codeDOS.size()));
 							logger.debug("code");
-							logger.debug("{}", hexFromBytes(codeBAOS.toByteArray()));
+							logger.debug("{}",
+									hexFromBytes(codeBAOS.toByteArray()));
 							logger.debug("attributes size");
 							logger.debug("{}", hexFromInt(attributesDOS.size()));
 							logger.debug("attributes");
-							logger.debug("{}", hexFromBytes(attributesBAOS.toByteArray()));
+							logger.debug("{}",
+									hexFromBytes(attributesBAOS.toByteArray()));
 						}
 					} catch (final IOException e) {
 						e.printStackTrace();
@@ -916,9 +1041,9 @@ public class Classfile implements IClassfile {
 				private short calculateMaxStack() {
 					short maxStackSize = 0;
 					short stackSize = 0;
-					for(final Instruction instruction : codeArea) {
+					for (final Instruction instruction : codeArea) {
 						stackSize += instruction.getStackChange();
-						if(stackSize > maxStackSize) {
+						if (stackSize > maxStackSize) {
 							maxStackSize = stackSize;
 						}
 					}
@@ -926,31 +1051,35 @@ public class Classfile implements IClassfile {
 				}
 
 				/**
-				 * addVariable function. This function adds a new variable to the local variable space considering the variable name. if it's already existent,
-				 * nothing happens.
+				 * addVariable function. This function adds a new variable to
+				 * the local variable space considering the variable name. if
+				 * it's already existent, nothing happens.
 				 * 
 				 * @author Marco
 				 * @since 29.04.2013
 				 * 
 				 */
-				private void addVariable(final String variableName, final VariableType variableType) {
+				private void addVariable(final String variableName,
+						final VariableType variableType) {
 
 					if (!this.variableMap.containsKey(variableName)) {
-						this.variableMap.put(variableName, this.maxLocals);
+						this.variableMap.put(variableName, (byte) this.maxLocals);
 						this.maxLocals += variableType.getLength();
 					}
 				}
 
 				/**
-				 * getIndexOfVariable function. This function looks up the variable name in the variableMap of this code attribute.
+				 * getIndexOfVariable function. This function looks up the
+				 * variable name in the variableMap of this code attribute.
 				 * 
 				 * @author Marco
 				 * @since 30.04.2013
 				 * @param variableName
 				 *            String name of the variable
-				 * @return index of the variable in local variable space of this method.
+				 * @return index of the variable in local variable space of this
+				 *         method.
 				 */
-				private short getIndexOfVariable(final String variableName) {
+				private byte getIndexOfVariable(final String variableName) {
 
 					if (this.variableMap.containsKey(variableName)) {
 						return this.variableMap.get(variableName);
@@ -960,7 +1089,8 @@ public class Classfile implements IClassfile {
 				}
 
 				/**
-				 * addInstruction function. This function adds a new Instruction to the codeArea of this codeAttribute
+				 * addInstruction function. This function adds a new Instruction
+				 * to the codeArea of this codeAttribute
 				 * 
 				 * @author Marco
 				 * @since 30.04.2013

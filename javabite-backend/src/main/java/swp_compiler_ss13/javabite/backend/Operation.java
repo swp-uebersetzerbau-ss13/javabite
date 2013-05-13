@@ -65,7 +65,7 @@ public class Operation {
 			final int size;
 			final Instruction instruction;
 			if (mnemonic.getArgsCount() > 0) {
-				if (arguments == null || arguments.length != mnemonic.getArgsCount()) {
+				if (arguments == null || arguments.length != mnemonic.getArgsCount()) { //  
 					logger.debug(mnemonic.toString());
 					throw new RuntimeException("unexpected number of arguments: " + arguments.length + "  , expected " + mnemonic.getArgsCount());
 				} else {
