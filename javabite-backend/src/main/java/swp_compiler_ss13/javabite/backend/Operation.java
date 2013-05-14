@@ -29,10 +29,8 @@ public class Operation {
 	 * 
 	 */
 	public static class OperationBuilder {
-		
-		private static final Logger logger = LoggerFactory
-				.getLogger(OperationBuilder.class);
-		
+
+		private static final Logger logger = LoggerFactory.getLogger(OperationBuilder.class);
 
 		// private int offset = 0;
 		private final List<Instruction> instructions;
@@ -65,13 +63,9 @@ public class Operation {
 			final int size;
 			final Instruction instruction;
 			if (mnemonic.getArgsCount() > 0) {
-				if (arguments == null || arguments.length != mnemonic.getArgsCount()) { //  
-					logger.debug(mnemonic.toString());
-					throw new RuntimeException("unexpected number of arguments: " + arguments.length + "  , expected " + mnemonic.getArgsCount());
-				} else {
-					size = 1 + argsSize;
-					instruction = new Instruction(size, mnemonic, arguments);
-				}
+				assert arguments != null && arguments.length == mnemonic.getArgsCount();
+				size = 1 + argsSize;
+				instruction = new Instruction(size, mnemonic, arguments);
 			} else {
 				size = 1;
 				instruction = new Instruction(size, mnemonic);
