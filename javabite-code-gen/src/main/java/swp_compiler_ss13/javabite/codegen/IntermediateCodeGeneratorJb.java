@@ -77,7 +77,7 @@ public class IntermediateCodeGeneratorJb implements IntermediateCodeGenerator {
 	public List<Quadruple> generateIntermediateCode(AST ast)
 			throws IntermediateCodeGeneratorException {
 		BlockNodeJb program = (BlockNodeJb) ast.getRootNode();
-		BlockNodeCG.convert(program);
+		new BlockNodeCG().convert(program);
 		return quadruples;
 	}
 
@@ -104,7 +104,7 @@ public class IntermediateCodeGeneratorJb implements IntermediateCodeGenerator {
 			new BasicIdentifierNodeCG().convert((BasicIdentifierNode)node);
 			break;
 		case BlockNode:
-			BlockNodeCG.convert((BlockNodeJb)node);
+			new BlockNodeCG().convert((BlockNodeJb)node);
 			break;
 		case BranchNode:
 			//TODO

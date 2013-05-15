@@ -18,7 +18,7 @@ import swp_compiler_ss13.javabite.ast.ASTNodeJb;
 public class BlockNodeCG {
 	
 
-	public static void convert(BlockNode node) throws IntermediateCodeGeneratorException {
+	public void convert(BlockNode node) throws IntermediateCodeGeneratorException {
 		// push a new identifier name list to latestIdentifierNames stack
 		IntermediateCodeGeneratorJb.latestIdentifierNames.push(new HashMap<String, String>());
 		// push the symbol table to symbolTable stack
