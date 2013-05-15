@@ -11,8 +11,8 @@ public class BasicIdentifierNodeCG {
 		String identifier = node.getIdentifier();
 		Type identifierType = IntermediateCodeGeneratorJb.symbolTable.peek().lookupType(identifier);
 		// get current the identifier, maybe it is overwritten
-		String actualIdentifier = IntermediateCodeGeneratorJb.getIdentifier(identifier);
-		IntermediateCodeGeneratorJb.temporaryResultOutputs.push(actualIdentifier);
+		String currentIdentifier = IntermediateCodeGeneratorJb.getIdentifier(identifier);
+		IntermediateCodeGeneratorJb.temporaryResultOutputs.push(currentIdentifier);
 		IntermediateCodeGeneratorJb.temporaryTypes.push(identifierType);
 	}
 }
