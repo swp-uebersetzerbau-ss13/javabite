@@ -75,6 +75,10 @@ public class JavabiteCompiler implements ReportLog {
 		AST ast = parser.getParsedAST();
 		
 		List<Quadruple> quadruples = codegen.generateIntermediateCode(ast);
+		for (Quadruple q : quadruples) {
+			System.out.println(String.format("(%s|%s|%s|%s)", q.getOperator(),
+					q.getArgument1(), q.getArgument2(), q.getResult()));
+		}
 		Map<String, InputStream> results = backend.generateTargetCode(quadruples);
 		
 		for(Entry<String,InputStream> e:results.entrySet()) {
