@@ -126,16 +126,16 @@ public class QuadrupleFactoryJb {
 	 * Generates a quadruple for unary minus
 	 * @param type
 	 * @param leftSide
-	 * @param rightSide
+	 * @param result
 	 * @return
 	 * @throws IntermediateCodeGeneratorException
 	 */
-	public static Quadruple genaerateUnaryMinus(Type type, String leftSide, String rightSide) throws IntermediateCodeGeneratorException {
+	public static Quadruple genaerateUnaryMinus(Type type, String leftSide, String result) throws IntermediateCodeGeneratorException {
 		switch (type.getKind()) {
 		case DOUBLE:
-			return new QuadrupleJB(Operator.SUB_DOUBLE, "#0.0", leftSide, rightSide);
+			return new QuadrupleJB(Operator.SUB_DOUBLE, "#0.0", leftSide, result);
 		case LONG:
-			return new QuadrupleJB(Operator.SUB_LONG, "#0", leftSide, rightSide);
+			return new QuadrupleJB(Operator.SUB_LONG, "#0", leftSide, result);
 		default:
 			throw new IntermediateCodeGeneratorException("Unsupport assignment type");
 		}
