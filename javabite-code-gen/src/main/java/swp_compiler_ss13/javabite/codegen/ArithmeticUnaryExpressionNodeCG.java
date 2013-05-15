@@ -25,7 +25,7 @@ public class ArithmeticUnaryExpressionNodeCG {
 		String rightResult = IntermediateCodeGeneratorJb.temporaryResultOutputs.pop();
 		Type rightType = IntermediateCodeGeneratorJb.temporaryTypes.peek();
 
-		String temp = IntermediateCodeGeneratorJb.createAndAddTemporaryIdentifier((DoubleType) rightType);
+		String temp = IntermediateCodeGeneratorJb.createAndAddTemporaryIdentifier(rightType);
 		IntermediateCodeGeneratorJb.quadruples.add(QuadrupleFactoryJb.genaerateUnaryMinus(rightType, rightResult, temp));
 		IntermediateCodeGeneratorJb.temporaryResultOutputs.push(temp);
 	}
