@@ -1,5 +1,9 @@
 package swp_compiler_ss13.javabite.backend;
 
+import java.io.InputStream;
+import java.io.StringWriter;
+
+import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,7 +38,16 @@ public class ProgramTests {
 
 	private void buildAndLog(final ProgramBuilder pb) {
 		final Program p = pb.build();
-		log.info("{}\n{}", name.getMethodName(), p);
+		final String testName = name.getMethodName();
+		try {
+			final String resName = testName.substring(4) + ".res";
+			InputStream in = this.getClass().getClassLoader().getResourceAsStream(resName);
+			StringWriter sw = new StringWriter();
+			IOUtils.copy(in, sw);
+			log.info("{}\n=== RESULT\n{}=== COMPARE\n{}", testName, p, sw.toString());
+		} catch (Exception e) {
+			log.info("{}\n=== RESULT\n{}=== COMPARE\nNO .res FILE\n", testName, p);
+		}
 	}
 
 	private void addVariable(final String varName, final VariableType type) {
@@ -171,6 +184,14 @@ public class ProgramTests {
 		buildAndLog(pb);
 	}
 
+	@Test
+	public void testVVAddLong() {
+		addVariable("longTest1", VariableType.LONG);
+		addVariable("longTest2", VariableType.LONG);
+		pb.addLong(new QuadrupleImpl(Operator.ADD_LONG, "longTest1", "longTest2", "longTest1"));
+		buildAndLog(pb);
+	}
+
 	/*
 	 * add double constant #1000 and double constant #234 then assign to double variable doubleTest
 	 */
@@ -180,6 +201,14 @@ public class ProgramTests {
 		addDoubleConstant(43.21);
 		addVariable("doubleTest", VariableType.DOUBLE);
 		pb.addDouble(new QuadrupleImpl(Operator.ADD_DOUBLE, "#12.34", "#43.21", "doubleTest"));
+		buildAndLog(pb);
+	}
+
+	@Test
+	public void testVVAddDouble() {
+		addVariable("doubleTest1", VariableType.DOUBLE);
+		addVariable("doubleTest2", VariableType.DOUBLE);
+		pb.addDouble(new QuadrupleImpl(Operator.ADD_DOUBLE, "doubleTest1", "doubleTest2", "doubleTest1"));
 		buildAndLog(pb);
 	}
 
@@ -195,6 +224,14 @@ public class ProgramTests {
 		buildAndLog(pb);
 	}
 
+	@Test
+	public void testVVSubLong() {
+		addVariable("longTest1", VariableType.LONG);
+		addVariable("longTest2", VariableType.LONG);
+		pb.addLong(new QuadrupleImpl(Operator.SUB_LONG, "longTest1", "longTest2", "longTest1"));
+		buildAndLog(pb);
+	}
+
 	/*
 	 * subtract double constant #1000 and double constant #234 then assign to double variable doubleTest
 	 */
@@ -203,7 +240,15 @@ public class ProgramTests {
 		addDoubleConstant(12.34);
 		addDoubleConstant(43.21);
 		addVariable("doubleTest", VariableType.DOUBLE);
-		pb.addDouble(new QuadrupleImpl(Operator.SUB_DOUBLE, "#12.34", "#43.21", "doubleTest"));
+		pb.subDouble(new QuadrupleImpl(Operator.SUB_DOUBLE, "#12.34", "#43.21", "doubleTest"));
+		buildAndLog(pb);
+	}
+
+	@Test
+	public void testVVSubDouble() {
+		addVariable("doubleTest1", VariableType.DOUBLE);
+		addVariable("doubleTest2", VariableType.DOUBLE);
+		pb.subDouble(new QuadrupleImpl(Operator.SUB_DOUBLE, "doubleTest1", "doubleTest2", "doubleTest1"));
 		buildAndLog(pb);
 	}
 
@@ -219,6 +264,14 @@ public class ProgramTests {
 		buildAndLog(pb);
 	}
 
+	@Test
+	public void testVVMulLong() {
+		addVariable("longTest1", VariableType.LONG);
+		addVariable("longTest2", VariableType.LONG);
+		pb.mulLong(new QuadrupleImpl(Operator.MUL_LONG, "longTest1", "longTest2", "longTest1"));
+		buildAndLog(pb);
+	}
+
 	/*
 	 * multiply double constant #1000 and double constant #234 then assign to double variable doubleTest
 	 */
@@ -228,6 +281,14 @@ public class ProgramTests {
 		addDoubleConstant(43.21);
 		addVariable("doubleTest", VariableType.DOUBLE);
 		pb.addDouble(new QuadrupleImpl(Operator.MUL_DOUBLE, "#12.34", "#43.21", "doubleTest"));
+		buildAndLog(pb);
+	}
+
+	@Test
+	public void testVVMulDouble() {
+		addVariable("doubleTest1", VariableType.DOUBLE);
+		addVariable("doubleTest2", VariableType.DOUBLE);
+		pb.mulDouble(new QuadrupleImpl(Operator.MUL_DOUBLE, "doubleTest1", "doubleTest2", "doubleTest1"));
 		buildAndLog(pb);
 	}
 
@@ -243,6 +304,14 @@ public class ProgramTests {
 		buildAndLog(pb);
 	}
 
+	@Test
+	public void testVVDivLong() {
+		addVariable("longTest1", VariableType.LONG);
+		addVariable("longTest2", VariableType.LONG);
+		pb.divLong(new QuadrupleImpl(Operator.DIV_LONG, "longTest1", "longTest2", "longTest1"));
+		buildAndLog(pb);
+	}
+
 	/*
 	 * divide double constant #1000 and double constant #234 then assign to double variable doubleTest
 	 */
@@ -252,6 +321,14 @@ public class ProgramTests {
 		addDoubleConstant(43.21);
 		addVariable("doubleTest", VariableType.DOUBLE);
 		pb.addDouble(new QuadrupleImpl(Operator.DIV_DOUBLE, "#12.34", "#43.21", "doubleTest"));
+		buildAndLog(pb);
+	}
+
+	@Test
+	public void testVVDivDouble() {
+		addVariable("doubleTest1", VariableType.DOUBLE);
+		addVariable("doubleTest2", VariableType.DOUBLE);
+		pb.divDouble(new QuadrupleImpl(Operator.DIV_DOUBLE, "doubleTest1", "doubleTest2", "doubleTest1"));
 		buildAndLog(pb);
 	}
 
