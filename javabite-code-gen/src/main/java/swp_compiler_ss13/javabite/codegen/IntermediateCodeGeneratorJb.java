@@ -201,6 +201,7 @@ public class IntermediateCodeGeneratorJb implements IntermediateCodeGenerator {
 		Map<String, String> currentIdentifiers = namesInBlocks.pop();
 			if (currentIdentifiers.containsKey(identifier)) {
 				id= currentIdentifiers.get(identifier);
+				break;
 			}
 		}
 		if(id==""){
