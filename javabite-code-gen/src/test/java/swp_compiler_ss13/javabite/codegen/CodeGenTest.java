@@ -12,6 +12,7 @@ import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
+import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
@@ -24,6 +25,7 @@ import swp_compiler_ss13.javabite.ast.nodes.leaf.BasicIdentifierNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.leaf.LiteralNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.marynary.BlockNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.unary.DeclarationNodeJb;
+import swp_compiler_ss13.javabite.ast.nodes.unary.ReturnNodeJb;
 
 
 /**
@@ -88,7 +90,7 @@ public class CodeGenTest {
 		aben2.setRightValue(aben1);
 		aben2.setOperator(BinaryOperator.ADDITION);
 		literal20.setParentNode(aben2);
-		aben2.setParentNode(aben2);
+		aben1.setParentNode(aben2);
 		
 		//subtract 14 from (20 + (8/4))
 		ArithmeticBinaryExpressionNode aben3 = new ArithmeticBinaryExpressionNodeJb();
@@ -105,9 +107,13 @@ public class CodeGenTest {
 		an.setLeftValue(bin);
 		an.setRightValue(aben3);
 		aben3.setParentNode(an);
-		bin.setParentNode(an);
+		bin.setParentNode(an);		
 		//add statement Assignment to program
 		program.addStatement(an);
+		ReturnNode rn = new ReturnNodeJb();
+		rn.setRightValue(bin);
+		program.addStatement(rn);
+		
 		an.setParentNode(program);
 	}
 	

@@ -9,6 +9,7 @@ import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.types.Type;
 import swp_compiler_ss13.common.types.Type.Kind;
 import swp_compiler_ss13.common.types.primitive.DoubleType;
+import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.javabite.ast.ASTNodeJb;
 
 public class AssignmentNodeCG {
@@ -33,7 +34,7 @@ public class AssignmentNodeCG {
 			// cast the right type from double to long
 			String variable;
 			if (typeOfid.getKind() == Kind.LONG && rightType.getKind() == Kind.DOUBLE) {
-				variable = IntermediateCodeGeneratorJb.createAndAddTemporaryIdentifier(new DoubleType());
+				variable = IntermediateCodeGeneratorJb.createAndAddTemporaryIdentifier(new LongType());
 				Quadruple quadruple = QuadrupleFactoryJb.generateCastDoubleToLong(rightValue, variable);
 				IntermediateCodeGeneratorJb.quadruples.add(quadruple);
 			}

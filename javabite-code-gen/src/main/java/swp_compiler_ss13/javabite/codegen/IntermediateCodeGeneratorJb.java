@@ -10,7 +10,9 @@ import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
+import swp_compiler_ss13.common.ast.nodes.unary.ArithmeticUnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
+import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
@@ -89,10 +91,10 @@ public class IntermediateCodeGeneratorJb implements IntermediateCodeGenerator {
 	public static void differentiateNode(ASTNodeJb node) throws IntermediateCodeGeneratorException {
 		switch (node.getNodeType()) {
 		case ArithmeticBinaryExpressionNode:
-			//TODO
+			new ArithmeticBinaryExpressionNodeCG().convert((ArithmeticBinaryExpressionNode)node);
 			break;
 		case ArithmeticUnaryExpressionNode:
-			new ArithmeticBinaryExpressionNodeCG().convert((ArithmeticBinaryExpressionNode) node);
+			new ArithmeticUnaryExpressionNodeCG().convert((ArithmeticUnaryExpressionNode) node);
 			break;
 		case ArrayIdentifierNode:
 			//TODO
@@ -134,7 +136,7 @@ public class IntermediateCodeGeneratorJb implements IntermediateCodeGenerator {
 			//TODO
 			break;
 		case ReturnNode:
-			//TODO
+			new ReturnNodeCG().convert((ReturnNode) node);
 			break;
 		case StructIdentifierNode:
 			//TODO			

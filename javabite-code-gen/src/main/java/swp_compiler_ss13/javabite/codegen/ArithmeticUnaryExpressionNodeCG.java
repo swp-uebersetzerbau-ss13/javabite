@@ -5,7 +5,6 @@ import swp_compiler_ss13.common.ast.nodes.unary.ArithmeticUnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode.UnaryOperator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.types.Type;
-import swp_compiler_ss13.common.types.primitive.DoubleType;
 import swp_compiler_ss13.javabite.ast.ASTNodeJb;
 
 public class ArithmeticUnaryExpressionNodeCG {

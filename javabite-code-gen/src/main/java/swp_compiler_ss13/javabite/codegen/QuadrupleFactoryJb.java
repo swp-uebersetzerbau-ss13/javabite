@@ -125,19 +125,29 @@ public class QuadrupleFactoryJb {
 	/**
 	 * Generates a quadruple for unary minus
 	 * @param type
-	 * @param leftSide
+	 * @param value
 	 * @param result
 	 * @return
 	 * @throws IntermediateCodeGeneratorException
 	 */
-	public static Quadruple genaerateUnaryMinus(Type type, String leftSide, String result) throws IntermediateCodeGeneratorException {
+	public static Quadruple genaerateUnaryMinus(Type type, String value, String result) throws IntermediateCodeGeneratorException {
 		switch (type.getKind()) {
 		case DOUBLE:
-			return new QuadrupleJB(Operator.SUB_DOUBLE, "#0.0", leftSide, result);
+			return new QuadrupleJB(Operator.SUB_DOUBLE, "#0.0", value, result);
 		case LONG:
-			return new QuadrupleJB(Operator.SUB_LONG, "#0", leftSide, result);
+			return new QuadrupleJB(Operator.SUB_LONG, "#0", value, result);
 		default:
 			throw new IntermediateCodeGeneratorException("Unsupport assignment type");
 		}
+	}
+
+	/**
+	 * Generates a quadruple for Return-Statement
+	 * @param identifier
+	 * @return
+	 */
+	public static Quadruple generateReturn(String identifier) {
+		return new QuadrupleJB(Quadruple.Operator.RETURN, identifier, Quadruple.EmptyArgument,
+				Quadruple.EmptyArgument);
 	}
 }

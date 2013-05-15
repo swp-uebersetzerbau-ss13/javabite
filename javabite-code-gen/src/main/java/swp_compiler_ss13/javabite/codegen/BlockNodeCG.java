@@ -3,7 +3,6 @@ package swp_compiler_ss13.javabite.codegen;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.nodes.StatementNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
@@ -24,24 +23,18 @@ public class BlockNodeCG {
 		// push the symbol table to symbolTable stack
 		IntermediateCodeGeneratorJb.symbolTable.push(node.getSymbolTable());
 
-		// find out whether it is declaration node or an other node
-		Iterator<ASTNode> astDFSLTR = node.getDFSLTRNodeIterator();
-		while(astDFSLTR.hasNext()){
-			ASTNode astNode = astDFSLTR.next();
-			switch (astNode.getNodeType()){
-			case DeclarationNode:
-				DeclarationNodeCG decNCG = new DeclarationNodeCG();
-				decNCG.convert((DeclarationNode) astNode);
-				break;
-			default:
-				if((astDFSLTR.next()!=null)){
-					System.out.println(astNode.getNodeType());
-					StatementNode statement = (StatementNode) astNode;
-					IntermediateCodeGeneratorJb.differentiateNode((ASTNodeJb) statement);
-				}
-				break;
-			}
+		Iterator<DeclarationNode> declarationIter = node.getDeclarationIterator();
+		while(declarationIter.hasNext()){
+			DeclarationNode dNode = declarationIter.next();
+			new DeclarationNodeCG().convert(dNode);
 		}
+		
+		Iterator<StatementNode> statementIter = node.getStatementIterator();
+		while(statementIter.hasNext()){
+			StatementNode sNode = statementIter.next();
+			IntermediateCodeGeneratorJb.differentiateNode((ASTNodeJb)sNode);
+		}
+		
 
 		// pop the symbol scope and the renaming scope
 		IntermediateCodeGeneratorJb.latestIdentifierNames.pop();
