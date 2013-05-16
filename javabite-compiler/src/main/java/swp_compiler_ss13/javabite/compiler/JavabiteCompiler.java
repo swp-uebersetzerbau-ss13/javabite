@@ -83,17 +83,19 @@ public class JavabiteCompiler implements ReportLog {
 		
 		for(Entry<String,InputStream> e:results.entrySet()) {
 			File outFile = new File(e.getKey());
-			if (outFile.exists()) {
-				throw new RuntimeException("This would override a file names " + e.getKey());
-			}
+//			if (outFile.exists()) {
+//				throw new RuntimeException("This would override a file names " + e.getKey());
+//			}
 			
 			FileOutputStream fos = new FileOutputStream(outFile);
 			
 			IOUtils.copy(e.getValue(), fos);
+			fos.close();
 		}
 	}
 	
 	public static void main(String[] args) {
+		System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "error");
 		System.out.println("Javabite-Compiler Basic Console");
 		JavabiteCompiler compiler = new JavabiteCompiler();
 		if (compiler.checkSetup()) {
