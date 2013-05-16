@@ -84,13 +84,13 @@ public class Translator {
 		final Collection<IClassfile> classfiles = new ArrayList<IClassfile>();
 
 		final IClassfile classfile = this.generateClassfile(classfileName,
-				"EmptyMain", "java/lang/Object",
+				"Main", "java/lang/Object",
 				Classfile.ClassfileAccessFlag.ACC_PUBLIC,
 				Classfile.ClassfileAccessFlag.ACC_SUPER);
 
 		String methodName;
 
-		if (classfileName.equals("main.class")) {
+		if (classfileName.equals("Main.class")) {
 			methodName = "main";
 			// always generate mainFunction in main.class file
 			classfile.addMethodToMethodArea(methodName,

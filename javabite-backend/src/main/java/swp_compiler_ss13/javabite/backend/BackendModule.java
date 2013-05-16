@@ -59,7 +59,7 @@ public class BackendModule implements Backend {
 		final Map<String, InputStream> targetCodeS = createTargetCodeStreams(classfiles);
 
 		// simple visualization
-		visualizeTargetCode(targetCodeS);
+		// visualizeTargetCode(targetCodeS);
 
 		return targetCodeS;
 	}
