@@ -45,6 +45,7 @@ public class BackendModule implements Backend {
 		this.targetCodeOptimizer = new TargetCodeOptimizer();
 	}
 
+	
 	@Override
 	public Map<String, InputStream> generateTargetCode(final List<Quadruple> tac) {
 
@@ -64,6 +65,11 @@ public class BackendModule implements Backend {
 		return targetCodeS;
 	}
 
+	/**
+	 * 
+	 * @param classfiles 
+	 * @return
+	 */
 	private Map<String, InputStream> createTargetCodeStreams(
 			final Collection<IClassfile> classfiles) {
 		final Map<String, InputStream> targetCodeIS = new HashMap<>();
