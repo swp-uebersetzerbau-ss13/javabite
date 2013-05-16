@@ -1,6 +1,9 @@
 package swp_compiler_ss13.javabite.backend.external;
 
+import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Map;
+
 import java.util.List;
 
 import swp_compiler_ss13.common.backend.Quadruple;
@@ -128,7 +131,11 @@ public class ControllerTemp {
 		// System.out.println(sb.toString());
 
 		final BackendModule backend = new BackendModule();
-		backend.generateTargetCode(tac);
+		Map<String, InputStream> test = backend.generateTargetCode(tac);
+		
+		for(String key : test.keySet()) {
+			System.out.println(key);
+		}
 	}
 
 }
