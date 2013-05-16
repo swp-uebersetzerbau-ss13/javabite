@@ -53,7 +53,7 @@ public class ParserJb implements Parser {
 			derivationSeq=grammar.derivateDFLeftToRight(sourceCode);
 		} catch(WordNotInLanguageGrammarException | AmbiguityInDerivationGrammarException e){
 			Token prob=e.getRelatedToken();
-			reportLog.reportError(e.getClass()+" appreared...", prob.getLine(), prob.getColumn(), "Why do we need this field?");
+			reportLog.reportError(e.getClass()+" appreared...", prob.getLine(), prob.getColumn(), "");
 		}
 		// use the ASTGenerator to derive the AST from the derivation
 		ASTGenerator astGen=new ASTGenerator(derivationSeq);
