@@ -59,7 +59,7 @@ public class BackendModule implements Backend {
 		final Map<String, InputStream> targetCodeS = createTargetCodeStreams(classfiles);
 
 		// simple visualization
-		visualizeTargetCode(targetCodeS);
+		// visualizeTargetCode(targetCodeS);
 
 		return targetCodeS;
 	}
@@ -91,7 +91,7 @@ public class BackendModule implements Backend {
 					.get(classname);
 			final DataInputStream dis = new DataInputStream(is);
 			
-			File testFile = new File("EmptyMain.class");
+			File testFile = new File("Program.class");
 			FileOutputStream outStream;
 
 			try {
