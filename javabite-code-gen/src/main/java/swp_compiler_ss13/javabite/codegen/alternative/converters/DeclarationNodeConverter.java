@@ -16,8 +16,10 @@ public class DeclarationNodeConverter extends AbstractAst2CodeConverter {
 			throw new IntermediateCodeGeneratorException();
 		DeclarationNode declarationNode = (DeclarationNode) node;
 
+		// generate identifier mapping for the declaration node
 		IdentifierData data = icg.generateIdentifierMapping(
 				declarationNode.getIdentifier(), declarationNode.getType());
+		// add declaration to TAC
 		icg.addQuadruple(QuadrupleFactoryJb.generateDeclaration(data));
 	}
 

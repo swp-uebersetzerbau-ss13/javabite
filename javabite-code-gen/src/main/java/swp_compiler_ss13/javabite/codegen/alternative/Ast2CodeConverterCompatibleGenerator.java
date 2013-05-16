@@ -36,28 +36,6 @@ public interface Ast2CodeConverterCompatibleGenerator extends IntermediateCodeGe
 	 */
 	IdentifierData generateIdentifierMapping(String astIdentifier, Type type) throws IntermediateCodeGeneratorException;
 	
-	IdentifierData lookupIdentifierData(String astIdentifier) throws IntermediateCodeGeneratorException;
-	
-	/**
-	 * lookup a ICG identifier for the astIdentifier
-	 * @param astIdentifier
-	 * @return
-	 * @throws IntermediateCodeGeneratorException
-	 */
-	String lookupIcgIdentifier(String astIdentifier) throws IntermediateCodeGeneratorException;
-	
-	/**
-	 * lookup the type of the astIdentifier
-	 * @param astIdentifier
-	 * @return
-	 * @throws IntermediateCodeGeneratorException
-	 */
-	Type lookupType(String astIdentifier) throws IntermediateCodeGeneratorException;
-	
-	void pushIdentifierData(IdentifierData data);
-	
-	IdentifierData popIdentifierData();
-	
 	/**
 	 * generates a identifier for a temp-value
 	 * @param type
@@ -65,4 +43,24 @@ public interface Ast2CodeConverterCompatibleGenerator extends IntermediateCodeGe
 	 * @throws IntermediateCodeGeneratorException
 	 */
 	IdentifierData generateTempIdentifier(Type type) throws IntermediateCodeGeneratorException;
+
+	/**
+	 * lookup a identifier data for the astIdentifier
+	 * @param astIdentifier
+	 * @return
+	 * @throws IntermediateCodeGeneratorException
+	 */
+	IdentifierData lookupIdentifierData(String astIdentifier) throws IntermediateCodeGeneratorException;
+
+	/**
+	 * push identifier data onto a stack for a interested callee
+	 * @param data
+	 */
+	void pushIdentifierData(IdentifierData data);
+	
+	/**
+	 * pop the identifier data from stack which was pushed there by a requested node-processing
+	 * @return
+	 */
+	IdentifierData popIdentifierData();
 }

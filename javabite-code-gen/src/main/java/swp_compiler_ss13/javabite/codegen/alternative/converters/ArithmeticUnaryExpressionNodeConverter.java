@@ -16,8 +16,10 @@ public class ArithmeticUnaryExpressionNodeConverter extends CastingAst2CodeConve
 			throw new IntermediateCodeGeneratorException();
 		ArithmeticUnaryExpressionNode unaryNode = (ArithmeticUnaryExpressionNode) node;
 		
+		// process right node and get identifier containing result
 		icg.processNode(unaryNode.getRightValue());
 		IdentifierData oldData = icg.popIdentifierData();
+		// generate new identifier for result, add TAC and push new identifier for callee
 		IdentifierData newData = icg.generateTempIdentifier(oldData.getType());
 		icg.addQuadruple(QuadrupleFactoryJb.generateArithmeticUnary(unaryNode.getOperator(), newData, oldData));
 		icg.pushIdentifierData(newData);

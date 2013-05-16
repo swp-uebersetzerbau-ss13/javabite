@@ -16,18 +16,21 @@ public class AssignmentNodeConverter extends CastingAst2CodeConverter {
 			throw new IntermediateCodeGeneratorException();
 		AssignmentNode assignmentNode = (AssignmentNode) node;
 		
+		// process right node to get identifier of containing result
 		icg.processNode(assignmentNode.getRightValue());
 		IdentifierData rightData = icg.popIdentifierData();
+		// process left node to get identifier
 		icg.processNode(assignmentNode.getLeftValue());
 		IdentifierData leftData = icg.popIdentifierData();
 		
+		// cast right identifier if necessary
 		if (leftData.getType().getKind() != rightData.getType().getKind()) {
 			rightData = cast(leftData.getType(), rightData);
 		}
-		
+		// add assignment operation to TAC
 		icg.addQuadruple(QuadrupleFactoryJb.generateAssignment(leftData, rightData));
 		
-		// assignment goal could be right-side of assignment
+		// assignment goal could be right-side of assignment -> provide identifier for callee
 		icg.pushIdentifierData(leftData);
 	}
 

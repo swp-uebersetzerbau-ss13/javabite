@@ -16,8 +16,10 @@ public class ReturnNodeConverter extends AbstractAst2CodeConverter {
 			throw new IntermediateCodeGeneratorException();
 		ReturnNode returnNode = (ReturnNode) node;
 
+		// process the right node and get the result containing identifier
 		icg.processNode(returnNode.getRightValue());
 		IdentifierData data = icg.popIdentifierData();
+		// add return TAC for this identifier
 		icg.addQuadruple(QuadrupleFactoryJb.generateReturn(data));
 	}
 

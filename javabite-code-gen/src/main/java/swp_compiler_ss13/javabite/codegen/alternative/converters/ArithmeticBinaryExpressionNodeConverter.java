@@ -18,12 +18,15 @@ public class ArithmeticBinaryExpressionNodeConverter extends CastingAst2CodeConv
 			throw new IntermediateCodeGeneratorException();
 		ArithmeticBinaryExpressionNode binaryNode = (ArithmeticBinaryExpressionNode) node;
 		
+		// process content of left value node and get result identifier
 		icg.processNode(binaryNode.getLeftValue());
 		IdentifierData leftData = icg.popIdentifierData();
 		
+		// process content of right value node and get result identifier
 		icg.processNode(binaryNode.getRightValue());
 		IdentifierData rightData = icg.popIdentifierData();
 		
+		// check if types matches
 		if (leftData.getType().getKind() != rightData.getType().getKind()) {
 			// cast is needed -> its arithmetic so one has to be double and one long
 			// we always upcast to double
@@ -34,6 +37,7 @@ public class ArithmeticBinaryExpressionNodeConverter extends CastingAst2CodeConv
 			}
 		}
 		
+		// generate a new identifier for result, add operation to TAC and push result identifier onto stack for callee
 		IdentifierData newData = icg.generateTempIdentifier(leftData.getType());
 		icg.addQuadruple(QuadrupleFactoryJb.generateArithmeticBinary(binaryNode.getOperator(), leftData, rightData, newData));
 		icg.pushIdentifierData(newData);

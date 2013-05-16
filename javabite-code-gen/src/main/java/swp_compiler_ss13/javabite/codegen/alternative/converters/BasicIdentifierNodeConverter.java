@@ -14,6 +14,7 @@ public class BasicIdentifierNodeConverter extends AbstractAst2CodeConverter {
 			throw new IntermediateCodeGeneratorException();
 		BasicIdentifierNode basicIdentifierNode = (BasicIdentifierNode) node;
 		
+		// get identifier for node and provide for callee
 		icg.pushIdentifierData(icg.lookupIdentifierData(basicIdentifierNode.getIdentifier()));
 	}
 

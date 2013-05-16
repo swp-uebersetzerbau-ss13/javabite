@@ -16,13 +16,17 @@ public class BlockNodeConverter extends AbstractAst2CodeConverter {
 			throw new IntermediateCodeGeneratorException();
 		BlockNode blockNode = (BlockNode) node;
 		
+		// register new scope
 		icg.enterNewScope();
+		// process the declarations
 		for (DeclarationNode decl:blockNode.getDeclarationList()) {
 			icg.processNode(decl);
 		}
+		// process the statements
 		for (StatementNode stmt:blockNode.getStatementList()) {
 			icg.processNode(stmt);
 		}
+		// drop above created scope
 		icg.leaveCurrentScope();
 	}
 
