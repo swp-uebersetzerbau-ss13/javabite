@@ -10,6 +10,8 @@ import swp_compiler_ss13.common.parser.Parser;
 import swp_compiler_ss13.common.parser.ReportLog;
 import swp_compiler_ss13.javabite.ast.ASTJb;
 import swp_compiler_ss13.javabite.parser.astGenerator.ASTGenerator;
+import swp_compiler_ss13.javabite.parser.grammar.exceptions.AmbiguityInDerivationGrammarException;
+import swp_compiler_ss13.javabite.parser.grammar.exceptions.WordNotInLanguageGrammarException;
 import swp_compiler_ss13.javabite.parser.targetgrammar.TargetGrammar;
 import swp_compiler_ss13.javabite.parser.targetgrammar.TargetGrammar.Reduction;
 
@@ -46,7 +48,13 @@ public class ParserJb implements Parser {
 		// convert it to the necessary format
 		TargetGrammar.SourceCode sourceCode= grammar.new SourceCode(tokenSeq);
 		// get the derivation of the tokenStream ( as left-to-right top down)
-		List<Reduction> derivationSeq=grammar.derivateDFLeftToRight(sourceCode);
+		List<Reduction> derivationSeq=null;
+		try{
+			derivationSeq=grammar.derivateDFLeftToRight(sourceCode);
+		} catch(WordNotInLanguageGrammarException | AmbiguityInDerivationGrammarException e){
+			Token prob=e.getRelatedToken();
+			reportLog.reportError(e.getClass()+" appreared...", prob.getLine(), prob.getColumn(), "Why do we need this field?");
+		}
 		// use the ASTGenerator to derive the AST from the derivation
 		ASTGenerator astGen=new ASTGenerator(derivationSeq);
 		// generate the necessary AST

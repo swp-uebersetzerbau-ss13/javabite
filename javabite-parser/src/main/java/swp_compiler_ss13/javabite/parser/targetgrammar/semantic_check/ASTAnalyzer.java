@@ -8,7 +8,11 @@ import org.slf4j.LoggerFactory;
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.ASTNode.ASTNodeType;
+import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
+import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
+import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
 import swp_compiler_ss13.common.parser.SymbolTable;
+import swp_compiler_ss13.common.types.Type;
 import swp_compiler_ss13.javabite.ast.nodes.leaf.LiteralNodeJb;
 
 /**
@@ -83,12 +87,11 @@ public class ASTAnalyzer {
 		Iterator<ASTNode> it = ast.getDFSLTRIterator();
 		while (it.hasNext()){
 			ASTNode node=it.next();
-			// TODO implement
-			// hint:
-			// 1. check if it's a Node identifying a variable
-			// 2. check if it's declared in the symbol table
-			// 3. return true if such a constellation exist
-			throw new RuntimeException("method not implemented yet");
+			if (node.getNodeType()==ASTNodeType.BasicIdentifierNode){
+				BasicIdentifierNode bin=(BasicIdentifierNode) node;
+				if (!table.isDeclared(bin.getIdentifier()))
+					return true;
+			}
 		}
 		return false;
 	}
@@ -99,13 +102,9 @@ public class ASTAnalyzer {
 	 * @return if it's okay to be zero in the situation
 	 */
 	boolean isZeroRestricted(LiteralNodeJb candidate) {
-		// TODO implement
-		// hints
-		// 1. ASTNode.getParent() returns the parent node
-		// 2. what type of node may the parent be?
-		// 2.1. if it's that type, to what node class should we cast?
-		// 2.2. how do we assure that the "bad" zero-node is the divsor?
-		throw new RuntimeException("method not implemented yet");
+		return (candidate.getParentNode().getNodeType()==ASTNodeType.ArithmeticBinaryExpressionNode&&
+				((ArithmeticBinaryExpressionNode)candidate.getParentNode()).getOperator()==BinaryOperator.DIVISION
+				&&((ArithmeticBinaryExpressionNode)candidate.getParentNode()).getRightValue()==candidate);
 	}
 
 	/**
@@ -114,11 +113,11 @@ public class ASTAnalyzer {
 	 * @return if the @candidate is zero
 	 */
 	boolean isZero(LiteralNodeJb candidate) {
-		// TODO implement
-		// hints:
-		// 1. what type must the candidate has?
-		// 2. how to identify zero ? remember: "0" != ".0" != "0.0" != ...
-		throw new RuntimeException("method not implemented yet");
+		return ((candidate.getLiteralType().getKind()==Type.Kind.DOUBLE
+				|| candidate.getLiteralType().getKind()==Type.Kind.LONG)
+				&&
+				Integer.parseInt(candidate.getLiteral())==0
+				);
 	}
 	
 }

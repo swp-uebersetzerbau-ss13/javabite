@@ -11,13 +11,14 @@ import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
-import static swp_compiler_ss13.javabite.parser.grammar.Utils.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import swp_compiler_ss13.javabite.parser.grammar.exceptions.AmbiguityInDerivationGrammarException;
 import swp_compiler_ss13.javabite.parser.grammar.exceptions.WordNotInLanguageGrammarException;
+import swp_compiler_ss13.javabite.parser.targetgrammar.NonTerminal;
+import swp_compiler_ss13.javabite.parser.targetgrammar.TargetGrammar;
 
 /**
  * Represents the Automaton of a SLR parser.
@@ -32,7 +33,7 @@ import swp_compiler_ss13.javabite.parser.grammar.exceptions.WordNotInLanguageGra
 public class SLRAutomaton<T extends Symbol, NT extends Symbol> {
 	public SLRAutomaton(Grammar<T, NT> referenceGrammar) {
 		this.g = referenceGrammar;
-		//this.g.removeEpsilonProductions();
+		// this.g.removeEpsilonProductions();
 		build();
 	}
 
@@ -44,15 +45,15 @@ public class SLRAutomaton<T extends Symbol, NT extends Symbol> {
 	 */
 	private State getStateFor(Map<NT, Set<Item<T, NT>>> kernel) {
 		for (State st : states) {
-			if (st.kernel_items.equals(kernel)){
+			if (st.kernel_items.equals(kernel)) {
 				return st;
 			}
 		}
-		
+
 		State st = new State();
 		states.add(st);
 		st.kernel_items = kernel;
-		st.closure_items= g.getClosure(kernel);
+		st.closure_items = g.getClosure(kernel);
 		return st;
 	}
 
@@ -76,12 +77,12 @@ public class SLRAutomaton<T extends Symbol, NT extends Symbol> {
 		NT s_symbol = g.artificial_start_symbol;
 		Set<Item<T, NT>> initialKernel = new HashSet<>();
 		// possible eps-production
-		//initialKernel.add(new Item<T, NT>(new LinkedList<Symbol>(),
-		//		g.productions.get(s_symbol).iterator().next()));
-		for (List<Symbol> l : g.productions.get(s_symbol)){
-			initialKernel.add(new Item<T,NT>(new LinkedList<Symbol>(),l));
+		// initialKernel.add(new Item<T, NT>(new LinkedList<Symbol>(),
+		// g.productions.get(s_symbol).iterator().next()));
+		for (List<Symbol> l : g.productions.get(s_symbol)) {
+			initialKernel.add(new Item<T, NT>(new LinkedList<Symbol>(), l));
 		}
-		
+
 		Map<NT, Set<Item<T, NT>>> initialKernelProd = new HashMap<>();
 		initialKernelProd.put(s_symbol, initialKernel);
 		initialState = getStateFor(initialKernelProd);
@@ -90,31 +91,33 @@ public class SLRAutomaton<T extends Symbol, NT extends Symbol> {
 		int card_atm = getAllStateItems();
 
 		do {
-			
+
 			for (State state : new HashSet<>(this.states)) {
 				Map<Symbol, Map<NT, Set<Item<T, NT>>>> edge_to_kernel_set = new HashMap<>();
 				Map<NT, Set<Item<T, NT>>> productions = Utils.merge(
 						state.kernel_items, state.closure_items);
-				
+
 				for (Entry<NT, Set<Item<T, NT>>> prodSet : productions
 						.entrySet()) {
 					NT nt = prodSet.getKey();
 					for (Item<T, NT> prod : prodSet.getValue()) {
-						// for all productions in kernel and closure -> prod(0),...,prod(n)
+						// for all productions in kernel and closure ->
+						// prod(0),...,prod(n)
 						if (prod.isAtEnd())
 							continue;
-						// for all productions in kernel and closure for prod(0),... prod(i) , . ,prod(i+1) ..., prod(n)
+						// for all productions in kernel and closure for
+						// prod(0),... prod(i) , . ,prod(i+1) ..., prod(n)
 						Item<T, NT> new_item = prod.copy();
 						// edge symbol = prod(i+1)
 						Symbol edge_symbol = new_item.shift();
-						
+
 						Map<NT, Set<Item<T, NT>>> edge_kernel = edge_to_kernel_set
 								.get(edge_symbol);
 						if (edge_kernel == null) {
 							edge_kernel = new HashMap<>();
 							edge_to_kernel_set.put(edge_symbol, edge_kernel);
 						}
-						
+
 						Set<Item<T, NT>> nt_productions = edge_kernel.get(nt);
 						if (nt_productions == null) {
 							nt_productions = new HashSet<>();
@@ -172,8 +175,8 @@ public class SLRAutomaton<T extends Symbol, NT extends Symbol> {
 					logger.error(
 							"behaviour not defined. next state by shift: {}, next states by follow: {}",
 							nextStateTrans, nextProdFollow);
-					logger.error("current terminal: {}",a);
-					logger.error("productions so far: {}",productions);
+					logger.error("current terminal: {}", a);
+					logger.error("productions so far: {}", productions);
 					logger.error("state stack {}", state_stack);
 					logger.error("symbol stack {}", symbol_stack);
 					logger.error("word actual {}", word);
@@ -182,18 +185,28 @@ public class SLRAutomaton<T extends Symbol, NT extends Symbol> {
 					for (State st : states) {
 						logger.error("\n{}", st.descriptionAsString());
 					}
-					
-					if (nextStateTrans != null && !nextProdFollow.isEmpty()){
-						throw new AmbiguityInDerivationGrammarException();
-					}
-					else if (nextStateTrans == null && nextProdFollow.isEmpty()){
-						throw new WordNotInLanguageGrammarException();
-					}
-					else if (nextProdFollow.size() > 1){
-						throw new AmbiguityInDerivationGrammarException();
-					}
-					else{
-						// not possible
+
+					if (nextStateTrans != null && !nextProdFollow.isEmpty()) {
+						if (t instanceof swp_compiler_ss13.javabite.parser.targetgrammar.Terminal) {
+							throw new AmbiguityInDerivationGrammarException(
+									(swp_compiler_ss13.javabite.parser.targetgrammar.Terminal) t);
+						} else
+							logger.error("Dont know how to react...");
+					} else if (nextStateTrans == null
+							&& nextProdFollow.isEmpty()) {
+						if (t instanceof swp_compiler_ss13.javabite.parser.targetgrammar.Terminal) {
+							throw new WordNotInLanguageGrammarException(
+									(swp_compiler_ss13.javabite.parser.targetgrammar.Terminal) t);
+						} else
+							logger.error("Dont know how to react...");
+					} else if (nextProdFollow.size() > 1) {
+						if (t instanceof swp_compiler_ss13.javabite.parser.targetgrammar.Terminal) {
+							throw new AmbiguityInDerivationGrammarException(
+									(swp_compiler_ss13.javabite.parser.targetgrammar.Terminal) t);
+						} else
+							logger.error("Dont know how to react...");
+					} else {
+						throw new RuntimeException("Unpredicted state reached");
 					}
 				}
 				// do shift if possible
@@ -204,7 +217,7 @@ public class SLRAutomaton<T extends Symbol, NT extends Symbol> {
 				} else {
 					// reduce
 					Production todo = nextProdFollow.iterator().next();
-					List<Symbol> original_right_side=new LinkedList<>();
+					List<Symbol> original_right_side = new LinkedList<>();
 					for (int i = todo.right.size() - 1; i >= 0; i--) {
 						state_stack.pop();
 						original_right_side.add(symbol_stack.pop());
@@ -220,7 +233,7 @@ public class SLRAutomaton<T extends Symbol, NT extends Symbol> {
 					}
 					state_stack.push(nextState);
 					symbol_stack.push(todo.left);
-					todo.right=original_right_side;
+					todo.right = original_right_side;
 					productions.add(todo);
 				}
 			}
@@ -289,8 +302,9 @@ public class SLRAutomaton<T extends Symbol, NT extends Symbol> {
 			for (Entry<Symbol, State> s : transition.entrySet())
 				str += s.getKey() + "->" + s.getValue().id + ",";
 			str += "\n--------------------------------------------\n";
-			//return str;
-			return id+" | "+(kernel_items)+ " | "+(closure_items)+" | "+transition+ " | final: "+isStateAccepting() ;
+			// return str;
+			return id + " | " + (kernel_items) + " | " + (closure_items)
+					+ " | " + transition + " | final: " + isStateAccepting();
 		}
 
 		public String toString() {
