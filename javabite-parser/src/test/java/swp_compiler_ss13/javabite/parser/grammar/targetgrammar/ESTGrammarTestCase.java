@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
+import swp_compiler_ss13.javabite.parser.grammar.exceptions.WordNotInLanguageGrammarException;
 import swp_compiler_ss13.javabite.parser.targetgrammar.TargetGrammar;
 import swp_compiler_ss13.javabite.parser.targetgrammar.TargetGrammar.Reduction;
 import swp_compiler_ss13.javabite.token.NumTokenJb;
@@ -51,6 +52,14 @@ public class ESTGrammarTestCase {
 		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
 		tList.add(new TokenJb(TokenType.LONG_SYMBOL, "long"));
 		tList.add(new TokenJb(TokenType.ID, "j"));
+		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
+		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
+		List<Reduction> res = syn.derivateDFRightToLeft(sc);
+	}
+	
+	@Test(expected=WordNotInLanguageGrammarException.class)
+	public void testNotInGrammarException() {
+		List<Token> tList = new LinkedList<>();
 		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
 		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
 		List<Reduction> res = syn.derivateDFRightToLeft(sc);

@@ -1,0 +1,8 @@
+unit tests schreiben (public + private)
+refactoring
+	multiple class files
+	backend iface um namen der hauptdatei ergänzen -> restdateien werden dann mit diesem namen gepräfixt
+weitere operationen implementieren
+visualisierung bytecode
+optimierung tac
+dokumentation (javadoc mit html)

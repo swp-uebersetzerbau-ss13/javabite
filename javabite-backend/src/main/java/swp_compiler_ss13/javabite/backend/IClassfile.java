@@ -231,8 +231,8 @@ public interface IClassfile {
 	 * @param variableName
 	 *            String name of the variable
 	 * @return index of the variable in local variable space of the code
-	 *         attribute of the specified method. variable space has a
-	 *         size of 1 byte.
+	 *         attribute of the specified method. variable space has a size of 1
+	 *         byte.
 	 */
 	public byte getIndexOfVariableInMethod(final String methodName,
 			final String variableName);

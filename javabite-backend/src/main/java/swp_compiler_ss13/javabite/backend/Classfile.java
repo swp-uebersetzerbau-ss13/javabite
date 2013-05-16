@@ -229,13 +229,14 @@ public class Classfile implements IClassfile {
 	 * @since 13.05.2013
 	 */
 	@Override
-	public short addDataForSystemCall(String systemFunctionName,
-			String systemFunctionNameDescriptor, String superClassNameEIF) {
+	public short addDataForSystemCall(final String systemFunctionName,
+			final String systemFunctionNameDescriptor,
+			final String superClassNameEIF) {
 		// add constants
 		this.addConstantToConstantPool(ConstantType.UTF8, systemFunctionName);
 		this.addConstantToConstantPool(ConstantType.UTF8,
 				systemFunctionNameDescriptor);
-		short superClassIndex = (short) this.addConstantToConstantPool(
+		final short superClassIndex = (short) this.addConstantToConstantPool(
 				ConstantType.CLASS, superClassNameEIF);
 		// add NAT
 		final short initNATIndex = (short) this.constantPool
@@ -243,8 +244,7 @@ public class Classfile implements IClassfile {
 						systemFunctionNameDescriptor);
 		// add methodRef
 		final short methodrefIndex = (short) this.constantPool
-				.generateConstantMethodrefInfo(superClassIndex,
-						initNATIndex);
+				.generateConstantMethodrefInfo(superClassIndex, initNATIndex);
 		return methodrefIndex;
 	}
 
@@ -347,6 +347,34 @@ public class Classfile implements IClassfile {
 
 		this.methodArea.addVariableToMethodsCode(methodName, variableName,
 				variableType);
+	}
+
+	public void addLongVariableToMethodsCode(final String methodName,
+			final String variableName) {
+
+		this.addVariableToMethodsCode(methodName, variableName,
+				VariableType.LONG);
+	}
+
+	public void addDoubleVariableToMethodsCode(final String methodName,
+			final String variableName) {
+
+		this.addVariableToMethodsCode(methodName, variableName,
+				VariableType.DOUBLE);
+	}
+
+	public void addBooleanVariableToMethodsCode(final String methodName,
+			final String variableName) {
+
+		this.addVariableToMethodsCode(methodName, variableName,
+				VariableType.BOOLEAN);
+	}
+
+	public void addStringVariableToMethodsCode(final String methodName,
+			final String variableName) {
+
+		this.addVariableToMethodsCode(methodName, variableName,
+				VariableType.STRING);
 	}
 
 	/**
@@ -1063,7 +1091,8 @@ public class Classfile implements IClassfile {
 						final VariableType variableType) {
 
 					if (!this.variableMap.containsKey(variableName)) {
-						this.variableMap.put(variableName, (byte) this.maxLocals);
+						this.variableMap.put(variableName,
+								(byte) this.maxLocals);
 						this.maxLocals += variableType.getLength();
 					}
 				}

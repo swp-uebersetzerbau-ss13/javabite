@@ -288,9 +288,10 @@ public class Translator {
 
 		boolean stopTranslation = false;
 		for (final Quadruple quad : tac) {
-			
-			if (stopTranslation) break;
-			
+
+			if (stopTranslation)
+				break;
+
 			switch (quad.getOperator()) {
 			case ADD_DOUBLE:
 				pb.addDouble(quad);

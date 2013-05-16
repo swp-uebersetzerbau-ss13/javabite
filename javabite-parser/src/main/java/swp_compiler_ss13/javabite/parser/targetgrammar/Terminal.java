@@ -7,7 +7,7 @@ import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.javabite.parser.grammar.Symbol;
 
-class Terminal implements Symbol{
+public class Terminal implements Symbol{
 	TokenType t;
 	Logger logger=LoggerFactory.getLogger(Terminal.class);
 	

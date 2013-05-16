@@ -25,7 +25,8 @@ public class ByteCalculator {
 	 * 
 	 */
 	public static List<Byte> shortToByteList(final short value) {
-		final DataOutputStream dos = new DataOutputStream(new ByteArrayOutputStream());
+		final DataOutputStream dos = new DataOutputStream(
+				new ByteArrayOutputStream());
 
 		try {
 			dos.writeShort(value);
@@ -130,7 +131,8 @@ public class ByteCalculator {
 	 * @since 28.04.2013
 	 * 
 	 */
-	public static ArrayList<Byte> byteArrayToByteArrayList(final byte[] valueArray) {
+	public static ArrayList<Byte> byteArrayToByteArrayList(
+			final byte[] valueArray) {
 		final ArrayList<Byte> byteArrayList = new ArrayList<Byte>();
 
 		for (int i = 0; i < valueArray.length; i++) {
