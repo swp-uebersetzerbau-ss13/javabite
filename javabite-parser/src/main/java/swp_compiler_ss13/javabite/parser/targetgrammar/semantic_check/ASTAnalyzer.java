@@ -111,12 +111,13 @@ public class ASTAnalyzer {
 	 * checks the node for zero
 	 * @param candidate the given literal node
 	 * @return if the @candidate is zero
+	 * 
 	 */
 	boolean isZero(LiteralNodeJb candidate) {
 		return ((candidate.getLiteralType().getKind()==Type.Kind.DOUBLE
 				|| candidate.getLiteralType().getKind()==Type.Kind.LONG)
 				&&
-				Integer.parseInt(candidate.getLiteral())==0
+				Double.parseDouble(candidate.getLiteral())==0
 				);
 	}
 	
