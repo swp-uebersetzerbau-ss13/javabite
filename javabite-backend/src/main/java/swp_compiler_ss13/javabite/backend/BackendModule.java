@@ -2,13 +2,14 @@ package swp_compiler_ss13.javabite.backend;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.io.*;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -29,10 +30,9 @@ import swp_compiler_ss13.javabite.backend.translation.Translator;
  */
 public class BackendModule implements Backend {
 
-
 	private static final Logger logger = LoggerFactory
 			.getLogger(BackendModule.class);
-	
+
 	@SuppressWarnings("unused")
 	private final TACOptimizer tacOptimizer;
 	private final Translator translator;
@@ -90,23 +90,24 @@ public class BackendModule implements Backend {
 			final ByteArrayInputStream is = (ByteArrayInputStream) targetCodeIS
 					.get(classname);
 			final DataInputStream dis = new DataInputStream(is);
-			
-			File testFile = new File("Program.class");
+
+			final File testFile = new File("Program.class");
 			FileOutputStream outStream;
 
 			try {
 				outStream = new FileOutputStream(testFile);
 				IOUtils.copy(dis, outStream);
-			} catch (Exception e) {
+			} catch (final Exception e) {
 				e.printStackTrace();
 			}
-			
+
 			try {
-				logger.info("Classfile written to: " + testFile.getCanonicalPath());
-			} catch (IOException e1) {
+				logger.info("Classfile written to: "
+						+ testFile.getCanonicalPath());
+			} catch (final IOException e1) {
 				e1.printStackTrace();
 			}
-			
+
 			int i = 0;
 			byte b;
 			try {

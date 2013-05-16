@@ -1,9 +1,8 @@
-public class VAssignDouble
-{
+public class VAssignDouble {
 
-	public static void main(String[] args) {
-		double a = 1.2;
-		double b = a;
+	public static void main(final String[] args) {
+		final double a = 1.2;
+		final double b = a;
 	}
 
 }

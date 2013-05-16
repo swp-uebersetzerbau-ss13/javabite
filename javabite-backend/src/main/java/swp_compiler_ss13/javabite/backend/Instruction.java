@@ -18,7 +18,8 @@ import org.slf4j.LoggerFactory;
  */
 public class Instruction {
 
-	private static final Logger logger = LoggerFactory.getLogger(Instruction.class);
+	private static final Logger logger = LoggerFactory
+			.getLogger(Instruction.class);
 
 	// offset to predecessor
 	// private int offset;
@@ -27,7 +28,8 @@ public class Instruction {
 	private final int size;
 	private final short stackChange;
 
-	public Instruction(final int size, final Mnemonic mnemonic, final byte... arguments) {
+	public Instruction(final int size, final Mnemonic mnemonic,
+			final byte... arguments) {
 		this.size = size;
 		this.mnemonic = mnemonic;
 		this.arguments = arguments;
@@ -39,7 +41,8 @@ public class Instruction {
 	}
 
 	/**
-	 * getBytes function. This function creates a Byte-List of all the information meeting the JVM-instruction standard.
+	 * getBytes function. This function creates a Byte-List of all the
+	 * information meeting the JVM-instruction standard.
 	 * 
 	 * @author Marco
 	 * @since 03.05.2013
@@ -86,7 +89,8 @@ public class Instruction {
 	/*
 	 * TODO for MS2 public int getOffset() { return offset; }
 	 * 
-	 * public int setOffset(int offset) { this.offset = offset; return offset + size; }
+	 * public int setOffset(int offset) { this.offset = offset; return offset +
+	 * size; }
 	 */
 
 	public Mnemonic getMnemonic() {
