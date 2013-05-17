@@ -1,9 +1,6 @@
 package swp_compiler_ss13.javabite.backend;
 
-import java.io.InputStream;
-import java.io.StringWriter;
-
-import org.apache.commons.io.IOUtils;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,19 +37,23 @@ public class ProgramTests {
 
 	private void buildAndLog(final ProgramBuilder pb) {
 		final Program p = pb.build();
-		final String testName = name.getMethodName();
-		try {
-			final String resName = testName.substring(4) + ".res";
-			final InputStream in = this.getClass().getClassLoader()
-					.getResourceAsStream(resName);
-			final StringWriter sw = new StringWriter();
-			IOUtils.copy(in, sw);
-			log.info("{}\n=== RESULT\n{}=== COMPARE\n{}", testName, p,
-					sw.toString());
-		} catch (final Exception e) {
-			log.info("{}\n=== RESULT\n{}=== COMPARE\nNO .res FILE\n", testName,
-					p);
-		}
+		System.out.println(name.getMethodName());
+		final String bex = p.toHexString();
+		System.out
+				.println("final byte[] bExpected = new byte[] { (byte)0x"
+						+ (bex != null ? bex.trim().replaceAll(" ",
+								", (byte)0x") : bex)
+						+ " };\nfinal String sExpected = \""
+						+ p.toString().replaceAll("\n", "\\\\n")
+						+ "\";\nmakeAssertions(pb, bExpected, sExpected);");
+	}
+
+	private void makeAssertions(final ProgramBuilder pb,
+			final byte[] bExpected, final String sExpected) {
+		final Program p = pb.build();
+		Assert.assertArrayEquals("byte array compare", bExpected,
+				p.toByteArray());
+		Assert.assertEquals("string compare", sExpected, p.toString());
 	}
 
 	private void addLongVariable(final String variableName) {
@@ -79,73 +80,66 @@ public class ProgramTests {
 		classfile.addStringConstantToConstantPool(value);
 	}
 
-	/*
-	 * convert long constant #1234 to double and store in double variable
-	 * doubleTest
-	 */
 	@Test
 	public void testCLongToDouble() {
 		addLongConstant(1234);
 		addDoubleVariable("doubleTest");
 		pb.longToDouble(new QuadrupleImpl(Quadruple.Operator.LONG_TO_DOUBLE,
 				"#1234", "!", "doubleTest"));
-		buildAndLog(pb);
+		final byte[] bExpected = new byte[] { (byte) 0x14, (byte) 0x00,
+				(byte) 0x0c, (byte) 0x8a, (byte) 0x48, (byte) 0xb1 };
+		final String sExpected = "LDC2_W 00 0C\nL2D\nDSTORE_1\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
 	}
 
-	/*
-	 * convert long variable longTest to double and store in double variable
-	 * doubleTest
-	 */
 	@Test
 	public void testVLongToDouble() {
 		addLongVariable("longTest");
 		addDoubleVariable("doubleTest");
 		pb.longToDouble(new QuadrupleImpl(Operator.LONG_TO_DOUBLE, "longTest",
 				"!", "doubleTest"));
-		buildAndLog(pb);
+		final byte[] bExpected = new byte[] { (byte) 0x1f, (byte) 0x8a,
+				(byte) 0x4a, (byte) 0xb1 };
+		final String sExpected = "LLOAD_1\nL2D\nDSTORE_3\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
 	}
 
-	/*
-	 * convert double constant #12.34 to long and store in long variable
-	 * longTest
-	 */
 	@Test
 	public void testCDoubleToLong() {
 		addDoubleConstant(12.34);
 		addLongVariable("longTest");
 		pb.doubleToLong(new QuadrupleImpl(Quadruple.Operator.DOUBLE_TO_LONG,
 				"#12.34", "!", "longTest"));
-		buildAndLog(pb);
+		final byte[] bExpected = new byte[] { (byte) 0x14, (byte) 0x00,
+				(byte) 0x0c, (byte) 0x8f, (byte) 0x40, (byte) 0xb1 };
+		final String sExpected = "LDC2_W 00 0C\nD2L\nLSTORE_1\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
 	}
 
-	/*
-	 * convert double variable doubleTest to long and store in long variable
-	 * longTest
-	 */
 	@Test
 	public void testVDoubleToLong() {
 		addDoubleVariable("doubleTest");
 		addLongVariable("longTest");
 		pb.doubleToLong(new QuadrupleImpl(Operator.DOUBLE_TO_LONG,
 				"doubleTest", "!", "longTest"));
-		buildAndLog(pb);
+		final byte[] bExpected = new byte[] { (byte) 0x27, (byte) 0x8f,
+				(byte) 0x42, (byte) 0xb1 };
+		final String sExpected = "DLOAD_1\nD2L\nLSTORE_3\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
 	}
 
-	/*
-	 * assign constant #1234 to long variable longTest
-	 */
 	@Test
 	public void testCAssignLong() {
 		addLongConstant(1234);
 		addLongVariable("longTest");
 		pb.assignLong(new QuadrupleImpl(Operator.ASSIGN_LONG, "#1234", "!",
 				"longTest"));
-		buildAndLog(pb);
+		final byte[] bExpected = new byte[] { (byte) 0x14, (byte) 0x00,
+				(byte) 0x0c, (byte) 0x40, (byte) 0xb1 };
+		final String sExpected = "LDC2_W 00 0C\nLSTORE_1\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
 	}
 
-	/*
-	 * assign #1234 to longTest2, then assign longTest2 to longTest1
-	 */
 	@Test
 	public void testVAssignLong() {
 		addLongConstant(1234);
@@ -155,24 +149,24 @@ public class ProgramTests {
 				"longTest2"));
 		pb.assignLong(new QuadrupleImpl(Operator.ASSIGN_LONG, "longTest2", "!",
 				"longTest1"));
-		buildAndLog(pb);
+		final byte[] bExpected = new byte[] { (byte) 0x14, (byte) 0x00,
+				(byte) 0x0c, (byte) 0x42, (byte) 0x21, (byte) 0x40, (byte) 0xb1 };
+		final String sExpected = "LDC2_W 00 0C\nLSTORE_3\nLLOAD_3\nLSTORE_1\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
 	}
 
-	/*
-	 * assign constant #12.34 to double variable doubleTest
-	 */
 	@Test
 	public void testCAssignDouble() {
 		addDoubleConstant(12.34);
 		addDoubleVariable("doubleTest");
 		pb.assignDouble(new QuadrupleImpl(Operator.ASSIGN_DOUBLE, "#12.34",
 				"!", "doubleTest"));
-		buildAndLog(pb);
+		final byte[] bExpected = new byte[] { (byte) 0x14, (byte) 0x00,
+				(byte) 0x0c, (byte) 0x48, (byte) 0xb1 };
+		final String sExpected = "LDC2_W 00 0C\nDSTORE_1\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
 	}
 
-	/*
-	 * assign #12.34 to doubleTest2, then assign doubleTest2 to doubleTest1
-	 */
 	@Test
 	public void testVAssignDouble() {
 		addDoubleConstant(12.34);
@@ -182,7 +176,10 @@ public class ProgramTests {
 				"!", "doubleTest2"));
 		pb.assignDouble(new QuadrupleImpl(Operator.ASSIGN_DOUBLE,
 				"doubleTest2", "!", "doubleTest1"));
-		buildAndLog(pb);
+		final byte[] bExpected = new byte[] { (byte) 0x14, (byte) 0x00,
+				(byte) 0x0c, (byte) 0x4a, (byte) 0x29, (byte) 0x48, (byte) 0xb1 };
+		final String sExpected = "LDC2_W 00 0C\nDSTORE_3\nDLOAD_3\nDSTORE_1\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
 	}
 
 	@Test
@@ -191,19 +188,12 @@ public class ProgramTests {
 		addStringVariable("stringTest");
 		pb.assignString(new QuadrupleImpl(Operator.ASSIGN_STRING, "#\"test\"",
 				"!", "stringTest"));
-		buildAndLog(pb);
+		final byte[] bExpected = new byte[] { (byte) 0x12, (byte) 0x0d,
+				(byte) 0x4c, (byte) 0xb1 };
+		final String sExpected = "LDC 0D\nASTORE_1\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
 	}
 
-	// testCAssignString
-	// testVAssignString
-
-	// testCAssignBoolean
-	// testVAssignBoolean
-
-	/*
-	 * add long constant #1000 and long constant #234 then assign to long
-	 * variable longTest
-	 */
 	@Test
 	public void testCCAddLong() {
 		addLongConstant(1000);
@@ -211,7 +201,11 @@ public class ProgramTests {
 		addLongVariable("longTest");
 		pb.addLong(new QuadrupleImpl(Operator.ADD_LONG, "#1000", "#234",
 				"longTest"));
-		buildAndLog(pb);
+		final byte[] bExpected = new byte[] { (byte) 0x14, (byte) 0x00,
+				(byte) 0x0c, (byte) 0x14, (byte) 0x00, (byte) 0x0e,
+				(byte) 0x61, (byte) 0x40, (byte) 0xb1 };
+		final String sExpected = "LDC2_W 00 0C\nLDC2_W 00 0E\nLADD\nLSTORE_1\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
 	}
 
 	@Test
@@ -220,13 +214,12 @@ public class ProgramTests {
 		addLongVariable("longTest2");
 		pb.addLong(new QuadrupleImpl(Operator.ADD_LONG, "longTest1",
 				"longTest2", "longTest1"));
-		buildAndLog(pb);
+		final byte[] bExpected = new byte[] { (byte) 0x1f, (byte) 0x21,
+				(byte) 0x61, (byte) 0x40, (byte) 0xb1 };
+		final String sExpected = "LLOAD_1\nLLOAD_3\nLADD\nLSTORE_1\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
 	}
 
-	/*
-	 * add double constant #1000 and double constant #234 then assign to double
-	 * variable doubleTest
-	 */
 	@Test
 	public void testCCAddDouble() {
 		addDoubleConstant(12.34);
@@ -234,7 +227,11 @@ public class ProgramTests {
 		addDoubleVariable("doubleTest");
 		pb.addDouble(new QuadrupleImpl(Operator.ADD_DOUBLE, "#12.34", "#43.21",
 				"doubleTest"));
-		buildAndLog(pb);
+		final byte[] bExpected = new byte[] { (byte) 0x14, (byte) 0x00,
+				(byte) 0x0c, (byte) 0x14, (byte) 0x00, (byte) 0x0e,
+				(byte) 0x63, (byte) 0x48, (byte) 0xb1 };
+		final String sExpected = "LDC2_W 00 0C\nLDC2_W 00 0E\nDADD\nDSTORE_1\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
 	}
 
 	@Test
@@ -243,13 +240,12 @@ public class ProgramTests {
 		addDoubleVariable("doubleTest2");
 		pb.addDouble(new QuadrupleImpl(Operator.ADD_DOUBLE, "doubleTest1",
 				"doubleTest2", "doubleTest1"));
-		buildAndLog(pb);
+		final byte[] bExpected = new byte[] { (byte) 0x27, (byte) 0x29,
+				(byte) 0x63, (byte) 0x48, (byte) 0xb1 };
+		final String sExpected = "DLOAD_1\nDLOAD_3\nDADD\nDSTORE_1\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
 	}
 
-	/*
-	 * subtract long constant #1000 and long constant #234 then assign to long
-	 * variable longTest
-	 */
 	@Test
 	public void testCCSubLong() {
 		addLongConstant(1000);
@@ -257,22 +253,25 @@ public class ProgramTests {
 		addLongVariable("longTest");
 		pb.addLong(new QuadrupleImpl(Operator.SUB_LONG, "#1000", "#234",
 				"longTest"));
-		buildAndLog(pb);
+		final byte[] bExpected = new byte[] { (byte) 0x14, (byte) 0x00,
+				(byte) 0x0c, (byte) 0x14, (byte) 0x00, (byte) 0x0e,
+				(byte) 0x61, (byte) 0x40, (byte) 0xb1 };
+		final String sExpected = "LDC2_W 00 0C\nLDC2_W 00 0E\nLADD\nLSTORE_1\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
 	}
 
 	@Test
 	public void testVVSubLong() {
 		addLongVariable("longTest1");
 		addLongVariable("longTest2");
-		pb.addLong(new QuadrupleImpl(Operator.SUB_LONG, "longTest1",
+		pb.subLong(new QuadrupleImpl(Operator.SUB_LONG, "longTest1",
 				"longTest2", "longTest1"));
-		buildAndLog(pb);
+		final byte[] bExpected = new byte[] { (byte) 0x1f, (byte) 0x21,
+				(byte) 0x65, (byte) 0x40, (byte) 0xb1 };
+		final String sExpected = "LLOAD_1\nLLOAD_3\nLSUB\nLSTORE_1\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
 	}
 
-	/*
-	 * subtract double constant #1000 and double constant #234 then assign to
-	 * double variable doubleTest
-	 */
 	@Test
 	public void testCCSubDouble() {
 		addDoubleConstant(12.34);
@@ -280,7 +279,11 @@ public class ProgramTests {
 		addDoubleVariable("doubleTest");
 		pb.subDouble(new QuadrupleImpl(Operator.SUB_DOUBLE, "#12.34", "#43.21",
 				"doubleTest"));
-		buildAndLog(pb);
+		final byte[] bExpected = new byte[] { (byte) 0x14, (byte) 0x00,
+				(byte) 0x0c, (byte) 0x14, (byte) 0x00, (byte) 0x0e,
+				(byte) 0x67, (byte) 0x48, (byte) 0xb1 };
+		final String sExpected = "LDC2_W 00 0C\nLDC2_W 00 0E\nDSUB\nDSTORE_1\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
 	}
 
 	@Test
@@ -289,21 +292,24 @@ public class ProgramTests {
 		addDoubleVariable("doubleTest2");
 		pb.subDouble(new QuadrupleImpl(Operator.SUB_DOUBLE, "doubleTest1",
 				"doubleTest2", "doubleTest1"));
-		buildAndLog(pb);
+		final byte[] bExpected = new byte[] { (byte) 0x27, (byte) 0x29,
+				(byte) 0x67, (byte) 0x48, (byte) 0xb1 };
+		final String sExpected = "DLOAD_1\nDLOAD_3\nDSUB\nDSTORE_1\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
 	}
 
-	/*
-	 * multiply long constant #1000 and long constant #234 then assign to long
-	 * variable longTest
-	 */
 	@Test
 	public void testCCMulLong() {
 		addLongConstant(1000);
 		addLongConstant(234);
 		addLongVariable("longTest");
-		pb.addLong(new QuadrupleImpl(Operator.MUL_LONG, "#1000", "#234",
+		pb.mulLong(new QuadrupleImpl(Operator.MUL_LONG, "#1000", "#234",
 				"longTest"));
-		buildAndLog(pb);
+		final byte[] bExpected = new byte[] { (byte) 0x14, (byte) 0x00,
+				(byte) 0x0c, (byte) 0x14, (byte) 0x00, (byte) 0x0e,
+				(byte) 0x69, (byte) 0x40, (byte) 0xb1 };
+		final String sExpected = "LDC2_W 00 0C\nLDC2_W 00 0E\nLMUL\nLSTORE_1\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
 	}
 
 	@Test
@@ -312,21 +318,24 @@ public class ProgramTests {
 		addLongVariable("longTest2");
 		pb.mulLong(new QuadrupleImpl(Operator.MUL_LONG, "longTest1",
 				"longTest2", "longTest1"));
-		buildAndLog(pb);
+		final byte[] bExpected = new byte[] { (byte) 0x1f, (byte) 0x21,
+				(byte) 0x69, (byte) 0x40, (byte) 0xb1 };
+		final String sExpected = "LLOAD_1\nLLOAD_3\nLMUL\nLSTORE_1\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
 	}
 
-	/*
-	 * multiply double constant #1000 and double constant #234 then assign to
-	 * double variable doubleTest
-	 */
 	@Test
 	public void testCCMulDouble() {
 		addDoubleConstant(12.34);
 		addDoubleConstant(43.21);
 		addDoubleVariable("doubleTest");
-		pb.addDouble(new QuadrupleImpl(Operator.MUL_DOUBLE, "#12.34", "#43.21",
+		pb.mulDouble(new QuadrupleImpl(Operator.MUL_DOUBLE, "#12.34", "#43.21",
 				"doubleTest"));
-		buildAndLog(pb);
+		final byte[] bExpected = new byte[] { (byte) 0x14, (byte) 0x00,
+				(byte) 0x0c, (byte) 0x14, (byte) 0x00, (byte) 0x0e,
+				(byte) 0x6b, (byte) 0x48, (byte) 0xb1 };
+		final String sExpected = "LDC2_W 00 0C\nLDC2_W 00 0E\nDMUL\nDSTORE_1\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
 	}
 
 	@Test
@@ -335,21 +344,24 @@ public class ProgramTests {
 		addDoubleVariable("doubleTest2");
 		pb.mulDouble(new QuadrupleImpl(Operator.MUL_DOUBLE, "doubleTest1",
 				"doubleTest2", "doubleTest1"));
-		buildAndLog(pb);
+		final byte[] bExpected = new byte[] { (byte) 0x27, (byte) 0x29,
+				(byte) 0x6b, (byte) 0x48, (byte) 0xb1 };
+		final String sExpected = "DLOAD_1\nDLOAD_3\nDMUL\nDSTORE_1\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
 	}
 
-	/*
-	 * divide long constant #1000 and long constant #234 then assign to long
-	 * variable longTest
-	 */
 	@Test
 	public void testCCDivLong() {
 		addLongConstant(1000);
 		addLongConstant(234);
 		addLongVariable("longTest");
-		pb.addLong(new QuadrupleImpl(Operator.DIV_LONG, "#1000", "#234",
+		pb.divLong(new QuadrupleImpl(Operator.DIV_LONG, "#1000", "#234",
 				"longTest"));
-		buildAndLog(pb);
+		final byte[] bExpected = new byte[] { (byte) 0x14, (byte) 0x00,
+				(byte) 0x0c, (byte) 0x14, (byte) 0x00, (byte) 0x0e,
+				(byte) 0x6d, (byte) 0x40, (byte) 0xb1 };
+		final String sExpected = "LDC2_W 00 0C\nLDC2_W 00 0E\nLDIV\nLSTORE_1\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
 	}
 
 	@Test
@@ -358,21 +370,24 @@ public class ProgramTests {
 		addLongVariable("longTest2");
 		pb.divLong(new QuadrupleImpl(Operator.DIV_LONG, "longTest1",
 				"longTest2", "longTest1"));
-		buildAndLog(pb);
+		final byte[] bExpected = new byte[] { (byte) 0x1f, (byte) 0x21,
+				(byte) 0x6d, (byte) 0x40, (byte) 0xb1 };
+		final String sExpected = "LLOAD_1\nLLOAD_3\nLDIV\nLSTORE_1\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
 	}
 
-	/*
-	 * divide double constant #1000 and double constant #234 then assign to
-	 * double variable doubleTest
-	 */
 	@Test
 	public void testCCDivDouble() {
 		addDoubleConstant(12.34);
 		addDoubleConstant(43.21);
 		addDoubleVariable("doubleTest");
-		pb.addDouble(new QuadrupleImpl(Operator.DIV_DOUBLE, "#12.34", "#43.21",
+		pb.divDouble(new QuadrupleImpl(Operator.DIV_DOUBLE, "#12.34", "#43.21",
 				"doubleTest"));
-		buildAndLog(pb);
+		final byte[] bExpected = new byte[] { (byte) 0x14, (byte) 0x00,
+				(byte) 0x0c, (byte) 0x14, (byte) 0x00, (byte) 0x0e,
+				(byte) 0x6f, (byte) 0x48, (byte) 0xb1 };
+		final String sExpected = "LDC2_W 00 0C\nLDC2_W 00 0E\nDDIV\nDSTORE_1\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
 	}
 
 	@Test
@@ -381,14 +396,21 @@ public class ProgramTests {
 		addDoubleVariable("doubleTest2");
 		pb.divDouble(new QuadrupleImpl(Operator.DIV_DOUBLE, "doubleTest1",
 				"doubleTest2", "doubleTest1"));
-		buildAndLog(pb);
+		final byte[] bExpected = new byte[] { 0x27, 0x29, 0x6f, 0x48,
+				(byte) 0xb1 };
+		final String sExpected = "DLOAD_1\nDLOAD_3\nDDIV\nDSTORE_1\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
 	}
 
 	@Test
 	public void testCReturn() {
 		addLongConstant(1000);
 		pb.returnLong(new QuadrupleImpl(Operator.RETURN, "#1000", "!", "!"));
-		buildAndLog(pb);
+		final byte[] bExpected = new byte[] { (byte) 0x14, (byte) 0x00,
+				(byte) 0x0c, (byte) 0x88, (byte) 0xb8, (byte) 0x00,
+				(byte) 0x13, (byte) 0xb1 };
+		final String sExpected = "LDC2_W 00 0C\nL2I\nINVOKESTATIC 00 13\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
 	}
 
 }

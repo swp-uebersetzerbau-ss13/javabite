@@ -6,3 +6,22 @@ weitere operationen implementieren
 visualisierung bytecode
 optimierung tac
 dokumentation (javadoc mit html)
+
+
+TODO
+
+eike
+	ops testing
+	code refactoring
+	code documentation
+	new command translation
+	connect instructions (referencing for goto)
+marco
+	classfile comments
+	classfile refactoring
+	add system methods
+r0b3r7
+	classfile testing
+	backendmodule comments
+
+so, 19.30 Uhr

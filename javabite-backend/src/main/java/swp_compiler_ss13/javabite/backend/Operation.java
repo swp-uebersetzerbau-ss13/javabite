@@ -4,9 +4,6 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 
 /**
@@ -29,14 +26,10 @@ public class Operation {
 	 * 
 	 * @author eike
 	 * @since 07.05.2013 00:41:08
-	 * 
 	 */
 	public static class OperationBuilder {
 
-		private static final Logger logger = LoggerFactory
-				.getLogger(OperationBuilder.class);
-
-		// private int offset = 0;
+		private int size;
 		private final List<Instruction> instructions;
 
 		private OperationBuilder() {
@@ -77,10 +70,18 @@ public class Operation {
 				instruction = new Instruction(size, mnemonic);
 			}
 			instructions.add(instruction);
-			// offset += size;
+			this.size += size;
 			return this;
 		}
 
+		/**
+		 * Adds a new instruction to this operation with only a mnemonic and no
+		 * arguments.
+		 * 
+		 * @param mnemonic
+		 *            the mnemonic of the instruction to add
+		 * @return this operation builder instance
+		 */
 		public OperationBuilder add(final Mnemonic mnemonic) {
 			return add(mnemonic, 0);
 		}
@@ -91,35 +92,61 @@ public class Operation {
 		 * @return new object, created by this builder
 		 */
 		public Operation build() {
-			return new Operation(instructions);
+			return new Operation(instructions, size);
 		}
 
 	}
 
 	private final List<Instruction> instructions;
-	private int size;
+	private final int size;
 	private Operator operator;
 
-	private Operation(final List<Instruction> instructions) {
+	private Operation(final List<Instruction> instructions, final int size) {
 		this.instructions = instructions;
+		this.size = size;
 	}
 
+	/**
+	 * Returns this operations instructions
+	 * 
+	 * @return the instructions
+	 */
 	public List<Instruction> getInstructions() {
 		return instructions;
 	}
 
+	/**
+	 * Returns this operations operator
+	 * 
+	 * @return the operator
+	 */
 	public Operator getOperator() {
 		return operator;
 	}
 
+	/**
+	 * Returns this operations instruction count
+	 * 
+	 * @return the instruction count
+	 */
 	public int getInstructionCount() {
 		return instructions.size();
 	}
 
+	/**
+	 * Returns this operations byte count
+	 * 
+	 * @return the byte count
+	 */
 	public int getByteCount() {
 		return size;
 	}
 
+	/**
+	 * Returns this operation as a byte array
+	 * 
+	 * @return the byte array
+	 */
 	public byte[] toByteArray() {
 		final ByteBuffer bb = ByteBuffer.allocate(size);
 		if (instructions != null) {

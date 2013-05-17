@@ -22,12 +22,21 @@ public class Instruction {
 			.getLogger(Instruction.class);
 
 	// offset to predecessor
-	// private int offset;
 	private Mnemonic mnemonic;
 	private byte[] arguments;
 	private final int size;
 	private final short stackChange;
 
+	/**
+	 * Create a new instruction class instance
+	 * 
+	 * @param size
+	 *            byte size
+	 * @param mnemonic
+	 *            mnemonic of opcode
+	 * @param arguments
+	 *            arguments for opcode
+	 */
 	public Instruction(final int size, final Mnemonic mnemonic,
 			final byte... arguments) {
 		this.size = size;
@@ -36,31 +45,24 @@ public class Instruction {
 		this.stackChange = this.mnemonic.getStackChange();
 	}
 
+	/**
+	 * Create a new instruction class instance
+	 * 
+	 * @param size
+	 *            byte size
+	 * @param mnemonic
+	 *            mnemonic of opcode
+	 */
 	public Instruction(final int size, final Mnemonic mnemonic) {
 		this(size, mnemonic, null);
 	}
 
 	/**
-	 * getBytes function. This function creates a Byte-List of all the
-	 * information meeting the JVM-instruction standard.
+	 * Write this instructions bytes to an output stream
 	 * 
-	 * @author Marco
-	 * @since 03.05.2013
-	 * 
+	 * @param outputStream
+	 *            the output stream to use for writing
 	 */
-	// public ArrayList<Byte> getBytess() {
-	// final ArrayList<Byte> instructionBytes = new ArrayList<Byte>();
-	//
-	// // get op byte
-	// instructionBytes.add(this.mnemonic.getBytecode());
-	// // get arguments' bytes
-	// if (this.getArguments() != null) {
-	// instructionBytes.addAll(this.getArguments());
-	// }
-	//
-	// return instructionBytes;
-	// }
-
 	public void writeTo(final DataOutputStream outputStream) {
 		try {
 			outputStream.writeByte(this.mnemonic.getBytecode());
@@ -86,13 +88,11 @@ public class Instruction {
 
 	}
 
-	/*
-	 * TODO for MS2 public int getOffset() { return offset; }
+	/**
+	 * Returns this instructions mnemonic
 	 * 
-	 * public int setOffset(int offset) { this.offset = offset; return offset +
-	 * size; }
+	 * @return the mnemonic
 	 */
-
 	public Mnemonic getMnemonic() {
 		return mnemonic;
 	}
@@ -101,6 +101,11 @@ public class Instruction {
 		this.mnemonic = mnemonic;
 	}
 
+	/**
+	 * Returns this instructions arguments
+	 * 
+	 * @return the arguments
+	 */
 	public byte[] getArguments() {
 		return arguments;
 	}
@@ -109,10 +114,20 @@ public class Instruction {
 		this.arguments = arguments;
 	}
 
+	/**
+	 * Returns this instructions size (number of bytes)
+	 * 
+	 * @return the byte count
+	 */
 	public int getByteCount() {
 		return size;
 	}
 
+	/**
+	 * Returns a byte array of this instruction
+	 * 
+	 * @return the byte array
+	 */
 	public byte[] toByteArray() {
 		final byte[] bytes = new byte[size];
 		bytes[0] = mnemonic.getBytecode();
@@ -134,6 +149,11 @@ public class Instruction {
 		return sb.toString();
 	}
 
+	/**
+	 * Returns this instructions stack change value
+	 * 
+	 * @return the stack change value
+	 */
 	public short getStackChange() {
 		return stackChange;
 	}
