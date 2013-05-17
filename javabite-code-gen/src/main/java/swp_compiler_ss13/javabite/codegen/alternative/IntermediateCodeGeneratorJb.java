@@ -105,10 +105,18 @@ public class IntermediateCodeGeneratorJb implements
 	}
 
 	@Override
+	public IdentifierData generateTempIdentifier(Type type)
+			throws IntermediateCodeGeneratorException {
+		IdentifierData data = generateIdentifierMapping(generateTacIdentifier(null), type);
+		addQuadruple(QuadrupleFactoryJb.generateDeclaration(data));
+		return data;
+	}
+
+	@Override
 	public IdentifierData generateIdentifierMapping(String astIdentifier,
 			Type type) throws IntermediateCodeGeneratorException {
 		IdentifierData data = new IdentifierData(
-				generateIcgIdentifier(astIdentifier), type);
+				generateTacIdentifier(astIdentifier), type);
 		blockScopes.peek().put(astIdentifier, data);
 		return data;
 	}
@@ -129,20 +137,6 @@ public class IntermediateCodeGeneratorJb implements
 	}
 
 	@Override
-	public String lookupIcgIdentifier(String astIdentifier)
-			throws IntermediateCodeGeneratorException {
-		IdentifierData data = lookupIdentifierData(astIdentifier);
-		return data.getIdentifier();
-	}
-
-	@Override
-	public Type lookupType(String astIdentifier)
-			throws IntermediateCodeGeneratorException {
-		IdentifierData data = lookupIdentifierData(astIdentifier);
-		return data.getType();
-	}
-
-	@Override
 	public void pushIdentifierData(IdentifierData data) {
 		identifierDataStack.push(data);
 	}
@@ -152,20 +146,12 @@ public class IntermediateCodeGeneratorJb implements
 		return identifierDataStack.pop();
 	}
 
-	@Override
-	public IdentifierData generateTempIdentifier(Type type)
+	private String generateTacIdentifier(String astIdentifier)
 			throws IntermediateCodeGeneratorException {
-		IdentifierData data = generateIdentifierMapping(generateIcgIdentifier(null), type);
-		addQuadruple(QuadrupleFactoryJb.generateDeclaration(data));
-		return data;
-	}
-
-	private String generateIcgIdentifier(String astIdentifier)
-			throws IntermediateCodeGeneratorException {
-		String icgIdentifier = astIdentifier;
-		while (icgIdentifier == null || usedIds.contains(icgIdentifier)) {
+		String tacIdentifier = astIdentifier;
+		while (tacIdentifier == null || usedIds.contains(tacIdentifier)) {
 			// TODO: this solution add a limitation for the code generator
-			icgIdentifier = IDENTIFIER_GENERATION_PREFIX
+			tacIdentifier = IDENTIFIER_GENERATION_PREFIX
 					+ identifierGenerationCounter++;
 
 			if (identifierGenerationCounter == 0) {
@@ -173,8 +159,8 @@ public class IntermediateCodeGeneratorJb implements
 						"Can not generate enough identifier");
 			}
 		}
-		usedIds.add(icgIdentifier);
-		return icgIdentifier;
+		usedIds.add(tacIdentifier);
+		return tacIdentifier;
 	}
 
 	/**

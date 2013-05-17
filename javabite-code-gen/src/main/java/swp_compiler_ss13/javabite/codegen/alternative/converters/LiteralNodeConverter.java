@@ -15,7 +15,7 @@ public class LiteralNodeConverter extends AbstractAst2CodeConverter {
 			throw new IntermediateCodeGeneratorException();
 		LiteralNode literalNode = (LiteralNode) node;
 		
-		// we create identifier like handles for literals
+		// literals works like for TAC generation like identifiers
 		icg.pushIdentifierData(new IdentifierData("#" + literalNode.getLiteral(), literalNode.getLiteralType()));
 	}
 
