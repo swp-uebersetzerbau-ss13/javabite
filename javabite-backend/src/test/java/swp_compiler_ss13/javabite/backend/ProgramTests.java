@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
-import swp_compiler_ss13.javabite.backend.IClassfile.VariableType;
 import swp_compiler_ss13.javabite.backend.Program.ProgramBuilder;
 import swp_compiler_ss13.javabite.backend.external.QuadrupleImpl;
 
@@ -30,9 +29,12 @@ public class ProgramTests {
 
 	@Before
 	public void setUp() {
-		classfile = new Classfile("main.class", "tests/example", "java/lang/Object", Classfile.ClassfileAccessFlag.ACC_PUBLIC,
+		classfile = new Classfile("main.class", "tests/example",
+				"java/lang/Object", Classfile.ClassfileAccessFlag.ACC_PUBLIC,
 				Classfile.ClassfileAccessFlag.ACC_SUPER);
-		classfile.addMethodToMethodArea(methodName, "([Ljava/lang/String;])V", Classfile.MethodAccessFlag.ACC_PUBLIC, Classfile.MethodAccessFlag.ACC_STATIC);
+		classfile.addMethodToMethodArea(methodName, "([Ljava/lang/String;])V",
+				Classfile.MethodAccessFlag.ACC_PUBLIC,
+				Classfile.MethodAccessFlag.ACC_STATIC);
 		pb = ProgramBuilder.newBuilder(classfile, methodName);
 	}
 
@@ -41,17 +43,28 @@ public class ProgramTests {
 		final String testName = name.getMethodName();
 		try {
 			final String resName = testName.substring(4) + ".res";
-			InputStream in = this.getClass().getClassLoader().getResourceAsStream(resName);
-			StringWriter sw = new StringWriter();
+			final InputStream in = this.getClass().getClassLoader()
+					.getResourceAsStream(resName);
+			final StringWriter sw = new StringWriter();
 			IOUtils.copy(in, sw);
-			log.info("{}\n=== RESULT\n{}=== COMPARE\n{}", testName, p, sw.toString());
-		} catch (Exception e) {
-			log.info("{}\n=== RESULT\n{}=== COMPARE\nNO .res FILE\n", testName, p);
+			log.info("{}\n=== RESULT\n{}=== COMPARE\n{}", testName, p,
+					sw.toString());
+		} catch (final Exception e) {
+			log.info("{}\n=== RESULT\n{}=== COMPARE\nNO .res FILE\n", testName,
+					p);
 		}
 	}
 
-	private void addVariable(final String varName, final VariableType type) {
-		classfile.addVariableToMethodsCode(methodName, varName, type);
+	private void addLongVariable(final String variableName) {
+		classfile.addLongVariableToMethodsCode(methodName, variableName);
+	}
+
+	private void addDoubleVariable(final String variableName) {
+		classfile.addDoubleVariableToMethodsCode(methodName, variableName);
+	}
+
+	private void addStringVariable(final String variableName) {
+		classfile.addStringVariableToMethodsCode(methodName, variableName);
 	}
 
 	private void addLongConstant(final long value) {
@@ -67,46 +80,54 @@ public class ProgramTests {
 	}
 
 	/*
-	 * convert long constant #1234 to double and store in double variable doubleTest
+	 * convert long constant #1234 to double and store in double variable
+	 * doubleTest
 	 */
 	@Test
 	public void testCLongToDouble() {
 		addLongConstant(1234);
-		addVariable("doubleTest", IClassfile.VariableType.DOUBLE);
-		pb.longToDouble(new QuadrupleImpl(Quadruple.Operator.LONG_TO_DOUBLE, "#1234", "!", "doubleTest"));
+		addDoubleVariable("doubleTest");
+		pb.longToDouble(new QuadrupleImpl(Quadruple.Operator.LONG_TO_DOUBLE,
+				"#1234", "!", "doubleTest"));
 		buildAndLog(pb);
 	}
 
 	/*
-	 * convert long variable longTest to double and store in double variable doubleTest
+	 * convert long variable longTest to double and store in double variable
+	 * doubleTest
 	 */
 	@Test
 	public void testVLongToDouble() {
-		addVariable("longTest", VariableType.LONG);
-		addVariable("doubleTest", VariableType.DOUBLE);
-		pb.longToDouble(new QuadrupleImpl(Operator.LONG_TO_DOUBLE, "longTest", "!", "doubleTest"));
+		addLongVariable("longTest");
+		addDoubleVariable("doubleTest");
+		pb.longToDouble(new QuadrupleImpl(Operator.LONG_TO_DOUBLE, "longTest",
+				"!", "doubleTest"));
 		buildAndLog(pb);
 	}
 
 	/*
-	 * convert double constant #12.34 to long and store in long variable longTest
+	 * convert double constant #12.34 to long and store in long variable
+	 * longTest
 	 */
 	@Test
 	public void testCDoubleToLong() {
 		addDoubleConstant(12.34);
-		addVariable("longTest", IClassfile.VariableType.LONG);
-		pb.doubleToLong(new QuadrupleImpl(Quadruple.Operator.DOUBLE_TO_LONG, "#12.34", "!", "longTest"));
+		addLongVariable("longTest");
+		pb.doubleToLong(new QuadrupleImpl(Quadruple.Operator.DOUBLE_TO_LONG,
+				"#12.34", "!", "longTest"));
 		buildAndLog(pb);
 	}
 
 	/*
-	 * convert double variable doubleTest to long and store in long variable longTest
+	 * convert double variable doubleTest to long and store in long variable
+	 * longTest
 	 */
 	@Test
 	public void testVDoubleToLong() {
-		addVariable("doubleTest", VariableType.DOUBLE);
-		addVariable("longTest", VariableType.LONG);
-		pb.doubleToLong(new QuadrupleImpl(Operator.DOUBLE_TO_LONG, "doubleTest", "!", "longTest"));
+		addDoubleVariable("doubleTest");
+		addLongVariable("longTest");
+		pb.doubleToLong(new QuadrupleImpl(Operator.DOUBLE_TO_LONG,
+				"doubleTest", "!", "longTest"));
 		buildAndLog(pb);
 	}
 
@@ -116,8 +137,9 @@ public class ProgramTests {
 	@Test
 	public void testCAssignLong() {
 		addLongConstant(1234);
-		addVariable("longTest", VariableType.LONG);
-		pb.assignLong(new QuadrupleImpl(Operator.ASSIGN_LONG, "#1234", "!", "longTest"));
+		addLongVariable("longTest");
+		pb.assignLong(new QuadrupleImpl(Operator.ASSIGN_LONG, "#1234", "!",
+				"longTest"));
 		buildAndLog(pb);
 	}
 
@@ -127,10 +149,12 @@ public class ProgramTests {
 	@Test
 	public void testVAssignLong() {
 		addLongConstant(1234);
-		addVariable("longTest1", VariableType.LONG);
-		addVariable("longTest2", VariableType.LONG);
-		pb.assignLong(new QuadrupleImpl(Operator.ASSIGN_LONG, "#1234", "!", "longTest2"));
-		pb.assignLong(new QuadrupleImpl(Operator.ASSIGN_LONG, "longTest2", "!", "longTest1"));
+		addLongVariable("longTest1");
+		addLongVariable("longTest2");
+		pb.assignLong(new QuadrupleImpl(Operator.ASSIGN_LONG, "#1234", "!",
+				"longTest2"));
+		pb.assignLong(new QuadrupleImpl(Operator.ASSIGN_LONG, "longTest2", "!",
+				"longTest1"));
 		buildAndLog(pb);
 	}
 
@@ -140,8 +164,9 @@ public class ProgramTests {
 	@Test
 	public void testCAssignDouble() {
 		addDoubleConstant(12.34);
-		addVariable("doubleTest", VariableType.DOUBLE);
-		pb.assignDouble(new QuadrupleImpl(Operator.ASSIGN_DOUBLE, "#12.34", "!", "doubleTest"));
+		addDoubleVariable("doubleTest");
+		pb.assignDouble(new QuadrupleImpl(Operator.ASSIGN_DOUBLE, "#12.34",
+				"!", "doubleTest"));
 		buildAndLog(pb);
 	}
 
@@ -151,18 +176,21 @@ public class ProgramTests {
 	@Test
 	public void testVAssignDouble() {
 		addDoubleConstant(12.34);
-		addVariable("doubleTest1", VariableType.DOUBLE);
-		addVariable("doubleTest2", VariableType.DOUBLE);
-		pb.assignDouble(new QuadrupleImpl(Operator.ASSIGN_DOUBLE, "#12.34", "!", "doubleTest2"));
-		pb.assignDouble(new QuadrupleImpl(Operator.ASSIGN_DOUBLE, "doubleTest2", "!", "doubleTest1"));
+		addDoubleVariable("doubleTest1");
+		addDoubleVariable("doubleTest2");
+		pb.assignDouble(new QuadrupleImpl(Operator.ASSIGN_DOUBLE, "#12.34",
+				"!", "doubleTest2"));
+		pb.assignDouble(new QuadrupleImpl(Operator.ASSIGN_DOUBLE,
+				"doubleTest2", "!", "doubleTest1"));
 		buildAndLog(pb);
 	}
 
 	@Test
 	public void testCAssignString() {
 		addStringConstant("\"test\"");
-		addVariable("stringTest", VariableType.STRING);
-		pb.assignString(new QuadrupleImpl(Operator.ASSIGN_STRING, "#\"test\"", "!", "stringTest"));
+		addStringVariable("stringTest");
+		pb.assignString(new QuadrupleImpl(Operator.ASSIGN_STRING, "#\"test\"",
+				"!", "stringTest"));
 		buildAndLog(pb);
 	}
 
@@ -173,162 +201,186 @@ public class ProgramTests {
 	// testVAssignBoolean
 
 	/*
-	 * add long constant #1000 and long constant #234 then assign to long variable longTest
+	 * add long constant #1000 and long constant #234 then assign to long
+	 * variable longTest
 	 */
 	@Test
 	public void testCCAddLong() {
 		addLongConstant(1000);
 		addLongConstant(234);
-		addVariable("longTest", VariableType.LONG);
-		pb.addLong(new QuadrupleImpl(Operator.ADD_LONG, "#1000", "#234", "longTest"));
+		addLongVariable("longTest");
+		pb.addLong(new QuadrupleImpl(Operator.ADD_LONG, "#1000", "#234",
+				"longTest"));
 		buildAndLog(pb);
 	}
 
 	@Test
 	public void testVVAddLong() {
-		addVariable("longTest1", VariableType.LONG);
-		addVariable("longTest2", VariableType.LONG);
-		pb.addLong(new QuadrupleImpl(Operator.ADD_LONG, "longTest1", "longTest2", "longTest1"));
+		addLongVariable("longTest1");
+		addLongVariable("longTest2");
+		pb.addLong(new QuadrupleImpl(Operator.ADD_LONG, "longTest1",
+				"longTest2", "longTest1"));
 		buildAndLog(pb);
 	}
 
 	/*
-	 * add double constant #1000 and double constant #234 then assign to double variable doubleTest
+	 * add double constant #1000 and double constant #234 then assign to double
+	 * variable doubleTest
 	 */
 	@Test
 	public void testCCAddDouble() {
 		addDoubleConstant(12.34);
 		addDoubleConstant(43.21);
-		addVariable("doubleTest", VariableType.DOUBLE);
-		pb.addDouble(new QuadrupleImpl(Operator.ADD_DOUBLE, "#12.34", "#43.21", "doubleTest"));
+		addDoubleVariable("doubleTest");
+		pb.addDouble(new QuadrupleImpl(Operator.ADD_DOUBLE, "#12.34", "#43.21",
+				"doubleTest"));
 		buildAndLog(pb);
 	}
 
 	@Test
 	public void testVVAddDouble() {
-		addVariable("doubleTest1", VariableType.DOUBLE);
-		addVariable("doubleTest2", VariableType.DOUBLE);
-		pb.addDouble(new QuadrupleImpl(Operator.ADD_DOUBLE, "doubleTest1", "doubleTest2", "doubleTest1"));
+		addDoubleVariable("doubleTest1");
+		addDoubleVariable("doubleTest2");
+		pb.addDouble(new QuadrupleImpl(Operator.ADD_DOUBLE, "doubleTest1",
+				"doubleTest2", "doubleTest1"));
 		buildAndLog(pb);
 	}
 
 	/*
-	 * subtract long constant #1000 and long constant #234 then assign to long variable longTest
+	 * subtract long constant #1000 and long constant #234 then assign to long
+	 * variable longTest
 	 */
 	@Test
 	public void testCCSubLong() {
 		addLongConstant(1000);
 		addLongConstant(234);
-		addVariable("longTest", VariableType.LONG);
-		pb.addLong(new QuadrupleImpl(Operator.SUB_LONG, "#1000", "#234", "longTest"));
+		addLongVariable("longTest");
+		pb.addLong(new QuadrupleImpl(Operator.SUB_LONG, "#1000", "#234",
+				"longTest"));
 		buildAndLog(pb);
 	}
 
 	@Test
 	public void testVVSubLong() {
-		addVariable("longTest1", VariableType.LONG);
-		addVariable("longTest2", VariableType.LONG);
-		pb.addLong(new QuadrupleImpl(Operator.SUB_LONG, "longTest1", "longTest2", "longTest1"));
+		addLongVariable("longTest1");
+		addLongVariable("longTest2");
+		pb.addLong(new QuadrupleImpl(Operator.SUB_LONG, "longTest1",
+				"longTest2", "longTest1"));
 		buildAndLog(pb);
 	}
 
 	/*
-	 * subtract double constant #1000 and double constant #234 then assign to double variable doubleTest
+	 * subtract double constant #1000 and double constant #234 then assign to
+	 * double variable doubleTest
 	 */
 	@Test
 	public void testCCSubDouble() {
 		addDoubleConstant(12.34);
 		addDoubleConstant(43.21);
-		addVariable("doubleTest", VariableType.DOUBLE);
-		pb.subDouble(new QuadrupleImpl(Operator.SUB_DOUBLE, "#12.34", "#43.21", "doubleTest"));
+		addDoubleVariable("doubleTest");
+		pb.subDouble(new QuadrupleImpl(Operator.SUB_DOUBLE, "#12.34", "#43.21",
+				"doubleTest"));
 		buildAndLog(pb);
 	}
 
 	@Test
 	public void testVVSubDouble() {
-		addVariable("doubleTest1", VariableType.DOUBLE);
-		addVariable("doubleTest2", VariableType.DOUBLE);
-		pb.subDouble(new QuadrupleImpl(Operator.SUB_DOUBLE, "doubleTest1", "doubleTest2", "doubleTest1"));
+		addDoubleVariable("doubleTest1");
+		addDoubleVariable("doubleTest2");
+		pb.subDouble(new QuadrupleImpl(Operator.SUB_DOUBLE, "doubleTest1",
+				"doubleTest2", "doubleTest1"));
 		buildAndLog(pb);
 	}
 
 	/*
-	 * multiply long constant #1000 and long constant #234 then assign to long variable longTest
+	 * multiply long constant #1000 and long constant #234 then assign to long
+	 * variable longTest
 	 */
 	@Test
 	public void testCCMulLong() {
 		addLongConstant(1000);
 		addLongConstant(234);
-		addVariable("longTest", VariableType.LONG);
-		pb.addLong(new QuadrupleImpl(Operator.MUL_LONG, "#1000", "#234", "longTest"));
+		addLongVariable("longTest");
+		pb.addLong(new QuadrupleImpl(Operator.MUL_LONG, "#1000", "#234",
+				"longTest"));
 		buildAndLog(pb);
 	}
 
 	@Test
 	public void testVVMulLong() {
-		addVariable("longTest1", VariableType.LONG);
-		addVariable("longTest2", VariableType.LONG);
-		pb.mulLong(new QuadrupleImpl(Operator.MUL_LONG, "longTest1", "longTest2", "longTest1"));
+		addLongVariable("longTest1");
+		addLongVariable("longTest2");
+		pb.mulLong(new QuadrupleImpl(Operator.MUL_LONG, "longTest1",
+				"longTest2", "longTest1"));
 		buildAndLog(pb);
 	}
 
 	/*
-	 * multiply double constant #1000 and double constant #234 then assign to double variable doubleTest
+	 * multiply double constant #1000 and double constant #234 then assign to
+	 * double variable doubleTest
 	 */
 	@Test
 	public void testCCMulDouble() {
 		addDoubleConstant(12.34);
 		addDoubleConstant(43.21);
-		addVariable("doubleTest", VariableType.DOUBLE);
-		pb.addDouble(new QuadrupleImpl(Operator.MUL_DOUBLE, "#12.34", "#43.21", "doubleTest"));
+		addDoubleVariable("doubleTest");
+		pb.addDouble(new QuadrupleImpl(Operator.MUL_DOUBLE, "#12.34", "#43.21",
+				"doubleTest"));
 		buildAndLog(pb);
 	}
 
 	@Test
 	public void testVVMulDouble() {
-		addVariable("doubleTest1", VariableType.DOUBLE);
-		addVariable("doubleTest2", VariableType.DOUBLE);
-		pb.mulDouble(new QuadrupleImpl(Operator.MUL_DOUBLE, "doubleTest1", "doubleTest2", "doubleTest1"));
+		addDoubleVariable("doubleTest1");
+		addDoubleVariable("doubleTest2");
+		pb.mulDouble(new QuadrupleImpl(Operator.MUL_DOUBLE, "doubleTest1",
+				"doubleTest2", "doubleTest1"));
 		buildAndLog(pb);
 	}
 
 	/*
-	 * divide long constant #1000 and long constant #234 then assign to long variable longTest
+	 * divide long constant #1000 and long constant #234 then assign to long
+	 * variable longTest
 	 */
 	@Test
 	public void testCCDivLong() {
 		addLongConstant(1000);
 		addLongConstant(234);
-		addVariable("longTest", VariableType.LONG);
-		pb.addLong(new QuadrupleImpl(Operator.DIV_LONG, "#1000", "#234", "longTest"));
+		addLongVariable("longTest");
+		pb.addLong(new QuadrupleImpl(Operator.DIV_LONG, "#1000", "#234",
+				"longTest"));
 		buildAndLog(pb);
 	}
 
 	@Test
 	public void testVVDivLong() {
-		addVariable("longTest1", VariableType.LONG);
-		addVariable("longTest2", VariableType.LONG);
-		pb.divLong(new QuadrupleImpl(Operator.DIV_LONG, "longTest1", "longTest2", "longTest1"));
+		addLongVariable("longTest1");
+		addLongVariable("longTest2");
+		pb.divLong(new QuadrupleImpl(Operator.DIV_LONG, "longTest1",
+				"longTest2", "longTest1"));
 		buildAndLog(pb);
 	}
 
 	/*
-	 * divide double constant #1000 and double constant #234 then assign to double variable doubleTest
+	 * divide double constant #1000 and double constant #234 then assign to
+	 * double variable doubleTest
 	 */
 	@Test
 	public void testCCDivDouble() {
 		addDoubleConstant(12.34);
 		addDoubleConstant(43.21);
-		addVariable("doubleTest", VariableType.DOUBLE);
-		pb.addDouble(new QuadrupleImpl(Operator.DIV_DOUBLE, "#12.34", "#43.21", "doubleTest"));
+		addDoubleVariable("doubleTest");
+		pb.addDouble(new QuadrupleImpl(Operator.DIV_DOUBLE, "#12.34", "#43.21",
+				"doubleTest"));
 		buildAndLog(pb);
 	}
 
 	@Test
 	public void testVVDivDouble() {
-		addVariable("doubleTest1", VariableType.DOUBLE);
-		addVariable("doubleTest2", VariableType.DOUBLE);
-		pb.divDouble(new QuadrupleImpl(Operator.DIV_DOUBLE, "doubleTest1", "doubleTest2", "doubleTest1"));
+		addDoubleVariable("doubleTest1");
+		addDoubleVariable("doubleTest2");
+		pb.divDouble(new QuadrupleImpl(Operator.DIV_DOUBLE, "doubleTest1",
+				"doubleTest2", "doubleTest1"));
 		buildAndLog(pb);
 	}
 

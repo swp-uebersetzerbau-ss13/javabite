@@ -1,7 +1,6 @@
-public class CAssignLong
-{
+public class CAssignLong {
 
-	public static void main(String[] args) {
+	public static void main(final String[] args) {
 		long a = 1;
 		a = 2;
 	}

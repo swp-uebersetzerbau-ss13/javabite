@@ -75,7 +75,7 @@ public class Translator {
 	 */
 	public Collection<IClassfile> translate(final List<Quadruple> tac) {
 		// always start with main.class
-		return this.translate(tac, "main.class");
+		return this.translate(tac, "Program.class");
 	}
 
 	private Collection<IClassfile> translate(List<Quadruple> tac,
@@ -84,13 +84,13 @@ public class Translator {
 		final Collection<IClassfile> classfiles = new ArrayList<IClassfile>();
 
 		final IClassfile classfile = this.generateClassfile(classfileName,
-				"EmptyMain", "java/lang/Object",
+				"Program", "java/lang/Object",
 				Classfile.ClassfileAccessFlag.ACC_PUBLIC,
 				Classfile.ClassfileAccessFlag.ACC_SUPER);
 
 		String methodName;
 
-		if (classfileName.equals("main.class")) {
+		if (classfileName.equals("Program.class")) {
 			methodName = "main";
 			// always generate mainFunction in main.class file
 			classfile.addMethodToMethodArea(methodName,
@@ -288,9 +288,10 @@ public class Translator {
 
 		boolean stopTranslation = false;
 		for (final Quadruple quad : tac) {
-			
-			if (stopTranslation) break;
-			
+
+			if (stopTranslation)
+				break;
+
 			switch (quad.getOperator()) {
 			case ADD_DOUBLE:
 				pb.addDouble(quad);

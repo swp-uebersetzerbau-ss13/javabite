@@ -493,7 +493,6 @@ public class ASTGenerator {
 			LiteralNode string = new LiteralNodeJb();
 			string.setLiteral(stringVal.toString());
 			string.setLiteralType(new TypeJb(Type.Kind.STRING));
-
 			factor = string;
 			break;
 		default:

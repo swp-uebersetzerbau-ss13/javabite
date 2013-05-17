@@ -1,8 +1,7 @@
-public class CAssignString
-{
+public class CAssignString {
 
-	public static void main(String[] args) {
-		String a = "test";
+	public static void main(final String[] args) {
+		final String a = "test";
 	}
 
 }

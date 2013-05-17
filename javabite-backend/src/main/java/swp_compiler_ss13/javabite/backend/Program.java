@@ -13,7 +13,8 @@ import swp_compiler_ss13.javabite.backend.translation.Translator;
 import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
 
 /**
- * Representation of a program instruction block. Contains a list of operations which consist of instructions.
+ * Representation of a program instruction block. Contains a list of operations
+ * which consist of instructions.
  * 
  * @author eike
  * @since 02.05.2013 23:41:39
@@ -25,11 +26,13 @@ public class Program {
 
 		private static final Pattern P_CONST_SIGN = Pattern.compile("#.*?");
 
-		public static ProgramBuilder newBuilder(final int initialOffset, final IClassfile classfile, final String methodName) {
+		public static ProgramBuilder newBuilder(final int initialOffset,
+				final IClassfile classfile, final String methodName) {
 			return new ProgramBuilder(initialOffset, classfile, methodName);
 		}
 
-		public static ProgramBuilder newBuilder(final IClassfile classfile, final String methodName) {
+		public static ProgramBuilder newBuilder(final IClassfile classfile,
+				final String methodName) {
 			return newBuilder(0, classfile, methodName);
 		}
 
@@ -43,7 +46,8 @@ public class Program {
 		// index of methodRef of system exit function in constant pool
 		private short systemExitIndex;
 
-		private ProgramBuilder(final int initialOffset, final IClassfile classfile, final String methodName) {
+		private ProgramBuilder(final int initialOffset,
+				final IClassfile classfile, final String methodName) {
 			this.operations = new ArrayList<>();
 			this.classfile = classfile;
 			this.methodName = methodName;
@@ -94,9 +98,11 @@ public class Program {
 			return this;
 		}
 
-		private void load(final OperationBuilder op, final String arg1, final ConstantType constType, final String varLoadOp) {
+		private void load(final OperationBuilder op, final String arg1,
+				final ConstantType constType, final String varLoadOp) {
 			if (isConstant(arg1)) {
-				final short index = classfile.getIndexOfConstantInConstantPool(constType, removeConstantSign(arg1));
+				final short index = classfile.getIndexOfConstantInConstantPool(
+						constType, removeConstantSign(arg1));
 				assert index > 0;
 				if (index < 256) {
 					op.add(Mnemonic.LDC, 1, (byte) index);
@@ -104,30 +110,38 @@ public class Program {
 					op.add(Mnemonic.LDC_W, 1, ByteUtils.shortToByteArray(index));
 				}
 			} else {
-				final byte index = classfile.getIndexOfVariableInMethod(methodName, arg1);
+				final byte index = classfile.getIndexOfVariableInMethod(
+						methodName, arg1);
 				assert index > 0;
 				op.add(Mnemonic.getMnemonic(varLoadOp, index), 1, index);
 			}
 		}
 
-		private void loadWide(final OperationBuilder op, final String arg1, final ConstantType constType, final String varLoadOp) {
+		private void loadWide(final OperationBuilder op, final String arg1,
+				final ConstantType constType, final String varLoadOp) {
 			if (isConstant(arg1)) {
-				final short index = classfile.getIndexOfConstantInConstantPool(constType, removeConstantSign(arg1));
+				final short index = classfile.getIndexOfConstantInConstantPool(
+						constType, removeConstantSign(arg1));
 				assert index > 0;
 				op.add(Mnemonic.LDC2_W, 2, ByteUtils.shortToByteArray(index));
 			} else {
-				final byte index = classfile.getIndexOfVariableInMethod(methodName, arg1);
+				final byte index = classfile.getIndexOfVariableInMethod(
+						methodName, arg1);
 				assert index > 0;
 				op.add(Mnemonic.getMnemonic(varLoadOp, index), 1, index);
 			}
 		}
 
-		private void store(final OperationBuilder op, final String result, final String storeOp) {
-			final byte index = classfile.getIndexOfVariableInMethod(methodName, result);
+		private void store(final OperationBuilder op, final String result,
+				final String storeOp) {
+			final byte index = classfile.getIndexOfVariableInMethod(methodName,
+					result);
 			op.add(Mnemonic.getMnemonic(storeOp, index), 1, index);
 		}
 
-		private ProgramBuilder assignNumber(final Quadruple q, final ConstantType dataType, final String loadOp, final Mnemonic convertOp, final String storeOp) {
+		private ProgramBuilder assignNumber(final Quadruple q,
+				final ConstantType dataType, final String loadOp,
+				final Mnemonic convertOp, final String storeOp) {
 			final OperationBuilder op = OperationBuilder.newBuilder();
 			loadWide(op, q.getArgument1(), dataType, loadOp);
 			if (convertOp != null) {
@@ -137,7 +151,9 @@ public class Program {
 			return add(op.build());
 		}
 
-		private ProgramBuilder calculateNumber(final Quadruple q, final ConstantType dataType, final String loadOp, final Mnemonic calcOp, final String storeOp) {
+		private ProgramBuilder calculateNumber(final Quadruple q,
+				final ConstantType dataType, final String loadOp,
+				final Mnemonic calcOp, final String storeOp) {
 			final OperationBuilder op = OperationBuilder.newBuilder();
 			loadWide(op, q.getArgument1(), dataType, loadOp);
 			loadWide(op, q.getArgument2(), dataType, loadOp);
@@ -147,11 +163,13 @@ public class Program {
 		}
 
 		public ProgramBuilder longToDouble(final Quadruple q) {
-			return assignNumber(q, ConstantType.LONG, "LLOAD", Mnemonic.L2D, "DSTORE");
+			return assignNumber(q, ConstantType.LONG, "LLOAD", Mnemonic.L2D,
+					"DSTORE");
 		}
 
 		public ProgramBuilder doubleToLong(final Quadruple q) {
-			return assignNumber(q, ConstantType.DOUBLE, "DLOAD", Mnemonic.D2L, "LSTORE");
+			return assignNumber(q, ConstantType.DOUBLE, "DLOAD", Mnemonic.D2L,
+					"LSTORE");
 		}
 
 		public ProgramBuilder assignLong(final Quadruple q) {
@@ -172,79 +190,99 @@ public class Program {
 		public ProgramBuilder assignBoolean(final Quadruple q) {
 			final OperationBuilder op = OperationBuilder.newBuilder();
 			if (isConstant(q.getArgument1())) {
-				final short value = (short) (Translator.CONST_TRUE.equals(q.getArgument1().toUpperCase()) ? 1 : 0);
-				op.add(Mnemonic.ICONST(value), 1, ByteUtils.shortToByteArray(value));
+				final short value = (short) (Translator.CONST_TRUE.equals(q
+						.getArgument1().toUpperCase()) ? 1 : 0);
+				op.add(Mnemonic.ICONST(value), 1,
+						ByteUtils.shortToByteArray(value));
 			} else {
-				final byte index = classfile.getIndexOfVariableInMethod(methodName, q.getArgument1());
+				final byte index = classfile.getIndexOfVariableInMethod(
+						methodName, q.getArgument1());
 				op.add(Mnemonic.ILOAD(index), 1, index);
 			}
-			final byte index = classfile.getIndexOfVariableInMethod(methodName, q.getResult());
+			final byte index = classfile.getIndexOfVariableInMethod(methodName,
+					q.getResult());
 			op.add(Mnemonic.ISTORE(index), 1, index);
 			return add(op.build());
 		}
 
 		public ProgramBuilder addLong(final Quadruple q) {
-			return calculateNumber(q, ConstantType.LONG, "LLOAD", Mnemonic.LADD, "LSTORE");
+			return calculateNumber(q, ConstantType.LONG, "LLOAD",
+					Mnemonic.LADD, "LSTORE");
 		}
 
 		public ProgramBuilder addDouble(final Quadruple q) {
-			return calculateNumber(q, ConstantType.DOUBLE, "DLOAD", Mnemonic.DADD, "DSTORE");
+			return calculateNumber(q, ConstantType.DOUBLE, "DLOAD",
+					Mnemonic.DADD, "DSTORE");
 		}
 
 		public ProgramBuilder subLong(final Quadruple q) {
-			return calculateNumber(q, ConstantType.LONG, "LLOAD", Mnemonic.LSUB, "LSTORE");
+			return calculateNumber(q, ConstantType.LONG, "LLOAD",
+					Mnemonic.LSUB, "LSTORE");
 		}
 
 		public ProgramBuilder subDouble(final Quadruple q) {
-			return calculateNumber(q, ConstantType.DOUBLE, "DLOAD", Mnemonic.DADD, "DSTORE");
+			return calculateNumber(q, ConstantType.DOUBLE, "DLOAD",
+					Mnemonic.DADD, "DSTORE");
 		}
 
 		public ProgramBuilder mulLong(final Quadruple q) {
-			return calculateNumber(q, ConstantType.LONG, "LLOAD", Mnemonic.LMUL, "LSTORE");
+			return calculateNumber(q, ConstantType.LONG, "LLOAD",
+					Mnemonic.LMUL, "LSTORE");
 		}
 
 		public ProgramBuilder mulDouble(final Quadruple q) {
-			return calculateNumber(q, ConstantType.DOUBLE, "DLOAD", Mnemonic.DMUL, "DSTORE");
+			return calculateNumber(q, ConstantType.DOUBLE, "DLOAD",
+					Mnemonic.DMUL, "DSTORE");
 		}
 
 		public ProgramBuilder divLong(final Quadruple q) {
-			return calculateNumber(q, ConstantType.LONG, "LLOAD", Mnemonic.LDIV, "LSTORE");
+			return calculateNumber(q, ConstantType.LONG, "LLOAD",
+					Mnemonic.LDIV, "LSTORE");
 		}
 
 		public ProgramBuilder divDouble(final Quadruple q) {
-			return calculateNumber(q, ConstantType.DOUBLE, "DLOAD", Mnemonic.DDIV, "DSTORE");
+			return calculateNumber(q, ConstantType.DOUBLE, "DLOAD",
+					Mnemonic.DDIV, "DSTORE");
 		}
 
 		public ProgramBuilder returnLong(final Quadruple q) {
-			short systemExitIndex = this.addSystemExitFunctionToClassfile();
+			final short systemExitIndex = this
+					.addSystemExitFunctionToClassfile();
 
 			final OperationBuilder op = OperationBuilder.newBuilder();
 			if (isConstant(q.getArgument1())) {
-				final short index = classfile.getIndexOfConstantInConstantPool(ConstantType.LONG, removeConstantSign(q.getArgument1()));
+				final short index = classfile
+						.getIndexOfConstantInConstantPool(ConstantType.LONG,
+								removeConstantSign(q.getArgument1()));
 				op.add(Mnemonic.LDC2_W, 2, ByteUtils.shortToByteArray(index));
 			} else {
-				final byte index = classfile.getIndexOfVariableInMethod(methodName, q.getArgument1());
+				final byte index = classfile.getIndexOfVariableInMethod(
+						methodName, q.getArgument1());
 				op.add(Mnemonic.LLOAD(index), 1, index);
 			}
 			op.add(Mnemonic.L2I);
-			op.add(Mnemonic.INVOKESTATIC, 1, ByteUtils.shortToByteArray(systemExitIndex));
+			op.add(Mnemonic.INVOKESTATIC, 1,
+					ByteUtils.shortToByteArray(systemExitIndex));
 			op.add(Mnemonic.RETURN);
 			return add(op.build());
 		}
 
 		/**
-		 * addSystemExitFunctionToClassfile function. This function checks whether the return flag is already set and if not, it'll add the system exit data to
-		 * the classfile.
+		 * addSystemExitFunctionToClassfile function. This function checks
+		 * whether the return flag is already set and if not, it'll add the
+		 * system exit data to the classfile.
 		 * 
 		 * @author Marco
 		 * @since 13.05.2013
 		 * 
-		 * @return systemExitIndex the constant pool index of the methodref entry of the system exit function.
+		 * @return systemExitIndex the constant pool index of the methodref
+		 *         entry of the system exit function.
 		 */
 		private short addSystemExitFunctionToClassfile() {
 			if (!this.returnFlag) {
 				this.returnFlag = true;
-				this.systemExitIndex = this.classfile.addDataForSystemCall("exit", "(I)V", "java/lang/System");
+				this.systemExitIndex = this.classfile.addDataForSystemCall(
+						"exit", "(I)V", "java/lang/System");
 			}
 			return this.systemExitIndex;
 		}
@@ -266,7 +304,8 @@ public class Program {
 		for (final Operation op : operations) {
 			icount += op.getInstructionCount();
 		}
-		final List<Instruction> instructions = new ArrayList<Instruction>(icount);
+		final List<Instruction> instructions = new ArrayList<Instruction>(
+				icount);
 		if (operations != null) {
 			for (final Operation op : operations) {
 				instructions.addAll(op.getInstructions());

@@ -10,7 +10,9 @@ import org.slf4j.LoggerFactory;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 
 /**
- * This class represents a list of instructions and maps every tac-operation to their bytecode equivalent. It is used to carry logical groups of instructions.
+ * This class represents a list of instructions and maps every tac-operation to
+ * their bytecode equivalent. It is used to carry logical groups of
+ * instructions.
  * 
  * @author eike
  * @since 23.04.2013
@@ -21,7 +23,8 @@ public class Operation {
 	/**
 	 * <h1>OperationBuilder-class</h1>
 	 * <p>
-	 * This class provides the builder pattern to create new instances of the Operation-class.
+	 * This class provides the builder pattern to create new instances of the
+	 * Operation-class.
 	 * </p>
 	 * 
 	 * @author eike
@@ -30,7 +33,8 @@ public class Operation {
 	 */
 	public static class OperationBuilder {
 
-		private static final Logger logger = LoggerFactory.getLogger(OperationBuilder.class);
+		private static final Logger logger = LoggerFactory
+				.getLogger(OperationBuilder.class);
 
 		// private int offset = 0;
 		private final List<Instruction> instructions;
@@ -59,11 +63,13 @@ public class Operation {
 		 *            arguments to be passed along the bytecode instruction
 		 * @return instance of this builder
 		 */
-		public OperationBuilder add(final Mnemonic mnemonic, final int argsSize, final byte... arguments) {
+		public OperationBuilder add(final Mnemonic mnemonic,
+				final int argsSize, final byte... arguments) {
 			final int size;
 			final Instruction instruction;
 			if (mnemonic.getArgsCount() > 0) {
-				assert arguments != null && arguments.length == mnemonic.getArgsCount();
+				assert arguments != null
+						&& arguments.length == mnemonic.getArgsCount();
 				size = 1 + argsSize;
 				instruction = new Instruction(size, mnemonic, arguments);
 			} else {
