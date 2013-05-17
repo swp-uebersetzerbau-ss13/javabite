@@ -31,6 +31,7 @@ import java.awt.Panel;
 import javax.swing.JTree;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import javax.swing.SwingConstants;
 
 public class MainFrame extends JFrame {
 	
@@ -101,19 +102,23 @@ public class MainFrame extends JFrame {
 		splitPane.setDividerLocation(250);
 		getContentPane().add(splitPane, BorderLayout.CENTER);
 		
-		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-		splitPane.setLeftComponent(tabbedPane);
+		JTabbedPane editorTabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		splitPane.setLeftComponent(editorTabbedPane);
 		
 		JEditorPane dtrpnSourcecode = new JEditorPane();
 		dtrpnSourcecode.setText("Sourcecode");
-		tabbedPane.addTab("Unbekannt", null, dtrpnSourcecode, null);
+		editorTabbedPane.addTab("Unbekannt", null, dtrpnSourcecode, null);
 		
-		JTabbedPane tabbedPane_1 = new JTabbedPane(JTabbedPane.TOP);
-		splitPane.setRightComponent(tabbedPane_1);
+		JTabbedPane logTabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		splitPane.setRightComponent(logTabbedPane);
 		
 		JTextPane txtpnLogs = new JTextPane();
 		txtpnLogs.setText("Konsole");
-		tabbedPane_1.addTab("Konsole", null, txtpnLogs, null);
+		logTabbedPane.addTab("Konsole", null, txtpnLogs, null);
+		
+		JTextPane textPane = new JTextPane();
+		textPane.setText("Logs");
+		logTabbedPane.addTab("Logs", null, textPane, null);
 		
 		// Events
 		btnNewButton.addMouseListener(new MouseAdapter() {
