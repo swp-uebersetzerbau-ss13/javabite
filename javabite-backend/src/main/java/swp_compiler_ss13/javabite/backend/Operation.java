@@ -7,9 +7,12 @@ import java.util.List;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 
 /**
+ * <h1>Operation</h1>
+ * <p>
  * This class represents a list of instructions and maps every tac-operation to
  * their bytecode equivalent. It is used to carry logical groups of
  * instructions.
+ * </p>
  * 
  * @author eike
  * @since 23.04.2013
@@ -18,7 +21,7 @@ import swp_compiler_ss13.common.backend.Quadruple.Operator;
 public class Operation {
 
 	/**
-	 * <h1>OperationBuilder-class</h1>
+	 * <h1>OperationBuilder</h1>
 	 * <p>
 	 * This class provides the builder pattern to create new instances of the
 	 * Operation-class.

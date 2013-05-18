@@ -13,8 +13,11 @@ import swp_compiler_ss13.javabite.backend.translation.Translator;
 import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
 
 /**
+ * <h1>Program</h1>
+ * <p>
  * Representation of a program instruction block. Contains a list of operations
  * which consist of instructions.
+ * </p>
  * 
  * @author eike
  * @since 02.05.2013 23:41:39
@@ -23,10 +26,11 @@ import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
 public class Program {
 
 	/**
-	 * ProgramBuilder-class
-	 * 
+	 * <h1>ProgramBuilder</h1>
+	 * <p>
 	 * This class provides a builder pattern implementation for the program
 	 * class.
+	 * </p>
 	 * 
 	 * @author eike
 	 * @since May 18, 2013 12:29:51 AM
@@ -94,32 +98,21 @@ public class Program {
 			return m.replaceAll("");
 		}
 
-		private void load(final OperationBuilder op, final String arg1,
-				final ConstantType constType, final String varLoadOp) {
+		private void load(final OperationBuilder op, final boolean wide,
+				final String arg1, final ConstantType constType,
+				final String varLoadOp) {
 			if (isConstant(arg1)) {
 				final short index = classfile.getIndexOfConstantInConstantPool(
 						constType, removeConstantSign(arg1));
 				assert index > 0;
-				if (index < 256) {
-					op.add(Mnemonic.LDC, 1, (byte) index);
-				} else {
+				if (wide) {
+					op.add(Mnemonic.LDC2_W, 2,
+							ByteUtils.shortToByteArray(index));
+				} else if (index >= 256) {
 					op.add(Mnemonic.LDC_W, 1, ByteUtils.shortToByteArray(index));
+				} else {
+					op.add(Mnemonic.LDC, 1, (byte) index);
 				}
-			} else {
-				final byte index = classfile.getIndexOfVariableInMethod(
-						methodName, arg1);
-				assert index > 0;
-				op.add(Mnemonic.getMnemonic(varLoadOp, index), 1, index);
-			}
-		}
-
-		private void loadWide(final OperationBuilder op, final String arg1,
-				final ConstantType constType, final String varLoadOp) {
-			if (isConstant(arg1)) {
-				final short index = classfile.getIndexOfConstantInConstantPool(
-						constType, removeConstantSign(arg1));
-				assert index > 0;
-				op.add(Mnemonic.LDC2_W, 2, ByteUtils.shortToByteArray(index));
 			} else {
 				final byte index = classfile.getIndexOfVariableInMethod(
 						methodName, arg1);
@@ -139,7 +132,7 @@ public class Program {
 				final ConstantType dataType, final String loadOp,
 				final Mnemonic convertOp, final String storeOp) {
 			final OperationBuilder op = OperationBuilder.newBuilder();
-			loadWide(op, q.getArgument1(), dataType, loadOp);
+			load(op, true, q.getArgument1(), dataType, loadOp);
 			if (convertOp != null) {
 				op.add(convertOp);
 			}
@@ -151,8 +144,8 @@ public class Program {
 				final ConstantType dataType, final String loadOp,
 				final Mnemonic calcOp, final String storeOp) {
 			final OperationBuilder op = OperationBuilder.newBuilder();
-			loadWide(op, q.getArgument1(), dataType, loadOp);
-			loadWide(op, q.getArgument2(), dataType, loadOp);
+			load(op, true, q.getArgument1(), dataType, loadOp);
+			load(op, true, q.getArgument2(), dataType, loadOp);
 			op.add(calcOp);
 			store(op, q.getResult(), storeOp);
 			return add(op.build());
@@ -344,7 +337,7 @@ public class Program {
 		 */
 		public ProgramBuilder assignString(final Quadruple q) {
 			final OperationBuilder op = OperationBuilder.newBuilder();
-			load(op, q.getArgument1(), ConstantType.STRING, "ALOAD");
+			load(op, false, q.getArgument1(), ConstantType.STRING, "ALOAD");
 			store(op, q.getResult(), "ASTORE");
 			return add(op.build());
 		}

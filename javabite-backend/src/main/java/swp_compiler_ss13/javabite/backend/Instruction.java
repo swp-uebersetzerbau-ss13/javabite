@@ -10,7 +10,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * <h1>Instruction</h1>
+ * <p>
  * This class represents a bytecode instruction, with its opcode and arguments.
+ * </p>
  * 
  * @author eike
  * @since 23.04.2013

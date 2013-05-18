@@ -1,7 +1,7 @@
 package swp_compiler_ss13.javabite.backend;
 
 /**
- * <h1>Mnemonic-enum</h1>
+ * <h1>Mnemonic</h1>
  * <p>
  * This enum holds all available bytecode mnemonics and their respective
  * bytecode bytes.
@@ -183,19 +183,14 @@ public enum Mnemonic {
 	GOTO				(0xA7, 0, 2),
 	JSR					(0xA8, 1, 2),
 	RET					(0xA9, 0, 1),
-	TABLESWITCH			(0xAA, 0, 4),
-	// also 4+
-	LOOKUPSWITCH		(0xAB, 0, 4),
-	// also 4+
+	TABLESWITCH			(0xAA, 0, 4), // also 4+
+	LOOKUPSWITCH		(0xAB, 0, 4), // also 4+
 	IRETURN				(0xAC, -1),
 	LRETURN				(0xAD, -2),
 	FRETURN				(0xAE, -1),
 	DRETURN				(0xAF, -2),
 	ARETURN				(0xB0, -1),
 	RETURN				(0xB1),
-
-	// TODO add stack change below
-
 	GETSTATIC			(0xB2, 0, 2),
 	PUTSTATIC			(0xB3, 0, 2),
 	GETFIELD			(0xB4, 0, 2),
@@ -214,8 +209,7 @@ public enum Mnemonic {
 	INSTANCEOF			(0xC1, 0, 2),
 	MONITORENTER		(0xC2),
 	MONITOREXIT			(0xC3),
-	WIDE				(0xC4, 0, 3),
-	// also 5
+	WIDE				(0xC4, 0, 3), // also 5
 	MULTIANEWARRAY		(0xC5, 0, 3),
 	IFNULL				(0xC6, 0, 2),
 	IFNONNULL			(0xC7, 0, 2),
@@ -298,87 +292,59 @@ public enum Mnemonic {
 	}
 
 	public static Mnemonic ICONST(final int value) {
-		// if (value >= -1 && value <= 5)
 		return getMnemonic("ICONST", value);
-		// return null;
 	}
 
 	public static Mnemonic LCONST(final int value) {
-		// if (value >= 0 && value <= 1)
 		return getMnemonic("LCONST", value);
-		// return null;
 	}
 
 	public static Mnemonic FCONST(final int value) {
-		// if (value >= 0 && value <= 2)
 		return getMnemonic("FCONST", value);
-		// return null;
 	}
 
 	public static Mnemonic DCONST(final int value) {
-		// if (value >= 0 && value <= 1)
 		return getMnemonic("DCONST", value);
-		// return null;
 	}
 
 	public static Mnemonic ILOAD(final int value) {
-		// if (value >= 0 && value <= 3)
 		return getMnemonic("ILOAD", value);
-		// return null;
 	}
 
 	public static Mnemonic LLOAD(final int value) {
-		// if (value >= 0 && value <= 3)
 		return getMnemonic("LLOAD", value);
-		// return null;
 	}
 
 	public static Mnemonic FLOAD(final int value) {
-		// if (value >= 0 && value <= 3)
 		return getMnemonic("FLOAD", value);
-		// return null;
 	}
 
 	public static Mnemonic DLOAD(final int value) {
-		// if (value >= 0 && value <= 3)
 		return getMnemonic("DLOAD", value);
-		// return null;
 	}
 
 	public static Mnemonic ALOAD(final int value) {
-		// if (value >= 0 && value <= 3)
 		return getMnemonic("ALOAD", value);
-		// return null;
 	}
 
 	public static Mnemonic ISTORE(final int value) {
-		// if (value >= 0 && value <= 3)
 		return getMnemonic("ISTORE", value);
-		// return null;
 	}
 
 	public static Mnemonic LSTORE(final int value) {
-		// if (value >= 0 && value <= 3)
 		return getMnemonic("LSTORE", value);
-		// return null;
 	}
 
 	public static Mnemonic FSTORE(final int value) {
-		// if (value >= 0 && value <= 3)
 		return getMnemonic("FSTORE", value);
-		// return null;
 	}
 
 	public static Mnemonic DSTORE(final int value) {
-		// if (value >= 0 && value <= 3)
 		return getMnemonic("DSTORE", value);
-		// return null;
 	}
 
 	public static Mnemonic ASTORE(final int value) {
-		// if (value >= 0 && value <= 3)
 		return getMnemonic("ASTORE", value);
-		// return null;
 	}
 
 	public short getStackChange() {

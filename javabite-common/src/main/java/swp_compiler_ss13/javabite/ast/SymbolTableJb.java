@@ -8,70 +8,52 @@ import swp_compiler_ss13.common.parser.SymbolTable;
 import swp_compiler_ss13.common.types.Type;
 
 public class SymbolTableJb implements SymbolTable {
-	private final static String TEMP_PREFIX = "tmp_";
+	private class SymbolTableInfo {
+		String alias;
+		Type type;
+		Liveliness liveliness = null;
+		
+		SymbolTableInfo(Type type) {
+			this.type = type;
+		}
+		
+		@Override
+		public String toString() {
+			return "["+type+", "+alias+", "+liveliness+"]";
+		}
+	}
 	
+	private final static String TEMP_PREFIX = "tmp_";
 	private SymbolTable parent = null;
 	private final Map<String, SymbolTableInfo> table = new HashMap<>();
+
 	private long ext = 0;
 
 	@Override
-	public SymbolTable getParentSymbolTable() {
-		return parent;
-	}
-
-	@Override
-	public Boolean isDeclared(String identifier) {
-		return table.containsKey(identifier); 
-	}
-	
-	/**
-	 * Checks if the given identifier is already declared in this table or 
-	 * parent.
-	 * @param identifier
-	 * @return
-	 */
-	public Boolean isDeclaredScope(String identifier) {
+	public SymbolTable getDeclaringSymbolTable(String identifier) {
 		SymbolTable t = this;
 		Boolean isDeclared = false;
 		do {
-			isDeclared = t.isDeclared(identifier);
+			isDeclared = t.isDeclaredInCurrentScope(identifier);
 		} while (!isDeclared && (t = t.getParentSymbolTable()) != null);
 		
-		return isDeclared; 
+		return t;
 	}
 
 	@Override
-	public Type lookupType(String identifier) {
+	public String getIdentifierAlias(String identifier) {
 		SymbolTableInfo sbInfo = table.get(identifier);
 		
 		if (sbInfo == null) {
-			return null;
+			if (parent == null)
+				return null;
+			else
+				parent.getIdentifierAlias(identifier);
 		}
 		
-		return sbInfo.type;
+		return (sbInfo.alias != null)?sbInfo.alias:identifier;
 	}
-
-	@Override
-	public void insert(String identifier, Type type) {
-		table.put(identifier, new SymbolTableInfo(type));
-	}
-
-	@Override
-	public Boolean remove(String identifier) {
-		return table.remove(identifier) != null;
-	}
-
-	@Override
-	public void setLivelinessInformation(String identifier,
-			Liveliness liveliness) {
-		SymbolTableInfo sbInfo = table.get(identifier);
-		
-		if (sbInfo == null)
-			return;
-		
-		sbInfo.liveliness = liveliness;
-	}
-
+	
 	@Override
 	public Liveliness getLivelinessInformation(String identifier) {
 		SymbolTableInfo sbInfo = table.get(identifier);
@@ -88,17 +70,18 @@ public class SymbolTableJb implements SymbolTable {
 		
 		do {
 			candidate = TEMP_PREFIX + ext++;
-		} while (this.isDeclaredScope(candidate));
+		} while (this.isDeclared(candidate));
 		
 		return candidate;
 	}
 
 	@Override
-	public void putTemporary(String identifier, Type type) {
-		getRootTable().insert(identifier, type);
+	public SymbolTable getParentSymbolTable() {
+		return parent;
 	}
-	
-	private SymbolTable getRootTable() {
+
+	@Override
+	public SymbolTable getRootSymbolTable() {
 		SymbolTable t = this;
 		
 		while(t.getParentSymbolTable() != null) {
@@ -107,20 +90,70 @@ public class SymbolTableJb implements SymbolTable {
 		
 		return t;
 	}
-	
-	private class SymbolTableInfo {
-		Type type;
-		Liveliness liveliness = null;
-		
-		SymbolTableInfo(Type type) {
-			this.type = type;
-		}
-		@Override
-		public String toString() {
-			return "["+type+", "+liveliness+"]";
-		}
+
+	@Override
+	public Boolean insert(String identifier, Type type) {
+		return table.put(identifier, new SymbolTableInfo(type)) == null;
+	}
+
+	@Override
+	public Boolean isDeclared(String identifier) {
+		 return getDeclaringSymbolTable(identifier) != null;
 	}
 	
+	@Override
+	public Boolean isDeclaredInCurrentScope(String identifier) {
+		return table.containsKey(identifier); 
+	}
+	
+	@Override
+	public Type lookupType(String identifier) {
+		SymbolTable sbTable = getDeclaringSymbolTable(identifier);
+		
+		if (sbTable == null) {
+			return null;
+		}
+		
+		return sbTable.lookupTypeInCurrentScope(identifier);
+	}
+
+	@Override
+	public Type lookupTypeInCurrentScope(String identifier) {
+		SymbolTableInfo sbInfo = table.get(identifier);
+		
+		if (sbInfo == null) {
+			return null;
+		}
+		
+		return sbInfo.type;
+	}
+
+	@Override
+	public void putTemporary(String identifier, Type type) {
+		getRootSymbolTable().insert(identifier, type);
+	}
+
+	@Override
+	public Boolean remove(String identifier) {
+		return table.remove(identifier) != null;
+	}
+
+	@Override
+	public void setIdentifierAlias(String identifier, String alias) {
+		table.get(identifier).alias = alias;
+	}
+
+	@Override
+	public void setLivelinessInformation(String identifier,
+			Liveliness liveliness) {
+		SymbolTableInfo sbInfo = table.get(identifier);
+		
+		if (sbInfo == null)
+			return;
+		
+		sbInfo.liveliness = liveliness;
+	}
+
 	public String toString(){
 		return table.toString();
 	}

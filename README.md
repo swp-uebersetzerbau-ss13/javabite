@@ -3,6 +3,24 @@ javabite
 Javabite is a compiler for a language described by the related repository 
 <https://github.com/swp-uebersetzerbau-ss13/common>.
 
+## How-To build the project
+Depending on the operation system there are script files which setup everything necessary
+to build the javabite-compiler.
+
+For Windows: 
+	"gradlew.bat buildCompiler"
+
+For sh-compatible: 
+	"./gradlew buildCompiler"
+
+For ant: 
+	The build.xml execute these commands depending on your OS by default.
+	The build itself will be executed by gradle. 
+
+The fully build compiler can be found in bin/javabite-compiler-0.1.jar
+
+It compiles the file provided as first command line argument.
+
 ## Project Structure
 The project consists of six projects, each responsible for another part of the compiler:
 
