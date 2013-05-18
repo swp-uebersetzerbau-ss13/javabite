@@ -32,6 +32,7 @@ import swp_compiler_ss13.javabite.lexer.LexerJb;
 import java.awt.FlowLayout;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
+import javax.swing.JLabel;
 
 public class MainFrame extends JFrame {
 
@@ -69,6 +70,7 @@ public class MainFrame extends JFrame {
 	 */
 	public MainFrame() {
 		setTitle("Javabite Compiler");
+		setSize(1024, 768);
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		getContentPane().setLayout(new BorderLayout(0, 0));
@@ -76,14 +78,14 @@ public class MainFrame extends JFrame {
 		JMenuBar menuBar = new JMenuBar();
 		getContentPane().add(menuBar, BorderLayout.NORTH);
 		
-		JMenu mnNewMenu = new JMenu("Datei");
+		JMenu mnNewMenu = new JMenu("File");
 		mnNewMenu.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 			}
 		});
 		menuBar.add(mnNewMenu);
 		
-		JMenuItem mntmNewMenuItem = new JMenuItem("Datei \u00F6ffnen");
+		JMenuItem mntmNewMenuItem = new JMenuItem("Open");
 		mntmNewMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// TODO: open document
@@ -91,7 +93,7 @@ public class MainFrame extends JFrame {
 		});
 		mnNewMenu.add(mntmNewMenuItem);
 		
-		JMenuItem mntmDateiSpeichern = new JMenuItem("Datei speichern");
+		JMenuItem mntmDateiSpeichern = new JMenuItem("Save");
 		mntmDateiSpeichern.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// TODO: save document
@@ -99,7 +101,7 @@ public class MainFrame extends JFrame {
 		});
 		mnNewMenu.add(mntmDateiSpeichern);
 		
-		JMenuItem mntmSchlieen = new JMenuItem("Schlie\u00DFen");
+		JMenuItem mntmSchlieen = new JMenuItem("Close");
 		mntmSchlieen.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				System.exit(0);
@@ -107,7 +109,7 @@ public class MainFrame extends JFrame {
 		});
 		mnNewMenu.add(mntmSchlieen);
 		
-		JMenu mnVisualisierung = new JMenu("Visualisierung");
+		JMenu mnVisualisierung = new JMenu("Visual");
 		menuBar.add(mnVisualisierung);
 		
 		JMenuItem mntmAst = new JMenuItem("AST");
@@ -117,10 +119,23 @@ public class MainFrame extends JFrame {
 		mnVisualisierung.add(mntmTac);
 		
 		JButton btnNewButton = new JButton("\u25BA");
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				progressBar.setVisible(true);
+			}
+		});
 		menuBar.add(btnNewButton);
 		
 		JToolBar toolBar = new JToolBar();
 		getContentPane().add(toolBar, BorderLayout.SOUTH);
+		
+		JPanel panel = new JPanel();
+		FlowLayout flowLayout_1 = (FlowLayout) panel.getLayout();
+		flowLayout_1.setAlignment(FlowLayout.LEFT);
+		toolBar.add(panel);
+		
+		JLabel lblNewLabel = new JLabel("Compiler started");
+		panel.add(lblNewLabel);
 		
 		JPanel panel_1 = new JPanel();
 		FlowLayout flowLayout = (FlowLayout) panel_1.getLayout();
@@ -166,18 +181,18 @@ public class MainFrame extends JFrame {
 			}
 		});
 		
-		editorTabbedPane.addTab("Unbekannt", null, dtrpnSourcecode, null);
+		editorTabbedPane.addTab("Unknown", null, dtrpnSourcecode, null);
 		
 		JTabbedPane logTabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		splitPane.setRightComponent(logTabbedPane);
 		
 		JTextPane txtpnLogs = new JTextPane();
-		txtpnLogs.setText("Konsole");
-		logTabbedPane.addTab("Konsole", null, txtpnLogs, null);
+		txtpnLogs.setText("Console logs");
+		logTabbedPane.addTab("Console", null, txtpnLogs, null);
 		
 		JTextPane textPane = new JTextPane();
-		textPane.setText("Logs");
-		logTabbedPane.addTab("Logs", null, textPane, null);
+		textPane.setText("Other logs");
+		logTabbedPane.addTab("Log", null, textPane, null);
 	}
 	
 	private List<Token> getTokenList(String text) {
