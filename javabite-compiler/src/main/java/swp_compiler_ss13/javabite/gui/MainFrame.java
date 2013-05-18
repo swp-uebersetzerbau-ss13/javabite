@@ -41,7 +41,7 @@ public class MainFrame extends JFrame {
 	//Class to setup styles for our sourcecode
 	StyledDocument doc = (StyledDocument) new DefaultStyledDocument();
 	
-	private static JTextPane dtrpnSourcecode;
+	private static JTextPane editorPaneSourcode;
 	
 	//we need to communicate with the lexer to colorize tokens
 	private LexerJb lexer;
@@ -78,72 +78,72 @@ public class MainFrame extends JFrame {
 		JMenuBar menuBar = new JMenuBar();
 		getContentPane().add(menuBar, BorderLayout.NORTH);
 		
-		JMenu mnNewMenu = new JMenu("File");
-		mnNewMenu.addActionListener(new ActionListener() {
+		JMenu menuFile = new JMenu("File");
+		menuFile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 			}
 		});
-		menuBar.add(mnNewMenu);
+		menuBar.add(menuFile);
 		
-		JMenuItem mntmNewMenuItem = new JMenuItem("Open");
-		mntmNewMenuItem.addActionListener(new ActionListener() {
+		JMenuItem menuFileOpen = new JMenuItem("Open");
+		menuFileOpen.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// TODO: open document
 			}
 		});
-		mnNewMenu.add(mntmNewMenuItem);
+		menuFile.add(menuFileOpen);
 		
-		JMenuItem mntmDateiSpeichern = new JMenuItem("Save");
-		mntmDateiSpeichern.addActionListener(new ActionListener() {
+		JMenuItem menuFileSave = new JMenuItem("Save");
+		menuFileSave.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// TODO: save document
 			}
 		});
-		mnNewMenu.add(mntmDateiSpeichern);
+		menuFile.add(menuFileSave);
 		
-		JMenuItem mntmSchlieen = new JMenuItem("Close");
-		mntmSchlieen.addActionListener(new ActionListener() {
+		JMenuItem menuFileClose = new JMenuItem("Close");
+		menuFileClose.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				System.exit(0);
 			}
 		});
-		mnNewMenu.add(mntmSchlieen);
+		menuFile.add(menuFileClose);
 		
-		JMenu mnVisualisierung = new JMenu("Visual");
-		menuBar.add(mnVisualisierung);
+		JMenu menuVisual = new JMenu("Visual");
+		menuBar.add(menuVisual);
 		
-		JMenuItem mntmAst = new JMenuItem("AST");
-		mnVisualisierung.add(mntmAst);
+		JMenuItem menuVisualAst = new JMenuItem("AST");
+		menuVisual.add(menuVisualAst);
 		
-		JMenuItem mntmTac = new JMenuItem("TAC");
-		mnVisualisierung.add(mntmTac);
+		JMenuItem menuVisualTac = new JMenuItem("TAC");
+		menuVisual.add(menuVisualTac);
 		
-		JButton btnNewButton = new JButton("\u25BA");
-		btnNewButton.addActionListener(new ActionListener() {
+		JButton buttonRunCompile = new JButton("\u25BA");
+		buttonRunCompile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				progressBar.setVisible(true);
 			}
 		});
-		menuBar.add(btnNewButton);
+		menuBar.add(buttonRunCompile);
 		
 		JToolBar toolBar = new JToolBar();
 		getContentPane().add(toolBar, BorderLayout.SOUTH);
 		
-		JPanel panel = new JPanel();
-		FlowLayout flowLayout_1 = (FlowLayout) panel.getLayout();
+		JPanel panelLabel = new JPanel();
+		FlowLayout flowLayout_1 = (FlowLayout) panelLabel.getLayout();
 		flowLayout_1.setAlignment(FlowLayout.LEFT);
-		toolBar.add(panel);
+		toolBar.add(panelLabel);
 		
-		JLabel lblNewLabel = new JLabel("Compiler started");
-		panel.add(lblNewLabel);
+		JLabel toolBarLabel = new JLabel("Compiler started");
+		panelLabel.add(toolBarLabel);
 		
-		JPanel panel_1 = new JPanel();
-		FlowLayout flowLayout = (FlowLayout) panel_1.getLayout();
+		JPanel panelProgressBar = new JPanel();
+		FlowLayout flowLayout = (FlowLayout) panelProgressBar.getLayout();
 		flowLayout.setAlignment(FlowLayout.RIGHT);
-		toolBar.add(panel_1);
+		toolBar.add(panelProgressBar);
 		
 		progressBar = new JProgressBar();
-		panel_1.add(progressBar);
+		panelProgressBar.add(progressBar);
 		progressBar.setVisible(false);
 		
 		JSplitPane splitPane = new JSplitPane();
@@ -155,14 +155,14 @@ public class MainFrame extends JFrame {
 		splitPane.setLeftComponent(editorTabbedPane);
 		
 		lexer = new LexerJb();
-		dtrpnSourcecode = new JTextPane(doc);
-		dtrpnSourcecode.setText("enter your sourcecode here");
-		//add listner for sourcecode colorization 
-		dtrpnSourcecode.addKeyListener(new KeyAdapter() {
+		editorPaneSourcode = new JTextPane(doc);
+		editorPaneSourcode.setText("enter your sourcecode here");
+		// add listener for sourcecode colorization 
+		editorPaneSourcode.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyTyped(KeyEvent e) {
 				int index = 0;
-				String text = dtrpnSourcecode.getText();
+				String text = editorPaneSourcode.getText();
 				List<Token> tokens = getTokenList(text);
 				
 				//text without breaklines and other special chars that jpane not counts
@@ -181,18 +181,18 @@ public class MainFrame extends JFrame {
 			}
 		});
 		
-		editorTabbedPane.addTab("Unknown", null, dtrpnSourcecode, null);
+		editorTabbedPane.addTab("Unknown", null, editorPaneSourcode, null);
 		
 		JTabbedPane logTabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		splitPane.setRightComponent(logTabbedPane);
 		
-		JTextPane txtpnLogs = new JTextPane();
-		txtpnLogs.setText("Console logs");
-		logTabbedPane.addTab("Console", null, txtpnLogs, null);
+		JTextPane textPaneConsole = new JTextPane();
+		textPaneConsole.setText("Console logs");
+		logTabbedPane.addTab("Console", null, textPaneConsole, null);
 		
-		JTextPane textPane = new JTextPane();
-		textPane.setText("Other logs");
-		logTabbedPane.addTab("Log", null, textPane, null);
+		JTextPane textPaneLogs = new JTextPane();
+		textPaneLogs.setText("Other logs");
+		logTabbedPane.addTab("Log", null, textPaneLogs, null);
 	}
 	
 	private List<Token> getTokenList(String text) {
@@ -216,21 +216,21 @@ public class MainFrame extends JFrame {
 	private void styleToken(TokenType tokenType, int start, int end) {
 		System.out.println(start + " bis " + end + ": " + tokenType);
 		if (tokenType == TokenType.STRING ) {
-			javax.swing.text.Style style = dtrpnSourcecode.addStyle("Blue", null);
+			javax.swing.text.Style style = editorPaneSourcode.addStyle("Blue", null);
 			StyleConstants.setForeground(style, Color.BLUE);
-			doc.setCharacterAttributes(start, end, dtrpnSourcecode.getStyle("Blue"), true);
+			doc.setCharacterAttributes(start, end, editorPaneSourcode.getStyle("Blue"), true);
 		} else if(tokenType == TokenType.IF || tokenType == TokenType.WHILE || tokenType == TokenType.DO || tokenType == TokenType.BREAK || tokenType == TokenType.RETURN || tokenType == TokenType.PRINT ) {
-			javax.swing.text.Style style = dtrpnSourcecode.addStyle("Pink", null);
+			javax.swing.text.Style style = editorPaneSourcode.addStyle("Pink", null);
 			StyleConstants.setForeground(style, new Color(145, 0, 85));
-			doc.setCharacterAttributes(start, end, dtrpnSourcecode.getStyle("Pink"), true);
+			doc.setCharacterAttributes(start, end, editorPaneSourcode.getStyle("Pink"), true);
 		} else if(tokenType == TokenType.COMMENT) {
-			javax.swing.text.Style style = dtrpnSourcecode.addStyle("Gray", null);
+			javax.swing.text.Style style = editorPaneSourcode.addStyle("Gray", null);
 			StyleConstants.setForeground(style, Color.GRAY);
-			doc.setCharacterAttributes(start, end, dtrpnSourcecode.getStyle("Gray"), true);
+			doc.setCharacterAttributes(start, end, editorPaneSourcode.getStyle("Gray"), true);
 		} else {
-			javax.swing.text.Style style = dtrpnSourcecode.addStyle("Black", null);
+			javax.swing.text.Style style = editorPaneSourcode.addStyle("Black", null);
 			StyleConstants.setForeground(style, Color.BLACK);
-			doc.setCharacterAttributes(start, end, dtrpnSourcecode.getStyle("Black"), true);
+			doc.setCharacterAttributes(start, end, editorPaneSourcode.getStyle("Black"), true);
 		}
 	}
 }
