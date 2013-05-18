@@ -30,6 +30,8 @@ import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.javabite.lexer.LexerJb;
 import java.awt.FlowLayout;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
 
 public class MainFrame extends JFrame {
 
@@ -75,15 +77,34 @@ public class MainFrame extends JFrame {
 		getContentPane().add(menuBar, BorderLayout.NORTH);
 		
 		JMenu mnNewMenu = new JMenu("Datei");
+		mnNewMenu.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			}
+		});
 		menuBar.add(mnNewMenu);
 		
 		JMenuItem mntmNewMenuItem = new JMenuItem("Datei \u00F6ffnen");
+		mntmNewMenuItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// TODO: open document
+			}
+		});
 		mnNewMenu.add(mntmNewMenuItem);
 		
 		JMenuItem mntmDateiSpeichern = new JMenuItem("Datei speichern");
+		mntmDateiSpeichern.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// TODO: save document
+			}
+		});
 		mnNewMenu.add(mntmDateiSpeichern);
 		
 		JMenuItem mntmSchlieen = new JMenuItem("Schlie\u00DFen");
+		mntmSchlieen.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				System.exit(0);
+			}
+		});
 		mnNewMenu.add(mntmSchlieen);
 		
 		JMenu mnVisualisierung = new JMenu("Visualisierung");
@@ -187,7 +208,6 @@ public class MainFrame extends JFrame {
 			javax.swing.text.Style style = dtrpnSourcecode.addStyle("Pink", null);
 			StyleConstants.setForeground(style, new Color(145, 0, 85));
 			doc.setCharacterAttributes(start, end, dtrpnSourcecode.getStyle("Pink"), true);
-			
 		} else if(tokenType == TokenType.COMMENT) {
 			javax.swing.text.Style style = dtrpnSourcecode.addStyle("Gray", null);
 			StyleConstants.setForeground(style, Color.GRAY);
