@@ -42,28 +42,16 @@ public class SymbolTableJb implements SymbolTable {
 
 	@Override
 	public String getIdentifierAlias(String identifier) {
-		SymbolTableJb sbTable = getDeclaringSymbolTableJb(identifier);
+		SymbolTableInfo sbInfo = table.get(identifier);
 		
-		if (sbTable == null) {
-			return null;
+		if (sbInfo == null) {
+			if (parent == null)
+				return null;
+			else
+				parent.getIdentifierAlias(identifier);
 		}
 		
-		SymbolTableInfo sbInfo =  sbTable.getSbInfo(identifier);
-		
 		return (sbInfo.alias != null)?sbInfo.alias:identifier;
-	}
-
-	private SymbolTableJb getDeclaringSymbolTableJb(String identifier) {
-		SymbolTableJb t = this;
-		Boolean isDeclared = false;
-		do {
-			isDeclared = t.isDeclaredInCurrentScope(identifier);
-		} while (!isDeclared && (t = (SymbolTableJb)t.getParentSymbolTable()) != null);
-		
-		return t;
-	}
-	private SymbolTableInfo getSbInfo(String identifier) {
-		return table.get(identifier);
 	}
 	
 	@Override
