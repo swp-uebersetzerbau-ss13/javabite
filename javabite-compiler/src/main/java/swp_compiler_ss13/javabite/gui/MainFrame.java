@@ -70,7 +70,7 @@ public class MainFrame extends JFrame {
 	 */
 	public MainFrame() {
 		setTitle("Javabite Compiler");
-		setSize(1024, 768);
+		setSize(700, 500);
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		getContentPane().setLayout(new BorderLayout(0, 0));
@@ -113,15 +113,28 @@ public class MainFrame extends JFrame {
 		menuBar.add(menuVisual);
 		
 		JMenuItem menuVisualAst = new JMenuItem("AST");
+		menuVisualAst.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// TODO: show AST
+			}
+		});
 		menuVisual.add(menuVisualAst);
 		
 		JMenuItem menuVisualTac = new JMenuItem("TAC");
+		menuVisualTac.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// TODO: show TAC
+			}
+		});
 		menuVisual.add(menuVisualTac);
 		
 		JButton buttonRunCompile = new JButton("\u25BA");
 		buttonRunCompile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				progressBar.setVisible(true);
+				// TODO: save sourcecode
+				// TODO: compile sourcecode
+				progressBar.setVisible(false);
 			}
 		});
 		menuBar.add(buttonRunCompile);
