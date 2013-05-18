@@ -40,16 +40,33 @@ public class MainFrame extends JFrame {
 
 	private JPanel contentPane;
 	
-	//Class to setup styles for our sourcecode
+	// class to setup styles for our sourcecode
 	StyledDocument doc = (StyledDocument) new DefaultStyledDocument();
-	
-	private static JTextPane editorPaneSourcode;
 	
 	//we need to communicate with the lexer to colorize tokens
 	private LexerJb lexer;
 	
 	// Components
+	JMenuBar menuBar;
+	JMenu menuFile;
+	JMenuItem menuFileOpen;
+	JMenuItem menuFileSave;
+	JMenuItem menuFileClose;
+	JMenu menuVisual;
+	JMenuItem menuVisualAst;
+	JMenuItem menuVisualTac;
+	JButton buttonRunCompile;
+	JToolBar toolBar;
+	JPanel panelLabel;
+	JPanel panelProgressBar;
+	JLabel toolBarLabel;
 	JProgressBar progressBar;
+	JSplitPane splitPane;
+	JTextPane textPaneConsole;
+	JTextPane textPaneLogs;
+	JTabbedPane logTabbedPane;
+	JTabbedPane editorTabbedPane;
+	private static JTextPane editorPaneSourcode;
 	
 	/**
 	 * Launch the application.
@@ -76,13 +93,13 @@ public class MainFrame extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		
-		JMenuBar menuBar = new JMenuBar();
+		menuBar = new JMenuBar();
 		getContentPane().add(menuBar, BorderLayout.NORTH);
 		
-		JMenu menuFile = new JMenu("File");
+		menuFile = new JMenu("File");
 		menuBar.add(menuFile);
 		
-		JMenuItem menuFileOpen = new JMenuItem("Open");
+		menuFileOpen = new JMenuItem("Open");
 		menuFileOpen.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// TODO: open document
@@ -90,7 +107,7 @@ public class MainFrame extends JFrame {
 		});
 		menuFile.add(menuFileOpen);
 		
-		JMenuItem menuFileSave = new JMenuItem("Save");
+		menuFileSave = new JMenuItem("Save");
 		menuFileSave.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// TODO: save document
@@ -98,7 +115,7 @@ public class MainFrame extends JFrame {
 		});
 		menuFile.add(menuFileSave);
 		
-		JMenuItem menuFileClose = new JMenuItem("Close");
+		menuFileClose = new JMenuItem("Close");
 		menuFileClose.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// TODO: save documents
@@ -107,10 +124,10 @@ public class MainFrame extends JFrame {
 		});
 		menuFile.add(menuFileClose);
 		
-		JMenu menuVisual = new JMenu("Visual");
+		menuVisual = new JMenu("Visual");
 		menuBar.add(menuVisual);
 		
-		JMenuItem menuVisualAst = new JMenuItem("AST");
+		menuVisualAst = new JMenuItem("AST");
 		menuVisualAst.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// TODO: show AST
@@ -118,7 +135,7 @@ public class MainFrame extends JFrame {
 		});
 		menuVisual.add(menuVisualAst);
 		
-		JMenuItem menuVisualTac = new JMenuItem("TAC");
+		menuVisualTac = new JMenuItem("TAC");
 		menuVisualTac.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// TODO: show TAC
@@ -126,7 +143,7 @@ public class MainFrame extends JFrame {
 		});
 		menuVisual.add(menuVisualTac);
 		
-		JButton buttonRunCompile = new JButton("\u25BA");
+		buttonRunCompile = new JButton("\u25BA");
 		buttonRunCompile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				progressBar.setVisible(true);
@@ -143,18 +160,18 @@ public class MainFrame extends JFrame {
 		});
 		menuBar.add(buttonRunCompile);
 		
-		JToolBar toolBar = new JToolBar();
+		toolBar = new JToolBar();
 		getContentPane().add(toolBar, BorderLayout.SOUTH);
 		
-		JPanel panelLabel = new JPanel();
+		panelLabel = new JPanel();
 		FlowLayout flowLayout_1 = (FlowLayout) panelLabel.getLayout();
 		flowLayout_1.setAlignment(FlowLayout.LEFT);
 		toolBar.add(panelLabel);
 		
-		JLabel toolBarLabel = new JLabel("Compiler started");
+		toolBarLabel = new JLabel("Compiler started");
 		panelLabel.add(toolBarLabel);
 		
-		JPanel panelProgressBar = new JPanel();
+		panelProgressBar = new JPanel();
 		FlowLayout flowLayout = (FlowLayout) panelProgressBar.getLayout();
 		flowLayout.setAlignment(FlowLayout.RIGHT);
 		toolBar.add(panelProgressBar);
@@ -163,12 +180,12 @@ public class MainFrame extends JFrame {
 		panelProgressBar.add(progressBar);
 		progressBar.setVisible(false);
 		
-		JSplitPane splitPane = new JSplitPane();
+		splitPane = new JSplitPane();
 		splitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		splitPane.setDividerLocation(250);
 		getContentPane().add(splitPane, BorderLayout.CENTER);
 		
-		JTabbedPane editorTabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		editorTabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		splitPane.setLeftComponent(editorTabbedPane);
 		
 		lexer = new LexerJb();
@@ -200,14 +217,14 @@ public class MainFrame extends JFrame {
 		
 		editorTabbedPane.addTab("Unknown", null, editorPaneSourcode, null);
 		
-		JTabbedPane logTabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		logTabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		splitPane.setRightComponent(logTabbedPane);
 		
-		JTextPane textPaneConsole = new JTextPane();
+		textPaneConsole = new JTextPane();
 		textPaneConsole.setText("Console logs");
 		logTabbedPane.addTab("Console", null, textPaneConsole, null);
 		
-		JTextPane textPaneLogs = new JTextPane();
+		textPaneLogs = new JTextPane();
 		textPaneLogs.setText("Other logs");
 		logTabbedPane.addTab("Log", null, textPaneLogs, null);
 	}
