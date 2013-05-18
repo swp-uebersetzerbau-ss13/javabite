@@ -64,8 +64,8 @@ public class MainFrame extends JFrame {
 	JSplitPane splitPane;
 	JTextPane textPaneConsole;
 	JTextPane textPaneLogs;
-	JTabbedPane logTabbedPane;
-	JTabbedPane editorTabbedPane;
+	JTabbedPane tabbedPaneLog;
+	JTabbedPane tabbedPaneEditor;
 	private static JTextPane editorPaneSourcode;
 	
 	/**
@@ -103,6 +103,7 @@ public class MainFrame extends JFrame {
 		menuFileOpen.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// TODO: open document
+				toolBarLabel.setText("Document opened.");
 			}
 		});
 		menuFile.add(menuFileOpen);
@@ -111,6 +112,7 @@ public class MainFrame extends JFrame {
 		menuFileSave.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// TODO: save document
+				toolBarLabel.setText("Document saved.");
 			}
 		});
 		menuFile.add(menuFileSave);
@@ -131,6 +133,7 @@ public class MainFrame extends JFrame {
 		menuVisualAst.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// TODO: show AST
+				toolBarLabel.setText("Rendered AST.");
 			}
 		});
 		menuVisual.add(menuVisualAst);
@@ -139,6 +142,7 @@ public class MainFrame extends JFrame {
 		menuVisualTac.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// TODO: show TAC
+				toolBarLabel.setText("Rendered TAC.");
 			}
 		});
 		menuVisual.add(menuVisualTac);
@@ -146,7 +150,6 @@ public class MainFrame extends JFrame {
 		buttonRunCompile = new JButton("\u25BA");
 		buttonRunCompile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				progressBar.setVisible(true);
 				// TODO: save sourcecode
 				// TODO: compile sourcecode
 				JavabiteCompiler compiler = new JavabiteCompiler();
@@ -155,7 +158,7 @@ public class MainFrame extends JFrame {
 				} catch (IntermediateCodeGeneratorException | IOException ex) {
 					ex.printStackTrace();
 				}
-				progressBar.setVisible(false);
+				toolBarLabel.setText("Sourcode compiled.");
 			}
 		});
 		menuBar.add(buttonRunCompile);
@@ -178,15 +181,14 @@ public class MainFrame extends JFrame {
 		
 		progressBar = new JProgressBar();
 		panelProgressBar.add(progressBar);
-		progressBar.setVisible(false);
 		
 		splitPane = new JSplitPane();
 		splitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
 		splitPane.setDividerLocation(250);
 		getContentPane().add(splitPane, BorderLayout.CENTER);
 		
-		editorTabbedPane = new JTabbedPane(JTabbedPane.TOP);
-		splitPane.setLeftComponent(editorTabbedPane);
+		tabbedPaneEditor = new JTabbedPane(JTabbedPane.TOP);
+		splitPane.setLeftComponent(tabbedPaneEditor);
 		
 		lexer = new LexerJb();
 		editorPaneSourcode = new JTextPane(doc);
@@ -215,18 +217,18 @@ public class MainFrame extends JFrame {
 			}
 		});
 		
-		editorTabbedPane.addTab("Unknown", null, editorPaneSourcode, null);
+		tabbedPaneEditor.addTab("Unknown", null, editorPaneSourcode, null);
 		
-		logTabbedPane = new JTabbedPane(JTabbedPane.TOP);
-		splitPane.setRightComponent(logTabbedPane);
+		tabbedPaneLog = new JTabbedPane(JTabbedPane.TOP);
+		splitPane.setRightComponent(tabbedPaneLog);
 		
 		textPaneConsole = new JTextPane();
 		textPaneConsole.setText("Console logs");
-		logTabbedPane.addTab("Console", null, textPaneConsole, null);
+		tabbedPaneLog.addTab("Console", null, textPaneConsole, null);
 		
 		textPaneLogs = new JTextPane();
 		textPaneLogs.setText("Other logs");
-		logTabbedPane.addTab("Log", null, textPaneLogs, null);
+		tabbedPaneLog.addTab("Log", null, textPaneLogs, null);
 	}
 	
 	private List<Token> getTokenList(String text) {
