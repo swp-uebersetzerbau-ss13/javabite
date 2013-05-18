@@ -6,6 +6,7 @@ import java.awt.EventQueue;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,13 +22,14 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextPane;
 import javax.swing.JToolBar;
-import javax.swing.border.EmptyBorder;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
+import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
+import swp_compiler_ss13.javabite.compiler.JavabiteCompiler;
 import swp_compiler_ss13.javabite.lexer.LexerJb;
 import java.awt.FlowLayout;
 import java.awt.event.ActionListener;
@@ -53,7 +55,6 @@ public class MainFrame extends JFrame {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-		
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -79,10 +80,6 @@ public class MainFrame extends JFrame {
 		getContentPane().add(menuBar, BorderLayout.NORTH);
 		
 		JMenu menuFile = new JMenu("File");
-		menuFile.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-			}
-		});
 		menuBar.add(menuFile);
 		
 		JMenuItem menuFileOpen = new JMenuItem("Open");
@@ -104,6 +101,7 @@ public class MainFrame extends JFrame {
 		JMenuItem menuFileClose = new JMenuItem("Close");
 		menuFileClose.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				// TODO: save documents
 				System.exit(0);
 			}
 		});
@@ -134,6 +132,12 @@ public class MainFrame extends JFrame {
 				progressBar.setVisible(true);
 				// TODO: save sourcecode
 				// TODO: compile sourcecode
+				JavabiteCompiler compiler = new JavabiteCompiler();
+				try {
+					compiler.compile(null);
+				} catch (IntermediateCodeGeneratorException | IOException ex) {
+					ex.printStackTrace();
+				}
 				progressBar.setVisible(false);
 			}
 		});
