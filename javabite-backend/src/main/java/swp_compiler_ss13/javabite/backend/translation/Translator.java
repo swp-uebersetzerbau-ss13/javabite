@@ -62,35 +62,37 @@ public class Translator {
 		return file;
 	}
 
+	
 	/**
 	 * translate function. This function translates the tac into classfiles.
 	 * 
 	 * @author Marco
 	 * @since 27.04.2013
-	 * 
+	 *
 	 * @param tac
 	 *            List of quadruple objects
+	 * @param className
+	 *            Name of the class to be generated
 	 * 
 	 * @return Collection<IClassfile>
 	 */
-	public Collection<IClassfile> translate(final List<Quadruple> tac) {
-		// always start with main.class
-		return this.translate(tac, "Program.class");
+	public Collection<IClassfile> translate(final String className, List<Quadruple> tac) {
+		return translate(className, tac, true);
 	}
-
-	private Collection<IClassfile> translate(List<Quadruple> tac,
-			final String classfileName) {
-
+	
+	private Collection<IClassfile> translate(final String className, List<Quadruple> tac, Boolean mainClass) {
+		String classFileName = className + ".class";
+		
 		final Collection<IClassfile> classfiles = new ArrayList<IClassfile>();
 
-		final IClassfile classfile = this.generateClassfile(classfileName,
-				"Program", "java/lang/Object",
+		final IClassfile classfile = this.generateClassfile(classFileName,
+				className, "java/lang/Object",
 				Classfile.ClassfileAccessFlag.ACC_PUBLIC,
 				Classfile.ClassfileAccessFlag.ACC_SUPER);
 
 		String methodName;
 
-		if (classfileName.equals("Program.class")) {
+		if (mainClass) {
 			methodName = "main";
 			// always generate mainFunction in main.class file
 			classfile.addMethodToMethodArea(methodName,
@@ -123,7 +125,7 @@ public class Translator {
 			final List<Quadruple> tac) {
 		final Collection<IClassfile> classfiles = new ArrayList<>();
 		// TODO: search for structs in tac and build new classes
-		// use translate(...,...)
+		// use translate(...,..., false)
 		return classfiles;
 	}
 

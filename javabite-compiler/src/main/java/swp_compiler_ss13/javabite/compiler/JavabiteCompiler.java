@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.backend.Backend;
+import swp_compiler_ss13.common.backend.BackendException;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
@@ -69,19 +70,30 @@ public class JavabiteCompiler implements ReportLog {
 		return setupOk;
 	}
 	
-	public void compile(File file) throws IntermediateCodeGeneratorException, IOException {
+	public void compile(File file) throws IntermediateCodeGeneratorException, IOException, BackendException {
+		// get the name of file without extension
+		String sourceBaseName = file.getName();
+		int lastDot = sourceBaseName.lastIndexOf(".");
+		lastDot = lastDot > -1 ? lastDot : sourceBaseName.length();
+		sourceBaseName = sourceBaseName.substring(0,lastDot);
+		System.out.println("Compile file: " + file.getName());
 		lexer.setSourceStream(new FileInputStream(file));
-		
+		System.out.print("Build ast: ");
 		AST ast = parser.getParsedAST();
-		
+		System.out.println("finished");
+		System.out.print("Generate three address code: ");
 		List<Quadruple> quadruples = codegen.generateIntermediateCode(ast);
-		for (Quadruple q : quadruples) {
-			System.out.println(String.format("(%s|%s|%s|%s)", q.getOperator(),
-					q.getArgument1(), q.getArgument2(), q.getResult()));
-		}
-		Map<String, InputStream> results = backend.generateTargetCode(quadruples);
-		
+//		Print of tac
+//		for (Quadruple q : quadruples) {
+//			System.out.println(String.format("(%s|%s|%s|%s)", q.getOperator(),
+//					q.getArgument1(), q.getArgument2(), q.getResult()));
+//		}
+		System.out.println("finished");
+		System.out.print("Generate target code: ");
+		Map<String, InputStream> results = backend.generateTargetCode(sourceBaseName, quadruples);
+		System.out.println("finished");
 		for(Entry<String,InputStream> e:results.entrySet()) {
+			System.out.println("Write output file: " + e.getKey());
 			File outFile = new File(e.getKey());
 //			if (outFile.exists()) {
 //				throw new RuntimeException("This would override a file names " + e.getKey());
@@ -117,7 +129,7 @@ public class JavabiteCompiler implements ReportLog {
 		
 		try {
 			compiler.compile(file);
-		} catch (IntermediateCodeGeneratorException | IOException e) {
+		} catch (IntermediateCodeGeneratorException | BackendException | IOException e) {
 			e.printStackTrace();
 		}
 	}
