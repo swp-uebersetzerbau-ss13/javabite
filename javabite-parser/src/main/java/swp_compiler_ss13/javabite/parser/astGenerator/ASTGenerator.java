@@ -78,9 +78,13 @@ public class ASTGenerator {
 		ASTJb ast = new ASTJb();
 
 		// MS1 version
-		BlockNode rootNode = this.useProgramProduction();
-		ast.setRootNode(rootNode);
-
+		if (reductions != null) {
+			// if this is null there was a earlier error in parser 
+			// TODO secure call to ASTGenerator against empty input
+			BlockNode rootNode = this.useProgramProduction();
+			ast.setRootNode(rootNode);
+		}
+		
 		return ast;
 	}
 

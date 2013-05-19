@@ -35,6 +35,8 @@ public class JavabiteCompiler implements ReportLog {
 	IntermediateCodeGenerator codegen = null;
 	Backend backend = null;
 	
+	Boolean errorReported = false;
+	
 	public JavabiteCompiler() {
 		lexer = ModuleProvider.getLexerInstance();
 		parser = ModuleProvider.getParserInstance();
@@ -76,22 +78,30 @@ public class JavabiteCompiler implements ReportLog {
 		int lastDot = sourceBaseName.lastIndexOf(".");
 		lastDot = lastDot > -1 ? lastDot : sourceBaseName.length();
 		sourceBaseName = sourceBaseName.substring(0,lastDot);
+		
+		errorReported = false;
 		System.out.println("Compile file: " + file.getName());
 		lexer.setSourceStream(new FileInputStream(file));
-		System.out.print("Build ast: ");
+		System.out.println("Build ast: ");
 		AST ast = parser.getParsedAST();
-		System.out.println("finished");
-		System.out.print("Generate three address code: ");
+		
+		if (errorReported) {
+			System.out.println("Compilation failed!");
+			return;
+		}
+
+		System.out.println("Build ast finished");
+		System.out.println("Generate three address code: ");
 		List<Quadruple> quadruples = codegen.generateIntermediateCode(ast);
 //		Print of tac
 //		for (Quadruple q : quadruples) {
 //			System.out.println(String.format("(%s|%s|%s|%s)", q.getOperator(),
 //					q.getArgument1(), q.getArgument2(), q.getResult()));
 //		}
-		System.out.println("finished");
-		System.out.print("Generate target code: ");
+		System.out.println("Generate three address code finished");
+		System.out.println("Generate target code: ");
 		Map<String, InputStream> results = backend.generateTargetCode(sourceBaseName, quadruples);
-		System.out.println("finished");
+		System.out.println("Generate target code finished");
 		for(Entry<String,InputStream> e:results.entrySet()) {
 			System.out.println("Write output file: " + e.getKey());
 			File outFile = new File(e.getKey());
@@ -107,7 +117,6 @@ public class JavabiteCompiler implements ReportLog {
 	}
 	
 	public static void main(String[] args) {
-		System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "error");
 		System.out.println("Javabite-Compiler Basic Console");
 		JavabiteCompiler compiler = new JavabiteCompiler();
 		if (compiler.checkSetup()) {
@@ -137,6 +146,7 @@ public class JavabiteCompiler implements ReportLog {
 	@Override
 	public void reportError(String text, Integer line, Integer column,
 			String message) {
-		System.out.println("Error at (" + line + "," + column + ") around " + text + " : " + message);
+		errorReported = true;
+		System.out.println("Error at (" + line + "," + column + ") around '" + text + "' : " + message);
 	}
 }

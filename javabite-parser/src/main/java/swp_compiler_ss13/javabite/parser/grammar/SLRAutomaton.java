@@ -172,18 +172,18 @@ public class SLRAutomaton<T extends Symbol, NT extends Symbol> {
 				if (nextStateTrans != null && !nextProdFollow.isEmpty()
 						|| nextStateTrans == null && nextProdFollow.isEmpty()
 						|| nextProdFollow.size() > 1) {
-					logger.error(
+					logger.warn(
 							"behaviour not defined. next state by shift: {}, next states by follow: {}",
 							nextStateTrans, nextProdFollow);
-					logger.error("current terminal: {}", a);
-					logger.error("productions so far: {}", productions);
-					logger.error("state stack {}", state_stack);
-					logger.error("symbol stack {}", symbol_stack);
-					logger.error("word actual {}", word);
-					logger.error("word complete {}", word_total);
-					logger.error("states:");
+					logger.warn("current terminal: {}", a);
+					logger.warn("productions so far: {}", productions);
+					logger.warn("state stack {}", state_stack);
+					logger.warn("symbol stack {}", symbol_stack);
+					logger.warn("word actual {}", word);
+					logger.warn("word complete {}", word_total);
+					logger.warn("states:");
 					for (State st : states) {
-						logger.error("\n{}", st.descriptionAsString());
+						logger.warn("\n{}", st.descriptionAsString());
 					}
 
 					if (nextStateTrans != null && !nextProdFollow.isEmpty()) {
@@ -191,20 +191,20 @@ public class SLRAutomaton<T extends Symbol, NT extends Symbol> {
 							throw new AmbiguityInDerivationGrammarException(
 									(swp_compiler_ss13.javabite.parser.targetgrammar.Terminal) t);
 						} else
-							logger.error("Dont know how to react...");
+							logger.warn("Dont know how to react...");
 					} else if (nextStateTrans == null
 							&& nextProdFollow.isEmpty()) {
 						if (t instanceof swp_compiler_ss13.javabite.parser.targetgrammar.Terminal) {
 							throw new WordNotInLanguageGrammarException(
 									(swp_compiler_ss13.javabite.parser.targetgrammar.Terminal) t);
 						} else
-							logger.error("Dont know how to react...");
+							logger.warn("Dont know how to react...");
 					} else if (nextProdFollow.size() > 1) {
 						if (t instanceof swp_compiler_ss13.javabite.parser.targetgrammar.Terminal) {
 							throw new AmbiguityInDerivationGrammarException(
 									(swp_compiler_ss13.javabite.parser.targetgrammar.Terminal) t);
 						} else
-							logger.error("Dont know how to react...");
+							logger.warn("Dont know how to react...");
 					} else {
 						throw new RuntimeException("Unpredicted state reached");
 					}
@@ -227,7 +227,7 @@ public class SLRAutomaton<T extends Symbol, NT extends Symbol> {
 					State nextState = stateBeforeProduction.transition
 							.get(todo.left);
 					if (nextState == null) {
-						logger.error(
+						logger.warn(
 								"may not happen, nextstate is zero ( {} reading {} -> ? )",
 								stateBeforeProduction, todo.left);
 					}

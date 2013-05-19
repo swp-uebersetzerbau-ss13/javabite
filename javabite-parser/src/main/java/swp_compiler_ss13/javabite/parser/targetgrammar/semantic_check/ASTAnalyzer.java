@@ -1,6 +1,8 @@
 package swp_compiler_ss13.javabite.parser.targetgrammar.semantic_check;
 
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +13,9 @@ import swp_compiler_ss13.common.ast.ASTNode.ASTNodeType;
 import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
+import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
+import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
+import swp_compiler_ss13.common.parser.ReportLog;
 import swp_compiler_ss13.common.parser.SymbolTable;
 import swp_compiler_ss13.common.types.Type;
 import swp_compiler_ss13.javabite.ast.nodes.leaf.LiteralNodeJb;
@@ -25,25 +30,57 @@ public class ASTAnalyzer {
 	
 	// the subject of the investigation
 	AST ast;
+	ReportLog reportLog;
 	
 	// for debugging
 	Logger logger=LoggerFactory.getLogger(ASTAnalyzer.class);
 	
 	/**
-	 * creates a ASTAnalyzer for the given ast
-	 * @param _ast the ast, that must be analyzed
+	 * creates a ASTAnalyzer
 	 */
-	public ASTAnalyzer(AST _ast) {
-		ast=_ast;
+	public ASTAnalyzer(ReportLog _reportLog) {
+		reportLog = _reportLog;
 	}
 	
 	/**
-	 * checks if the simple case of a division by zero exists
-	 * and every used variable is declared
-	 * @return if no division by zero was detected and every used variable is declared
+	 * analyse the given ast
+	 * @param _ast
 	 */
-	public boolean isValid(){
-		return !containsDivisionByZeroQ()&&!nonDeclaredVariableUsedQ();
+	public void analyse(AST _ast) {
+		ast=_ast;
+		checkDoubleDeclaration();
+		checkDivisionByZero();
+		checkUninitializedIdentifierUsage();
+	}
+	
+	private void checkUninitializedIdentifierUsage() {
+		//TODO: implement analysis
+	}
+
+	private void checkDoubleDeclaration() {
+		Set<String> varSet = new HashSet<>();
+		Iterator<ASTNode> it = ast.getDFSLTRIterator();
+		// iterate through all nodes. depth first, left to right 
+		// order is not quite important in this case
+		while (it.hasNext()){
+			ASTNode node=it.next();
+			if (node.getNodeType()==ASTNodeType.BlockNode){
+				BlockNode block = (BlockNode) node;
+				varSet.clear();
+				for(DeclarationNode decl:block.getDeclarationList()) {
+					String identifier = decl.getIdentifier();
+					if (varSet.contains(identifier))
+						reportLog.reportError(identifier, 0, 0, "Identifier '" + identifier + "' was declared multiple times");
+					else
+						varSet.add(identifier);
+				}
+			}
+		}
+	}
+	
+	private void checkDivisionByZero() {
+		if (containsDivisionByZeroQ())
+			reportLog.reportError("", 0, 0, "Somewhere inside the input is a division by zero.");
 	}
 	
 	/**
@@ -51,7 +88,7 @@ public class ASTAnalyzer {
 	 * @return 	true  => div by zero exists sure as death
 	 * 			false => div by zero can exist in more complex cases
 	 */
-	public boolean containsDivisionByZeroQ(){
+	private boolean containsDivisionByZeroQ(){
 		// Idea: a division by zero can happen, if a 
 		// zero exists somewhere;)
 		
@@ -78,7 +115,8 @@ public class ASTAnalyzer {
 	 * variable exists
 	 * @return if such a undeclared variable exists
 	 */
-	public boolean nonDeclaredVariableUsedQ(){
+	private boolean nonDeclaredVariableUsedQ(){
+		// TODO: do it
 		// Idea: just traverse and check
 		// we are in the luckily situation at MS1
 		// that we have just one scope
@@ -101,7 +139,7 @@ public class ASTAnalyzer {
 	 * @param candidate a node, which is sure zero
 	 * @return if it's okay to be zero in the situation
 	 */
-	boolean isZeroRestricted(LiteralNodeJb candidate) {
+	private boolean isZeroRestricted(LiteralNodeJb candidate) {
 		return (candidate.getParentNode().getNodeType()==ASTNodeType.ArithmeticBinaryExpressionNode&&
 				((ArithmeticBinaryExpressionNode)candidate.getParentNode()).getOperator()==BinaryOperator.DIVISION
 				&&((ArithmeticBinaryExpressionNode)candidate.getParentNode()).getRightValue()==candidate);
@@ -113,12 +151,11 @@ public class ASTAnalyzer {
 	 * @return if the @candidate is zero
 	 * 
 	 */
-	boolean isZero(LiteralNodeJb candidate) {
+	private boolean isZero(LiteralNodeJb candidate) {
 		return ((candidate.getLiteralType().getKind()==Type.Kind.DOUBLE
 				|| candidate.getLiteralType().getKind()==Type.Kind.LONG)
 				&&
 				Double.parseDouble(candidate.getLiteral())==0
 				);
 	}
-	
 }
