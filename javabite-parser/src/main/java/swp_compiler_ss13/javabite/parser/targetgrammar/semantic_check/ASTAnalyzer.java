@@ -54,13 +54,17 @@ public class ASTAnalyzer {
 		checkNonDeclaredVariableUsedQ();
 	}
 	
-	private void checkNonDeclaredVariableUsedQ(){
+	void setAst(AST ast) {
+		this.ast = ast;
+	}
+	
+	void checkNonDeclaredVariableUsedQ(){
 		// Idea: just traverse and check symboltables
 		BlockNode blockNode = ast.getRootNode(); 
 		checkNonDeclaredVariableUsedInBlockNode(blockNode);
 	}
 	
-	private void checkNonDeclaredVariableUsedInBlockNode(BlockNode blockNode) {
+	void checkNonDeclaredVariableUsedInBlockNode(BlockNode blockNode) {
 		SymbolTable table = blockNode.getSymbolTable();
 		for (StatementNode stmt:blockNode.getStatementList()) {
 			if (stmt.getNodeType() == ASTNodeType.BlockNode) {
@@ -81,7 +85,7 @@ public class ASTAnalyzer {
 		}
 	}
 	
-//	private void checkUninitializedIdentifierUsage() {
+//	void checkUninitializedIdentifierUsage() {
 //		//TODO: this implementation only works for MS1 language features
 //		
 //		Iterator<ASTNode> it = ast.getDFSLTRIterator();
@@ -101,7 +105,7 @@ public class ASTAnalyzer {
 //		}
 //	}
 
-	private void checkDoubleDeclaration() {
+	void checkDoubleDeclaration() {
 		Set<String> varSet = new HashSet<>();
 		Iterator<ASTNode> it = ast.getDFSLTRIterator();
 		// iterate through all nodes depth first
@@ -121,7 +125,7 @@ public class ASTAnalyzer {
 		}
 	}
 	
-	private void checkDivisionByZero() {
+	void checkDivisionByZero() {
 		if (containsDivisionByZeroQ())
 			reportLog.reportError("", 0, 0, "Somewhere inside the input is a division by zero.");
 	}
@@ -131,7 +135,7 @@ public class ASTAnalyzer {
 	 * @return 	true  => div by zero exists sure as death
 	 * 			false => div by zero can exist in more complex cases
 	 */
-	private boolean containsDivisionByZeroQ(){
+	boolean containsDivisionByZeroQ(){
 		// Idea: a division by zero can happen, if a 
 		// zero exists somewhere;)
 		
@@ -158,7 +162,7 @@ public class ASTAnalyzer {
 	 * @param candidate a node, which is sure zero
 	 * @return if it's okay to be zero in the situation
 	 */
-	private boolean isZeroRestricted(LiteralNodeJb candidate) {
+	boolean isZeroRestricted(LiteralNodeJb candidate) {
 		return (candidate.getParentNode().getNodeType()==ASTNodeType.ArithmeticBinaryExpressionNode&&
 				((ArithmeticBinaryExpressionNode)candidate.getParentNode()).getOperator()==BinaryOperator.DIVISION
 				&&((ArithmeticBinaryExpressionNode)candidate.getParentNode()).getRightValue()==candidate);
@@ -170,7 +174,7 @@ public class ASTAnalyzer {
 	 * @return if the @candidate is zero
 	 * 
 	 */
-	private boolean isZero(LiteralNodeJb candidate) {
+	boolean isZero(LiteralNodeJb candidate) {
 		return ((candidate.getLiteralType().getKind()==Type.Kind.DOUBLE
 				|| candidate.getLiteralType().getKind()==Type.Kind.LONG)
 				&&
