@@ -57,19 +57,21 @@ public class ParserJb implements Parser {
 		List<Reduction> derivationSeq=null;
 		try{
 			derivationSeq=grammar.derivateDFLeftToRight(sourceCode);
+		
+			// use the ASTGenerator to derive the AST from the derivation
+			ASTGenerator astGen=new ASTGenerator(derivationSeq);
+			// generate the necessary AST
+			ASTJb astJb=astGen.generateAST();
+			
+			ASTAnalyzer analyzer = new ASTAnalyzer(reportLog);
+			analyzer.analyse(astJb);
+			return astJb;
 		} catch(WordNotInLanguageGrammarException | AmbiguityInDerivationGrammarException e){
 			log.warn("Grammer throws exeception {}", e.getClass());
 			Token prob=e.getRelatedToken();
 			reportLog.reportError(prob.getValue(), prob.getLine(), prob.getColumn(), "Can not proceed AST build with Token '" + prob.getValue() + "' at this position.");
 		}
-		// use the ASTGenerator to derive the AST from the derivation
-		ASTGenerator astGen=new ASTGenerator(derivationSeq);
-		// generate the necessary AST
-		ASTJb astJb=astGen.generateAST();
-		
-		ASTAnalyzer analyzer = new ASTAnalyzer(reportLog);
-		analyzer.analyse(astJb);
-		return astJb;
+		return new ASTJb();
 	}
 
 	/**
