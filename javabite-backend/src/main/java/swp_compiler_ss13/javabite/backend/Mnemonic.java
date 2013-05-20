@@ -10,7 +10,8 @@ package swp_compiler_ss13.javabite.backend;
  * @author eike
  * @since 21.04.2013 00:55:21
  */
-public enum Mnemonic {
+public enum Mnemonic
+{
 
 	// @formatter:off
 	NOP					(0x00),

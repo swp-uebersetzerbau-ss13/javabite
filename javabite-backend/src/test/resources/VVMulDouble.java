@@ -1,4 +1,6 @@
-public class VVMulDouble {
+@SuppressWarnings("unused")
+public class VVMulDouble
+{
 
 	public static void main(final String[] args) {
 		final double a = 1.1;

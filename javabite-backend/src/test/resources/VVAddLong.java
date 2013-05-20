@@ -1,4 +1,6 @@
-public class VVAddLong {
+@SuppressWarnings("unused")
+public class VVAddLong
+{
 
 	public static void main(final String[] args) {
 		final long a = 1;

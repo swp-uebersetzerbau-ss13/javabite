@@ -22,7 +22,8 @@ import swp_compiler_ss13.javabite.backend.external.QuadrupleImpl;
  * @since 27.04.2013
  * 
  */
-public class Translator {
+public class Translator
+{
 
 	public static final String SYM_CONST = "#";
 	public static final String SYM_IGNORE = "!";
@@ -62,13 +63,12 @@ public class Translator {
 		return file;
 	}
 
-	
 	/**
 	 * translate function. This function translates the tac into classfiles.
 	 * 
 	 * @author Marco
 	 * @since 27.04.2013
-	 *
+	 * 
 	 * @param tac
 	 *            List of quadruple objects
 	 * @param className
@@ -76,13 +76,15 @@ public class Translator {
 	 * 
 	 * @return Collection<IClassfile>
 	 */
-	public Collection<IClassfile> translate(final String className, List<Quadruple> tac) {
+	public Collection<IClassfile> translate(final String className,
+			List<Quadruple> tac) {
 		return translate(className, tac, true);
 	}
-	
-	private Collection<IClassfile> translate(final String className, List<Quadruple> tac, Boolean mainClass) {
+
+	private Collection<IClassfile> translate(final String className,
+			List<Quadruple> tac, Boolean mainClass) {
 		String classFileName = className + ".class";
-		
+
 		final Collection<IClassfile> classfiles = new ArrayList<IClassfile>();
 
 		final IClassfile classfile = this.generateClassfile(classFileName,

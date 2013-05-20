@@ -4,14 +4,16 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
 
-public interface IClassfile {
+public interface IClassfile
+{
 	/**
 	 * enum ClassfileAccessFlag. Possible classfile access flags.
 	 * 
 	 * @author Marco
 	 * @since 03.05.2013
 	 */
-	public enum ClassfileAccessFlag {
+	public enum ClassfileAccessFlag
+	{
 		ACC_PUBLIC((short) 0x0001), ACC_FINAL((short) 0x0010), ACC_SUPER(
 				(short) 0x0020), ACC_INTERFACE((short) 0x0200), ACC_ABSTRACT(
 				(short) 0x0400), ACC_SYNTHETIC((short) 0x1000), ACC_ANNOTATION(
@@ -34,7 +36,8 @@ public interface IClassfile {
 	 * @author Marco
 	 * @since 03.05.2013
 	 */
-	public enum MethodAccessFlag {
+	public enum MethodAccessFlag
+	{
 		ACC_PUBLIC((short) 0x0001), ACC_PRIVATE((short) 0x0002), ACC_PROTECTED(
 				(short) 0x0002), ACC_STATIC((short) 0x0008), ACC_FINAL(
 				(short) 0x0010), ACC_SYNCHRONIZED((short) 0x0020), ACC_BRIDGE(
@@ -60,7 +63,8 @@ public interface IClassfile {
 	 * @author Marco
 	 * @since 03.05.2013
 	 */
-	public enum VariableType {
+	public enum VariableType
+	{
 
 		LONG((short) 2), DOUBLE((short) 2), STRING((short) 1), BOOLEAN(
 				(short) 1);
@@ -84,7 +88,8 @@ public interface IClassfile {
 	 * @author eike
 	 * @since May 12, 2013 4:52:43 PM
 	 */
-	public enum ConstantType {
+	public enum ConstantType
+	{
 		LONG, DOUBLE, STRING, CLASS, UTF8
 	}
 

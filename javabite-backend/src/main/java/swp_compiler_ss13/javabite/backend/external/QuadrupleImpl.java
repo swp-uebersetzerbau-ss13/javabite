@@ -6,7 +6,8 @@ import swp_compiler_ss13.common.backend.Quadruple;
  * @author robert
  * 
  */
-public class QuadrupleImpl implements Quadruple {
+public class QuadrupleImpl implements Quadruple
+{
 
 	public QuadrupleImpl(final Operator op, final String arg1,
 			final String arg2, final String res) {

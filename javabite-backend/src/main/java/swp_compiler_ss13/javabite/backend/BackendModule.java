@@ -28,7 +28,8 @@ import swp_compiler_ss13.javabite.backend.translation.Translator;
  * @since 27.04.2013
  * 
  */
-public class BackendModule implements Backend {
+public class BackendModule implements Backend
+{
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(BackendModule.class);
@@ -45,15 +46,15 @@ public class BackendModule implements Backend {
 		this.targetCodeOptimizer = new TargetCodeOptimizer();
 	}
 
-	
 	@Override
-	public Map<String, InputStream> generateTargetCode(final String baseFileName, final List<Quadruple> tac) {
+	public Map<String, InputStream> generateTargetCode(
+			final String baseFileName, final List<Quadruple> tac) {
 
 		// TAC Optimizer
 		// ### currently empty ###
 		// Translator
-		final Collection<IClassfile> classfiles = this.translator
-				.translate(baseFileName, tac);
+		final Collection<IClassfile> classfiles = this.translator.translate(
+				baseFileName, tac);
 		// Target Code Optimizer
 		// ### currently empty ###
 
@@ -67,7 +68,7 @@ public class BackendModule implements Backend {
 
 	/**
 	 * 
-	 * @param classfiles 
+	 * @param classfiles
 	 * @return
 	 */
 	private Map<String, InputStream> createTargetCodeStreams(
@@ -85,6 +86,7 @@ public class BackendModule implements Backend {
 	/*
 	 * print content of inputstreams to console
 	 */
+	@SuppressWarnings("unused")
 	private void visualizeTargetCode(final Map<String, InputStream> targetCodeIS) {
 
 		for (final String classname : targetCodeIS.keySet()) {

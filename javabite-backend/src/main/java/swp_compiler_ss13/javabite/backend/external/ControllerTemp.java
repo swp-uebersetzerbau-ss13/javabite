@@ -17,7 +17,8 @@ import swp_compiler_ss13.javabite.backend.BackendModule;
  * @since 27.04.2013
  * 
  */
-public class ControllerTemp {
+public class ControllerTemp
+{
 
 	static List<Quadruple> tac = new ArrayList<Quadruple>() {
 		/**
@@ -158,7 +159,8 @@ public class ControllerTemp {
 		// System.out.println(sb.toString());
 
 		final BackendModule backend = new BackendModule();
-		final Map<String, InputStream> test = backend.generateTargetCode("Program", tac);
+		final Map<String, InputStream> test = backend.generateTargetCode(
+				"Program", tac);
 
 		for (final String key : test.keySet()) {
 			System.out.println(key);

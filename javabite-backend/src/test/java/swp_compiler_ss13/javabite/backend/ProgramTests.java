@@ -13,7 +13,8 @@ import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.Program.ProgramBuilder;
 import swp_compiler_ss13.javabite.backend.external.QuadrupleImpl;
 
-public class ProgramTests {
+public class ProgramTests
+{
 
 	static final String methodName = "main";
 	static final Logger log = LoggerFactory.getLogger(ProgramTests.class);

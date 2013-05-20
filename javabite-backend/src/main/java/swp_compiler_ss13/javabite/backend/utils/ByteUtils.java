@@ -2,7 +2,8 @@ package swp_compiler_ss13.javabite.backend.utils;
 
 import java.util.List;
 
-public class ByteUtils {
+public class ByteUtils
+{
 
 	public static byte[] shortToByteArray(final short x) {
 		return new byte[] { (byte) ((x >> 8) & 0xff), (byte) (x & 0xff) };

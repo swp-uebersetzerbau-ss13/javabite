@@ -23,7 +23,8 @@ import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
  * @since 02.05.2013 23:41:39
  * 
  */
-public class Program {
+public class Program
+{
 
 	/**
 	 * <h1>ProgramBuilder</h1>
@@ -35,7 +36,8 @@ public class Program {
 	 * @author eike
 	 * @since May 18, 2013 12:29:51 AM
 	 */
-	public static class ProgramBuilder {
+	public static class ProgramBuilder
+	{
 
 		private static final Pattern P_CONST_SIGN = Pattern.compile("#.*?");
 

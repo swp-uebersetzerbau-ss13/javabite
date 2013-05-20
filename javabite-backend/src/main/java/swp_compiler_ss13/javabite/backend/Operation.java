@@ -18,7 +18,8 @@ import swp_compiler_ss13.common.backend.Quadruple.Operator;
  * @since 23.04.2013
  * 
  */
-public class Operation {
+public class Operation
+{
 
 	/**
 	 * <h1>OperationBuilder</h1>
@@ -30,7 +31,8 @@ public class Operation {
 	 * @author eike
 	 * @since 07.05.2013 00:41:08
 	 */
-	public static class OperationBuilder {
+	public static class OperationBuilder
+	{
 
 		private int size;
 		private final List<Instruction> instructions;

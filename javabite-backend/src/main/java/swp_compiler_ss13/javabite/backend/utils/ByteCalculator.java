@@ -15,7 +15,8 @@ import java.util.List;
  * @since 28.04.2013
  * 
  */
-public class ByteCalculator {
+public class ByteCalculator
+{
 
 	/**
 	 * shortToByteArrayList function.

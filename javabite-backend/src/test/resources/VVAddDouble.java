@@ -1,4 +1,6 @@
-public class VVAddDouble {
+@SuppressWarnings("unused")
+public class VVAddDouble
+{
 
 	public static void main(final String[] args) {
 		final double a = 1.1;
