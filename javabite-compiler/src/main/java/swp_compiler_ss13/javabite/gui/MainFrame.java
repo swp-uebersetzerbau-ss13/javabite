@@ -5,13 +5,20 @@ import java.awt.Color;
 import java.awt.EventQueue;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -22,7 +29,9 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextPane;
 import javax.swing.JToolBar;
+import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
+import javax.swing.text.Document;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
@@ -104,7 +113,49 @@ public class MainFrame extends JFrame {
 		menuFileOpen.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// TODO: open document
-				toolBarLabel.setText("Document opened.");
+				//toolBarLabel.setText("Document opened.");
+				//JFileChooser fc = new JFileChooser();
+				//fc.showOpenDialog( null );
+				JFileChooser chooser = new JFileChooser();
+				int returnVal = chooser.showOpenDialog(null);
+				File file = null;
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					file = chooser.getSelectedFile(); // editorPaneSourcode
+				}
+				BufferedReader in = null;
+				try {
+					in = new BufferedReader(new FileReader(file));
+				} catch (FileNotFoundException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				String line = null;
+				try {
+					line = in.readLine();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				Document doc = editorPaneSourcode.getDocument();
+				try {
+					doc.remove(0, doc.getLength()); // remove old content
+				} catch (BadLocationException e2) {
+					// TODO Auto-generated catch block
+					e2.printStackTrace();
+				}
+				while(line != null){
+				  try {
+					  doc.insertString(doc.getLength(), line + "\n", null);
+					  line = in.readLine();
+					
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (BadLocationException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				}
 			}
 		});
 		menuFile.add(menuFileOpen);
@@ -113,6 +164,29 @@ public class MainFrame extends JFrame {
 		menuFileSave.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// TODO: save document
+				JFileChooser jfc = new JFileChooser("./");  
+				int returnVal = jfc.showSaveDialog(null);
+				if (returnVal == JFileChooser.APPROVE_OPTION)
+		        {
+		            File file = jfc.getSelectedFile();
+		            // save the file.
+		            BufferedWriter bw;
+		            try {
+		                bw = new BufferedWriter(new FileWriter(file));
+		                bw.write(editorPaneSourcode.getText());
+		                bw.flush();
+		            }               
+		            catch (IOException e1)
+		            {
+		                e1.printStackTrace();
+		            }
+		            //version++;
+
+		        }
+		        else
+		        {
+		            System.out.println("Save command cancelled by user. ");
+		        }
 				toolBarLabel.setText("Document saved.");
 			}
 		});
