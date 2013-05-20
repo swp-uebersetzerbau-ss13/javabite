@@ -26,6 +26,7 @@ import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 
+import swp_compiler_ss13.common.backend.BackendException;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
@@ -155,7 +156,7 @@ public class MainFrame extends JFrame {
 				JavabiteCompiler compiler = new JavabiteCompiler();
 				try {
 					compiler.compile(null);
-				} catch (IntermediateCodeGeneratorException | IOException ex) {
+				} catch (IntermediateCodeGeneratorException | IOException | BackendException ex) {
 					ex.printStackTrace();
 				}
 				toolBarLabel.setText("Sourcode compiled.");

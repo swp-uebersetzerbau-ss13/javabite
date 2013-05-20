@@ -3,6 +3,9 @@ package swp_compiler_ss13.javabite.parser;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
@@ -14,6 +17,7 @@ import swp_compiler_ss13.javabite.parser.grammar.exceptions.AmbiguityInDerivatio
 import swp_compiler_ss13.javabite.parser.grammar.exceptions.WordNotInLanguageGrammarException;
 import swp_compiler_ss13.javabite.parser.targetgrammar.TargetGrammar;
 import swp_compiler_ss13.javabite.parser.targetgrammar.TargetGrammar.Reduction;
+import swp_compiler_ss13.javabite.parser.targetgrammar.semantic_check.ASTAnalyzer;
 
 /**
  * Responsible to convert the token stream to an AST.
@@ -22,6 +26,8 @@ import swp_compiler_ss13.javabite.parser.targetgrammar.TargetGrammar.Reduction;
  *
  */
 public class ParserJb implements Parser {
+	Logger log = LoggerFactory.getLogger(ParserJb.class);
+	
 	/**
 	 * use to report necessary actions
 	 */
@@ -51,18 +57,21 @@ public class ParserJb implements Parser {
 		List<Reduction> derivationSeq=null;
 		try{
 			derivationSeq=grammar.derivateDFLeftToRight(sourceCode);
+		
+			// use the ASTGenerator to derive the AST from the derivation
+			ASTGenerator astGen=new ASTGenerator(derivationSeq);
+			// generate the necessary AST
+			ASTJb astJb=astGen.generateAST();
+			
+			ASTAnalyzer analyzer = new ASTAnalyzer(reportLog);
+			analyzer.analyse(astJb);
+			return astJb;
 		} catch(WordNotInLanguageGrammarException | AmbiguityInDerivationGrammarException e){
+			log.warn("Grammer throws exeception {}", e.getClass());
 			Token prob=e.getRelatedToken();
-			reportLog.reportError(e.getClass()+" appreared...", prob.getLine(), prob.getColumn(), "");
+			reportLog.reportError(prob.getValue(), prob.getLine(), prob.getColumn(), "Can not proceed AST build with Token '" + prob.getValue() + "' at this position.");
 		}
-		// use the ASTGenerator to derive the AST from the derivation
-		ASTGenerator astGen=new ASTGenerator(derivationSeq);
-		// generate the necessary AST
-		ASTJb astJb=astGen.generateAST();
-		
-		//TODO: do the semantic analysis
-		
-		return astJb;
+		return new ASTJb();
 	}
 
 	/**

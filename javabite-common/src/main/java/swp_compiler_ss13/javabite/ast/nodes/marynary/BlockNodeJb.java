@@ -32,7 +32,7 @@ public class BlockNodeJb extends StatementNodeJb implements BlockNode {
 		declarations.add(declaration);
 		addChild(declaration, declarations.size());
 		if (symbolTable.isDeclared(declaration.getIdentifier())){
-			logger.error("declaration already inserted ... should be catched by the semantic analysis later. dec: {}",declaration);
+			logger.warn("declaration already inserted ... should be catched by the semantic analysis later. dec: {}",declaration);
 		}
 		symbolTable.insert(declaration.getIdentifier(),declaration.getType());
 		

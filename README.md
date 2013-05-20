@@ -21,6 +21,25 @@ The fully build compiler can be found in bin/javabite-compiler-0.1.jar
 
 It compiles the file provided as first command line argument.
 
+## Note for MS1
+After build like described in "How-To build the project" the examples can be executed 
+by these commands.
+
+´´´
+	java -jar javabite-compiler-0.1.jar ../common/examples/ms1/<progname>.prog 
+´´´
+
+If build is successful the generated program can be started with
+
+´´´
+	java <progname>
+´´´
+
+The Javabite group expects for MS1 that all variables are implicitly initialized.
+Therefore the 'error_undef_return.prog'-example will be compilable. If the result of
+discussion of MS2 with the other project group is, that the semantic is otherwise,
+this will be changed.
+
 ## Project Structure
 The project consists of six projects, each responsible for another part of the compiler:
 

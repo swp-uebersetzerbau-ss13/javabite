@@ -47,13 +47,13 @@ public class BackendModule implements Backend {
 
 	
 	@Override
-	public Map<String, InputStream> generateTargetCode(final List<Quadruple> tac) {
+	public Map<String, InputStream> generateTargetCode(final String baseFileName, final List<Quadruple> tac) {
 
 		// TAC Optimizer
 		// ### currently empty ###
 		// Translator
 		final Collection<IClassfile> classfiles = this.translator
-				.translate(tac);
+				.translate(baseFileName, tac);
 		// Target Code Optimizer
 		// ### currently empty ###
 
