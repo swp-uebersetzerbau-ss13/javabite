@@ -1,16 +1,19 @@
-package swp_compiler_ss13.javabite.parser.grammar.targetgrammar.semantic_check;
+package swp_compiler_ss13.javabite.parser.targetgrammar.semantic_check;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.LinkedList;
 import java.util.List;
 
 import org.junit.Test;
+import org.mockito.Mockito;
+import static org.mockito.Mockito.*;
 
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
+import swp_compiler_ss13.common.parser.ReportLog;
 import swp_compiler_ss13.javabite.parser.astGenerator.ASTGenerator;
 import swp_compiler_ss13.javabite.parser.targetgrammar.TargetGrammar;
 import swp_compiler_ss13.javabite.parser.targetgrammar.TargetGrammar.Reduction;
@@ -63,10 +66,11 @@ public class ASTAnalyzerTest {
 		List<Reduction> res= syn.derivateDFLeftToRight(sc);
 		ASTGenerator astGen=new ASTGenerator(res);
 		AST ast=astGen.generateAST();
-		instance=new ASTAnalyzer(ast);
-		assertFalse("does not exist",instance.containsDivisionByZeroQ());
-		assertFalse("does not exist",instance.nonDeclaredVariableUsedQ());
-		
+		ReportLog reportLog = Mockito.mock(ReportLog.class);
+		instance=new ASTAnalyzer(reportLog);
+		instance.setAst(ast);
+		instance.checkDivisionByZero();
+		verify(reportLog, never()).reportError(anyString(), anyInt(), anyInt(), anyString());
 	}
 	
 	@Test
@@ -103,10 +107,11 @@ public class ASTAnalyzerTest {
 		List<Reduction> res= syn.derivateDFLeftToRight(sc);
 		ASTGenerator astGen=new ASTGenerator(res);
 		AST ast=astGen.generateAST();
-		instance=new ASTAnalyzer(ast);
-		assertFalse("does not exist",instance.containsDivisionByZeroQ());
-		assertFalse("does not exist",instance.nonDeclaredVariableUsedQ());
-		
+		ReportLog reportLog = Mockito.mock(ReportLog.class);
+		instance=new ASTAnalyzer(reportLog);
+		instance.setAst(ast);
+		instance.checkDivisionByZero();
+		verify(reportLog, never()).reportError(anyString(), anyInt(), anyInt(), anyString());
 	}
 	
 	@Test
@@ -143,9 +148,11 @@ public class ASTAnalyzerTest {
 		List<Reduction> res= syn.derivateDFLeftToRight(sc);
 		ASTGenerator astGen=new ASTGenerator(res);
 		AST ast=astGen.generateAST();
-		instance=new ASTAnalyzer(ast);
-		assertTrue("does exist",instance.containsDivisionByZeroQ());
-		assertFalse("does not exist",instance.nonDeclaredVariableUsedQ());
+		ReportLog reportLog = Mockito.mock(ReportLog.class);
+		instance=new ASTAnalyzer(reportLog);
+		instance.setAst(ast);
+		instance.checkDivisionByZero();
+		verify(reportLog, atLeastOnce()).reportError("", 0, 0, "Somewhere inside the input is a division by zero.");
 	}
 	
 	@Test
@@ -182,9 +189,11 @@ public class ASTAnalyzerTest {
 		List<Reduction> res= syn.derivateDFLeftToRight(sc);
 		ASTGenerator astGen=new ASTGenerator(res);
 		AST ast=astGen.generateAST();
-		instance=new ASTAnalyzer(ast);
-		assertFalse("does not exist",instance.containsDivisionByZeroQ());
-		assertFalse("does not exist",instance.nonDeclaredVariableUsedQ());
+		ReportLog reportLog = Mockito.mock(ReportLog.class);
+		instance=new ASTAnalyzer(reportLog);
+		instance.setAst(ast);
+		instance.checkNonDeclaredVariableUsedQ();
+		verify(reportLog, never()).reportError(anyString(), anyInt(), anyInt(), anyString());
 	}
 	
 	@Test
@@ -221,8 +230,11 @@ public class ASTAnalyzerTest {
 		List<Reduction> res= syn.derivateDFLeftToRight(sc);
 		ASTGenerator astGen=new ASTGenerator(res);
 		AST ast=astGen.generateAST();
-		instance=new ASTAnalyzer(ast);
-		assertFalse("does not exist",instance.containsDivisionByZeroQ());
-		assertTrue("does exist",instance.nonDeclaredVariableUsedQ());
+		ReportLog reportLog = Mockito.mock(ReportLog.class);
+		instance=new ASTAnalyzer(reportLog);
+		instance.setAst(ast);
+		instance.checkNonDeclaredVariableUsedQ();
+		reportLog.reportError("ND", 0, 0, "Identifier 'ND' was declared multiple times");
+		verify(reportLog, atLeastOnce()).reportError(anyString(), anyInt(), anyInt(), anyString());
 	}
 }
