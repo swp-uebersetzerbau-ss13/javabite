@@ -1,6 +1,5 @@
 @SuppressWarnings("unused")
-public class VDoubleToLong
-{
+public class VDoubleToLong {
 
 	public static void main(final String[] args) {
 		long a = 1;

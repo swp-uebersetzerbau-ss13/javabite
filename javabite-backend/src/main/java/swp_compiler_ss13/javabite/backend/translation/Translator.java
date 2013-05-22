@@ -22,8 +22,7 @@ import swp_compiler_ss13.javabite.backend.external.QuadrupleImpl;
  * @since 27.04.2013
  * 
  */
-public class Translator
-{
+public class Translator {
 
 	public static final String SYM_CONST = "#";
 	public static final String SYM_IGNORE = "!";

@@ -1,6 +1,5 @@
 @SuppressWarnings("unused")
-public class VVSubLong
-{
+public class VVSubLong {
 
 	public static void main(final String[] args) {
 		final long a = 1;

@@ -17,8 +17,7 @@ import swp_compiler_ss13.javabite.backend.BackendModule;
  * @since 27.04.2013
  * 
  */
-public class ControllerTemp
-{
+public class ControllerTemp {
 
 	static List<Quadruple> tac = new ArrayList<Quadruple>() {
 		/**

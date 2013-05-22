@@ -28,8 +28,7 @@ import swp_compiler_ss13.javabite.backend.translation.Translator;
  * @since 27.04.2013
  * 
  */
-public class BackendModule implements Backend
-{
+public class BackendModule implements Backend {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(BackendModule.class);

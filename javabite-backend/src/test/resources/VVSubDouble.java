@@ -1,6 +1,5 @@
 @SuppressWarnings("unused")
-public class VVSubDouble
-{
+public class VVSubDouble {
 
 	public static void main(final String[] args) {
 		final double a = 1.1;

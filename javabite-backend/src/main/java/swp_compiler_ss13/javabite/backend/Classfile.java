@@ -30,8 +30,7 @@ import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
  * @since 27.04.2013
  * 
  */
-public class Classfile implements IClassfile
-{
+public class Classfile implements IClassfile {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(Classfile.class);
@@ -427,8 +426,7 @@ public class Classfile implements IClassfile
 	 * @since 27.04.2013
 	 * 
 	 */
-	private class ConstantPool
-	{
+	private class ConstantPool {
 		Logger logger = LoggerFactory.getLogger(this.getClass());
 
 		private final List<CPInfo> entryList;
@@ -717,8 +715,7 @@ public class Classfile implements IClassfile
 		 * @since 27.04.2013
 		 * 
 		 */
-		private class CPInfo
-		{
+		private class CPInfo {
 			Logger logger = LoggerFactory.getLogger(this.getClass());
 
 			// General CPInfo structure information
@@ -767,8 +764,7 @@ public class Classfile implements IClassfile
 	 * @since 28.04.2013
 	 * 
 	 */
-	private class MethodArea
-	{
+	private class MethodArea {
 		Logger logger = LoggerFactory.getLogger(this.getClass());
 
 		private final HashMap<String, Method> methodMap;
@@ -887,8 +883,7 @@ public class Classfile implements IClassfile
 		 * @since 28.04.2013
 		 * 
 		 */
-		private class Method
-		{
+		private class Method {
 			Logger logger = LoggerFactory.getLogger(this.getClass());
 
 			// General method structure information
@@ -993,8 +988,7 @@ public class Classfile implements IClassfile
 			 * @since 28.04.2013
 			 * 
 			 */
-			private class CodeAttribute
-			{
+			private class CodeAttribute {
 
 				Logger logger = LoggerFactory.getLogger(this.getClass());
 

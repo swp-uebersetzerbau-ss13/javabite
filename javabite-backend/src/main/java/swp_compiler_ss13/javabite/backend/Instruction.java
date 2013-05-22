@@ -19,8 +19,7 @@ import org.slf4j.LoggerFactory;
  * @since 23.04.2013
  * 
  */
-public class Instruction
-{
+public class Instruction {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(Instruction.class);
