@@ -11,8 +11,9 @@ import org.slf4j.LoggerFactory;
 
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
+import swp_compiler_ss13.javabite.ast.ASTJb;
+import swp_compiler_ss13.javabite.parser.astGenerator.ASTGenerator;
 import swp_compiler_ss13.javabite.parser.grammar.exceptions.WordNotInLanguageGrammarException;
-import swp_compiler_ss13.javabite.parser.targetgrammar.TargetGrammar;
 import swp_compiler_ss13.javabite.parser.targetgrammar.TargetGrammar.Reduction;
 import swp_compiler_ss13.javabite.token.NumTokenJb;
 import swp_compiler_ss13.javabite.token.RealTokenJb;
@@ -213,6 +214,112 @@ public class ESTGrammarTestCase {
 		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
 		List<Reduction> res = syn.derivateDFRightToLeft(sc);
 	}
+	
+	
+	@Test
+	public void testM2AddProgram() {
+		/*# returns 10
+		# prints nothing
+		long a;
+		long b;
+		long c;
+
+		a = 4;
+		b = 3;
+		c = 2;
+
+		a = b = 4;
+		c = a + b + c;
+
+		return c;
+		*/
+		List<Token> tList = new LinkedList<>();
+		// #returns 10
+		tList.add(new TokenJb(TokenType.COMMENT, "returns 10"));
+		// #prints nothing		
+		tList.add(new TokenJb(TokenType.COMMENT, "prints nothing"));
+		
+		// long a;
+		tList.add(new TokenJb(TokenType.LONG_SYMBOL, "long"));
+		tList.add(new TokenJb(TokenType.ID, "a"));
+		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
+		
+		// long a;
+		tList.add(new TokenJb(TokenType.LONG_SYMBOL, "long"));
+		tList.add(new TokenJb(TokenType.ID, "b"));
+		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
+
+		// long a;
+		tList.add(new TokenJb(TokenType.LONG_SYMBOL, "long"));
+		tList.add(new TokenJb(TokenType.ID, "c"));
+		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
+		
+		// a = 4;
+		tList.add(new TokenJb(TokenType.ID, "a"));
+		tList.add(new TokenJb(TokenType.ASSIGNOP, "="));
+		tList.add(new NumTokenJb(TokenType.NUM, "4"));
+		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
+		
+		// b = 3;
+		tList.add(new TokenJb(TokenType.ID, "b"));
+		tList.add(new TokenJb(TokenType.ASSIGNOP, "="));
+		tList.add(new NumTokenJb(TokenType.NUM, "3"));
+		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
+		
+		// c = 2;
+		tList.add(new TokenJb(TokenType.ID, "c"));
+		tList.add(new TokenJb(TokenType.ASSIGNOP, "="));
+		tList.add(new NumTokenJb(TokenType.NUM, "2"));
+		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
+		
+		// a = b = 4;
+		tList.add(new TokenJb(TokenType.ID, "a"));
+		tList.add(new TokenJb(TokenType.ASSIGNOP, "="));
+		tList.add(new TokenJb(TokenType.ID,"b"));
+		tList.add(new TokenJb(TokenType.ASSIGNOP, "="));
+		tList.add(new NumTokenJb(TokenType.NUM, "4"));
+		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
+		
+		// 	c = a + b + c;
+		tList.add(new TokenJb(TokenType.ID, "c"));
+		tList.add(new TokenJb(TokenType.ASSIGNOP, "="));
+		tList.add(new TokenJb(TokenType.ID,"a"));
+		tList.add(new TokenJb(TokenType.PLUS, "+"));
+		tList.add(new TokenJb(TokenType.ID,"b"));
+		tList.add(new TokenJb(TokenType.PLUS, "+"));
+		tList.add(new TokenJb(TokenType.ID,"c"));
+		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
+		
+		// return c
+		tList.add(new TokenJb(TokenType.RETURN,"return"));
+		tList.add(new TokenJb(TokenType.ID,"c"));
+		tList.add(new TokenJb(TokenType.SEMICOLON,";"));
+		
+		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
+		List<Reduction> res = syn.derivateDFRightToLeft(sc);
+		
+	}
+	
+	@Test
+	public void testM2AddProgramSimplified() {
+		/*# returns 10
+		a = b = 4;
+		*/
+		List<Token> tList = new LinkedList<>();
+				// a = b = 4;
+		tList.add(new TokenJb(TokenType.ID, "a"));
+		tList.add(new TokenJb(TokenType.ASSIGNOP, "="));
+		tList.add(new TokenJb(TokenType.ID,"b"));
+		tList.add(new TokenJb(TokenType.ASSIGNOP, "="));
+		tList.add(new NumTokenJb(TokenType.NUM, "4"));
+		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
+		
+		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
+		List<Reduction> res = syn.derivateDFLeftToRight(sc);
+		
+	}
+	
+	
 
 	private String resAsReadableString(List<Reduction> res) {
 		StringBuilder strb = new StringBuilder();

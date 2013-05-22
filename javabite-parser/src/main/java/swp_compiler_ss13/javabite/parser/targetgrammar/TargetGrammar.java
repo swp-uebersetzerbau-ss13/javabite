@@ -19,6 +19,7 @@ import swp_compiler_ss13.javabite.parser.grammar.Production;
 import swp_compiler_ss13.javabite.parser.grammar.SLRAutomaton;
 import swp_compiler_ss13.javabite.parser.grammar.Symbol;
 import swp_compiler_ss13.javabite.parser.grammar.Word;
+import swp_compiler_ss13.javabite.parser.grammar.SLRAutomaton.AMBIGUITY_POLICY;
 
 /**
  * This class represents our grammar defined in the specification.
@@ -219,6 +220,8 @@ public class TargetGrammar {
 				);
 		
 		automaton=new SLRAutomaton<>(grammar);
+		// resolve dangling-else conflict
+		automaton.setAmbiguityPolicy(AMBIGUITY_POLICY.PREFER_SHIFT);
 	}
 	
 	/**
@@ -320,13 +323,13 @@ public class TargetGrammar {
 			left_side=production.left;
 		}
 		public String toString(){
-			String res= left_side.toString()+"->";
+			String res= left_side.toString()+" ->";
 			for (Object o :right_side){
 				if (o instanceof Token){
-					res+=((Token)o).getTokenType();
+					res+=" "+((Token)o).getTokenType();
 				}
 				else{
-					res+=o;
+					res+=" "+o;
 				}
 			}
 			return res;
