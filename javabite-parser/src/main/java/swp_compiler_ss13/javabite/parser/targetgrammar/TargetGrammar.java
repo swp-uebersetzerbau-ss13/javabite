@@ -103,7 +103,8 @@ public class TargetGrammar {
 		// type -> type [*num*] | *basic* | *record* {decls}
 		grammar.addProduction(type,
 				// type [*num*]
-				// TODO: this kind of parenthesis does not exist  
+				// Much less powerful than type [ assign ]... change possible? :/ 
+				list(type,t(TokenType.LEFT_BRACKET),t(TokenType.NUM),t(TokenType.RIGHT_BRACKET)),
 				// *basic*
 				list(t(TokenType.DOUBLE_SYMBOL)),
 				list(t(TokenType.LONG_SYMBOL)),
@@ -154,7 +155,7 @@ public class TargetGrammar {
 		
 		// loc -> loc [assign] | *id* | loc.*id*
 		grammar.addProduction(loc,
-				// TODO: loc [assign] 
+				list(loc,t(TokenType.LEFT_BRACKET),assign,t(TokenType.RIGHT_BRACKET)),
 				list(t(TokenType.ID))
 				// TODO: loc.*id* 
 				);
