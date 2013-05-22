@@ -84,6 +84,13 @@ public abstract class ASTNodeJb implements ASTNode, Iterable<ASTNode>{
 		StringBuilder strb=new StringBuilder();
 		strb.append(this.getClass().getSimpleName());
 		strb.append(getNodePropertiesAsString());
+		return strb.toString();
+	}
+	
+	public String toLongString(){
+		StringBuilder strb=new StringBuilder();
+		strb.append(this.getClass().getSimpleName());
+		strb.append(getNodePropertiesAsString());
 		strb.append("[");
 		boolean first=true;
 		for (ASTNode child : children.values() ) {
