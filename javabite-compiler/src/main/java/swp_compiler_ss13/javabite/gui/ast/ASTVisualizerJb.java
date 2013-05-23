@@ -33,6 +33,10 @@ public class ASTVisualizerJb implements ASTVisualization {
 		frame = new mxGraphComponent(graph);
 	}
 	
+	public JScrollPane getFrame() {
+		return frame;
+	}
+	
 	/**
 	 * converts the ast to a tree representation of JGraphX, represented in the frame.
 	 * @param ast

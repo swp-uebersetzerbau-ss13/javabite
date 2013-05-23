@@ -25,6 +25,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
+import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextPane;
@@ -41,6 +42,7 @@ import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.javabite.ast.ASTJb;
 import swp_compiler_ss13.javabite.compiler.JavabiteCompiler;
+import swp_compiler_ss13.javabite.gui.ast.ASTVisualizerJb;
 import swp_compiler_ss13.javabite.lexer.LexerJb;
 import swp_compiler_ss13.javabite.parser.ParserJb;
 
@@ -57,7 +59,7 @@ public class MainFrame extends JFrame {
 	StyledDocument doc = (StyledDocument) new DefaultStyledDocument();
 	
 	//we need to communicate with the lexer to colorize tokens
-	private LexerJb lexer;
+	private LexerJb lexer = new LexerJb();
 	private ParserJb parser;
 	private ASTJb ast;
 	
@@ -208,15 +210,27 @@ public class MainFrame extends JFrame {
 		
 		menuVisual = new JMenu("Visual");
 		menuBar.add(menuVisual);
-		
 		menuVisualAst = new JMenuItem("AST");
 		parser = new ParserJb();
-		parser.setLexer(lexer);
 		menuVisualAst.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// TODO: show AST
-				toolBarLabel.setText("Rendered AST.");
+				String text = editorPaneSourcode.getText();
+				try {
+					lexer.setSourceStream(new ByteArrayInputStream(text.getBytes("UTF-8")));
+				} catch (UnsupportedEncodingException e1) {
+					e1.printStackTrace();
+				}
+				parser.setLexer(lexer);
 				ast = parser.getParsedAST();
+				ASTVisualizerJb visualizer = new ASTVisualizerJb();
+				visualizer.visualizeAST(ast);
+				JFrame frame=new JFrame();
+				JScrollPane ast_frame=visualizer.getFrame();
+				frame.setVisible(true);
+				frame.setSize(800, 600);
+				frame.add(ast_frame);
+				frame.setVisible(true);
+				toolBarLabel.setText("Rendered AST.");
 			}
 		});
 		menuVisual.add(menuVisualAst);
