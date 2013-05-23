@@ -24,16 +24,16 @@ import swp_compiler_ss13.javabite.token.TokenJb;
 public class ASTAnalyzerTest {
 
 	public ASTAnalyzer instance;
-	
-	TargetGrammar syn=new TargetGrammar();
-	
+
+	TargetGrammar syn = new TargetGrammar();
+
 	@Test
-	public void testIfCompiles(){
-		assertTrue("works",true);
+	public void testIfCompiles() {
+		assertTrue("works", true);
 	}
-	
+
 	@Test
-	public void testNoDivisionByZero(){
+	public void testNoDivisionByZero() {
 		List<Token> tList = new LinkedList<>();
 		// long i;
 		tList.add(new TokenJb(TokenType.LONG_SYMBOL, "long"));
@@ -61,20 +61,21 @@ public class ASTAnalyzerTest {
 		tList.add(new TokenJb(TokenType.RETURN, "return"));
 		tList.add(new TokenJb(TokenType.ID, "j"));
 		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
-		
+
 		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
-		List<Reduction> res= syn.derivateDFLeftToRight(sc);
-		ASTGenerator astGen=new ASTGenerator(res);
-		AST ast=astGen.generateAST();
+		List<Reduction> res = syn.derivateDFLeftToRight(sc);
+		ASTGenerator astGen = new ASTGenerator(res);
+		AST ast = astGen.generateAST();
 		ReportLog reportLog = Mockito.mock(ReportLog.class);
-		instance=new ASTAnalyzer(reportLog);
+		instance = new ASTAnalyzer(reportLog);
 		instance.setAst(ast);
 		instance.checkDivisionByZero();
-		verify(reportLog, never()).reportError(anyString(), anyInt(), anyInt(), anyString());
+		verify(reportLog, never()).reportError(anyString(), anyInt(), anyInt(),
+				anyString());
 	}
-	
+
 	@Test
-	public void testNoDivisionByZero2(){
+	public void testNoDivisionByZero2() {
 		List<Token> tList = new LinkedList<>();
 		// long i;
 		tList.add(new TokenJb(TokenType.LONG_SYMBOL, "long"));
@@ -102,20 +103,21 @@ public class ASTAnalyzerTest {
 		tList.add(new TokenJb(TokenType.RETURN, "return"));
 		tList.add(new TokenJb(TokenType.ID, "j"));
 		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
-		
+
 		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
-		List<Reduction> res= syn.derivateDFLeftToRight(sc);
-		ASTGenerator astGen=new ASTGenerator(res);
-		AST ast=astGen.generateAST();
+		List<Reduction> res = syn.derivateDFLeftToRight(sc);
+		ASTGenerator astGen = new ASTGenerator(res);
+		AST ast = astGen.generateAST();
 		ReportLog reportLog = Mockito.mock(ReportLog.class);
-		instance=new ASTAnalyzer(reportLog);
+		instance = new ASTAnalyzer(reportLog);
 		instance.setAst(ast);
 		instance.checkDivisionByZero();
-		verify(reportLog, never()).reportError(anyString(), anyInt(), anyInt(), anyString());
+		verify(reportLog, never()).reportError(anyString(), anyInt(), anyInt(),
+				anyString());
 	}
-	
+
 	@Test
-	public void testExistingDivisionByZero(){
+	public void testExistingDivisionByZero() {
 		List<Token> tList = new LinkedList<>();
 		// long i;
 		tList.add(new TokenJb(TokenType.LONG_SYMBOL, "long"));
@@ -143,20 +145,21 @@ public class ASTAnalyzerTest {
 		tList.add(new TokenJb(TokenType.RETURN, "return"));
 		tList.add(new TokenJb(TokenType.ID, "j"));
 		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
-		
+
 		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
-		List<Reduction> res= syn.derivateDFLeftToRight(sc);
-		ASTGenerator astGen=new ASTGenerator(res);
-		AST ast=astGen.generateAST();
+		List<Reduction> res = syn.derivateDFLeftToRight(sc);
+		ASTGenerator astGen = new ASTGenerator(res);
+		AST ast = astGen.generateAST();
 		ReportLog reportLog = Mockito.mock(ReportLog.class);
-		instance=new ASTAnalyzer(reportLog);
+		instance = new ASTAnalyzer(reportLog);
 		instance.setAst(ast);
 		instance.checkDivisionByZero();
-		verify(reportLog, atLeastOnce()).reportError("", 0, 0, "Somewhere inside the input is a division by zero.");
+		verify(reportLog, atLeastOnce()).reportError("", 0, 0,
+				"Somewhere inside the input is a division by zero.");
 	}
-	
+
 	@Test
-	public void testAllDeclared(){
+	public void testAllDeclared() {
 		List<Token> tList = new LinkedList<>();
 		// long i;
 		tList.add(new TokenJb(TokenType.LONG_SYMBOL, "long"));
@@ -184,22 +187,58 @@ public class ASTAnalyzerTest {
 		tList.add(new TokenJb(TokenType.RETURN, "return"));
 		tList.add(new TokenJb(TokenType.ID, "j"));
 		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
-		
+
 		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
-		List<Reduction> res= syn.derivateDFLeftToRight(sc);
-		ASTGenerator astGen=new ASTGenerator(res);
-		AST ast=astGen.generateAST();
+		List<Reduction> res = syn.derivateDFLeftToRight(sc);
+		ASTGenerator astGen = new ASTGenerator(res);
+		AST ast = astGen.generateAST();
 		ReportLog reportLog = Mockito.mock(ReportLog.class);
-		instance=new ASTAnalyzer(reportLog);
+		instance = new ASTAnalyzer(reportLog);
 		instance.setAst(ast);
 		instance.checkNonDeclaredVariableUsedQ();
-		verify(reportLog, never()).reportError(anyString(), anyInt(), anyInt(), anyString());
+		verify(reportLog, never()).reportError(anyString(), anyInt(), anyInt(),
+				anyString());
 	}
-	
-	
-	
+
 	@Test
-	public void testNotAllDeclared(){
+	public void testDoubleDeclared() {
+		List<Token> tList = new LinkedList<>();
+		// long i;
+		tList.add(new TokenJb(TokenType.LONG_SYMBOL, "long"));
+		tList.add(new TokenJb(TokenType.ID, "i"));
+		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
+		// long i;
+		tList.add(new TokenJb(TokenType.LONG_SYMBOL, "long"));
+		tList.add(new TokenJb(TokenType.ID, "i"));
+		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
+		// i=(2);
+		
+		tList.add(new TokenJb(TokenType.ID, "i"));
+		tList.add(new TokenJb(TokenType.ASSIGNOP, "="));
+		tList.add(new TokenJb(TokenType.LEFT_PARAN, "("));
+		tList.add(new NumTokenJb(TokenType.NUM, "2"));
+		tList.add(new TokenJb(TokenType.RIGHT_PARAN, ")"));
+		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
+
+		// return i;
+		tList.add(new TokenJb(TokenType.RETURN, "return"));
+		tList.add(new TokenJb(TokenType.ID, "i"));
+		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
+
+		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
+		List<Reduction> res = syn.derivateDFLeftToRight(sc);
+		ASTGenerator astGen = new ASTGenerator(res);
+		AST ast = astGen.generateAST();
+		ReportLog reportLog = Mockito.mock(ReportLog.class);
+		instance = new ASTAnalyzer(reportLog);
+		instance.setAst(ast);
+		instance.checkDoubleDeclaration();
+		verify(reportLog, never()).reportError("i", 0, 0,
+				"IDENTEFIER 'i' were multiple decleard");
+	}
+
+	@Test
+	public void testNotAllDeclared() {
 		List<Token> tList = new LinkedList<>();
 		// long i;
 		tList.add(new TokenJb(TokenType.LONG_SYMBOL, "long"));
@@ -227,15 +266,16 @@ public class ASTAnalyzerTest {
 		tList.add(new TokenJb(TokenType.RETURN, "return"));
 		tList.add(new TokenJb(TokenType.ID, "ND"));
 		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
-		
+
 		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
-		List<Reduction> res= syn.derivateDFLeftToRight(sc);
-		ASTGenerator astGen=new ASTGenerator(res);
-		AST ast=astGen.generateAST();
+		List<Reduction> res = syn.derivateDFLeftToRight(sc);
+		ASTGenerator astGen = new ASTGenerator(res);
+		AST ast = astGen.generateAST();
 		ReportLog reportLog = Mockito.mock(ReportLog.class);
-		instance=new ASTAnalyzer(reportLog);
+		instance = new ASTAnalyzer(reportLog);
 		instance.setAst(ast);
 		instance.checkNonDeclaredVariableUsedQ();
-		verify(reportLog, atLeastOnce()).reportError("ND", 0, 0, "Identifier 'ND' used but never declared");
+		verify(reportLog, atLeastOnce()).reportError("ND", 0, 0,
+				"Identifier 'ND' used but never declared");
 	}
 }
