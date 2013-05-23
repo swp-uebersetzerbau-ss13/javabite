@@ -2,13 +2,16 @@ package swp_compiler_ss13.javabite.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -16,7 +19,10 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Properties;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -30,11 +36,17 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextPane;
 import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
+import javax.swing.event.UndoableEditEvent;
+import javax.swing.event.UndoableEditListener;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.Document;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
+import javax.swing.undo.CannotRedoException;
+import javax.swing.undo.CannotUndoException;
+import javax.swing.undo.UndoManager;
 
 import swp_compiler_ss13.common.backend.BackendException;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
@@ -50,6 +62,10 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.JLabel;
+import java.awt.Component;
+import java.awt.Insets;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class MainFrame extends JFrame {
 
@@ -84,6 +100,14 @@ public class MainFrame extends JFrame {
 	JTabbedPane tabbedPaneLog;
 	JTabbedPane tabbedPaneEditor;
 	private static JTextPane editorPaneSourcode;
+	
+	Properties properties = new Properties();
+	
+	// undo and redo
+	private Document editorPaneDocument;
+	protected UndoManager undoManager = new UndoManager();
+	private JButton undoButton;
+	private JButton redoButton;
 	
 	/**
 	 * Launch the application.
@@ -228,7 +252,7 @@ public class MainFrame extends JFrame {
 				JScrollPane ast_frame=visualizer.getFrame();
 				frame.setVisible(true);
 				frame.setSize(800, 600);
-				frame.add(ast_frame);
+				frame.getContentPane().add(ast_frame);
 				frame.setVisible(true);
 				toolBarLabel.setText("Rendered AST.");
 			}
@@ -260,6 +284,30 @@ public class MainFrame extends JFrame {
 		});
 		menuBar.add(buttonRunCompile);
 		
+		//Undo Button
+		undoButton = new JButton("<-");
+		undoButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				
+				if(undoManager.canUndo())
+					undoManager.undo();
+			}
+		});
+		menuBar.add(undoButton);
+		
+		//Redo Button
+		redoButton = new JButton("->");
+		redoButton.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if(undoManager.canRedo())
+					undoManager.redo();
+				styleEditorText();
+			}
+		});
+		menuBar.add(redoButton);
+		
 		toolBar = new JToolBar();
 		getContentPane().add(toolBar, BorderLayout.SOUTH);
 		
@@ -288,30 +336,44 @@ public class MainFrame extends JFrame {
 		splitPane.setLeftComponent(tabbedPaneEditor);
 		
 		lexer = new LexerJb();
+		
+		//get properties for syntax highlighting
+		//read properties
+		
+		try {
+			BufferedInputStream stream = new BufferedInputStream(new FileInputStream("src\\main\\java\\swp_compiler_ss13\\javabite\\gui\\highlighting.properties"));
+			properties.load(stream);
+			stream.close();
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+					
+		
+		//sourcecode with syntax highlighting
 		editorPaneSourcode = new JTextPane(doc);
 		editorPaneSourcode.setText("enter your sourcecode here");
+		
+		//setup undo redo
+		editorPaneSourcode.getDocument().addUndoableEditListener(
+				new UndoableEditListener() {
+					public void undoableEditHappened(UndoableEditEvent e) {
+						if(e.getEdit().getPresentationName().equals("Löschen") || e.getEdit().getPresentationName().equals("Hinzufügen")) 
+							undoManager.addEdit(e.getEdit());
+					}
+				});
+
+		
 		// add listener for sourcecode colorization 
 		editorPaneSourcode.addKeyListener(new KeyAdapter() {
 			@Override
-			public void keyTyped(KeyEvent e) {
-				int index = 0;
-				String text = editorPaneSourcode.getText();
-				List<Token> tokens = getTokenList(text);
-				
-				//text without breaklines and other special chars that jpane not counts
-				String cuttedText = text.replace("\n", "");
-				
-				System.out.println(tokens.toString());
-				
-				Token current_token;
-				int lastIndex = 0;
-				for (int i = 0; i < tokens.size(); i++) {
-					current_token = tokens.get(i);
-					index = text.indexOf(current_token.getValue(), lastIndex);
-					lastIndex = index + current_token.getValue().length();
-					styleToken(current_token.getTokenType(), index , index + current_token.getValue().length());
-				}
-			}
+			public void keyReleased(KeyEvent arg0) {
+				styleEditorText();
+			} 
+			
 		});
 		
 		tabbedPaneEditor.addTab("Unknown", null, editorPaneSourcode, null);
@@ -346,24 +408,47 @@ public class MainFrame extends JFrame {
 		return tokens;
 	}
 
+	/**
+	 * Styles a special part of the sourccode
+	 */
 	private void styleToken(TokenType tokenType, int start, int end) {
-		System.out.println(start + " bis " + end + ": " + tokenType);
-		if (tokenType == TokenType.STRING ) {
-			javax.swing.text.Style style = editorPaneSourcode.addStyle("Blue", null);
-			StyleConstants.setForeground(style, Color.BLUE);
-			doc.setCharacterAttributes(start, end, editorPaneSourcode.getStyle("Blue"), true);
-		} else if(tokenType == TokenType.IF || tokenType == TokenType.WHILE || tokenType == TokenType.DO || tokenType == TokenType.BREAK || tokenType == TokenType.RETURN || tokenType == TokenType.PRINT ) {
-			javax.swing.text.Style style = editorPaneSourcode.addStyle("Pink", null);
-			StyleConstants.setForeground(style, new Color(145, 0, 85));
-			doc.setCharacterAttributes(start, end, editorPaneSourcode.getStyle("Pink"), true);
-		} else if(tokenType == TokenType.COMMENT) {
-			javax.swing.text.Style style = editorPaneSourcode.addStyle("Gray", null);
-			StyleConstants.setForeground(style, Color.GRAY);
-			doc.setCharacterAttributes(start, end, editorPaneSourcode.getStyle("Gray"), true);
+		
+		//check properties file for tokentype key, if exist set defined color
+		String color;
+		if((color = properties.getProperty(tokenType.toString())) != null) {
+			javax.swing.text.Style style = editorPaneSourcode.addStyle(tokenType.toString(), null);
+			StyleConstants.setForeground(style, new Color(Integer.parseInt(color, 16)+0xFF000000));
+			doc.setCharacterAttributes(start, end, editorPaneSourcode.getStyle(tokenType.toString()), true);
+		
+			
 		} else {
 			javax.swing.text.Style style = editorPaneSourcode.addStyle("Black", null);
 			StyleConstants.setForeground(style, Color.BLACK);
 			doc.setCharacterAttributes(start, end, editorPaneSourcode.getStyle("Black"), true);
+
 		}
 	}
+	
+	/**
+	 * Styles the whole sourcode jtextpane
+	 */
+	private void styleEditorText() {
+		String text = editorPaneSourcode.getText();
+		
+		int index = 0;
+		List<Token> tokens = getTokenList(text);
+		
+		Token current_token;
+		int lastIndex = 0;
+		for (int i = 0; i < tokens.size(); i++) {
+			current_token = tokens.get(i);
+			index = text.indexOf(current_token.getValue(), lastIndex);
+			lastIndex = index + current_token.getValue().length();
+			styleToken(current_token.getTokenType(), index , current_token.getValue().length());
+		}
+	}
+	
+
+
+	
 }
