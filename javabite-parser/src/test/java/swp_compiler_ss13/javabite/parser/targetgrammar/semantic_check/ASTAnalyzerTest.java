@@ -196,6 +196,8 @@ public class ASTAnalyzerTest {
 		verify(reportLog, never()).reportError(anyString(), anyInt(), anyInt(), anyString());
 	}
 	
+	
+	
 	@Test
 	public void testNotAllDeclared(){
 		List<Token> tList = new LinkedList<>();
@@ -234,7 +236,6 @@ public class ASTAnalyzerTest {
 		instance=new ASTAnalyzer(reportLog);
 		instance.setAst(ast);
 		instance.checkNonDeclaredVariableUsedQ();
-		reportLog.reportError("ND", 0, 0, "Identifier 'ND' was declared multiple times");
-		verify(reportLog, atLeastOnce()).reportError(anyString(), anyInt(), anyInt(), anyString());
+		verify(reportLog, atLeastOnce()).reportError("ND", 0, 0, "Identifier 'ND' used but never declared");
 	}
 }
