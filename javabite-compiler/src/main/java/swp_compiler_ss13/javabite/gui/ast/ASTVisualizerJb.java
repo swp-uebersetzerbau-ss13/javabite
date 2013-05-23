@@ -10,6 +10,7 @@ import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode;
+import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
 import swp_compiler_ss13.common.visualization.ASTVisualization;
 import swp_compiler_ss13.javabite.ast.ASTSource;
 
@@ -102,10 +103,18 @@ public class ASTVisualizerJb implements ASTVisualization {
 	 * @return the cell-object, which correspondents to the given node
 	 */
 	private Object asCell(ASTNode ast){
-		if (ast instanceof ArithmeticBinaryExpressionNode){
-			return graph.insertVertex(graph.getDefaultParent(), null, ((BinaryExpressionNode) ast).getOperator(), 20, 40, 200, 70);
+		Object returnVal=null;
+		if (ast instanceof BasicIdentifierNode){
+			returnVal= graph.insertVertex(graph.getDefaultParent(), null, ((BasicIdentifierNode) ast).getIdentifier(), 20, 40, 200, 70);
 		}
-		else return graph.insertVertex(graph.getDefaultParent(), null, ast, 20, 40, 200, 70);
+		else if (ast instanceof ArithmeticBinaryExpressionNode){
+			returnVal= graph.insertVertex(graph.getDefaultParent(), null, ((ArithmeticBinaryExpressionNode) ast).getOperator(), 20, 40, 200, 70);
+		}
+		else{
+			returnVal=graph.insertVertex(graph.getDefaultParent(), null, ast, 20, 40, 200, 70);
+		}
+		
+		return returnVal;
 	}
 
 	
