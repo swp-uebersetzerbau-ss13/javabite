@@ -39,8 +39,11 @@ import swp_compiler_ss13.common.backend.BackendException;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
+import swp_compiler_ss13.javabite.ast.ASTJb;
 import swp_compiler_ss13.javabite.compiler.JavabiteCompiler;
 import swp_compiler_ss13.javabite.lexer.LexerJb;
+import swp_compiler_ss13.javabite.parser.ParserJb;
+
 import java.awt.FlowLayout;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
@@ -55,6 +58,8 @@ public class MainFrame extends JFrame {
 	
 	//we need to communicate with the lexer to colorize tokens
 	private LexerJb lexer;
+	private ParserJb parser;
+	private ASTJb ast;
 	
 	// Components
 	JMenuBar menuBar;
@@ -205,10 +210,13 @@ public class MainFrame extends JFrame {
 		menuBar.add(menuVisual);
 		
 		menuVisualAst = new JMenuItem("AST");
+		parser = new ParserJb();
+		parser.setLexer(lexer);
 		menuVisualAst.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// TODO: show AST
 				toolBarLabel.setText("Rendered AST.");
+				ast = parser.getParsedAST();
 			}
 		});
 		menuVisual.add(menuVisualAst);
