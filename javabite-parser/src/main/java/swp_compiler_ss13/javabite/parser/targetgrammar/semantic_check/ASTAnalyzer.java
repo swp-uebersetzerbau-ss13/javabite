@@ -1,6 +1,8 @@
 package swp_compiler_ss13.javabite.parser.targetgrammar.semantic_check;
 
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,9 +10,13 @@ import org.slf4j.LoggerFactory;
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.ASTNode.ASTNodeType;
+import swp_compiler_ss13.common.ast.nodes.StatementNode;
 import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
+import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
+import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
+import swp_compiler_ss13.common.parser.ReportLog;
 import swp_compiler_ss13.common.parser.SymbolTable;
 import swp_compiler_ss13.common.types.Type;
 import swp_compiler_ss13.javabite.ast.nodes.leaf.LiteralNodeJb;
@@ -25,25 +31,103 @@ public class ASTAnalyzer {
 	
 	// the subject of the investigation
 	AST ast;
+	ReportLog reportLog;
 	
 	// for debugging
 	Logger logger=LoggerFactory.getLogger(ASTAnalyzer.class);
 	
 	/**
-	 * creates a ASTAnalyzer for the given ast
-	 * @param _ast the ast, that must be analyzed
+	 * creates a ASTAnalyzer
 	 */
-	public ASTAnalyzer(AST _ast) {
-		ast=_ast;
+	public ASTAnalyzer(ReportLog _reportLog) {
+		reportLog = _reportLog;
 	}
 	
 	/**
-	 * checks if the simple case of a division by zero exists
-	 * and every used variable is declared
-	 * @return if no division by zero was detected and every used variable is declared
+	 * analyse the given ast
+	 * @param _ast
 	 */
-	public boolean isValid(){
-		return !containsDivisionByZeroQ()&&!nonDeclaredVariableUsedQ();
+	public void analyse(AST _ast) {
+		ast=_ast;
+		checkDoubleDeclaration();
+		checkDivisionByZero();
+		checkNonDeclaredVariableUsedQ();
+	}
+	
+	void setAst(AST ast) {
+		this.ast = ast;
+	}
+	
+	void checkNonDeclaredVariableUsedQ(){
+		// Idea: just traverse and check symboltables
+		BlockNode blockNode = ast.getRootNode(); 
+		checkNonDeclaredVariableUsedInBlockNode(blockNode);
+	}
+	
+	void checkNonDeclaredVariableUsedInBlockNode(BlockNode blockNode) {
+		SymbolTable table = blockNode.getSymbolTable();
+		for (StatementNode stmt:blockNode.getStatementList()) {
+			if (stmt.getNodeType() == ASTNodeType.BlockNode) {
+				checkNonDeclaredVariableUsedInBlockNode((BlockNode)stmt);
+			} else {
+				Iterator<ASTNode> it = stmt.getDFSLTRNodeIterator();
+				while (it.hasNext()){
+					ASTNode node=it.next();
+					// TODO: this check only works for BasicIdentifierNode not for arrays and structs
+					if (node.getNodeType()==ASTNodeType.BasicIdentifierNode){
+						BasicIdentifierNode bin=(BasicIdentifierNode) node;
+						String identifier = bin.getIdentifier();
+						if (!table.isDeclared(identifier))
+							reportLog.reportError(identifier, 0, 0, "Identifier '" + identifier + "' used but never declared");
+					}
+				}
+			}
+		}
+	}
+	
+//	void checkUninitializedIdentifierUsage() {
+//		//TODO: this implementation only works for MS1 language features
+//		
+//		Iterator<ASTNode> it = ast.getDFSLTRIterator();
+//		while (it.hasNext()){
+//			ASTNode node=it.next();
+//			if (node.getNodeType()==ASTNodeType.BlockNode){
+//				BlockNode block = (BlockNode) node;
+//				varSet.clear();
+//				for(DeclarationNode decl:block.getDeclarationList()) {
+//					String identifier = decl.getIdentifier();
+//					if (varSet.contains(identifier))
+//						reportLog.reportError(identifier, 0, 0, "Identifier '" + identifier + "' was declared multiple times");
+//					else
+//						varSet.add(identifier);
+//				}
+//			}
+//		}
+//	}
+
+	void checkDoubleDeclaration() {
+		Set<String> varSet = new HashSet<>();
+		Iterator<ASTNode> it = ast.getDFSLTRIterator();
+		// iterate through all nodes depth first
+		while (it.hasNext()){
+			ASTNode node=it.next();
+			if (node.getNodeType()==ASTNodeType.BlockNode){
+				BlockNode block = (BlockNode) node;
+				varSet.clear();
+				for(DeclarationNode decl:block.getDeclarationList()) {
+					String identifier = decl.getIdentifier();
+					if (varSet.contains(identifier))
+						reportLog.reportError(identifier, 0, 0, "Identifier '" + identifier + "' was declared multiple times");
+					else
+						varSet.add(identifier);
+				}
+			}
+		}
+	}
+	
+	void checkDivisionByZero() {
+		if (containsDivisionByZeroQ())
+			reportLog.reportError("", 0, 0, "Somewhere inside the input is a division by zero.");
 	}
 	
 	/**
@@ -51,7 +135,7 @@ public class ASTAnalyzer {
 	 * @return 	true  => div by zero exists sure as death
 	 * 			false => div by zero can exist in more complex cases
 	 */
-	public boolean containsDivisionByZeroQ(){
+	boolean containsDivisionByZeroQ(){
 		// Idea: a division by zero can happen, if a 
 		// zero exists somewhere;)
 		
@@ -70,29 +154,6 @@ public class ASTAnalyzer {
 			}
 		}
 		
-		return false;
-	}
-	
-	/**
-	 * checks if somewhere in a statement a undeclared
-	 * variable exists
-	 * @return if such a undeclared variable exists
-	 */
-	public boolean nonDeclaredVariableUsedQ(){
-		// Idea: just traverse and check
-		// we are in the luckily situation at MS1
-		// that we have just one scope
-		SymbolTable table=ast.getRootSymbolTable();
-		
-		Iterator<ASTNode> it = ast.getDFSLTRIterator();
-		while (it.hasNext()){
-			ASTNode node=it.next();
-			if (node.getNodeType()==ASTNodeType.BasicIdentifierNode){
-				BasicIdentifierNode bin=(BasicIdentifierNode) node;
-				if (!table.isDeclared(bin.getIdentifier()))
-					return true;
-			}
-		}
 		return false;
 	}
 	
@@ -120,5 +181,4 @@ public class ASTAnalyzer {
 				Double.parseDouble(candidate.getLiteral())==0
 				);
 	}
-	
 }

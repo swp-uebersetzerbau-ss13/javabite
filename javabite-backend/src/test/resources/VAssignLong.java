@@ -1,3 +1,4 @@
+@SuppressWarnings("unused")
 public class VAssignLong {
 
 	public static void main(final String[] args) {

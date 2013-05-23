@@ -17,8 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import swp_compiler_ss13.javabite.parser.grammar.exceptions.AmbiguityInDerivationGrammarException;
 import swp_compiler_ss13.javabite.parser.grammar.exceptions.WordNotInLanguageGrammarException;
-import swp_compiler_ss13.javabite.parser.targetgrammar.NonTerminal;
-import swp_compiler_ss13.javabite.parser.targetgrammar.TargetGrammar;
 
 /**
  * Represents the Automaton of a SLR parser.
@@ -31,10 +29,24 @@ import swp_compiler_ss13.javabite.parser.targetgrammar.TargetGrammar;
  *            The class of nonTerminals
  */
 public class SLRAutomaton<T extends Symbol, NT extends Symbol> {
+
+	Integer state_num = 0;
+	Grammar<T, NT> g;
+	State initialState;
+	final Set<State> states = new HashSet<>();
+	final State acceptState = new State();
+	AMBIGUITY_POLICY policy = AMBIGUITY_POLICY.DIE;
+
+	Logger logger = LoggerFactory.getLogger(this.getClass());
+
 	public SLRAutomaton(Grammar<T, NT> referenceGrammar) {
 		this.g = referenceGrammar;
 		// this.g.removeEpsilonProductions();
 		build();
+	}
+
+	public void setAmbiguityPolicy(AMBIGUITY_POLICY policy) {
+		this.policy = policy;
 	}
 
 	/**
@@ -172,41 +184,83 @@ public class SLRAutomaton<T extends Symbol, NT extends Symbol> {
 				if (nextStateTrans != null && !nextProdFollow.isEmpty()
 						|| nextStateTrans == null && nextProdFollow.isEmpty()
 						|| nextProdFollow.size() > 1) {
-					logger.error(
-							"behaviour not defined. next state by shift: {}, next states by follow: {}",
-							nextStateTrans, nextProdFollow);
-					logger.error("current terminal: {}", a);
-					logger.error("productions so far: {}", productions);
-					logger.error("state stack {}", state_stack);
-					logger.error("symbol stack {}", symbol_stack);
-					logger.error("word actual {}", word);
-					logger.error("word complete {}", word_total);
-					logger.error("states:");
-					for (State st : states) {
-						logger.error("\n{}", st.descriptionAsString());
+					
+					if (nextStateTrans == null && nextProdFollow.isEmpty()){
+						logger.warn(
+								"behaviour not defined, policy set to DIE. next state by shift: {}, next states by follow: {}",
+								nextStateTrans, nextProdFollow);
+						logger.warn("current terminal: {}", a);
+						logger.warn("productions so far: {}", productions);
+						logger.warn("state stack {}", state_stack);
+						logger.warn("symbol stack {}", symbol_stack);
+						logger.warn("word actual {}", word);
+						logger.warn("word complete {}", word_total);
+						logger.warn("states:");
+						//for (State st : states) {
+						//	logger.warn("\n{}", st.descriptionAsString());
+						//}
+						throw new WordNotInLanguageGrammarException(
+								(swp_compiler_ss13.javabite.parser.targetgrammar.Terminal) t);
 					}
+					
+					if (policy == AMBIGUITY_POLICY.DIE) {
+						logger.warn(
+								"behaviour not defined, policy set to DIE. next state by shift: {}, next states by follow: {}",
+								nextStateTrans, nextProdFollow);
+						logger.warn("current terminal: {}", a);
+						logger.warn("productions so far: {}", productions);
+						logger.warn("state stack {}", state_stack);
+						logger.warn("symbol stack {}", symbol_stack);
+						logger.warn("word actual {}", word);
+						logger.warn("word complete {}", word_total);
+						logger.warn("states:");
+						//for (State st : states) {
+						//	logger.warn("\n{}", st.descriptionAsString());
+						//}
 
-					if (nextStateTrans != null && !nextProdFollow.isEmpty()) {
-						if (t instanceof swp_compiler_ss13.javabite.parser.targetgrammar.Terminal) {
-							throw new AmbiguityInDerivationGrammarException(
-									(swp_compiler_ss13.javabite.parser.targetgrammar.Terminal) t);
-						} else
-							logger.error("Dont know how to react...");
-					} else if (nextStateTrans == null
-							&& nextProdFollow.isEmpty()) {
-						if (t instanceof swp_compiler_ss13.javabite.parser.targetgrammar.Terminal) {
-							throw new WordNotInLanguageGrammarException(
-									(swp_compiler_ss13.javabite.parser.targetgrammar.Terminal) t);
-						} else
-							logger.error("Dont know how to react...");
-					} else if (nextProdFollow.size() > 1) {
-						if (t instanceof swp_compiler_ss13.javabite.parser.targetgrammar.Terminal) {
-							throw new AmbiguityInDerivationGrammarException(
-									(swp_compiler_ss13.javabite.parser.targetgrammar.Terminal) t);
-						} else
-							logger.error("Dont know how to react...");
-					} else {
-						throw new RuntimeException("Unpredicted state reached");
+						if (nextStateTrans != null && !nextProdFollow.isEmpty()) {
+							if (t instanceof swp_compiler_ss13.javabite.parser.targetgrammar.Terminal) {
+								throw new AmbiguityInDerivationGrammarException(
+										(swp_compiler_ss13.javabite.parser.targetgrammar.Terminal) t);
+							} else
+								logger.warn("Dont know how to react...");
+						} else if (nextStateTrans == null
+								&& nextProdFollow.isEmpty()) {
+							if (t instanceof swp_compiler_ss13.javabite.parser.targetgrammar.Terminal) {
+								throw new WordNotInLanguageGrammarException(
+										(swp_compiler_ss13.javabite.parser.targetgrammar.Terminal) t);
+							} else
+								logger.warn("Dont know how to react...");
+						} else if (nextProdFollow.size() > 1) {
+							if (t instanceof swp_compiler_ss13.javabite.parser.targetgrammar.Terminal) {
+								throw new AmbiguityInDerivationGrammarException(
+										(swp_compiler_ss13.javabite.parser.targetgrammar.Terminal) t);
+							} else
+								logger.warn("Dont know how to react...");
+						} else {
+							throw new RuntimeException(
+									"Enexptected state reached");
+						}
+					}
+					else if (policy==AMBIGUITY_POLICY.PREFER_REDUCE){
+						if (nextProdFollow.size()==1){
+							// disable shift
+							nextStateTrans=null;
+						}
+						else{
+							logger.error("policy PREFER_REDUCE is not applicable, because multiple or none (exact :{}) reductions are possible",nextProdFollow.size());
+							if (nextProdFollow.size()>1)
+								throw new AmbiguityInDerivationGrammarException(
+										(swp_compiler_ss13.javabite.parser.targetgrammar.Terminal) t);
+						}
+					}
+					else if (policy==AMBIGUITY_POLICY.PREFER_SHIFT){
+						logger.info("policy PREFER_SHIFT is applicable and used");
+						// diable of reduce not necessary
+						nextProdFollow=null;
+					}
+					else{
+						throw new RuntimeException("Invalid Policy");
 					}
 				}
 				// do shift if possible
@@ -226,11 +280,7 @@ public class SLRAutomaton<T extends Symbol, NT extends Symbol> {
 					State stateBeforeProduction = state_stack.peek();
 					State nextState = stateBeforeProduction.transition
 							.get(todo.left);
-					if (nextState == null) {
-						logger.error(
-								"may not happen, nextstate is zero ( {} reading {} -> ? )",
-								stateBeforeProduction, todo.left);
-					}
+					
 					state_stack.push(nextState);
 					symbol_stack.push(todo.left);
 					todo.right = original_right_side;
@@ -259,14 +309,6 @@ public class SLRAutomaton<T extends Symbol, NT extends Symbol> {
 		}
 		return res;
 	}
-
-	Integer state_num = 0;
-	Grammar<T, NT> g;
-	State initialState;
-	final Set<State> states = new HashSet<>();
-	final State acceptState = new State();
-
-	Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	public int getNStates() {
 		return states.size();
@@ -322,6 +364,10 @@ public class SLRAutomaton<T extends Symbol, NT extends Symbol> {
 			return unique_item.left.equals(g.productions
 					.get(g.artificial_start_symbol).iterator().next());
 		}
+	}
+
+	public enum AMBIGUITY_POLICY {
+		DIE, PREFER_SHIFT, PREFER_REDUCE
 	}
 
 }

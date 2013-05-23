@@ -1,3 +1,4 @@
+@SuppressWarnings("unused")
 public class VVDivLong {
 
 	public static void main(final String[] args) {

@@ -171,6 +171,10 @@ public class Program {
 			return this.systemExitIndex;
 		}
 
+		/*
+		 * === M1 === FINISHED
+		 */
+
 		public ProgramBuilder declareLong(final Quadruple q) {
 			throw new UnsupportedOperationException();
 		}
@@ -681,6 +685,160 @@ public class Program {
 			op.add(Mnemonic.RETURN);
 			return add(op.build());
 		}
+
+		/*
+		 * === M2 === WORK IN PROGRESS
+		 */
+
+		public ProgramBuilder notBoolean(final Quadruple q) {
+			// TODO implement
+			// 1 -> 0
+			// 0 -> 1
+			// bitwise negation
+			// ineg
+			return this;
+		}
+
+		public ProgramBuilder orBoolean(final Quadruple q) {
+			// TODO implement
+			// 0, 0 -> 0
+			// 0, 1 -> 1
+			// 1, 0 -> 1
+			// 1, 1 -> 1
+			// bitwise or
+			// ior
+			return this;
+		}
+
+		public ProgramBuilder andBoolean(final Quadruple q) {
+			// TODO implement
+			// 0, 0 -> 0
+			// 0, 1 -> 0
+			// 1, 0 -> 0
+			// 1, 1 -> 1
+			// bitwise and
+			// iand
+			return this;
+		}
+
+		public ProgramBuilder compareLongE(final Quadruple q) {
+			// TODO implement
+			// a == b
+			// compare long, skip if not equal
+			// lcmp ifne
+			return this;
+		}
+
+		public ProgramBuilder compareLongG(final Quadruple q) {
+			// TODO implement
+			// a > b
+			// compare long, skip if lesser or equal
+			// lcmp ifle
+			return this;
+		}
+
+		public ProgramBuilder compareLongL(final Quadruple q) {
+			// TODO implement
+			// a < b
+			// compare long, skip if greater or equal
+			// lcmp ifge
+			return this;
+		}
+
+		public ProgramBuilder compareLongGE(final Quadruple q) {
+			// TODO implement
+			// a >= b
+			// compare long, skip if lesser
+			// lcmp iflt
+			return this;
+		}
+
+		public ProgramBuilder compareLongLE(final Quadruple q) {
+			// TODO implement
+			// a <= b
+			// compare long, skip if greater
+			// lcmp ifgt
+			return this;
+		}
+
+		public ProgramBuilder compareDoubleE(final Quadruple q) {
+			// TODO implement
+			// a == b
+			// compare double, skip if not equal
+			// dcmpl ifne
+			return this;
+		}
+
+		public ProgramBuilder compareDoubleG(final Quadruple q) {
+			// TODO implement
+			// a > b
+			// compare double, skip if lesser or equal
+			// dcmpl ifle
+			return this;
+		}
+
+		public ProgramBuilder compareDoubleL(final Quadruple q) {
+			// TODO implement
+			// a < b
+			// compare double, skip if greater or equal
+			// dcmpg ifge
+			return this;
+		}
+
+		public ProgramBuilder compareDoubleGE(final Quadruple q) {
+			// TODO implement
+			// a >= b
+			// compare double, skip if lesser
+			// dcmpl iflt
+			return this;
+		}
+
+		public ProgramBuilder compareDoubleLE(final Quadruple q) {
+			// TODO implement
+			// a <= b
+			// compare double, skip if greater
+			// dcmpg ifgt
+			return this;
+		}
+
+		public ProgramBuilder label(final Quadruple q) {
+			// TODO implement
+			return this;
+		}
+
+		public ProgramBuilder branch(final Quadruple q) {
+			// TODO implement
+			// goto
+			return this;
+		}
+
+		public ProgramBuilder printBoolean(final Quadruple q) {
+			// TODO implement
+			// syso boolean
+			return this;
+		}
+
+		public ProgramBuilder printLong(final Quadruple q) {
+			// TODO implement
+			// syso long
+			return this;
+		}
+
+		public ProgramBuilder printDouble(final Quadruple q) {
+			// TODO implement
+			// syso double
+			return this;
+		}
+
+		public ProgramBuilder printString(final Quadruple q) {
+			// TODO implement
+			// syso string
+			return this;
+		}
+
+		/*
+		 * === M3 === WORK IN PROGRESS
+		 */
 
 	}
 

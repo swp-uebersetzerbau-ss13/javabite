@@ -1,3 +1,4 @@
+@SuppressWarnings("unused")
 public class CAssignDouble {
 
 	public static void main(final String[] args) {

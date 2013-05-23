@@ -19,6 +19,7 @@ import swp_compiler_ss13.javabite.parser.grammar.Production;
 import swp_compiler_ss13.javabite.parser.grammar.SLRAutomaton;
 import swp_compiler_ss13.javabite.parser.grammar.Symbol;
 import swp_compiler_ss13.javabite.parser.grammar.Word;
+import swp_compiler_ss13.javabite.parser.grammar.SLRAutomaton.AMBIGUITY_POLICY;
 
 /**
  * This class represents our grammar defined in the specification.
@@ -81,25 +82,146 @@ public class TargetGrammar {
 	public TargetGrammar(){
 		grammar=new Grammar<Terminal,NonTerminal>(program,artificial_start,t(TokenType.EOF),eps);
 		
-		grammar.addProduction(program, list(decls,stmts));
-		grammar.addProduction(block, list(t(TokenType.LEFT_BRACE),decls,stmts,t(TokenType.RIGHT_BRACE)));
-		grammar.addProduction(decls, list(decls,decl),list(eps));
-		grammar.addProduction(decl, list(type,t(TokenType.ID),t(TokenType.SEMICOLON)));
-		grammar.addProduction(type, list(t(TokenType.DOUBLE_SYMBOL)),list(t(TokenType.LONG_SYMBOL)));
-		grammar.addProduction(stmts, list(stmts,stmt),list(eps));
-		grammar.addProduction(stmt, list(assign,t(TokenType.SEMICOLON)),list(t(TokenType.RETURN),loc,t(TokenType.SEMICOLON)));
-		grammar.addProduction(loc,list(t(TokenType.ID)));
-		grammar.addProduction(assign,list(loc,t(TokenType.ASSIGNOP),assign),list(bool));
-		grammar.addProduction(bool,list(bool,t(TokenType.OR),join),list(join));
-		grammar.addProduction(join,list(join,t(TokenType.AND),equality),list(equality));
-		grammar.addProduction(equality,list(equality,t(TokenType.EQUALS),rel),list(equality,t(TokenType.NOT_EQUALS),rel),list(rel));
-		grammar.addProduction(rel,list(expr,t(TokenType.LESS),expr),list(expr,t(TokenType.LESS_OR_EQUAL),expr),list(expr,t(TokenType.GREATER),expr),list(expr,t(TokenType.GREATER_EQUAL),expr),list(expr));
-		grammar.addProduction(expr,list(expr,t(TokenType.PLUS),term),list(expr,t(TokenType.MINUS),term),list(term));
-		grammar.addProduction(term,list(term,t(TokenType.TIMES),unary),list(term,t(TokenType.DIVIDE),unary),list(unary));
-		grammar.addProduction(unary, list(t(TokenType.MINUS),unary), list(factor));
-		grammar.addProduction(factor, list(t(TokenType.NUM)), list(t(TokenType.REAL)),list(loc),list(t(TokenType.LEFT_PARAN),assign,t(TokenType.RIGHT_PARAN)));
+		// program -> decls stmts
+		grammar.addProduction(program, 
+				list(decls,stmts)
+				);
+		
+		// block -> {decls stmts}
+		grammar.addProduction(block, 
+				list(t(TokenType.LEFT_BRACE),decls,stmts,t(TokenType.RIGHT_BRACE))
+				);
+		
+		// decls -> decls decl | \epsilon 
+		grammar.addProduction(decls, 
+				list(decls,decl),
+				list(eps));
+		
+		// decl -> type *id*;
+		grammar.addProduction(decl, 
+				list(type,t(TokenType.ID),t(TokenType.SEMICOLON)));
+		
+		// type -> type [*num*] | *basic* | *record* {decls}
+		grammar.addProduction(type,
+				// type [*num*]
+				// Much less powerful than type [ assign ]... change possible? :/ 
+				list(type,t(TokenType.LEFT_BRACKET),t(TokenType.NUM),t(TokenType.RIGHT_BRACKET)),
+				// *basic*
+				list(t(TokenType.DOUBLE_SYMBOL)),
+				list(t(TokenType.LONG_SYMBOL)),
+				list(t(TokenType.STRING_SYMBOL)),
+				list(t(TokenType.BOOL_SYMBOL))
+				// *record {decls}*
+				// TODO: record symbol does not exist
+				);
+		
+		// stmts -> stmts stmt | \epsilon
+		grammar.addProduction(stmts, 
+				list(stmts,stmt),
+				list(eps));
+		
+		/* stmt -> 	assign;
+	     | 			*if*(assign) stmt
+	     | 			*if*( assign ) stmt *else* stmt
+	     | 			*while*( assign ) stmt
+	     | 			*do* stmt *while* ( assign );
+	     | 			*break*;
+	     | 			*return*;
+	     | 			*return* loc;
+	     | 			*print* loc;
+	     | 			block
+	    **/
+		grammar.addProduction(stmt,
+				// assign
+				list(assign,t(TokenType.SEMICOLON)),
+				// *if* (assign) stmt
+				list(t(TokenType.IF),t(TokenType.LEFT_PARAN),assign,t(TokenType.RIGHT_PARAN),stmt),
+				// *if* (assign) stmt *else* stmt
+				list(t(TokenType.IF),t(TokenType.LEFT_PARAN),assign,t(TokenType.RIGHT_PARAN),stmt,t(TokenType.ELSE),stmt),
+				// *while* (assign) stmt
+				list(t(TokenType.WHILE),t(TokenType.LEFT_PARAN),assign,t(TokenType.RIGHT_PARAN),stmt),
+				// *do* stmt *while* (assign);
+				list(t(TokenType.DO),stmt,t(TokenType.WHILE),t(TokenType.LEFT_PARAN),assign,t(TokenType.RIGHT_PARAN),t(TokenType.SEMICOLON)),
+				// break;
+				list(t(TokenType.BREAK),t(TokenType.SEMICOLON)),
+				// return;
+				list(t(TokenType.RETURN),t(TokenType.SEMICOLON)),
+				// return loc;
+				list(t(TokenType.RETURN),loc,t(TokenType.SEMICOLON)),
+				// *print* loc;
+				list(t(TokenType.PRINT),loc,t(TokenType.SEMICOLON)),
+				// block			
+				list(block)
+				);
+		
+		// loc -> loc [assign] | *id* | loc.*id*
+		grammar.addProduction(loc,
+				list(loc,t(TokenType.LEFT_BRACKET),assign,t(TokenType.RIGHT_BRACKET)),
+				list(t(TokenType.ID))
+				// TODO: loc.*id* 
+				);
+		
+		// assign -> loc=assign | bool
+		grammar.addProduction(assign,
+				list(loc,t(TokenType.ASSIGNOP),assign),
+				list(bool));
+		
+		// bool -> bool||join | join
+		grammar.addProduction(bool,
+				list(bool,t(TokenType.OR),join),
+				list(join));
+		
+		// join -> join&&equality | equality
+		grammar.addProduction(join,
+				list(join,t(TokenType.AND),equality),
+				list(equality));
+		
+		// equality -> equality==rel | equality!=rel | rel
+		grammar.addProduction(equality,
+				list(equality,t(TokenType.EQUALS),rel),
+				list(equality,t(TokenType.NOT_EQUALS),rel),
+				list(rel));
+		
+		// rel -> expr<expr | expr<=expr | expr>=expr | expr>expr | expr
+		grammar.addProduction(rel,
+				list(expr,t(TokenType.LESS),expr),
+				list(expr,t(TokenType.LESS_OR_EQUAL),expr),
+				list(expr,t(TokenType.GREATER),expr),
+				list(expr,t(TokenType.GREATER_EQUAL),expr),
+				list(expr));
+		
+		// expr -> expr+term | expr-term | term
+		grammar.addProduction(expr,
+				list(expr,t(TokenType.PLUS),term),
+				list(expr,t(TokenType.MINUS),term),
+				list(term));
+		
+		// term -> term*unary | term/unary | unary
+		grammar.addProduction(term,
+				list(term,t(TokenType.TIMES),unary),
+				list(term,t(TokenType.DIVIDE),unary),
+				list(unary));
+		
+		// unary -> !unary | -unary | factor
+		grammar.addProduction(unary, 
+				list(t(TokenType.NOT),unary), 
+				list(t(TokenType.MINUS),unary), 
+				list(factor));
+		
+		// factor -> (assign) | loc | *num* | *real* | *true* | *false* | *string*
+		grammar.addProduction(factor,
+				list(t(TokenType.LEFT_PARAN),assign,t(TokenType.RIGHT_PARAN)),
+				list(loc),
+				list(t(TokenType.NUM)), 
+				list(t(TokenType.REAL)),
+				list(t(TokenType.TRUE)),
+				list(t(TokenType.FALSE)),
+				list(t(TokenType.STRING))
+				);
 		
 		automaton=new SLRAutomaton<>(grammar);
+		// resolve dangling-else conflict
+		automaton.setAmbiguityPolicy(AMBIGUITY_POLICY.PREFER_SHIFT);
 	}
 	
 	/**
@@ -201,13 +323,13 @@ public class TargetGrammar {
 			left_side=production.left;
 		}
 		public String toString(){
-			String res= left_side.toString()+"->";
+			String res= left_side.toString()+" ->";
 			for (Object o :right_side){
 				if (o instanceof Token){
-					res+=((Token)o).getTokenType();
+					res+=" "+((Token)o).getTokenType();
 				}
 				else{
-					res+=o;
+					res+=" "+o;
 				}
 			}
 			return res;

@@ -158,7 +158,8 @@ public class ControllerTemp {
 		// System.out.println(sb.toString());
 
 		final BackendModule backend = new BackendModule();
-		final Map<String, InputStream> test = backend.generateTargetCode(tac);
+		final Map<String, InputStream> test = backend.generateTargetCode(
+				"Program", tac);
 
 		for (final String key : test.keySet()) {
 			System.out.println(key);

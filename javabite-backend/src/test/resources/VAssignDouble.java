@@ -1,3 +1,4 @@
+@SuppressWarnings("unused")
 public class VAssignDouble {
 
 	public static void main(final String[] args) {

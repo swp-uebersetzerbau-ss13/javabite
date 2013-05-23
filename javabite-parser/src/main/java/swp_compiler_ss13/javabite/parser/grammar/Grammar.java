@@ -119,7 +119,6 @@ public class Grammar<T extends Symbol, NT extends Symbol> {
 			Map<NT, Set<Item<T, NT>>> currents) {
 		Map<NT, Set<Item<T, NT>>> closures = new HashMap<>();
 		// Since the production itself is in the closure, it can be added
-
 		// deep copy
 		for (Entry<NT, Set<Item<T, NT>>> entry : currents.entrySet()) {
 			closures.put(entry.getKey(), new HashSet<>(entry.getValue()));
@@ -131,19 +130,20 @@ public class Grammar<T extends Symbol, NT extends Symbol> {
 			Map<NT, Set<Item<T, NT>>> new_closures = new HashMap<>();
 
 			for (NT s : closures.keySet()) {
-				for (Item<T, NT> it : closures.get(s)) {
-
+				// create the new List to avoid modifying the same list ( iterator modification otherwise)
+				for (Item<T, NT> it : new LinkedList<>(closures.get(s))) {
 					if (it.right.size() > 0 && isNonTerminal(it.right.get(0))) {
 						NT current = (NT) it.right.get(0);
 						Set<Item<T, NT>> current_set = closures.get(current);
+						
 						if (current_set == null) {
 							current_set = new HashSet<Item<T, NT>>();
 							new_closures.put(current, current_set);
 						}
 						for (List<Symbol> current_prod : productions
 								.get(current)) {
-							current_set.add(new Item<T, NT>(new LinkedList(),
-									current_prod));
+							Item<T,NT> toAdd=new Item<T, NT>(new LinkedList(),current_prod);
+							current_set.add(toAdd);
 						}
 					}
 					

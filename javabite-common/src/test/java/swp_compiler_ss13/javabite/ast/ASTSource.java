@@ -43,6 +43,7 @@ public class ASTSource {
 		declNode.setIdentifier("i");
 		declNode.setType(new TypeJb(Type.Kind.LONG));
 		BlockNode root= new BlockNodeJb();
+		root.setSymbolTable(new SymbolTableJb());
 		root.addDeclaration(declNode);
 		root.addStatement(assignNode);
 		ReturnNode retNode=new ReturnNodeJb();
@@ -95,6 +96,7 @@ public class ASTSource {
 		
 		
 		BlockNode root= new BlockNodeJb();
+		root.setSymbolTable(new SymbolTableJb());
 		root.addDeclaration(declNodeI);
 		root.addDeclaration(declNodeJ);
 		

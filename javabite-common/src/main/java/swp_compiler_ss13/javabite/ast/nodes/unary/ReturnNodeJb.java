@@ -17,7 +17,7 @@ public class ReturnNodeJb extends StatementNodeJb implements ReturnNode {
 
 	public void setRightValue(IdentifierNode rightValue) {
 		this.rightValue = rightValue;
-		addChild(rightValue,0);
+		if (rightValue!=null) addChild(rightValue,0);
 	}
 
 }

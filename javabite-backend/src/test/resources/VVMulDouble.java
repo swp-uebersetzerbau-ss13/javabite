@@ -1,3 +1,4 @@
+@SuppressWarnings("unused")
 public class VVMulDouble {
 
 	public static void main(final String[] args) {

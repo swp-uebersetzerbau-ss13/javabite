@@ -33,15 +33,15 @@ public class BackendModule implements Backend {
 		this.targetCodeOptimizer = new TargetCodeOptimizer();
 	}
 
-	
 	@Override
-	public Map<String, InputStream> generateTargetCode(final List<Quadruple> tac) {
+	public Map<String, InputStream> generateTargetCode(
+			final String baseFileName, final List<Quadruple> tac) {
 
 		// TAC Optimizer
 		// ### currently empty ###
 		// Translator
-		final Collection<IClassfile> classfiles = this.translator
-				.translate(tac);
+		final Collection<IClassfile> classfiles = this.translator.translate(
+				baseFileName, tac);
 		// Target Code Optimizer
 		// ### currently empty ###
 
@@ -55,7 +55,7 @@ public class BackendModule implements Backend {
 
 	/**
 	 * 
-	 * @param classfiles 
+	 * @param classfiles
 	 * @return
 	 */
 	private Map<String, InputStream> createTargetCodeStreams(
