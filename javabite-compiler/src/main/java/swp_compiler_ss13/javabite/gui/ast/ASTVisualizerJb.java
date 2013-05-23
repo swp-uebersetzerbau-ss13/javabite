@@ -9,11 +9,15 @@ import javax.swing.JScrollPane;
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
+import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
 import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
+import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.visualization.ASTVisualization;
 import swp_compiler_ss13.javabite.ast.ASTSource;
+import swp_compiler_ss13.javabite.ast.nodes.marynary.BlockNodeJb;
+import swp_compiler_ss13.javabite.ast.nodes.unary.DeclarationNodeJb;
 
 import com.mxgraph.layout.mxGraphLayout;
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
@@ -112,24 +116,35 @@ public class ASTVisualizerJb implements ASTVisualization {
 	private Object asCell(ASTNode ast){
 		Object returnVal=null;
 		int i=0;
+		String value=null;
 		if (ast instanceof BasicIdentifierNode){
-			returnVal= graph.insertVertex(graph.getDefaultParent(), null, "Id= "+ ((BasicIdentifierNode) ast).getIdentifier(), 20, 40, 200, 70);
+			value="Id= "+ ((BasicIdentifierNode) ast).getIdentifier();
 			}
 		else if (ast instanceof ArithmeticBinaryExpressionNode){
 			while(!(((ArithmeticBinaryExpressionNode) ast).getOperator()).toString().equals(operation[i])){
 				i++;
 			}
-			returnVal= graph.insertVertex(graph.getDefaultParent(), null, 
-					operationS[i], 20, 40, 200, 70);
+			value=operationS[i];
 		}
 		else if (ast instanceof LiteralNode){
-			returnVal= graph.insertVertex(graph.getDefaultParent(), null, "Type= "+ ((LiteralNode) ast).getLiteralType() + "\nLiteral= "+((LiteralNode) ast).getLiteral()  , 20, 40, 200, 70);
+			value="Type= "+ ((LiteralNode) ast).getLiteralType() + "\nLiteral= "+((LiteralNode) ast).getLiteral();
 			
 		}
-		else{
-			returnVal=graph.insertVertex(graph.getDefaultParent(), null, ast, 20, 40, 200, 70);
+		else if (ast instanceof AssignmentNode){
+			value="Assegment";
+			
 		}
-		
+		else if (ast instanceof ReturnNode ){
+			value="Return";
+		}
+		else if (ast instanceof DeclarationNodeJb){
+			value= "Type= "+ ((DeclarationNodeJb) ast).getType() + "\nId= "+((DeclarationNodeJb) ast).getIdentifier();
+		}
+		else if (ast instanceof BlockNodeJb){
+			value="Statements= "+ ((BlockNodeJb) ast).getNumberOfStatements() + "\nDeclarations= "+((BlockNodeJb) ast).getNumberOfDeclarations();
+		}
+		else value=ast.toString();
+		returnVal=graph.insertVertex(graph.getDefaultParent(), null, value, 20, 40, 100, 35);
 		return returnVal;
 	}
 
@@ -141,7 +156,7 @@ public class ASTVisualizerJb implements ASTVisualization {
 		JFrame frame=new JFrame();
 		JScrollPane ast_frame=visualizer.frame;
 		frame.setVisible(true);
-		frame.setSize(800, 600);
+		frame.setSize(900, 400);
 		frame.add(ast_frame);
 		frame.setVisible(true);
 	}
