@@ -11,11 +11,13 @@ import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
+import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
 import swp_compiler_ss13.common.visualization.ASTVisualization;
 import swp_compiler_ss13.javabite.ast.ASTSource;
 
 import com.mxgraph.layout.mxGraphLayout;
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
+import com.mxgraph.model.mxCell;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.view.mxGraph;
 
@@ -23,7 +25,12 @@ public class ASTVisualizerJb implements ASTVisualization {
 	mxGraph graph;
 	JScrollPane frame;
 	Queue<Object> toVisit_celledCopy;
-
+	
+	String[] operation={"ADDITION","SUBSTRACTION","MULTIPLICATION",
+			"DIVISION","LESSTHAN","LESSTHANEQUAL","GREATERTHAN",
+			"GREATERTHANEQUAL","EQUAL","INEQUAL","LOGICAL_AND","LOGICAL_OR"};
+	String[] operationS={"+","-","*","/","<","<=",">",">=","=","=!","UND","ODER"};
+	
 	/**
 	 * visualizes the ast
 	 */
@@ -104,11 +111,20 @@ public class ASTVisualizerJb implements ASTVisualization {
 	 */
 	private Object asCell(ASTNode ast){
 		Object returnVal=null;
+		int i=0;
 		if (ast instanceof BasicIdentifierNode){
-			returnVal= graph.insertVertex(graph.getDefaultParent(), null, ((BasicIdentifierNode) ast).getIdentifier(), 20, 40, 200, 70);
-		}
+			returnVal= graph.insertVertex(graph.getDefaultParent(), null, "Id= "+ ((BasicIdentifierNode) ast).getIdentifier(), 20, 40, 200, 70);
+			}
 		else if (ast instanceof ArithmeticBinaryExpressionNode){
-			returnVal= graph.insertVertex(graph.getDefaultParent(), null, ((ArithmeticBinaryExpressionNode) ast).getOperator(), 20, 40, 200, 70);
+			while(!(((ArithmeticBinaryExpressionNode) ast).getOperator()).toString().equals(operation[i])){
+				i++;
+			}
+			returnVal= graph.insertVertex(graph.getDefaultParent(), null, 
+					operationS[i], 20, 40, 200, 70);
+		}
+		else if (ast instanceof LiteralNode){
+			returnVal= graph.insertVertex(graph.getDefaultParent(), null, "Type= "+ ((LiteralNode) ast).getLiteralType() + "\nLiteral= "+((LiteralNode) ast).getLiteral()  , 20, 40, 200, 70);
+			
 		}
 		else{
 			returnVal=graph.insertVertex(graph.getDefaultParent(), null, ast, 20, 40, 200, 70);
