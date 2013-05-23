@@ -1,8 +1,6 @@
 package swp_compiler_ss13.javabite.backend;
 
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.hexFromBytes;
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.hexFromInt;
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.hexFromShort;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -19,7 +17,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import swp_compiler_ss13.javabite.backend.utils.ByteCalculator;
+import java.nio.ByteBuffer;
+
 import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
 
 /**
@@ -469,8 +468,7 @@ public class Classfile implements IClassfile {
 		 */
 		private int generateConstantLongInfo(final long value) {
 
-			final ArrayList<Byte> info = ByteCalculator
-					.longToByteArrayList(value);
+			final byte[] info = longToByteArray(value);
 
 			final CPInfo longInfo = new CPInfo((byte) 0x05, info);
 			this.entryList.add(longInfo);
@@ -493,8 +491,7 @@ public class Classfile implements IClassfile {
 		 */
 		private int generateConstantDoubleInfo(final double value) {
 
-			final ArrayList<Byte> info = ByteCalculator
-					.doubleToByteArrayList(value);
+			final byte[] info = doubleToByteArray(value);
 
 			final CPInfo doubleInfo = new CPInfo((byte) 0x06, info);
 			this.entryList.add(doubleInfo);
@@ -519,7 +516,7 @@ public class Classfile implements IClassfile {
 			final short nameIndex = (short) this
 					.generateConstantUTF8Info(value);
 
-			final List<Byte> info = ByteCalculator.shortToByteList(nameIndex);
+			final byte[] info = shortToByteArray(nameIndex);
 
 			final CPInfo stringInfo = new CPInfo((byte) 0x08, info);
 			this.entryList.add(stringInfo);
@@ -542,7 +539,7 @@ public class Classfile implements IClassfile {
 			final short nameIndex = (short) this
 					.generateConstantUTF8Info(value);
 
-			final List<Byte> info = ByteCalculator.shortToByteList(nameIndex);
+			final byte[] info = shortToByteArray(nameIndex);
 
 			final CPInfo longInfo = new CPInfo((byte) 0x07, info);
 			this.entryList.add(longInfo);
@@ -562,13 +559,12 @@ public class Classfile implements IClassfile {
 		 * 
 		 */
 		private int generateConstantUTF8Info(final String value) {
-			// get ByteArrayList translating String to modified UTF8
-			final ArrayList<Byte> info = new ArrayList<Byte>();
-			final byte[] bytes = value.getBytes();
-			info.addAll(ByteCalculator.shortToByteList((short) bytes.length));
-			info.addAll(ByteCalculator.byteArrayToByteArrayList(bytes));
+			ByteBuffer info = ByteBuffer.allocate(value.length()+2);
+			
+			info.put(shortToByteArray((short) value.length()));
+			info.put(value.getBytes());			
 
-			final CPInfo longInfo = new CPInfo((byte) 0x01, info);
+			final CPInfo longInfo = new CPInfo((byte) 0x01, info.array());
 			this.entryList.add(longInfo);
 
 			// return index + 1
@@ -613,11 +609,13 @@ public class Classfile implements IClassfile {
 				final short nameAndTypeIndex) {
 
 			if ((classIndex != 0) && (nameAndTypeIndex != 0)) {
-				final ArrayList<Byte> info = new ArrayList<Byte>();
-				info.addAll(ByteCalculator.shortToByteList(classIndex));
-				info.addAll(ByteCalculator.shortToByteList(nameAndTypeIndex));
-
-				final CPInfo methodrefInfo = new CPInfo((byte) 0x0A, info);
+				
+				ByteBuffer info = ByteBuffer.allocate(4);
+				
+				info.put(shortToByteArray(classIndex));
+				info.put(shortToByteArray(nameAndTypeIndex));
+				
+				final CPInfo methodrefInfo = new CPInfo((byte) 0x0A, info.array());
 				this.entryList.add(methodrefInfo);
 
 				this.addCPMapEntry("METHODREF" + classIndex + "."
@@ -647,11 +645,12 @@ public class Classfile implements IClassfile {
 					+ descriptor);
 
 			if ((nameIndex != 0) && (descriptorIndex != 0)) {
-				final ArrayList<Byte> info = new ArrayList<Byte>();
-				info.addAll(ByteCalculator.shortToByteList(nameIndex));
-				info.addAll(ByteCalculator.shortToByteList(descriptorIndex));
-
-				final CPInfo nameAndTypeInfo = new CPInfo((byte) 0x0C, info);
+				ByteBuffer info = ByteBuffer.allocate(4);
+				
+				info.put(shortToByteArray(nameIndex));
+				info.put(shortToByteArray(descriptorIndex));
+				
+				final CPInfo nameAndTypeInfo = new CPInfo((byte) 0x0C, info.array());
 				this.entryList.add(nameAndTypeInfo);
 
 				this.addCPMapEntry("NAMEANDTYPE" + name + descriptor,
@@ -720,10 +719,9 @@ public class Classfile implements IClassfile {
 
 			// General CPInfo structure information
 			private final byte tag;
-			private final List<Byte> info;
+			private final byte[] info;
 
-			// TODO: kill that List<Byte>
-			private CPInfo(final byte tag, final List<Byte> info) {
+			private CPInfo(final byte tag, final byte[] info) {
 				this.tag = tag;
 				this.info = info;
 			}
@@ -738,9 +736,8 @@ public class Classfile implements IClassfile {
 				if (this.info != null) {
 					try {
 						classfileDOS.writeByte(this.tag);
-						for (final Byte b : info) {
-							classfileDOS.writeByte(b);
-						}
+						
+						classfileDOS.write(info);
 
 						if (logger.isDebugEnabled()) {
 							logger.debug("CPInfo tag");
