@@ -117,34 +117,44 @@ public class ASTVisualizerJb implements ASTVisualization {
 		Object returnVal=null;
 		int i=0;
 		String value=null;
+		String color=null;
 		if (ast instanceof BasicIdentifierNode){
 			value="Id= "+ ((BasicIdentifierNode) ast).getIdentifier();
+			color="gray";
 			}
 		else if (ast instanceof ArithmeticBinaryExpressionNode){
 			while(!(((ArithmeticBinaryExpressionNode) ast).getOperator()).toString().equals(operation[i])){
 				i++;
 			}
 			value=operationS[i];
+			color="cyan";
 		}
 		else if (ast instanceof LiteralNode){
 			value="Type= "+ ((LiteralNode) ast).getLiteralType() + "\nLiteral= "+((LiteralNode) ast).getLiteral();
-			
+			color="yellow";
 		}
 		else if (ast instanceof AssignmentNode){
 			value="Assegment";
+			color="white";
 			
 		}
 		else if (ast instanceof ReturnNode ){
 			value="Return";
+			color="orange";
 		}
 		else if (ast instanceof DeclarationNodeJb){
 			value= "Type= "+ ((DeclarationNodeJb) ast).getType() + "\nId= "+((DeclarationNodeJb) ast).getIdentifier();
+		    color="magenta";
 		}
 		else if (ast instanceof BlockNodeJb){
 			value="Statements= "+ ((BlockNodeJb) ast).getNumberOfStatements() + "\nDeclarations= "+((BlockNodeJb) ast).getNumberOfDeclarations();
+		    color="pink";
 		}
-		else value=ast.toString();
-		returnVal=graph.insertVertex(graph.getDefaultParent(), null, value, 20, 40, 100, 35);
+		else{
+			value=ast.toString();
+			color="white";
+		}
+		returnVal=graph.insertVertex(graph.getDefaultParent(), null, value, 20, 40, 100, 35,"fillColor="+color);
 		return returnVal;
 	}
 
