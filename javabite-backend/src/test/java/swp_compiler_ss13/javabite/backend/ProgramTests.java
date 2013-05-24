@@ -35,6 +35,7 @@ public class ProgramTests {
 		pb = ProgramBuilder.newBuilder(classfile, methodName);
 	}
 
+	@SuppressWarnings("unused")
 	private void buildAndLog(final ProgramBuilder pb) {
 		final Program p = pb.build();
 		System.out.println(name.getMethodName());
