@@ -13,6 +13,7 @@ import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.types.Type;
+import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.javabite.ast.nodes.binary.ArithmeticBinaryExpressionNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.binary.AssignmentNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.leaf.BasicIdentifierNodeJb;
@@ -20,7 +21,6 @@ import swp_compiler_ss13.javabite.ast.nodes.leaf.LiteralNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.marynary.BlockNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.unary.DeclarationNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.unary.ReturnNodeJb;
-import swp_compiler_ss13.javabite.types.TypeJb;
 
 public class ASTSource {
 	/**
@@ -35,13 +35,13 @@ public class ASTSource {
 		iidNode.setIdentifier("i");
 		LiteralNode literalNode=new LiteralNodeJb();
 		literalNode.setLiteral("2");
-		literalNode.setLiteralType(new TypeJb(Type.Kind.LONG));
+		literalNode.setLiteralType(new LongType());
 		AssignmentNode assignNode=new AssignmentNodeJb();
 		assignNode.setLeftValue(iidNode);
 		assignNode.setRightValue(literalNode);
 		DeclarationNode declNode=new DeclarationNodeJb();
 		declNode.setIdentifier("i");
-		declNode.setType(new TypeJb(Type.Kind.LONG));
+		declNode.setType(new LongType());
 		BlockNode root= new BlockNodeJb();
 		root.setSymbolTable(new SymbolTableJb());
 		root.addDeclaration(declNode);
@@ -71,10 +71,10 @@ public class ASTSource {
 		
 		LiteralNode literalNodeI=new LiteralNodeJb();
 		literalNodeI.setLiteral("2");
-		literalNodeI.setLiteralType(new TypeJb(Type.Kind.LONG));
+		literalNodeI.setLiteralType(new LongType());
 		LiteralNode literalNodeJ=new LiteralNodeJb();
 		literalNodeJ.setLiteral("2");
-		literalNodeJ.setLiteralType(new TypeJb(Type.Kind.LONG));
+		literalNodeJ.setLiteralType(new LongType());
 		
 		
 		
@@ -88,11 +88,11 @@ public class ASTSource {
 		
 		DeclarationNode declNodeI=new DeclarationNodeJb();
 		declNodeI.setIdentifier("i");
-		declNodeI.setType(new TypeJb(Type.Kind.LONG));
+		declNodeI.setType(new LongType());
 		
 		DeclarationNode declNodeJ=new DeclarationNodeJb();
 		declNodeJ.setIdentifier("j");
-		declNodeJ.setType(new TypeJb(Type.Kind.LONG));
+		declNodeJ.setType(new LongType());
 		
 		
 		BlockNode root= new BlockNodeJb();
