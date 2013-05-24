@@ -13,11 +13,17 @@ import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
 import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
+import swp_compiler_ss13.common.ast.nodes.unary.ArithmeticUnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.visualization.ASTVisualization;
 import swp_compiler_ss13.javabite.ast.ASTSource;
+import swp_compiler_ss13.javabite.ast.nodes.binary.LoopNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.marynary.BlockNodeJb;
+import swp_compiler_ss13.javabite.ast.nodes.ternary.BranchNodeJb;
+import swp_compiler_ss13.javabite.ast.nodes.unary.ArrayIdentifierNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.unary.DeclarationNodeJb;
+import swp_compiler_ss13.javabite.ast.nodes.unary.ReturnNodeJb;
+import swp_compiler_ss13.javabite.ast.nodes.unary.StructIdentifierNodeJb;
 
 import com.mxgraph.layout.mxGraphLayout;
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
@@ -25,10 +31,13 @@ import com.mxgraph.model.mxCell;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.view.mxGraph;
 
+;
+
 public class ASTVisualizerJb implements ASTVisualization {
 	mxGraph graph;
 	JScrollPane frame;
 	Queue<Object> toVisit_celledCopy;
+	
 	
 	String[] operation={"ADDITION","SUBSTRACTION","MULTIPLICATION",
 			"DIVISION","LESSTHAN","LESSTHANEQUAL","GREATERTHAN",
@@ -45,6 +54,8 @@ public class ASTVisualizerJb implements ASTVisualization {
 		mxGraphLayout layout = new mxHierarchicalLayout(graph);
 		layout.execute(graph.getDefaultParent());
 		frame = new mxGraphComponent(graph);
+		
+
 	}
 	
 	public JScrollPane getFrame() {
@@ -100,7 +111,7 @@ public class ASTVisualizerJb implements ASTVisualization {
 	}
 	
 	void treeNodes(){
-		
+
 	}
 	
 	/*private Object asCell(ArithmeticBinaryExpressionNode node){
@@ -114,6 +125,7 @@ public class ASTVisualizerJb implements ASTVisualization {
 	 * @return the cell-object, which correspondents to the given node
 	 */
 	private Object asCell(ASTNode ast){
+		
 		Object returnVal=null;
 		int i=0;
 		String value=null;
@@ -128,6 +140,13 @@ public class ASTVisualizerJb implements ASTVisualization {
 			}
 			value=operationS[i];
 			color="cyan";
+		}
+		else if (ast instanceof ArithmeticUnaryExpressionNode){
+			while(!(((ArithmeticUnaryExpressionNode) ast).getOperator()).toString().equals(operation[i])){
+				i++;
+			}
+			value=operationS[i];
+			color="blue";
 		}
 		else if (ast instanceof LiteralNode){
 			value="Type= "+ ((LiteralNode) ast).getLiteralType() + "\nLiteral= "+((LiteralNode) ast).getLiteral();
@@ -150,12 +169,36 @@ public class ASTVisualizerJb implements ASTVisualization {
 			value="Statements= "+ ((BlockNodeJb) ast).getNumberOfStatements() + "\nDeclarations= "+((BlockNodeJb) ast).getNumberOfDeclarations();
 		    color="pink";
 		}
+		else if (ast instanceof ArrayIdentifierNodeJb){
+			value= "Index= "+ ((ArrayIdentifierNodeJb) ast).getIdentifierNode();
+		    color="black";
+		}
+		else if (ast instanceof StructIdentifierNodeJb){
+			value= "Index= "+ ((StructIdentifierNodeJb) ast).getIdentifierNode();
+		    color="red";
+		}
+		else if (ast instanceof LoopNodeJb){
+			value= "Condition= "+ ((LoopNodeJb) ast).getCondition() + "\nBody"+ ((LoopNodeJb) ast).getLoopBody();
+		    color="violet";
+		}
+		else if (ast instanceof ReturnNodeJb){
+			value= ""+ ((ReturnNodeJb) ast).getRightValue();
+		    color="navy";
+		}
+		else if (ast instanceof BranchNodeJb){
+			value= "Condition ="+ ((BranchNodeJb) ast).getCondition();
+		    color="silver";
+		}
+		
 		else{
 			value=ast.toString();
 			color="white";
 		}
-		returnVal=graph.insertVertex(graph.getDefaultParent(), null, value, 20, 40, 100, 35,"fillColor="+color);
+
+		returnVal=graph.insertVertex(graph.getDefaultParent(), null, value, 20, 40, 100, 35,"strokeColor=black;fillColor="+color);
 		return returnVal;
+		
+		
 	}
 
 	
