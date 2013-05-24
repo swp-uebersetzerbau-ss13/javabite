@@ -8,7 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import swp_compiler_ss13.common.backend.Backend;
+import swp_compiler_ss13.common.backend.BackendException;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.external.QuadrupleImpl;
@@ -33,65 +34,40 @@ public class BackendTest {
 	private static final Logger logger = LoggerFactory
 			.getLogger(BackendModule.class);
 
-	final static List<Quadruple> tac1 = new ArrayList<Quadruple>() {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 5945245333820772835L;
+	static final List<Quadruple> tac1 = Arrays.asList(new Quadruple[] {
+			new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "l"),
+			new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "t1"),
+			new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "t2"),
+			new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "t3"),
+			new QuadrupleImpl(Operator.ADD_LONG, "#10", "#23", "t1"),
+			new QuadrupleImpl(Operator.SUB_LONG, "t1", "#23", "t1"),
+			new QuadrupleImpl(Operator.DIV_LONG, "#100", "#2", "t2"),
+			new QuadrupleImpl(Operator.ADD_LONG, "t1", "t2", "t1"),
+			new QuadrupleImpl(Operator.SUB_LONG, "t1", "#30", "t1"),
+			new QuadrupleImpl(Operator.DIV_LONG, "#-9", "#3", "t3"),
+			new QuadrupleImpl(Operator.ADD_LONG, "t1", "t3", "t1"),
+			new QuadrupleImpl(Operator.ASSIGN_LONG, "t1", "!", "l"),
+			new QuadrupleImpl(Operator.RETURN, "l", "!", "!") });
 
-		{
-			add(new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "l"));
-			add(new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "t1"));
-			add(new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "t2"));
-			add(new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "t3"));
-			add(new QuadrupleImpl(Operator.ADD_LONG, "#10", "#23", "t1"));
-			add(new QuadrupleImpl(Operator.SUB_LONG, "t1", "#23", "t1"));
-			add(new QuadrupleImpl(Operator.DIV_LONG, "#100", "#2", "t2"));
-			add(new QuadrupleImpl(Operator.ADD_LONG, "t1", "t2", "t1"));
-			add(new QuadrupleImpl(Operator.SUB_LONG, "t1", "#30", "t1"));
-			add(new QuadrupleImpl(Operator.DIV_LONG, "#-9", "#3", "t3"));
-			add(new QuadrupleImpl(Operator.ADD_LONG, "t1", "t3", "t1"));
-			add(new QuadrupleImpl(Operator.ASSIGN_LONG, "t1", "!", "l"));
-			add(new QuadrupleImpl(Operator.RETURN, "l", "!", "!"));
-		}
-	};
+	static final List<Quadruple> tac2 = Arrays.asList(new Quadruple[] {
+			new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "l"),
+			new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "t1"),
+			new QuadrupleImpl(Operator.ADD_LONG, "#3", "#3", "t1"),
+			new QuadrupleImpl(Operator.ASSIGN_LONG, "t1", "!", "l"),
+			new QuadrupleImpl(Operator.RETURN, "l", "!", "!") });
 
-	final static List<Quadruple> tac2 = new ArrayList<Quadruple>() {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 3786592292110990399L;
-
-		{
-			add(new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "l"));
-			add(new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "t1"));
-			add(new QuadrupleImpl(Operator.ADD_LONG, "#3", "#3", "t1"));
-			add(new QuadrupleImpl(Operator.ASSIGN_LONG, "t1", "!", "l"));
-			add(new QuadrupleImpl(Operator.RETURN, "l", "!", "!"));
-		}
-	};
-
-	final static List<Quadruple> tac3 = new ArrayList<Quadruple>() {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 4751308834912884423L;
-
-		{
-			add(new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "l"));
-			add(new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "t1"));
-			add(new QuadrupleImpl(Operator.MUL_LONG, "#3", "#3", "t1"));
-			add(new QuadrupleImpl(Operator.ASSIGN_LONG, "t1", "!", "l"));
-			add(new QuadrupleImpl(Operator.RETURN, "l", "!", "!"));
-		}
-	};
+	static final List<Quadruple> tac3 = Arrays.asList(new Quadruple[] {
+			new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "l"),
+			new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "t1"),
+			new QuadrupleImpl(Operator.MUL_LONG, "#3", "#3", "t1"),
+			new QuadrupleImpl(Operator.ASSIGN_LONG, "t1", "!", "l"),
+			new QuadrupleImpl(Operator.RETURN, "l", "!", "!") });
 
 	@Before
 	public void setup() {
 		backend = new BackendModule();
 		rt = Runtime.getRuntime();
 	}
-
 
 	public void cleanup() {
 		logger.debug("Killing command line interface process...");
@@ -100,30 +76,31 @@ public class BackendTest {
 	}
 
 	@Test
-	public void testTac1ReturnVal() {
+	public void testTac1ReturnVal() throws BackendException {
 		assertTrue(
 				"Generated target code returns unexpected value while execution",
 				27 == testToReturnValueOfTac(tac1, 1));
 	}
 
 	@Test
-	public void testSimpleAddTacTranslation() {
+	public void testSimpleAddTacTranslation() throws BackendException {
 		assertTrue(
 				"Generated target code returns unexpected value while execution",
 				6 == testToReturnValueOfTac(tac2, 1));
 	}
 
 	@Test
-	public void testSimpleMulTacTranslation() {
+	public void testSimpleMulTacTranslation() throws BackendException {
 		assertTrue(
 				"Generated target code returns unexpected value while execution",
 				9 == testToReturnValueOfTac(tac3, 1));
 	}
 
-	public long testToReturnValueOfTac(List<Quadruple> tac1, int fileamount) {
+	public long testToReturnValueOfTac(final List<Quadruple> tac, int fileamount)
+			throws BackendException {
 		String retVal = null;
 
-		Map<String, InputStream> results = backend.generateTargetCode(tac1);
+		Map<String, InputStream> results = backend.generateTargetCode("", tac);
 
 		assertTrue("Invalid amount of files generated",
 				fileamount == results.size());
@@ -163,7 +140,7 @@ public class BackendTest {
 		logger.debug("return value: {}", l);
 		return l;
 	}
-	
+
 	private static String extractReturnValue(String line) {
 		String s = line.substring(line.indexOf(':') + 2);
 		return s.subSequence(0, s.indexOf(':')).toString();

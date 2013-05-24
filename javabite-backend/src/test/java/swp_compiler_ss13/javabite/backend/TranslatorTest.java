@@ -6,16 +6,16 @@ public class TranslatorTest {
 
 	@Test
 	public void testTranslate() {
-		
+
 	}
-	
+
 	@Test
 	public void testAddVariablesToLocalVariableSpace() {
-		
+
 	}
-	
+
 	@Test
 	public void testAddTACConstantsToConstantPool() {
-		
+
 	}
 }

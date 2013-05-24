@@ -21,21 +21,33 @@ public class QuadrupleImpl implements Quadruple {
 	private final String arg2;
 	private final String res;
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public Operator getOperator() {
 		return this.op;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String getArgument1() {
 		return this.arg1;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String getArgument2() {
 		return this.arg2;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public String getResult() {
 		return this.res;

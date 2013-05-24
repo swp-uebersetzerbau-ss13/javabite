@@ -220,6 +220,38 @@ public interface IClassfile {
 			String variableName, VariableType variableType);
 
 	/**
+	 * TODO javadoc
+	 * 
+	 * @param methodName
+	 * @param variableName
+	 */
+	void addLongVariableToMethodsCode(String methodName, String variableName);
+	
+	/**
+	 * TODO javadoc
+	 * 
+	 * @param methodName
+	 * @param variableName
+	 */
+	void addDoubleVariableToMethodsCode(String methodName, String variableName);
+	
+	/**
+	 * TODO javadoc
+	 * 
+	 * @param methodName
+	 * @param variableName
+	 */
+	void addBooleanVariableToMethodsCode(String methodName, String variableName);
+	
+	/**
+	 * TODO javadoc
+	 * 
+	 * @param methodName
+	 * @param variableName
+	 */
+	void addStringVariableToMethodsCode(String methodName, String variableName);
+
+	/**
 	 * getIndexOfVariableInMethod function. This function looks up the index of
 	 * a variable in the local variable space of the code attribute of the
 	 * specified method.

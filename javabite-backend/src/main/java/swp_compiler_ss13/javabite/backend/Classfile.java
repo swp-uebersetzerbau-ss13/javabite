@@ -146,11 +146,7 @@ public class Classfile implements IClassfile {
 	}
 
 	/**
-	 * generateInputstream function. (see interface iClassfile)
-	 * 
-	 * @author Marco
-	 * @since 27.04.2013
-	 * 
+	 * {@inheritDoc}
 	 */
 	@Override
 	public InputStream generateInputstream() {
@@ -162,6 +158,9 @@ public class Classfile implements IClassfile {
 		return new ByteArrayInputStream(baos.toByteArray());
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public void writeTo(final OutputStream classfileOS) {
 		try {
@@ -210,11 +209,7 @@ public class Classfile implements IClassfile {
 	}
 
 	/**
-	 * getName function. (see interface iClassfile)
-	 * 
-	 * @author Marco
-	 * @since 27.04.2013
-	 * 
+	 * {@inheritDoc}
 	 */
 	@Override
 	public String getName() {
@@ -222,10 +217,7 @@ public class Classfile implements IClassfile {
 	}
 
 	/**
-	 * addDataForSystemCall function. (see interface iClassfile)
-	 * 
-	 * @author Marco
-	 * @since 13.05.2013
+	 * {@inheritDoc}
 	 */
 	@Override
 	public short addDataForSystemCall(final String systemFunctionName,
@@ -248,10 +240,7 @@ public class Classfile implements IClassfile {
 	}
 
 	/**
-	 * addConstantToConstantPool function. (see interface iClassfile)
-	 * 
-	 * @author Marco
-	 * @since 28.04.2013
+	 * {@inheritDoc}
 	 */
 	@Override
 	public int addConstantToConstantPool(final ConstantType constantType,
@@ -290,28 +279,34 @@ public class Classfile implements IClassfile {
 		return index;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int addLongConstantToConstantPool(final long value) {
 		return addConstantToConstantPool(ConstantType.LONG,
 				Long.toString(value));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int addDoubleConstantToConstantPool(final double value) {
 		return addConstantToConstantPool(ConstantType.DOUBLE,
 				Double.toString(value));
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Override
 	public int addStringConstantToConstantPool(final String value) {
 		return addConstantToConstantPool(ConstantType.STRING, value);
 	}
 
 	/**
-	 * getIndexOfConstantInMethodsCP function. (see interface iClassfile)
-	 * 
-	 * @author Marco
-	 * @since 30.04.2013
+	 * {@inheritDoc}
 	 */
 	@Override
 	public short getIndexOfConstantInConstantPool(
@@ -320,10 +315,7 @@ public class Classfile implements IClassfile {
 	};
 
 	/**
-	 * addMethodToMethodArea function. (see interface iClassfile)
-	 * 
-	 * @author Marco
-	 * @since 29.04.2013
+	 * {@inheritDoc}
 	 */
 	@Override
 	public int addMethodToMethodArea(final String methodName,
@@ -335,10 +327,7 @@ public class Classfile implements IClassfile {
 	}
 
 	/**
-	 * addVariableToMethodsCode function. (see interface iClassfile)
-	 * 
-	 * @author Marco
-	 * @since 29.04.2013
+	 * {@inheritDoc}
 	 */
 	@Override
 	public void addVariableToMethodsCode(final String methodName,
@@ -348,6 +337,10 @@ public class Classfile implements IClassfile {
 				variableType);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public void addLongVariableToMethodsCode(final String methodName,
 			final String variableName) {
 
@@ -355,6 +348,10 @@ public class Classfile implements IClassfile {
 				VariableType.LONG);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public void addDoubleVariableToMethodsCode(final String methodName,
 			final String variableName) {
 
@@ -362,6 +359,10 @@ public class Classfile implements IClassfile {
 				VariableType.DOUBLE);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public void addBooleanVariableToMethodsCode(final String methodName,
 			final String variableName) {
 
@@ -369,6 +370,10 @@ public class Classfile implements IClassfile {
 				VariableType.BOOLEAN);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public void addStringVariableToMethodsCode(final String methodName,
 			final String variableName) {
 
@@ -377,10 +382,7 @@ public class Classfile implements IClassfile {
 	}
 
 	/**
-	 * getIndexOfVariableInMethod function. (see interface iClassfile)
-	 * 
-	 * @author Marco
-	 * @since 30.04.2013
+	 * {@inheritDoc}
 	 */
 	@Override
 	public byte getIndexOfVariableInMethod(final String methodName,
@@ -391,10 +393,7 @@ public class Classfile implements IClassfile {
 	}
 
 	/**
-	 * addInstructionToMethodsCode function. (see interface iClassfile)
-	 * 
-	 * @author Marco
-	 * @since 30.04.2013
+	 * {@inheritDoc}
 	 */
 	@Override
 	public void addInstructionToMethodsCode(final String methodName,
@@ -403,10 +402,7 @@ public class Classfile implements IClassfile {
 	}
 
 	/**
-	 * addInstructionsToMethodsCode function. (see iterface iClassfile)
-	 * 
-	 * @author eike
-	 * @since 09.05.2013
+	 * {@inheritDoc}
 	 */
 	@Override
 	public void addInstructionsToMethodsCode(final String methodName,
@@ -436,6 +432,11 @@ public class Classfile implements IClassfile {
 			cpEntryMap = new HashMap<String, Short>();
 		}
 
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param classfileDOS
+		 */
 		public void writeTo(final DataOutputStream classfileDOS) {
 
 			try {
@@ -559,10 +560,10 @@ public class Classfile implements IClassfile {
 		 * 
 		 */
 		private int generateConstantUTF8Info(final String value) {
-			ByteBuffer info = ByteBuffer.allocate(value.length()+2);
-			
+			ByteBuffer info = ByteBuffer.allocate(value.length() + 2);
+
 			info.put(shortToByteArray((short) value.length()));
-			info.put(value.getBytes());			
+			info.put(value.getBytes());
 
 			final CPInfo longInfo = new CPInfo((byte) 0x01, info.array());
 			this.entryList.add(longInfo);
@@ -609,13 +610,14 @@ public class Classfile implements IClassfile {
 				final short nameAndTypeIndex) {
 
 			if ((classIndex != 0) && (nameAndTypeIndex != 0)) {
-				
+
 				ByteBuffer info = ByteBuffer.allocate(4);
-				
+
 				info.put(shortToByteArray(classIndex));
 				info.put(shortToByteArray(nameAndTypeIndex));
-				
-				final CPInfo methodrefInfo = new CPInfo((byte) 0x0A, info.array());
+
+				final CPInfo methodrefInfo = new CPInfo((byte) 0x0A,
+						info.array());
 				this.entryList.add(methodrefInfo);
 
 				this.addCPMapEntry("METHODREF" + classIndex + "."
@@ -646,11 +648,12 @@ public class Classfile implements IClassfile {
 
 			if ((nameIndex != 0) && (descriptorIndex != 0)) {
 				ByteBuffer info = ByteBuffer.allocate(4);
-				
+
 				info.put(shortToByteArray(nameIndex));
 				info.put(shortToByteArray(descriptorIndex));
-				
-				final CPInfo nameAndTypeInfo = new CPInfo((byte) 0x0C, info.array());
+
+				final CPInfo nameAndTypeInfo = new CPInfo((byte) 0x0C,
+						info.array());
 				this.entryList.add(nameAndTypeInfo);
 
 				this.addCPMapEntry("NAMEANDTYPE" + name + descriptor,
@@ -731,12 +734,17 @@ public class Classfile implements IClassfile {
 				this.info = null;
 			}
 
+			/**
+			 * TODO javadoc
+			 * 
+			 * @param classfileDOS
+			 */
 			public void writeTo(final DataOutputStream classfileDOS) {
 				// write only, if CPInfo is no dummy entry
 				if (this.info != null) {
 					try {
 						classfileDOS.writeByte(this.tag);
-						
+
 						classfileDOS.write(info);
 
 						if (logger.isDebugEnabled()) {
@@ -770,6 +778,11 @@ public class Classfile implements IClassfile {
 			this.methodMap = new HashMap<String, Method>();
 		}
 
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param classfileDOS
+		 */
 		private void writeTo(final DataOutputStream classfileDOS) {
 
 			try {
@@ -913,6 +926,11 @@ public class Classfile implements IClassfile {
 				this.codeAttribute = new CodeAttribute(codeIndex);
 			}
 
+			/**
+			 * TODO javadoc
+			 * 
+			 * @param classfileDOS
+			 */
 			private void writeTo(final DataOutputStream classfileDOS) {
 				try {
 					classfileDOS.writeShort(this.accessFlags);
@@ -1012,6 +1030,11 @@ public class Classfile implements IClassfile {
 					this.attributesCount = 0;
 				};
 
+				/**
+				 * TODO javadoc
+				 * 
+				 * @param classfileDOS
+				 */
 				private void writeTo(final DataOutputStream classfileDOS) {
 
 					final ByteArrayOutputStream attributesBAOS = new ByteArrayOutputStream();
