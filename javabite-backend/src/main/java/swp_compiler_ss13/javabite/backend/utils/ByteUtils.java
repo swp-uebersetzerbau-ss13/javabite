@@ -60,7 +60,7 @@ public class ByteUtils {
 	 * @param b
 	 * @return
 	 */
-	public static String hexFromInt(final byte b) {
+	public static String hexFromByte(final byte b) {
 		String tmp = Integer.toHexString(((b + 256) % 256));
 		if (tmp.length() < 2) {
 			tmp = "0" + tmp;
@@ -110,7 +110,7 @@ public class ByteUtils {
 	public static String hexFromBytes(final byte[] bytes) {
 		final StringBuilder sb = new StringBuilder();
 		for (final byte b : bytes) {
-			sb.append(hexFromInt(b)).append(" ");
+			sb.append(hexFromByte(b)).append(" ");
 		}
 		return sb.toString();
 	}
@@ -124,7 +124,7 @@ public class ByteUtils {
 	public static String hexFromBytes(final Iterable<Byte> bytes) {
 		final StringBuilder sb = new StringBuilder();
 		for (final Byte b : bytes) {
-			sb.append(hexFromInt(b)).append(" ");
+			sb.append(hexFromByte(b)).append(" ");
 		}
 		return sb.toString();
 	}

@@ -749,7 +749,7 @@ public class Classfile implements IClassfile {
 
 						if (logger.isDebugEnabled()) {
 							logger.debug("CPInfo tag");
-							logger.debug("{}", hexFromInt(tag));
+							logger.debug("{}", hexFromByte(tag));
 							logger.debug("CPInfo info");
 							logger.debug("{}", hexFromBytes(info));
 						}
