@@ -19,7 +19,6 @@ import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.parser.SymbolTable;
-import swp_compiler_ss13.common.types.Type;
 import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.javabite.ast.ASTJb;
 import swp_compiler_ss13.javabite.ast.SymbolTableJb;
@@ -30,7 +29,6 @@ import swp_compiler_ss13.javabite.ast.nodes.leaf.LiteralNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.marynary.BlockNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.unary.DeclarationNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.unary.ReturnNodeJb;
-import swp_compiler_ss13.javabite.types.TypeJb;
 
 /**
  *  this are no tests, its only for example executio
@@ -170,18 +168,18 @@ public class CodeGenTest {
 
 	static void setupAst2() {
 		SymbolTable sTable = new SymbolTableJb();
-		sTable.insert("i", new TypeJb(Type.Kind.LONG));
+		sTable.insert("i", new LongType());
 		BasicIdentifierNode iidNode = new BasicIdentifierNodeJb();
 		iidNode.setIdentifier("i");
 		LiteralNode literalNode = new LiteralNodeJb();
 		literalNode.setLiteral("2");
-		literalNode.setLiteralType(new TypeJb(Type.Kind.LONG));
+		literalNode.setLiteralType(new LongType());
 		AssignmentNode assignNode = new AssignmentNodeJb();
 		assignNode.setLeftValue(iidNode);
 		assignNode.setRightValue(literalNode);
 		DeclarationNode declNode = new DeclarationNodeJb();
 		declNode.setIdentifier("i");
-		declNode.setType(new TypeJb(Type.Kind.LONG));
+		declNode.setType(new LongType());
 		BlockNode root = new BlockNodeJb();
 		root.setSymbolTable(sTable);
 		root.addDeclaration(declNode);
@@ -196,8 +194,8 @@ public class CodeGenTest {
 
 	static void setupAst3() {
 		SymbolTable sTable = new SymbolTableJb();
-		sTable.insert("i", new TypeJb(Type.Kind.LONG));
-		sTable.insert("j", new TypeJb(Type.Kind.LONG));
+		sTable.insert("i", new LongType());
+		sTable.insert("j", new LongType());
 		BasicIdentifierNode iidNodeI = new BasicIdentifierNodeJb();
 		BasicIdentifierNode iidNodeJ = new BasicIdentifierNodeJb();
 		iidNodeI.setIdentifier("i");
@@ -205,10 +203,10 @@ public class CodeGenTest {
 
 		LiteralNode literalNodeI = new LiteralNodeJb();
 		literalNodeI.setLiteral("2");
-		literalNodeI.setLiteralType(new TypeJb(Type.Kind.LONG));
+		literalNodeI.setLiteralType(new LongType());
 		LiteralNode literalNodeJ = new LiteralNodeJb();
 		literalNodeJ.setLiteral("2");
-		literalNodeJ.setLiteralType(new TypeJb(Type.Kind.LONG));
+		literalNodeJ.setLiteralType(new LongType());
 
 		AssignmentNode assignNodeI = new AssignmentNodeJb();
 		assignNodeI.setLeftValue(iidNodeI);
@@ -219,11 +217,11 @@ public class CodeGenTest {
 
 		DeclarationNode declNodeI = new DeclarationNodeJb();
 		declNodeI.setIdentifier("i");
-		declNodeI.setType(new TypeJb(Type.Kind.LONG));
+		declNodeI.setType(new LongType());
 
 		DeclarationNode declNodeJ = new DeclarationNodeJb();
 		declNodeJ.setIdentifier("j");
-		declNodeJ.setType(new TypeJb(Type.Kind.LONG));
+		declNodeJ.setType(new LongType());
 
 		BlockNode root = new BlockNodeJb();
 		root.setSymbolTable(sTable);
