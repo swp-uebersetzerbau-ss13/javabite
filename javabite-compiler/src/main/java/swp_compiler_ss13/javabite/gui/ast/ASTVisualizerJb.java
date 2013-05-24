@@ -134,7 +134,7 @@ public class ASTVisualizerJb implements ASTVisualization {
 			color="yellow";
 		}
 		else if (ast instanceof AssignmentNode){
-			value="Assegment";
+			value="Assignment";
 			color="white";
 			
 		}
