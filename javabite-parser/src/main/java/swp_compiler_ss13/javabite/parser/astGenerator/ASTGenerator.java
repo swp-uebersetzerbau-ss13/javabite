@@ -27,6 +27,10 @@ import swp_compiler_ss13.common.lexer.RealToken;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.types.Type;
 import swp_compiler_ss13.common.types.Type.Kind;
+import swp_compiler_ss13.common.types.primitive.BooleanType;
+import swp_compiler_ss13.common.types.primitive.DoubleType;
+import swp_compiler_ss13.common.types.primitive.LongType;
+import swp_compiler_ss13.common.types.primitive.StringType;
 import swp_compiler_ss13.javabite.ast.ASTJb;
 import swp_compiler_ss13.javabite.ast.SymbolTableJb;
 import swp_compiler_ss13.javabite.ast.nodes.binary.ArithmeticBinaryExpressionNodeJb;
@@ -42,7 +46,6 @@ import swp_compiler_ss13.javabite.ast.nodes.unary.LogicUnaryExpressionNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.unary.PrintNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.unary.ReturnNodeJb;
 import swp_compiler_ss13.javabite.parser.targetgrammar.TargetGrammar;
-import swp_compiler_ss13.javabite.types.TypeJb;
 
 /**
  * ASTGenerator class. This class provides functions to create an AST from
@@ -179,16 +182,17 @@ public class ASTGenerator {
 		// use decl productions functions according to the specific production
 		switch (thisReduction.toString()) {
 		case "type -> LONG_SYMBOL":
-			type=new TypeJb(Kind.LONG);
+			type=new LongType();
 			break;
 		case "type -> DOUBLE_SYMBOL":
-			type=new TypeJb(Kind.DOUBLE);
+			type=new DoubleType();
 			break;
 		case "type -> STRING_SYMBOL":
-			type=new TypeJb(Kind.STRING);
+			// TODO: define length ... more smart
+			type=new StringType(42L);
 			break;
 		case "type -> BOOL_SYMBOL":
-			type=new TypeJb(Kind.BOOLEAN);
+			type=new BooleanType();
 			break;
 		
 		default:
@@ -577,7 +581,7 @@ public class ASTGenerator {
 			
 			LiteralNode numNode = new LiteralNodeJb();
 			numNode.setLiteral(num.getValue());
-			numNode.setLiteralType(new TypeJb(Type.Kind.LONG));
+			numNode.setLiteralType(new LongType());
 
 			factor = numNode;
 			break;
@@ -587,21 +591,21 @@ public class ASTGenerator {
 			
 			LiteralNode realNode = new LiteralNodeJb();
 			realNode.setLiteral(real.getValue());
-			realNode.setLiteralType(new TypeJb(Type.Kind.DOUBLE));
+			realNode.setLiteralType(new DoubleType());
 
 			factor = realNode;
 			break;
 		case "factor -> TRUE":
 			LiteralNode trueNode = new LiteralNodeJb();
 			trueNode.setLiteral("true");
-			trueNode.setLiteralType(new TypeJb(Type.Kind.BOOLEAN));
+			trueNode.setLiteralType(new BooleanType());
 			
 			factor = trueNode;
 			break;
 		case "factor -> FALSE":
 			LiteralNode falseNode = new LiteralNodeJb();
 			falseNode.setLiteral("false");
-			falseNode.setLiteralType(new TypeJb(Type.Kind.BOOLEAN));
+			falseNode.setLiteralType(new BooleanType());
 
 			factor = falseNode;
 			break;
@@ -611,7 +615,8 @@ public class ASTGenerator {
 			
 			LiteralNode string = new LiteralNodeJb();
 			string.setLiteral(token.getValue());
-			string.setLiteralType(new TypeJb(Type.Kind.STRING));
+			// TODO: define length ... more smart
+			string.setLiteralType(new StringType(42L));
 			factor = string;
 			break;
 		default:
