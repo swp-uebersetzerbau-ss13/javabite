@@ -471,7 +471,7 @@ public class Classfile implements IClassfile {
 
 			final byte[] info = longToByteArray(value);
 
-			final CPInfo longInfo = new CPInfo((byte) 0x05, info);
+			final CPInfo longInfo = new CPInfo(InfoTag.LONG, info);
 			this.entryList.add(longInfo);
 			final CPInfo longInfo2ndPartDummy = new CPInfo();
 			this.entryList.add(longInfo2ndPartDummy);
@@ -494,7 +494,7 @@ public class Classfile implements IClassfile {
 
 			final byte[] info = doubleToByteArray(value);
 
-			final CPInfo doubleInfo = new CPInfo((byte) 0x06, info);
+			final CPInfo doubleInfo = new CPInfo(InfoTag.DOUBLE, info);
 			this.entryList.add(doubleInfo);
 			final CPInfo doubleInfo2ndPartDummy = new CPInfo();
 			this.entryList.add(doubleInfo2ndPartDummy);
@@ -519,7 +519,7 @@ public class Classfile implements IClassfile {
 
 			final byte[] info = shortToByteArray(nameIndex);
 
-			final CPInfo stringInfo = new CPInfo((byte) 0x08, info);
+			final CPInfo stringInfo = new CPInfo(InfoTag.STRING, info);
 			this.entryList.add(stringInfo);
 
 			// return index + 1
@@ -542,7 +542,7 @@ public class Classfile implements IClassfile {
 
 			final byte[] info = shortToByteArray(nameIndex);
 
-			final CPInfo longInfo = new CPInfo((byte) 0x07, info);
+			final CPInfo longInfo = new CPInfo(InfoTag.CLASS, info);
 			this.entryList.add(longInfo);
 
 			// return index + 1
@@ -565,7 +565,7 @@ public class Classfile implements IClassfile {
 			info.put(shortToByteArray((short) value.length()));
 			info.put(value.getBytes());
 
-			final CPInfo longInfo = new CPInfo((byte) 0x01, info.array());
+			final CPInfo longInfo = new CPInfo(InfoTag.UTF8, info.array());
 			this.entryList.add(longInfo);
 
 			// return index + 1
@@ -616,11 +616,11 @@ public class Classfile implements IClassfile {
 				info.put(shortToByteArray(classIndex));
 				info.put(shortToByteArray(nameAndTypeIndex));
 
-				final CPInfo methodrefInfo = new CPInfo((byte) 0x0A,
+				final CPInfo methodrefInfo = new CPInfo(InfoTag.METHODREF,
 						info.array());
 				this.entryList.add(methodrefInfo);
 
-				this.addCPMapEntry("METHODREF" + classIndex + "."
+				this.addCPMapEntry(InfoTag.METHODREF.name() + classIndex + "."
 						+ nameAndTypeIndex, (short) this.entryList.size());
 
 				// return index + 1
@@ -642,9 +642,10 @@ public class Classfile implements IClassfile {
 		 */
 		private int generateConstantNameAndTypeInfo(final String name,
 				final String descriptor) {
-			final short nameIndex = this.getCPMapEntry("UTF8" + name);
-			final short descriptorIndex = this.getCPMapEntry("UTF8"
-					+ descriptor);
+			final short nameIndex = this.getCPMapEntry(InfoTag.UTF8.name()
+					+ name);
+			final short descriptorIndex = this.getCPMapEntry(InfoTag.UTF8
+					.name() + descriptor);
 
 			if ((nameIndex != 0) && (descriptorIndex != 0)) {
 				ByteBuffer info = ByteBuffer.allocate(4);
@@ -652,12 +653,12 @@ public class Classfile implements IClassfile {
 				info.put(shortToByteArray(nameIndex));
 				info.put(shortToByteArray(descriptorIndex));
 
-				final CPInfo nameAndTypeInfo = new CPInfo((byte) 0x0C,
+				final CPInfo nameAndTypeInfo = new CPInfo(InfoTag.NAMEANDTYPE,
 						info.array());
 				this.entryList.add(nameAndTypeInfo);
 
-				this.addCPMapEntry("NAMEANDTYPE" + name + descriptor,
-						(short) this.entryList.size());
+				this.addCPMapEntry(InfoTag.NAMEANDTYPE.name() + name
+						+ descriptor, (short) this.entryList.size());
 
 				// return index + 1
 				return this.entryList.size();
@@ -721,16 +722,16 @@ public class Classfile implements IClassfile {
 			Logger logger = LoggerFactory.getLogger(this.getClass());
 
 			// General CPInfo structure information
-			private final byte tag;
+			private final InfoTag tag;
 			private final byte[] info;
 
-			private CPInfo(final byte tag, final byte[] info) {
+			private CPInfo(final InfoTag tag, final byte[] info) {
 				this.tag = tag;
 				this.info = info;
 			}
 
 			private CPInfo() {
-				this.tag = 0;
+				this.tag = InfoTag.NONE;
 				this.info = null;
 			}
 
@@ -743,13 +744,13 @@ public class Classfile implements IClassfile {
 				// write only, if CPInfo is no dummy entry
 				if (this.info != null) {
 					try {
-						classfileDOS.writeByte(this.tag);
+						classfileDOS.writeByte(this.tag.getByte());
 
 						classfileDOS.write(info);
 
 						if (logger.isDebugEnabled()) {
 							logger.debug("CPInfo tag");
-							logger.debug("{}", hexFromByte(tag));
+							logger.debug("{}", hexFromByte(tag.getByte()));
 							logger.debug("CPInfo info");
 							logger.debug("{}", hexFromBytes(info));
 						}
@@ -789,7 +790,7 @@ public class Classfile implements IClassfile {
 				classfileDOS.writeShort(this.methodMap.size());
 
 				if (logger.isDebugEnabled()) {
-					logger.debug("method amount");
+					logger.debug("method count");
 					logger.debug("{}",
 							hexFromShort((short) this.methodMap.size()));
 				}

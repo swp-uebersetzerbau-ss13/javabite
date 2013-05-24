@@ -12,15 +12,14 @@ public interface IClassfile {
 	 * @since 03.05.2013
 	 */
 	public enum ClassfileAccessFlag {
-		ACC_PUBLIC((short) 0x0001), ACC_FINAL((short) 0x0010), ACC_SUPER(
-				(short) 0x0020), ACC_INTERFACE((short) 0x0200), ACC_ABSTRACT(
-				(short) 0x0400), ACC_SYNTHETIC((short) 0x1000), ACC_ANNOTATION(
-				(short) 0x2000), ACC_ENUM((short) 0x4000);
+		ACC_PUBLIC(0x0001), ACC_FINAL(0x0010), ACC_SUPER(0x0020), ACC_INTERFACE(
+				0x0200), ACC_ABSTRACT(0x0400), ACC_SYNTHETIC(0x1000), ACC_ANNOTATION(
+				0x2000), ACC_ENUM(0x4000);
 
 		private final short value;
 
-		ClassfileAccessFlag(final short value) {
-			this.value = value;
+		ClassfileAccessFlag(final int value) {
+			this.value = (short) value;
 		}
 
 		public short getValue() {
@@ -35,17 +34,15 @@ public interface IClassfile {
 	 * @since 03.05.2013
 	 */
 	public enum MethodAccessFlag {
-		ACC_PUBLIC((short) 0x0001), ACC_PRIVATE((short) 0x0002), ACC_PROTECTED(
-				(short) 0x0002), ACC_STATIC((short) 0x0008), ACC_FINAL(
-				(short) 0x0010), ACC_SYNCHRONIZED((short) 0x0020), ACC_BRIDGE(
-				(short) 0x0040), ACC_VARARGS((short) 0x0080), ACC_NATIVE(
-				(short) 0x0100), ACC_ABSTRACT((short) 0x0400), ACC_STRICT(
-				(short) 0x0800), ACC_SYNTHETIC((short) 0x1000);
+		ACC_PUBLIC(0x0001), ACC_PRIVATE(0x0002), ACC_PROTECTED(0x0002), ACC_STATIC(
+				0x0008), ACC_FINAL(0x0010), ACC_SYNCHRONIZED(0x0020), ACC_BRIDGE(
+				0x0040), ACC_VARARGS(0x0080), ACC_NATIVE(0x0100), ACC_ABSTRACT(
+				0x0400), ACC_STRICT(0x0800), ACC_SYNTHETIC(0x1000);
 
 		private final short value;
 
-		MethodAccessFlag(final short value) {
-			this.value = value;
+		MethodAccessFlag(final int value) {
+			this.value = (short) value;
 		}
 
 		public short getValue() {
@@ -61,14 +58,12 @@ public interface IClassfile {
 	 * @since 03.05.2013
 	 */
 	public enum VariableType {
-
-		LONG((short) 2), DOUBLE((short) 2), STRING((short) 1), BOOLEAN(
-				(short) 1);
+		LONG(2), DOUBLE(2), STRING(1), BOOLEAN(1);
 
 		private final short length;
 
-		VariableType(final short length) {
-			this.length = length;
+		VariableType(final int length) {
+			this.length = (short) length;
 		}
 
 		public short getLength() {
@@ -86,6 +81,27 @@ public interface IClassfile {
 	 */
 	public enum ConstantType {
 		LONG, DOUBLE, STRING, CLASS, UTF8
+	}
+
+	/**
+	 * enum InfoTag.
+	 * 
+	 * @author eike
+	 * @since May 25, 2013 1:27:22 AM
+	 */
+	public enum InfoTag {
+		NONE(0x00), UTF8(0x01), LONG(0x05), DOUBLE(0x06), CLASS(0x07), STRING(
+				0x08), METHODREF(0x0a), NAMEANDTYPE(0x0c);
+
+		final byte tag;
+
+		InfoTag(final int tag) {
+			this.tag = (byte) tag;
+		}
+
+		public byte getByte() {
+			return tag;
+		}
 	}
 
 	/**
@@ -226,7 +242,7 @@ public interface IClassfile {
 	 * @param variableName
 	 */
 	void addLongVariableToMethodsCode(String methodName, String variableName);
-	
+
 	/**
 	 * TODO javadoc
 	 * 
@@ -234,7 +250,7 @@ public interface IClassfile {
 	 * @param variableName
 	 */
 	void addDoubleVariableToMethodsCode(String methodName, String variableName);
-	
+
 	/**
 	 * TODO javadoc
 	 * 
@@ -242,7 +258,7 @@ public interface IClassfile {
 	 * @param variableName
 	 */
 	void addBooleanVariableToMethodsCode(String methodName, String variableName);
-	
+
 	/**
 	 * TODO javadoc
 	 * 
