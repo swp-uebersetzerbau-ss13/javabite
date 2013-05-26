@@ -33,6 +33,9 @@ public class BackendModule implements Backend {
 		this.targetCodeOptimizer = new TargetCodeOptimizer();
 	}
 
+	/**
+	 * TODO javadoc
+	 */
 	@Override
 	public Map<String, InputStream> generateTargetCode(
 			final String baseFileName, final List<Quadruple> tac) {
@@ -54,6 +57,7 @@ public class BackendModule implements Backend {
 	}
 
 	/**
+	 * TODO javadoc
 	 * 
 	 * @param classfiles
 	 * @return
