@@ -128,7 +128,7 @@ public class MainFrame extends JFrame {
 	 * Create the frame.
 	 */
 	public MainFrame() {
-		setTitle("Javabite Compiler");
+		setTitle("Javabite Compiler - Unknown");
 		setSize(700, 500);
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -153,6 +153,8 @@ public class MainFrame extends JFrame {
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					file = chooser.getSelectedFile(); // editorPaneSourcode
 				}
+				String fileName = file.getName();
+				setTitle("Javabite Compiler - " + fileName);
 				BufferedReader in = null;
 				try {
 					in = new BufferedReader(new FileReader(file));
@@ -361,7 +363,7 @@ public class MainFrame extends JFrame {
 		editorPaneSourcode.getDocument().addUndoableEditListener(
 				new UndoableEditListener() {
 					public void undoableEditHappened(UndoableEditEvent e) {
-						if(e.getEdit().getPresentationName().equals("Löschen") || e.getEdit().getPresentationName().equals("Hinzufügen")) 
+						if(e.getEdit().getPresentationName().equals("Lï¿½schen") || e.getEdit().getPresentationName().equals("Hinzufï¿½gen")) 
 							undoManager.addEdit(e.getEdit());
 					}
 				});
