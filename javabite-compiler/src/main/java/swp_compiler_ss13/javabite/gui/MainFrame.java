@@ -292,6 +292,7 @@ public class MainFrame extends JFrame implements ReportLog {
 				// TODO: save sourcecode
 				try {
 					compile(openedFile);
+					progressBar.setValue(0);
 				} catch (IntermediateCodeGeneratorException | IOException | BackendException ex) {
 					ex.printStackTrace();
 				}
@@ -464,6 +465,8 @@ public class MainFrame extends JFrame implements ReportLog {
 	
 	private void compile(File file) throws IntermediateCodeGeneratorException, IOException, BackendException {
 		textPaneLogs.setText("Compiler started.");
+		progressBar.setValue(0);
+		progressBar.setVisible(true);
 		Lexer lexer = ModuleProvider.getLexerInstance();
 		Parser parser = ModuleProvider.getParserInstance();
 		parser.setLexer(lexer);
@@ -471,7 +474,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		IntermediateCodeGenerator codegen = ModuleProvider.getCodeGeneratorInstance();
 		Backend backend = ModuleProvider.getBackendInstance();
 		
-		textPaneLogs.setText(textPaneLogs.getText() + "\nChecking compiler setup.");
+		progressBar.setValue(10);
 		boolean setupOk = true;
 		if (lexer == null) {
 			setupOk = false;
@@ -493,6 +496,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		}
 		
 		// get the name of file without extension
+		progressBar.setValue(20);
 		textPaneLogs.setText(textPaneLogs.getText() + "\nGetting file.");
 		toolBarLabel.setText("Getting file content.");
 		String sourceBaseName = file.getName();
@@ -501,6 +505,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		sourceBaseName = sourceBaseName.substring(0,lastDot);
 
 		toolBarLabel.setText("Compiling sourcecode.");
+		progressBar.setValue(30);
 		boolean errorReported = false;
 		lexer.setSourceStream(new FileInputStream(file));
 		toolBarLabel.setText("Building AST.");
@@ -516,8 +521,11 @@ public class MainFrame extends JFrame implements ReportLog {
 		}
 		
 		textPaneLogs.setText(textPaneLogs.getText() + "\nCreating quadruples.");
+		progressBar.setValue(60);
 		List<Quadruple> quadruples = codegen.generateIntermediateCode(ast);
+		progressBar.setValue(70);
 		Map<String, InputStream> results = backend.generateTargetCode(sourceBaseName, quadruples);
+		progressBar.setValue(80);
 		textPaneLogs.setText(textPaneLogs.getText() + "\nGenerate target code finished.");
 		for(Entry<String,InputStream> e:results.entrySet()) {
 			textPaneLogs.setText(textPaneLogs.getText() + "\nWrite output file: " + e.getKey());
@@ -526,6 +534,8 @@ public class MainFrame extends JFrame implements ReportLog {
 			IOUtils.copy(e.getValue(), fos);
 			fos.close();
 		}
+		progressBar.setValue(100);
+		progressBar.setVisible(false);
 	}
 	@Override
 	public void reportError(String text, Integer line, Integer column, String message) {
