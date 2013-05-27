@@ -2,7 +2,6 @@ package swp_compiler_ss13.javabite.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -25,8 +24,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Map.Entry;
 
-import javax.swing.AbstractAction;
-import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -40,7 +37,6 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextPane;
 import javax.swing.JToolBar;
-import javax.swing.KeyStroke;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.text.BadLocationException;
@@ -48,8 +44,6 @@ import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.Document;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
-import javax.swing.undo.CannotRedoException;
-import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
 
 import swp_compiler_ss13.common.ast.AST;
@@ -65,7 +59,6 @@ import swp_compiler_ss13.common.parser.Parser;
 import swp_compiler_ss13.common.parser.ReportLog;
 import swp_compiler_ss13.common.util.ModuleProvider;
 import swp_compiler_ss13.javabite.ast.ASTJb;
-import swp_compiler_ss13.javabite.compiler.JavabiteCompiler;
 import swp_compiler_ss13.javabite.gui.ast.ASTVisualizerJb;
 import swp_compiler_ss13.javabite.lexer.LexerJb;
 import swp_compiler_ss13.javabite.parser.ParserJb;
@@ -77,24 +70,24 @@ import javax.swing.JLabel;
 
 import org.apache.commons.io.IOUtils;
 
-import java.awt.Component;
-import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class MainFrame extends JFrame implements ReportLog {
-
+	
+	private static final long serialVersionUID = 1673088367851101738L;
+	
 	private JPanel contentPane;
 	
 	// class to setup styles for our sourcecode
 	StyledDocument doc = (StyledDocument) new DefaultStyledDocument();
 	
-	//we need to communicate with the lexer to colorize tokens
+	// we need to communicate with the lexer to colorize tokens
 	private LexerJb lexer = new LexerJb();
 	private ParserJb parser;
 	private ASTJb ast;
 	
-	// Components
+	// components
 	JMenuBar menuBar;
 	JMenu menuFile;
 	JMenuItem menuFileOpen;
@@ -141,6 +134,7 @@ public class MainFrame extends JFrame implements ReportLog {
 			}
 		});
 	}
+	
 	/**
 	 * Create the frame.
 	 */
@@ -171,6 +165,7 @@ public class MainFrame extends JFrame implements ReportLog {
 				}
 				String fileName = openedFile.getName();
 				setTitle("Javabite Compiler - " + fileName);
+				
 				BufferedReader in = null;
 				try {
 					in = new BufferedReader(new FileReader(openedFile));
@@ -178,6 +173,7 @@ public class MainFrame extends JFrame implements ReportLog {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
+				
 				String line = null;
 				try {
 					line = in.readLine();
@@ -185,25 +181,21 @@ public class MainFrame extends JFrame implements ReportLog {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
+				
 				Document doc = editorPaneSourcode.getDocument();
 				try {
 					doc.remove(0, doc.getLength()); // remove old content
-				} catch (BadLocationException e2) {
-					// TODO Auto-generated catch block
-					e2.printStackTrace();
+				} catch (BadLocationException ex) {
+					ex.printStackTrace();
 				}
+				
 				while(line != null){
-				  try {
-					  doc.insertString(doc.getLength(), line + "\n", null);
-					  line = in.readLine();
-					
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (BadLocationException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
+					try {
+						doc.insertString(doc.getLength(), line + "\n", null);
+						line = in.readLine();
+					} catch (IOException | BadLocationException ex) {
+						ex.printStackTrace();
+					}
 				}
 			}
 		});
@@ -212,30 +204,24 @@ public class MainFrame extends JFrame implements ReportLog {
 		menuFileSave = new JMenuItem("Save");
 		menuFileSave.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// TODO: save document
 				JFileChooser jfc = new JFileChooser("./");  
 				int returnVal = jfc.showSaveDialog(null);
-				if (returnVal == JFileChooser.APPROVE_OPTION)
-		        {
-		            File file = jfc.getSelectedFile();
-		            // save the file.
-		            BufferedWriter bw;
-		            try {
-		                bw = new BufferedWriter(new FileWriter(file));
-		                bw.write(editorPaneSourcode.getText());
-		                bw.flush();
-		            }               
-		            catch (IOException e1)
-		            {
-		                e1.printStackTrace();
-		            }
-		            //version++;
-
-		        }
-		        else
-		        {
-		            System.out.println("Save command cancelled by user. ");
-		        }
+				if (returnVal == JFileChooser.APPROVE_OPTION) {
+					File file = jfc.getSelectedFile();
+					
+					/* save the file */
+					BufferedWriter bw;
+					try {
+						bw = new BufferedWriter(new FileWriter(file));
+						bw.write(editorPaneSourcode.getText());
+						bw.flush();
+					} catch (IOException ex) {
+						ex.printStackTrace();
+					}
+					// version++;
+				} else {
+					System.out.println("Save command cancelled by user. ");
+				}
 				toolBarLabel.setText("Document saved.");
 			}
 		});
@@ -300,7 +286,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		});
 		menuBar.add(buttonRunCompile);
 		
-		//Undo Button
+		// undo Button
 		undoButton = new JButton("<-");
 		undoButton.addMouseListener(new MouseAdapter() {
 			@Override
@@ -312,7 +298,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		});
 		menuBar.add(undoButton);
 		
-		//Redo Button
+		// redo Button
 		redoButton = new JButton("->");
 		redoButton.addMouseListener(new MouseAdapter() {
 			@Override
@@ -350,19 +336,14 @@ public class MainFrame extends JFrame implements ReportLog {
 		
 		lexer = new LexerJb();
 		
-		//get properties for syntax highlighting
-		//read properties
-		
+		// get properties for syntax highlighting
+		// read properties
 		try {
 			BufferedInputStream stream = new BufferedInputStream(new FileInputStream("src\\main\\java\\swp_compiler_ss13\\javabite\\gui\\highlighting.properties"));
 			properties.load(stream);
 			stream.close();
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		} catch (IOException ex) {
+			ex.printStackTrace();
 		}
 		
 		tabbedPaneLog = new JTabbedPane(JTabbedPane.TOP);
@@ -379,8 +360,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		scrollPane = new JScrollPane();
 		splitPane.setLeftComponent(scrollPane);
 		
-		
-		//sourcecode with syntax highlighting
+		//s ourcecode with syntax highlighting
 		editorPaneSourcode = new JTextPane(doc);
 		scrollPane.setViewportView(editorPaneSourcode);
 		editorPaneSourcode.setText("enter your sourcecode here");
@@ -390,19 +370,18 @@ public class MainFrame extends JFrame implements ReportLog {
 		editorPaneSourcode.getDocument().addUndoableEditListener(
 				new UndoableEditListener() {
 					public void undoableEditHappened(UndoableEditEvent e) {
-						if(e.getEdit().getPresentationName().equals("L�schen") || e.getEdit().getPresentationName().equals("Hinzuf�gen")) 
+						if(e.getEdit().getPresentationName().equals("Löschen") || e.getEdit().getPresentationName().equals("Hinzufügen")) {
 							undoManager.addEdit(e.getEdit());
+						}
 					}
 				});
-		
 				
 				// add listener for sourcecode colorization 
 				editorPaneSourcode.addKeyListener(new KeyAdapter() {
 					@Override
 					public void keyReleased(KeyEvent arg0) {
 						styleEditorText();
-					} 
-					
+					}
 				});
 	}
 	
@@ -416,9 +395,8 @@ public class MainFrame extends JFrame implements ReportLog {
 				t = lexer.getNextToken();
 				tokens.add(t);
 			} while (t.getTokenType() != TokenType.EOF);
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		} catch (UnsupportedEncodingException ex) {
+			ex.printStackTrace();
 		}
 		
 		return tokens;
@@ -428,20 +406,16 @@ public class MainFrame extends JFrame implements ReportLog {
 	 * Styles a special part of the sourccode
 	 */
 	private void styleToken(TokenType tokenType, int start, int end) {
-		
 		//check properties file for tokentype key, if exist set defined color
 		String color;
 		if((color = properties.getProperty(tokenType.toString())) != null) {
 			javax.swing.text.Style style = editorPaneSourcode.addStyle(tokenType.toString(), null);
 			StyleConstants.setForeground(style, new Color(Integer.parseInt(color, 16)+0xFF000000));
 			doc.setCharacterAttributes(start, end, editorPaneSourcode.getStyle(tokenType.toString()), true);
-		
-			
 		} else {
 			javax.swing.text.Style style = editorPaneSourcode.addStyle("Black", null);
 			StyleConstants.setForeground(style, Color.BLACK);
 			doc.setCharacterAttributes(start, end, editorPaneSourcode.getStyle("Black"), true);
-
 		}
 	}
 	
@@ -538,10 +512,9 @@ public class MainFrame extends JFrame implements ReportLog {
 		progressBar.setValue(100);
 		progressBar.setVisible(false);
 	}
+	
 	@Override
 	public void reportError(String text, Integer line, Integer column, String message) {
 		// TODO Auto-generated method stub
 	}
-
-	
 }
