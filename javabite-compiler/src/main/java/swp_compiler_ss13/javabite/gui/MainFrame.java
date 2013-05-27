@@ -13,13 +13,17 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
+import java.util.Map.Entry;
 
 import javax.swing.AbstractAction;
 import javax.swing.Action;
@@ -48,10 +52,18 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 import javax.swing.undo.UndoManager;
 
+import swp_compiler_ss13.common.ast.AST;
+import swp_compiler_ss13.common.backend.Backend;
 import swp_compiler_ss13.common.backend.BackendException;
+import swp_compiler_ss13.common.backend.Quadruple;
+import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
+import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
+import swp_compiler_ss13.common.parser.Parser;
+import swp_compiler_ss13.common.parser.ReportLog;
+import swp_compiler_ss13.common.util.ModuleProvider;
 import swp_compiler_ss13.javabite.ast.ASTJb;
 import swp_compiler_ss13.javabite.compiler.JavabiteCompiler;
 import swp_compiler_ss13.javabite.gui.ast.ASTVisualizerJb;
@@ -62,12 +74,15 @@ import java.awt.FlowLayout;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import javax.swing.JLabel;
+
+import org.apache.commons.io.IOUtils;
+
 import java.awt.Component;
 import java.awt.Insets;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-public class MainFrame extends JFrame {
+public class MainFrame extends JFrame implements ReportLog {
 
 	private JPanel contentPane;
 	
@@ -275,14 +290,11 @@ public class MainFrame extends JFrame {
 		buttonRunCompile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// TODO: save sourcecode
-				// TODO: compile sourcecode
-				JavabiteCompiler compiler = new JavabiteCompiler();
 				try {
-					compiler.compile(null);
+					compile(openedFile);
 				} catch (IntermediateCodeGeneratorException | IOException | BackendException ex) {
 					ex.printStackTrace();
 				}
-				toolBarLabel.setText("Sourcode compiled.");
 			}
 		});
 		menuBar.add(buttonRunCompile);
@@ -450,7 +462,69 @@ public class MainFrame extends JFrame {
 		}
 	}
 	
+	private void compile(File file) throws IntermediateCodeGeneratorException, IOException, BackendException {
+		Lexer lexer = ModuleProvider.getLexerInstance();
+		Parser parser = ModuleProvider.getParserInstance();
+		parser.setLexer(lexer);
+		parser.setReportLog(this);
+		IntermediateCodeGenerator codegen = ModuleProvider.getCodeGeneratorInstance();
+		Backend backend = ModuleProvider.getBackendInstance();
+		
+		boolean setupOk = true;
+		if (lexer == null) {
+			setupOk = false;
+		}
+		if (parser == null) {
+			setupOk = false;
+		}
+		if (codegen == null) {
+			setupOk = false;
+		}
+		if (backend == null) {
+			setupOk = false;
+		}
 
+		if (setupOk) {
+			System.out.println("Compiler is ready to start");
+		} else {
+			System.out.println("Compiler could not load all need modules");
+		}
+		
+		// get the name of file without extension
+		toolBarLabel.setText("Getting file content.");
+		String sourceBaseName = file.getName();
+		int lastDot = sourceBaseName.lastIndexOf(".");
+		lastDot = lastDot > -1 ? lastDot : sourceBaseName.length();
+		sourceBaseName = sourceBaseName.substring(0,lastDot);
+
+		toolBarLabel.setText("Compiling sourcecode.");
+		boolean errorReported = false;
+		lexer.setSourceStream(new FileInputStream(file));
+		toolBarLabel.setText("Building AST.");
+		AST ast = parser.getParsedAST();
+
+		if (errorReported) {
+			toolBarLabel.setText("Sourcecode could not compile.");
+			return;
+		}
+
+		List<Quadruple> quadruples = codegen.generateIntermediateCode(ast);
+		Map<String, InputStream> results = backend.generateTargetCode(sourceBaseName, quadruples);
+		System.out.println("Generate target code finished");
+		for(Entry<String,InputStream> e:results.entrySet()) {
+			System.out.println("Write output file: " + e.getKey());
+			File outFile = new File(e.getKey());
+			FileOutputStream fos = new FileOutputStream(outFile);
+			IOUtils.copy(e.getValue(), fos);
+			fos.close();
+		}
+	}
+	@Override
+	public void reportError(String text, Integer line, Integer column,
+			String message) {
+		// TODO Auto-generated method stub
+		
+	}
 
 	
 }
