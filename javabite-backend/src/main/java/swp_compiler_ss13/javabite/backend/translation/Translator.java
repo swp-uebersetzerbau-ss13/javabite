@@ -9,7 +9,7 @@ import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.Classfile;
 import swp_compiler_ss13.javabite.backend.IClassfile;
-import swp_compiler_ss13.javabite.backend.IClassfile.ConstantType;
+import swp_compiler_ss13.javabite.backend.IClassfile.InfoTag;
 import swp_compiler_ss13.javabite.backend.IClassfile.VariableType;
 import swp_compiler_ss13.javabite.backend.Program;
 import swp_compiler_ss13.javabite.backend.Program.ProgramBuilder;
@@ -155,12 +155,10 @@ public class Translator {
 					|| operator == Quadruple.Operator.DIV_LONG) {
 
 				if (arg1.startsWith(SYM_CONST)) {
-					classFile.addConstantToConstantPool(ConstantType.LONG,
-							arg1.substring(1));
+					classFile.addLongConstantToConstantPool(Long.parseLong(arg1.substring(1)));
 				}
 				if (arg2.startsWith(SYM_CONST)) {
-					classFile.addConstantToConstantPool(ConstantType.LONG,
-							arg2.substring(1));
+					classFile.addLongConstantToConstantPool(Long.parseLong(arg2.substring(1)));
 				}
 			}
 
@@ -170,19 +168,23 @@ public class Translator {
 					|| operator == Quadruple.Operator.DIV_DOUBLE) {
 
 				if (arg1.startsWith(SYM_CONST)) {
-					classFile.addConstantToConstantPool(ConstantType.DOUBLE,
-							arg1.substring(1));
+					classFile.addDoubleConstantToConstantPool(Double.parseDouble(arg1.substring(1)));
 				}
 				if (arg2.startsWith(SYM_CONST)) {
-					classFile.addConstantToConstantPool(ConstantType.DOUBLE,
-							arg2.substring(1));
+					classFile.addDoubleConstantToConstantPool(Double.parseDouble(arg2.substring(1)));
 				}
 			}
 
-			final ConstantType type = getDataTypeOfOperator(operator);
+			final InfoTag type = getDataTypeOfOperator(operator);
 
-			if (type != null && arg1.startsWith(SYM_CONST)) {
-				classFile.addConstantToConstantPool(type, arg1.substring(1));
+			if (type.equals(InfoTag.LONG) && arg1.startsWith(SYM_CONST)) {
+				classFile.addLongConstantToConstantPool(Long.parseLong(arg1.substring(1)));
+			}
+			if (type.equals(InfoTag.DOUBLE) && arg1.startsWith(SYM_CONST)) {
+				classFile.addDoubleConstantToConstantPool(Double.parseDouble(arg1.substring(1)));
+			}
+			if (type.equals(InfoTag.STRING) && arg1.startsWith(SYM_CONST)) {
+				classFile.addStringConstantToConstantPool(arg1.substring(1));
 			}
 		}
 	}
@@ -197,14 +199,14 @@ public class Translator {
 	 * @param operator
 	 * @return
 	 */
-	private static ConstantType getDataTypeOfOperator(final Operator operator) {
+	private static InfoTag getDataTypeOfOperator(final Operator operator) {
 		switch (operator) {
 		case ASSIGN_LONG:
-			return ConstantType.LONG;
+			return InfoTag.LONG;
 		case ASSIGN_DOUBLE:
-			return ConstantType.DOUBLE;
+			return InfoTag.DOUBLE;
 		case ASSIGN_STRING:
-			return ConstantType.STRING;
+			return InfoTag.STRING;
 		default:
 			return null;
 		}

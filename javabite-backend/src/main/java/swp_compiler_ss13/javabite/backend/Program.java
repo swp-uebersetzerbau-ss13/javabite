@@ -152,21 +152,24 @@ public class Program {
 		}
 
 		/**
-		 * addSystemExitFunctionToClassfile function. This function checks
-		 * whether the return flag is already set and if not, it'll add the
-		 * system exit data to the classfile.
+		 * <h1>addSystemExitFunctionToClassfile</h1>
+		 * <p>
+		 * This method checks whether the return flag is already set and if not,
+		 * it'll add the system exit data to the classfile.
+		 * </p>
 		 * 
 		 * @author Marco
 		 * @since 13.05.2013
 		 * 
-		 * @return systemExitIndex the constant pool index of the methodref
-		 *         entry of the system exit function.
+		 * @return short index into the constant pool of the system exit's
+		 *         methodref entry.
 		 */
 		private short addSystemExitFunctionToClassfile() {
 			if (!this.returnFlag) {
 				this.returnFlag = true;
-				this.systemExitIndex = this.classfile.addDataForSystemCall(
-						"exit", "(I)V", "java/lang/System");
+				this.systemExitIndex = this.classfile
+						.addMethodRefConstantToConstantPool("exit", "(I)V",
+								"java/lang/System");
 			}
 			return this.systemExitIndex;
 		}
