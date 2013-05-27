@@ -98,7 +98,6 @@ public class MainFrame extends JFrame {
 	JTextPane textPaneConsole;
 	JTextPane textPaneLogs;
 	JTabbedPane tabbedPaneLog;
-	JTabbedPane tabbedPaneEditor;
 	private static JTextPane editorPaneSourcode;
 	
 	Properties properties = new Properties();
@@ -108,6 +107,7 @@ public class MainFrame extends JFrame {
 	protected UndoManager undoManager = new UndoManager();
 	private JButton undoButton;
 	private JButton redoButton;
+	private JScrollPane scrollPane;
 	
 	/**
 	 * Launch the application.
@@ -334,9 +334,6 @@ public class MainFrame extends JFrame {
 		splitPane.setDividerLocation(250);
 		getContentPane().add(splitPane, BorderLayout.CENTER);
 		
-		tabbedPaneEditor = new JTabbedPane(JTabbedPane.TOP);
-		splitPane.setLeftComponent(tabbedPaneEditor);
-		
 		lexer = new LexerJb();
 		
 		//get properties for syntax highlighting
@@ -353,32 +350,6 @@ public class MainFrame extends JFrame {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-					
-		
-		//sourcecode with syntax highlighting
-		editorPaneSourcode = new JTextPane(doc);
-		editorPaneSourcode.setText("enter your sourcecode here");
-		
-		//setup undo redo
-		editorPaneSourcode.getDocument().addUndoableEditListener(
-				new UndoableEditListener() {
-					public void undoableEditHappened(UndoableEditEvent e) {
-						if(e.getEdit().getPresentationName().equals("L�schen") || e.getEdit().getPresentationName().equals("Hinzuf�gen")) 
-							undoManager.addEdit(e.getEdit());
-					}
-				});
-
-		
-		// add listener for sourcecode colorization 
-		editorPaneSourcode.addKeyListener(new KeyAdapter() {
-			@Override
-			public void keyReleased(KeyEvent arg0) {
-				styleEditorText();
-			} 
-			
-		});
-		
-		tabbedPaneEditor.addTab("Unknown", null, editorPaneSourcode, null);
 		
 		tabbedPaneLog = new JTabbedPane(JTabbedPane.TOP);
 		splitPane.setRightComponent(tabbedPaneLog);
@@ -390,6 +361,34 @@ public class MainFrame extends JFrame {
 		textPaneLogs = new JTextPane();
 		textPaneLogs.setText("Other logs");
 		tabbedPaneLog.addTab("Log", null, textPaneLogs, null);
+		
+		scrollPane = new JScrollPane();
+		splitPane.setLeftComponent(scrollPane);
+		
+		
+		//sourcecode with syntax highlighting
+		editorPaneSourcode = new JTextPane(doc);
+		scrollPane.setViewportView(editorPaneSourcode);
+		editorPaneSourcode.setText("enter your sourcecode here");
+		
+		//setup undo redo
+		editorPaneSourcode.getDocument().addUndoableEditListener(
+				new UndoableEditListener() {
+					public void undoableEditHappened(UndoableEditEvent e) {
+						if(e.getEdit().getPresentationName().equals("L�schen") || e.getEdit().getPresentationName().equals("Hinzuf�gen")) 
+							undoManager.addEdit(e.getEdit());
+					}
+				});
+		
+				
+				// add listener for sourcecode colorization 
+				editorPaneSourcode.addKeyListener(new KeyAdapter() {
+					@Override
+					public void keyReleased(KeyEvent arg0) {
+						styleEditorText();
+					} 
+					
+				});
 	}
 	
 	private List<Token> getTokenList(String text) {
