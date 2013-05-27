@@ -169,17 +169,15 @@ public class MainFrame extends JFrame implements ReportLog {
 				BufferedReader in = null;
 				try {
 					in = new BufferedReader(new FileReader(openedFile));
-				} catch (FileNotFoundException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+				} catch (FileNotFoundException ex) {
+					ex.printStackTrace();
 				}
 				
 				String line = null;
 				try {
 					line = in.readLine();
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+				} catch (IOException ex) {
+					ex.printStackTrace();
 				}
 				
 				Document doc = editorPaneSourcode.getDocument();
@@ -189,7 +187,7 @@ public class MainFrame extends JFrame implements ReportLog {
 					ex.printStackTrace();
 				}
 				
-				while(line != null){
+				while (line != null) {
 					try {
 						doc.insertString(doc.getLength(), line + "\n", null);
 						line = in.readLine();
@@ -209,7 +207,7 @@ public class MainFrame extends JFrame implements ReportLog {
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					File file = jfc.getSelectedFile();
 					
-					/* save the file */
+					// save the file
 					BufferedWriter bw;
 					try {
 						bw = new BufferedWriter(new FileWriter(file));
@@ -245,8 +243,8 @@ public class MainFrame extends JFrame implements ReportLog {
 				String text = editorPaneSourcode.getText();
 				try {
 					lexer.setSourceStream(new ByteArrayInputStream(text.getBytes("UTF-8")));
-				} catch (UnsupportedEncodingException e1) {
-					e1.printStackTrace();
+				} catch (UnsupportedEncodingException ex) {
+					ex.printStackTrace();
 				}
 				parser.setLexer(lexer);
 				ast = parser.getParsedAST();
@@ -291,9 +289,9 @@ public class MainFrame extends JFrame implements ReportLog {
 		undoButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				
-				if(undoManager.canUndo())
+				if (undoManager.canUndo()) {
 					undoManager.undo();
+				}
 			}
 		});
 		menuBar.add(undoButton);
@@ -303,8 +301,9 @@ public class MainFrame extends JFrame implements ReportLog {
 		redoButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if(undoManager.canRedo())
+				if (undoManager.canRedo()) {
 					undoManager.redo();
+				}
 				styleEditorText();
 			}
 		});
@@ -370,7 +369,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		editorPaneSourcode.getDocument().addUndoableEditListener(
 				new UndoableEditListener() {
 					public void undoableEditHappened(UndoableEditEvent e) {
-						if(e.getEdit().getPresentationName().equals("Löschen") || e.getEdit().getPresentationName().equals("Hinzufügen")) {
+						if (e.getEdit().getPresentationName().equals("Löschen") || e.getEdit().getPresentationName().equals("Hinzufügen")) {
 							undoManager.addEdit(e.getEdit());
 						}
 					}
@@ -408,7 +407,7 @@ public class MainFrame extends JFrame implements ReportLog {
 	private void styleToken(TokenType tokenType, int start, int end) {
 		//check properties file for tokentype key, if exist set defined color
 		String color;
-		if((color = properties.getProperty(tokenType.toString())) != null) {
+		if ((color = properties.getProperty(tokenType.toString())) != null) {
 			javax.swing.text.Style style = editorPaneSourcode.addStyle(tokenType.toString(), null);
 			StyleConstants.setForeground(style, new Color(Integer.parseInt(color, 16)+0xFF000000));
 			doc.setCharacterAttributes(start, end, editorPaneSourcode.getStyle(tokenType.toString()), true);
@@ -478,7 +477,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		int lastDot = sourceBaseName.lastIndexOf(".");
 		lastDot = lastDot > -1 ? lastDot : sourceBaseName.length();
 		sourceBaseName = sourceBaseName.substring(0,lastDot);
-
+		
 		toolBarLabel.setText("Compiling sourcecode.");
 		progressBar.setValue(30);
 		boolean errorReported = false;
