@@ -18,7 +18,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
+import java.lang.ProcessBuilder.Redirect;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -468,6 +471,7 @@ public class MainFrame extends JFrame implements ReportLog {
 			System.out.println("Compiler is ready to start");
 		} else {
 			System.out.println("Compiler could not load all need modules");
+			return;
 		}
 		
 		// get the name of file without extension
@@ -488,7 +492,6 @@ public class MainFrame extends JFrame implements ReportLog {
 		textPaneLogs.setText(textPaneLogs.getText() + "\nStarting Parser.");
 		textPaneLogs.setText(textPaneLogs.getText() + "\nCreating AST.");
 		AST ast = parser.getParsedAST();
-		
 		if (errorReported) {
 			textPaneLogs.setText(textPaneLogs.getText() + "\nSourcecode could not compile.");
 			toolBarLabel.setText("Sourcecode could not compile.");
@@ -508,14 +511,12 @@ public class MainFrame extends JFrame implements ReportLog {
 			FileOutputStream fos = new FileOutputStream(outFile);
 			IOUtils.copy(e.getValue(), fos);
 			fos.close();
-			
 			try {
 				String line;
 				textPaneLogs.setText(textPaneLogs.getText() + "\nRunning application.");
 				Process p = Runtime.getRuntime().exec("java " + outFile.getAbsolutePath());
 				BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
 				while ((line = input.readLine()) != null) {
-					System.out.println(line);
 					textPaneConsole.setText(textPaneConsole.getText() + "\n" + line + ".");
 				}
 				input.close();
@@ -523,6 +524,8 @@ public class MainFrame extends JFrame implements ReportLog {
 				System.err.println("Problems invoking class " + outFile.getAbsolutePath() + ": " + ex);
 			}
 		}
+		
+		toolBarLabel.setText("File compiled.");
 		progressBar.setValue(100);
 		progressBar.setEnabled(false);
 	}
