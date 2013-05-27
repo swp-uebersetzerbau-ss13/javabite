@@ -8,12 +8,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ByteUtils {
+
+	private static final Pattern HEX_BYTES = Pattern.compile("(.{2})");
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(ByteUtils.class);
@@ -54,51 +57,20 @@ public class ByteUtils {
 		return byteBuffer.array();
 	}
 
-	/**
-	 * TODO javadoc
-	 * 
-	 * @param b
-	 * @return
-	 */
-	public static String hexFromByte(final byte b) {
-		String tmp = Integer.toHexString(((b + 256) % 256));
-		if (tmp.length() < 2) {
-			tmp = "0" + tmp;
-		}
-
-		return tmp;
+	private static String splitHexBytes(final String hex) {
+		return HEX_BYTES.matcher(hex).replaceAll("$1 ");
 	}
 
-	/**
-	 * TODO javadoc
-	 * 
-	 * @param input
-	 * @return
-	 */
-	public static String hexFromShort(final short input) {
-		return hexFromInt((int) input);
+	public static String toHexString(final int i) {
+		return splitHexBytes(String.format("%08x", Integer.valueOf(i)));
 	}
 
-	/**
-	 * TODO javadoc
-	 * 
-	 * @param input
-	 * @return
-	 */
-	public static String hexFromInt(final int input) {
-		final StringBuilder sb = new StringBuilder();
+	public static String toHexString(final short i) {
+		return splitHexBytes(String.format("%08x", Short.valueOf(i)));
+	}
 
-		for (int i = 3; i >= 0; i--) {
-			final byte b = (byte) (input << (i * 8));
-			final String tmp = Integer.toHexString(((b + 256) % 256));
-			if (tmp.length() < 2) {
-				sb.append(0).append(tmp).append(" ");
-			} else {
-				sb.append(tmp).append(" ");
-			}
-		}
-
-		return sb.toString();
+	public static String toHexString(final byte i) {
+		return splitHexBytes(String.format("%08x", Byte.valueOf(i)));
 	}
 
 	/**
@@ -110,7 +82,7 @@ public class ByteUtils {
 	public static String hexFromBytes(final byte[] bytes) {
 		final StringBuilder sb = new StringBuilder();
 		for (final byte b : bytes) {
-			sb.append(hexFromByte(b)).append(" ");
+			sb.append(toHexString(b)).append(" ");
 		}
 		return sb.toString();
 	}
@@ -124,7 +96,7 @@ public class ByteUtils {
 	public static String hexFromBytes(final Iterable<Byte> bytes) {
 		final StringBuilder sb = new StringBuilder();
 		for (final Byte b : bytes) {
-			sb.append(hexFromByte(b)).append(" ");
+			sb.append(toHexString(b)).append(" ");
 		}
 		return sb.toString();
 	}

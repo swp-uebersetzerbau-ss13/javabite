@@ -1,7 +1,7 @@
 package swp_compiler_ss13.javabite.backend;
 
 import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.hexFromBytes;
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.hexFromByte;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.toHexString;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -72,7 +72,7 @@ public class Instruction {
 
 			if (logger.isDebugEnabled()) {
 				logger.debug("mnemonic bcode");
-				logger.debug("{}", hexFromByte(this.mnemonic.getBytecode()));
+				logger.debug("{}", toHexString(this.mnemonic.getBytecode()));
 			}
 
 			if (this.getArguments() != null) {

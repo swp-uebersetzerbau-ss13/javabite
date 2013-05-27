@@ -210,10 +210,10 @@ public class Classfile implements IClassfile {
 
 			if (logger.isDebugEnabled()) {
 				logger.debug("accessFlags(2), thisClassIndex(2), superClassIndex(2), interfaceCount(2), fieldsCount(2)");
-				logger.debug("{} {} {} {} {}", hexFromShort(accessFlags),
-						hexFromShort(thisClassIndex),
-						hexFromShort(superClassIndex),
-						hexFromShort(interfaceCount), hexFromShort(fieldsCount));
+				logger.debug("{} {} {} {} {}", toHexString(accessFlags),
+						toHexString(thisClassIndex),
+						toHexString(superClassIndex),
+						toHexString(interfaceCount), toHexString(fieldsCount));
 			}
 
 			this.methodArea.writeTo(classfileDOS);
@@ -222,7 +222,7 @@ public class Classfile implements IClassfile {
 
 			if (logger.isDebugEnabled()) {
 				logger.debug("accessFlags(2), thisClassIndex(2), superClassIndex(2), interfaceCount(2), fieldsCount(2)");
-				logger.debug("{}", hexFromShort(this.attributesCount));
+				logger.debug("{}", toHexString(this.attributesCount));
 			}
 
 		} catch (final IOException e) {
@@ -452,7 +452,7 @@ public class Classfile implements IClassfile {
 			try {
 				if (logger.isDebugEnabled()) {
 					logger.debug("constantPool size");
-					logger.debug("{}", hexFromInt(this.entryList.size() + 1));
+					logger.debug("{}", toHexString(this.entryList.size() + 1));
 				}
 
 				// specification determines size as size of cp plus 1
@@ -926,7 +926,7 @@ public class Classfile implements IClassfile {
 
 						if (logger.isDebugEnabled()) {
 							logger.debug("CPInfo tag");
-							logger.debug("{}", hexFromByte(tag.getByte()));
+							logger.debug("{}", toHexString(tag.getByte()));
 							logger.debug("CPInfo info");
 							logger.debug("{}", hexFromBytes(info));
 						}
@@ -986,7 +986,7 @@ public class Classfile implements IClassfile {
 				if (logger.isDebugEnabled()) {
 					logger.debug("method count");
 					logger.debug("{}",
-							hexFromShort((short) this.methodMap.size()));
+							toHexString((short) this.methodMap.size()));
 				}
 
 				// get method_info - bytes of methods
@@ -1224,10 +1224,10 @@ public class Classfile implements IClassfile {
 
 					if (logger.isDebugEnabled()) {
 						logger.debug("accessFlags, nameIndex, descriptorIndex, attributesCount:");
-						logger.debug("{} {} {} {}", hexFromShort(accessFlags),
-								hexFromShort(nameIndex),
-								hexFromShort(descriptorIndex),
-								hexFromShort(attributesCount));
+						logger.debug("{} {} {} {}", toHexString(accessFlags),
+								toHexString(nameIndex),
+								toHexString(descriptorIndex),
+								toHexString(attributesCount));
 					}
 
 					codeAttribute.writeTo(classfileDOS);
@@ -1422,14 +1422,15 @@ public class Classfile implements IClassfile {
 
 						if (logger.isDebugEnabled()) {
 							logger.debug("codeIndex");
-							logger.debug("{}", hexFromInt(codeIndex));
+							logger.debug("{}", toHexString(codeIndex));
 							logger.debug("code size");
-							logger.debug("{}", hexFromInt(codeDOS.size()));
+							logger.debug("{}", toHexString(codeDOS.size()));
 							logger.debug("code");
 							logger.debug("{}",
 									hexFromBytes(codeBAOS.toByteArray()));
 							logger.debug("attributes size");
-							logger.debug("{}", hexFromInt(attributesDOS.size()));
+							logger.debug("{}",
+									toHexString(attributesDOS.size()));
 							logger.debug("attributes");
 							logger.debug("{}",
 									hexFromBytes(attributesBAOS.toByteArray()));
