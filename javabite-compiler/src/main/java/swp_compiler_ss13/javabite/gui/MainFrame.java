@@ -100,7 +100,9 @@ public class MainFrame extends JFrame {
 	JTabbedPane tabbedPaneLog;
 	private static JTextPane editorPaneSourcode;
 	
+	// Files
 	Properties properties = new Properties();
+	File openedFile;
 	
 	// undo and redo
 	private Document editorPaneDocument;
@@ -149,15 +151,14 @@ public class MainFrame extends JFrame {
 				//fc.showOpenDialog( null );
 				JFileChooser chooser = new JFileChooser();
 				int returnVal = chooser.showOpenDialog(null);
-				File file = null;
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
-					file = chooser.getSelectedFile(); // editorPaneSourcode
+					openedFile = chooser.getSelectedFile(); // editorPaneSourcode
 				}
-				String fileName = file.getName();
+				String fileName = openedFile.getName();
 				setTitle("Javabite Compiler - " + fileName);
 				BufferedReader in = null;
 				try {
-					in = new BufferedReader(new FileReader(file));
+					in = new BufferedReader(new FileReader(openedFile));
 				} catch (FileNotFoundException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
