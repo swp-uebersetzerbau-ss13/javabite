@@ -384,6 +384,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		editorPaneSourcode = new JTextPane(doc);
 		scrollPane.setViewportView(editorPaneSourcode);
 		editorPaneSourcode.setText("enter your sourcecode here");
+		editorPaneSourcode.getDocument().addDocumentListener(new SourecodeDocumentListener(toolBarLabel));
 		
 		//setup undo redo
 		editorPaneSourcode.getDocument().addUndoableEditListener(
