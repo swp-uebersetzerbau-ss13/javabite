@@ -45,7 +45,9 @@ public class LexerJb implements Lexer {
 		StringWriter writer = new StringWriter();
 		try {
 			IOUtils.copy(stream, writer, "UTF-8");
-		} catch (IOException e) {}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
 		// we already have the complete input in memory -> direct lexing
 		lex(writer.getBuffer());
@@ -108,7 +110,7 @@ public class LexerJb implements Lexer {
 					tokenQueue.add(token);
 				}
 			}
-        }
+		}
 		// add a NOT_A_TOKEN-token if necessary
 		if (notAToken.length() != 0) {
 			tokenQueue.add(new TokenJb(TokenType.NOT_A_TOKEN,notAToken.toString(),notATokenLine,notATokenStart));

@@ -17,6 +17,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
@@ -140,7 +141,7 @@ public class MainFrame extends JFrame implements ReportLog {
 	 */
 	public MainFrame() {
 		setTitle("Javabite Compiler - Unknown");
-		setSize(700, 500);
+		setSize(800, 600);
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		getContentPane().setLayout(new BorderLayout(0, 0));
@@ -246,11 +247,12 @@ public class MainFrame extends JFrame implements ReportLog {
 				} catch (UnsupportedEncodingException ex) {
 					ex.printStackTrace();
 				}
+				
 				parser.setLexer(lexer);
 				ast = parser.getParsedAST();
 				ASTVisualizerJb visualizer = new ASTVisualizerJb();
 				visualizer.visualizeAST(ast);
-				JFrame frame=new JFrame();
+				JFrame frame = new JFrame();
 				JScrollPane ast_frame=visualizer.getFrame();
 				frame.setVisible(true);
 				frame.setSize(800, 600);
@@ -277,7 +279,7 @@ public class MainFrame extends JFrame implements ReportLog {
 				try {
 					compile(openedFile);
 					progressBar.setValue(0);
-				} catch (IntermediateCodeGeneratorException | IOException | BackendException ex) {
+				} catch (IntermediateCodeGeneratorException | IOException | BackendException | ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
 					ex.printStackTrace();
 				}
 			}
@@ -359,29 +361,28 @@ public class MainFrame extends JFrame implements ReportLog {
 		scrollPane = new JScrollPane();
 		splitPane.setLeftComponent(scrollPane);
 		
-		//s ourcecode with syntax highlighting
+		// sourcecode with syntax highlighting
 		editorPaneSourcode = new JTextPane(doc);
 		scrollPane.setViewportView(editorPaneSourcode);
 		editorPaneSourcode.setText("enter your sourcecode here");
 		editorPaneSourcode.getDocument().addDocumentListener(new SourecodeDocumentListener(toolBarLabel));
 		
-		//setup undo redo
-		editorPaneSourcode.getDocument().addUndoableEditListener(
-				new UndoableEditListener() {
-					public void undoableEditHappened(UndoableEditEvent e) {
-						if (e.getEdit().getPresentationName().equals("Löschen") || e.getEdit().getPresentationName().equals("Hinzufügen")) {
-							undoManager.addEdit(e.getEdit());
-						}
-					}
-				});
-				
-				// add listener for sourcecode colorization 
-				editorPaneSourcode.addKeyListener(new KeyAdapter() {
-					@Override
-					public void keyReleased(KeyEvent arg0) {
-						styleEditorText();
-					}
-				});
+		// setup undo redo
+		editorPaneSourcode.getDocument().addUndoableEditListener(new UndoableEditListener() {
+			public void undoableEditHappened(UndoableEditEvent e) {
+				if (e.getEdit().getPresentationName().equals("Löschen") || e.getEdit().getPresentationName().equals("Hinzufügen")) {
+					undoManager.addEdit(e.getEdit());
+				}
+			}
+		});
+		
+		// add listener for sourcecode colorization 
+		editorPaneSourcode.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				styleEditorText();
+			}
+		});
 	}
 	
 	private List<Token> getTokenList(String text) {
@@ -400,7 +401,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		
 		return tokens;
 	}
-
+	
 	/**
 	 * Styles a special part of the sourccode
 	 */
@@ -437,10 +438,10 @@ public class MainFrame extends JFrame implements ReportLog {
 		}
 	}
 	
-	private void compile(File file) throws IntermediateCodeGeneratorException, IOException, BackendException {
+	private void compile(File file) throws IntermediateCodeGeneratorException, IOException, BackendException, ClassNotFoundException, InstantiationException, IllegalAccessException {
 		textPaneLogs.setText("Compiler started.");
 		progressBar.setValue(0);
-		progressBar.setVisible(true);
+		progressBar.setEnabled(true);
 		Lexer lexer = ModuleProvider.getLexerInstance();
 		Parser parser = ModuleProvider.getParserInstance();
 		parser.setLexer(lexer);
@@ -501,15 +502,29 @@ public class MainFrame extends JFrame implements ReportLog {
 		Map<String, InputStream> results = backend.generateTargetCode(sourceBaseName, quadruples);
 		progressBar.setValue(80);
 		textPaneLogs.setText(textPaneLogs.getText() + "\nGenerate target code finished.");
-		for(Entry<String,InputStream> e:results.entrySet()) {
+		for (Entry<String,InputStream> e:results.entrySet()) {
 			textPaneLogs.setText(textPaneLogs.getText() + "\nWrite output file: " + e.getKey());
 			File outFile = new File(e.getKey());
 			FileOutputStream fos = new FileOutputStream(outFile);
 			IOUtils.copy(e.getValue(), fos);
 			fos.close();
+			
+			try {
+				String line;
+				textPaneLogs.setText(textPaneLogs.getText() + "\nRunning application.");
+				Process p = Runtime.getRuntime().exec("java " + outFile.getAbsolutePath());
+				BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
+				while ((line = input.readLine()) != null) {
+					System.out.println(line);
+					textPaneConsole.setText(textPaneConsole.getText() + "\n" + line + ".");
+				}
+				input.close();
+			} catch (java.io.IOException ex) {
+				System.err.println("Problems invoking class " + outFile.getAbsolutePath() + ": " + ex);
+			}
 		}
 		progressBar.setValue(100);
-		progressBar.setVisible(false);
+		progressBar.setEnabled(false);
 	}
 	
 	@Override
