@@ -368,11 +368,11 @@ public class MainFrame extends JFrame implements ReportLog {
 		splitPane.setRightComponent(tabbedPaneLog);
 		
 		textPaneConsole = new JTextPane();
-		textPaneConsole.setText("Console logs");
+		textPaneConsole.setText("");
 		tabbedPaneLog.addTab("Console", null, textPaneConsole, null);
 		
 		textPaneLogs = new JTextPane();
-		textPaneLogs.setText("Other logs");
+		textPaneLogs.setText("");
 		tabbedPaneLog.addTab("Log", null, textPaneLogs, null);
 		
 		scrollPane = new JScrollPane();
@@ -463,6 +463,7 @@ public class MainFrame extends JFrame implements ReportLog {
 	}
 	
 	private void compile(File file) throws IntermediateCodeGeneratorException, IOException, BackendException {
+		textPaneLogs.setText("Compiler started.");
 		Lexer lexer = ModuleProvider.getLexerInstance();
 		Parser parser = ModuleProvider.getParserInstance();
 		parser.setLexer(lexer);
@@ -470,6 +471,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		IntermediateCodeGenerator codegen = ModuleProvider.getCodeGeneratorInstance();
 		Backend backend = ModuleProvider.getBackendInstance();
 		
+		textPaneLogs.setText(textPaneLogs.getText() + "\nChecking compiler setup.");
 		boolean setupOk = true;
 		if (lexer == null) {
 			setupOk = false;
@@ -491,6 +493,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		}
 		
 		// get the name of file without extension
+		textPaneLogs.setText(textPaneLogs.getText() + "\nGetting file.");
 		toolBarLabel.setText("Getting file content.");
 		String sourceBaseName = file.getName();
 		int lastDot = sourceBaseName.lastIndexOf(".");
@@ -501,18 +504,23 @@ public class MainFrame extends JFrame implements ReportLog {
 		boolean errorReported = false;
 		lexer.setSourceStream(new FileInputStream(file));
 		toolBarLabel.setText("Building AST.");
+		textPaneLogs.setText(textPaneLogs.getText() + "\nStarting Lexer.");
+		textPaneLogs.setText(textPaneLogs.getText() + "\nStarting Parser.");
+		textPaneLogs.setText(textPaneLogs.getText() + "\nCreating AST.");
 		AST ast = parser.getParsedAST();
-
+		
 		if (errorReported) {
+			textPaneLogs.setText(textPaneLogs.getText() + "\nSourcecode could not compile.");
 			toolBarLabel.setText("Sourcecode could not compile.");
 			return;
 		}
-
+		
+		textPaneLogs.setText(textPaneLogs.getText() + "\nCreating quadruples.");
 		List<Quadruple> quadruples = codegen.generateIntermediateCode(ast);
 		Map<String, InputStream> results = backend.generateTargetCode(sourceBaseName, quadruples);
-		System.out.println("Generate target code finished");
+		textPaneLogs.setText(textPaneLogs.getText() + "\nGenerate target code finished.");
 		for(Entry<String,InputStream> e:results.entrySet()) {
-			System.out.println("Write output file: " + e.getKey());
+			textPaneLogs.setText(textPaneLogs.getText() + "\nWrite output file: " + e.getKey());
 			File outFile = new File(e.getKey());
 			FileOutputStream fos = new FileOutputStream(outFile);
 			IOUtils.copy(e.getValue(), fos);
@@ -520,10 +528,8 @@ public class MainFrame extends JFrame implements ReportLog {
 		}
 	}
 	@Override
-	public void reportError(String text, Integer line, Integer column,
-			String message) {
+	public void reportError(String text, Integer line, Integer column, String message) {
 		// TODO Auto-generated method stub
-		
 	}
 
 	
