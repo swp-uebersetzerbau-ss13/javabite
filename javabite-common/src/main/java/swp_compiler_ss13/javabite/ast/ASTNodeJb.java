@@ -9,6 +9,7 @@ import java.util.Queue;
 import java.util.TreeMap;
 
 import swp_compiler_ss13.common.ast.ASTNode;
+import swp_compiler_ss13.common.lexer.Token;
 
 public abstract class ASTNodeJb implements ASTNode, Iterable<ASTNode>{
 	final private TreeMap<Integer,ASTNode> children=new TreeMap<>();
@@ -110,5 +111,11 @@ public abstract class ASTNodeJb implements ASTNode, Iterable<ASTNode>{
 	
 	protected void fillNodeProperties(Properties props){
 		// no properties by default
+	}
+	
+	@Override
+	public List<Token> coverage() {
+		// under development
+		throw new RuntimeException("Has to be implemented first;). Currently under development");
 	}
 }
