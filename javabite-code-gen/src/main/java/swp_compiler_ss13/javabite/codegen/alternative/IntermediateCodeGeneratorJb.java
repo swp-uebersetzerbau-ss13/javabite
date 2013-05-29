@@ -23,8 +23,13 @@ import swp_compiler_ss13.javabite.codegen.alternative.converters.ArithmeticUnary
 import swp_compiler_ss13.javabite.codegen.alternative.converters.AssignmentNodeConverter;
 import swp_compiler_ss13.javabite.codegen.alternative.converters.BasicIdentifierNodeConverter;
 import swp_compiler_ss13.javabite.codegen.alternative.converters.BlockNodeConverter;
+import swp_compiler_ss13.javabite.codegen.alternative.converters.BranchNodeConverter;
 import swp_compiler_ss13.javabite.codegen.alternative.converters.DeclarationNodeConverter;
 import swp_compiler_ss13.javabite.codegen.alternative.converters.LiteralNodeConverter;
+import swp_compiler_ss13.javabite.codegen.alternative.converters.LogicBinaryExpressionNodeConverter;
+import swp_compiler_ss13.javabite.codegen.alternative.converters.LogicUnaryExpressionNodeConverter;
+import swp_compiler_ss13.javabite.codegen.alternative.converters.PrintNodeConverter;
+import swp_compiler_ss13.javabite.codegen.alternative.converters.RelationNodeConverter;
 import swp_compiler_ss13.javabite.codegen.alternative.converters.ReturnNodeConverter;
 
 public class IntermediateCodeGeneratorJb implements
@@ -37,7 +42,10 @@ public class IntermediateCodeGeneratorJb implements
 			ArithmeticUnaryExpressionNodeConverter.class,
 			AssignmentNodeConverter.class, BasicIdentifierNodeConverter.class,
 			BlockNodeConverter.class, DeclarationNodeConverter.class,
-			LiteralNodeConverter.class, ReturnNodeConverter.class };
+			LiteralNodeConverter.class, ReturnNodeConverter.class, 
+			BranchNodeConverter.class, RelationNodeConverter.class,
+			PrintNodeConverter.class, LogicBinaryExpressionNodeConverter.class,
+			LogicUnaryExpressionNodeConverter.class};
 
 	private static final String IDENTIFIER_GENERATION_PREFIX = "TMP";
 	private long identifierGenerationCounter = 0;
