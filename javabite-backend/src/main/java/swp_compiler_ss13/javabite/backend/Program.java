@@ -7,7 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import swp_compiler_ss13.common.backend.Quadruple;
-import swp_compiler_ss13.javabite.backend.IClassfile.ConstantType;
+import swp_compiler_ss13.javabite.backend.IClassfile.InfoTag;
 import swp_compiler_ss13.javabite.backend.Operation.OperationBuilder;
 import swp_compiler_ss13.javabite.backend.translation.Translator;
 import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
@@ -99,7 +99,7 @@ public class Program {
 		}
 
 		private void load(final OperationBuilder op, final boolean wide,
-				final String arg1, final ConstantType constType,
+				final String arg1, final InfoTag constType,
 				final String varLoadOp) {
 			if (isConstant(arg1)) {
 				final short index = classfile.getIndexOfConstantInConstantPool(
@@ -129,10 +129,10 @@ public class Program {
 		}
 
 		private ProgramBuilder assignNumber(final Quadruple q,
-				final ConstantType dataType, final String loadOp,
+				final InfoTag constType, final String loadOp,
 				final Mnemonic convertOp, final String storeOp) {
 			final OperationBuilder op = OperationBuilder.newBuilder();
-			load(op, true, q.getArgument1(), dataType, loadOp);
+			load(op, true, q.getArgument1(), constType, loadOp);
 			if (convertOp != null) {
 				op.add(convertOp);
 			}
@@ -141,11 +141,11 @@ public class Program {
 		}
 
 		private ProgramBuilder calculateNumber(final Quadruple q,
-				final ConstantType dataType, final String loadOp,
+				final InfoTag constType, final String loadOp,
 				final Mnemonic calcOp, final String storeOp) {
 			final OperationBuilder op = OperationBuilder.newBuilder();
-			load(op, true, q.getArgument1(), dataType, loadOp);
-			load(op, true, q.getArgument2(), dataType, loadOp);
+			load(op, true, q.getArgument1(), constType, loadOp);
+			load(op, true, q.getArgument2(), constType, loadOp);
 			op.add(calcOp);
 			store(op, q.getResult(), storeOp);
 			return add(op.build());
@@ -221,7 +221,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder longToDouble(final Quadruple q) {
-			return assignNumber(q, ConstantType.LONG, "LLOAD", Mnemonic.L2D,
+			return assignNumber(q, InfoTag.LONG, "LLOAD", Mnemonic.L2D,
 					"DSTORE");
 		}
 
@@ -252,7 +252,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder doubleToLong(final Quadruple q) {
-			return assignNumber(q, ConstantType.DOUBLE, "DLOAD", Mnemonic.D2L,
+			return assignNumber(q, InfoTag.DOUBLE, "DLOAD", Mnemonic.D2L,
 					"LSTORE");
 		}
 
@@ -283,7 +283,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder assignLong(final Quadruple q) {
-			return assignNumber(q, ConstantType.LONG, "LLOAD", null, "LSTORE");
+			return assignNumber(q, InfoTag.LONG, "LLOAD", null, "LSTORE");
 		}
 
 		/**
@@ -313,7 +313,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder assignDouble(final Quadruple q) {
-			return assignNumber(q, ConstantType.DOUBLE, "DLOAD", null, "DSTORE");
+			return assignNumber(q, InfoTag.DOUBLE, "DLOAD", null, "DSTORE");
 		}
 
 		/**
@@ -344,7 +344,7 @@ public class Program {
 		 */
 		public ProgramBuilder assignString(final Quadruple q) {
 			final OperationBuilder op = OperationBuilder.newBuilder();
-			load(op, false, q.getArgument1(), ConstantType.STRING, "ALOAD");
+			load(op, false, q.getArgument1(), InfoTag.STRING, "ALOAD");
 			store(op, q.getResult(), "ASTORE");
 			return add(op.build());
 		}
@@ -420,8 +420,8 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder addLong(final Quadruple q) {
-			return calculateNumber(q, ConstantType.LONG, "LLOAD",
-					Mnemonic.LADD, "LSTORE");
+			return calculateNumber(q, InfoTag.LONG, "LLOAD", Mnemonic.LADD,
+					"LSTORE");
 		}
 
 		/**
@@ -451,8 +451,8 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder addDouble(final Quadruple q) {
-			return calculateNumber(q, ConstantType.DOUBLE, "DLOAD",
-					Mnemonic.DADD, "DSTORE");
+			return calculateNumber(q, InfoTag.DOUBLE, "DLOAD", Mnemonic.DADD,
+					"DSTORE");
 		}
 
 		/**
@@ -482,8 +482,8 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder subLong(final Quadruple q) {
-			return calculateNumber(q, ConstantType.LONG, "LLOAD",
-					Mnemonic.LSUB, "LSTORE");
+			return calculateNumber(q, InfoTag.LONG, "LLOAD", Mnemonic.LSUB,
+					"LSTORE");
 		}
 
 		/**
@@ -513,8 +513,8 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder subDouble(final Quadruple q) {
-			return calculateNumber(q, ConstantType.DOUBLE, "DLOAD",
-					Mnemonic.DSUB, "DSTORE");
+			return calculateNumber(q, InfoTag.DOUBLE, "DLOAD", Mnemonic.DSUB,
+					"DSTORE");
 		}
 
 		/**
@@ -544,8 +544,8 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder mulLong(final Quadruple q) {
-			return calculateNumber(q, ConstantType.LONG, "LLOAD",
-					Mnemonic.LMUL, "LSTORE");
+			return calculateNumber(q, InfoTag.LONG, "LLOAD", Mnemonic.LMUL,
+					"LSTORE");
 		}
 
 		/**
@@ -575,8 +575,8 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder mulDouble(final Quadruple q) {
-			return calculateNumber(q, ConstantType.DOUBLE, "DLOAD",
-					Mnemonic.DMUL, "DSTORE");
+			return calculateNumber(q, InfoTag.DOUBLE, "DLOAD", Mnemonic.DMUL,
+					"DSTORE");
 		}
 
 		/**
@@ -606,8 +606,8 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder divLong(final Quadruple q) {
-			return calculateNumber(q, ConstantType.LONG, "LLOAD",
-					Mnemonic.LDIV, "LSTORE");
+			return calculateNumber(q, InfoTag.LONG, "LLOAD", Mnemonic.LDIV,
+					"LSTORE");
 		}
 
 		/**
@@ -637,8 +637,8 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder divDouble(final Quadruple q) {
-			return calculateNumber(q, ConstantType.DOUBLE, "DLOAD",
-					Mnemonic.DDIV, "DSTORE");
+			return calculateNumber(q, InfoTag.DOUBLE, "DLOAD", Mnemonic.DDIV,
+					"DSTORE");
 		}
 
 		/**
@@ -673,9 +673,8 @@ public class Program {
 
 			final OperationBuilder op = OperationBuilder.newBuilder();
 			if (isConstant(q.getArgument1())) {
-				final short index = classfile
-						.getIndexOfConstantInConstantPool(ConstantType.LONG,
-								removeConstantSign(q.getArgument1()));
+				final short index = classfile.getIndexOfConstantInConstantPool(
+						InfoTag.LONG, removeConstantSign(q.getArgument1()));
 				op.add(Mnemonic.LDC2_W, 2, ByteUtils.shortToByteArray(index));
 			} else {
 				final byte index = classfile.getIndexOfVariableInMethod(
