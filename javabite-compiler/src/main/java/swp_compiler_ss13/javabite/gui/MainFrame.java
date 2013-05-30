@@ -120,6 +120,7 @@ public class MainFrame extends JFrame implements ReportLog {
 	private JButton undoButton;
 	private JButton redoButton;
 	private JScrollPane scrollPane;
+	private JMenuItem mntmProperties;
 	
 	/**
 	 * Launch the application.
@@ -251,6 +252,14 @@ public class MainFrame extends JFrame implements ReportLog {
 				System.exit(0);
 			}
 		});
+		
+		mntmProperties = new JMenuItem("Properties");
+		mntmProperties.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// TODO: Implementation of property editor here
+			}
+		});
+		menuFile.add(mntmProperties);
 		menuFile.add(menuFileClose);
 		
 		menuVisual = new JMenu("Visual");
@@ -359,8 +368,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		
 		// get properties for syntax highlighting
 		try {
-			String separator = System.getProperty("file.separator");
-			BufferedInputStream stream = new BufferedInputStream(new FileInputStream("src"+separator+"main"+separator+"java"+separator+"swp_compiler_ss13"+separator+"javabite"+separator+"gui"+separator+"highlighting.properties"));
+			BufferedInputStream stream = new BufferedInputStream(new FileInputStream("src\\main\\java\\swp_compiler_ss13\\javabite\\gui\\highlighting.properties"));
 			properties.load(stream);
 			stream.close();
 		} catch (IOException ex) {
