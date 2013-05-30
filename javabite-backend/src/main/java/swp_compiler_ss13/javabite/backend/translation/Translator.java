@@ -86,6 +86,7 @@ public class Translator {
 
 		final Collection<IClassfile> classfiles = new ArrayList<IClassfile>();
 
+		// TODO externalize static strings
 		final IClassfile classfile = this.generateClassfile(classFileName,
 				className, "java/lang/Object",
 				Classfile.ClassfileAccessFlag.ACC_PUBLIC,
@@ -96,6 +97,7 @@ public class Translator {
 		if (mainClass) {
 			methodName = "main";
 			// always generate mainFunction in main.class file
+			// TODO externalize static strings
 			classfile.addMethodToMethodArea(methodName,
 					"([Ljava/lang/String;)V",
 					Classfile.MethodAccessFlag.ACC_PUBLIC,

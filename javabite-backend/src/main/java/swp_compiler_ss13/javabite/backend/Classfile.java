@@ -144,6 +144,7 @@ public class Classfile implements IClassfile {
 		 * add initialize-method (constructor) to method area and set invoke
 		 * parameter
 		 */
+		// TODO externalize static strings
 		this.addMethodToMethodArea("<init>", "()V",
 				Classfile.MethodAccessFlag.ACC_PUBLIC);
 		// TODO replace with addMethodref
@@ -298,7 +299,7 @@ public class Classfile implements IClassfile {
 
 		return methodrefIndex;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -311,8 +312,7 @@ public class Classfile implements IClassfile {
 				.addClassConstantToConstantPool(classNameEIF);
 		// add NAT
 		final short natIndex = this.constantPool
-				.generateConstantNameAndTypeInfo(fieldName,
-						fieldNameDescriptor);
+				.generateConstantNameAndTypeInfo(fieldName, fieldNameDescriptor);
 		// add fieldref
 		final short fieldrefIndex = this.constantPool
 				.generateConstantFieldrefInfo(classIndex, natIndex);
@@ -738,7 +738,7 @@ public class Classfile implements IClassfile {
 				return 0;
 			}
 		}
-		
+
 		/**
 		 * <h1>generateConstantFieldrefInfo</h1>
 		 * <p>

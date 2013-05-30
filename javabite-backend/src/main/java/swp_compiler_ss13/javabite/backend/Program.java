@@ -2,7 +2,9 @@ package swp_compiler_ss13.javabite.backend;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -53,6 +55,8 @@ public class Program {
 		private final IClassfile classfile;
 		private final String methodName;
 
+		private Map<String, Instruction> jumpTargets;
+
 		// determines, whether the System exit method has already been added/
 		// a return statement is present in the tac
 		private boolean returnFlag;
@@ -62,6 +66,8 @@ public class Program {
 		private short systemOutIndex;
 		// index of methodref info of print method in constant pool
 		private short printIndex;
+		// indicates last instruction was a label, denoting a jump location
+		private boolean labelFlag;
 
 		private ProgramBuilder(final int initialOffset,
 				final IClassfile classfile, final String methodName) {
@@ -104,56 +110,174 @@ public class Program {
 			return m.replaceAll("");
 		}
 
-		private void load(final OperationBuilder op, final boolean wide,
-				final String arg1, final InfoTag constType,
-				final String varLoadOp) {
+		private Instruction getJumpTarget(final String s) {
+			if (jumpTargets == null)
+				return null;
+			return jumpTargets.get(s);
+		}
+
+		private void putJumpTarget(final String s, final Instruction i) {
+			if (labelFlag) {
+				if (jumpTargets == null)
+					jumpTargets = new HashMap<>();
+				labelFlag = false;
+				jumpTargets.put(s, i);
+			}
+		}
+
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param wide
+		 * @param arg1
+		 * @param constType
+		 * @param varLoadOp
+		 */
+		private Instruction loadOp(final boolean wide, final String arg1,
+				final InfoTag constType, final String varLoadOp) {
 			if (isConstant(arg1)) {
 				final short index = classfile.getIndexOfConstantInConstantPool(
 						constType, removeConstantSign(arg1));
 				assert index > 0;
 				if (wide) {
-					op.add(Mnemonic.LDC2_W, 2,
+					return new Instruction(2, Mnemonic.LDC2_W,
 							ByteUtils.shortToByteArray(index));
 				} else if (index >= 256) {
-					op.add(Mnemonic.LDC_W, 1, ByteUtils.shortToByteArray(index));
+					return new Instruction(1, Mnemonic.LDC_W,
+							ByteUtils.shortToByteArray(index));
 				} else {
-					op.add(Mnemonic.LDC, 1, (byte) index);
+					return new Instruction(1, Mnemonic.LDC, (byte) index);
 				}
 			} else {
 				final byte index = classfile.getIndexOfVariableInMethod(
 						methodName, arg1);
 				assert index > 0;
-				op.add(Mnemonic.getMnemonic(varLoadOp, index), 1, index);
+				return new Instruction(1,
+						Mnemonic.getMnemonic(varLoadOp, index), index);
 			}
 		}
 
-		private void store(final OperationBuilder op, final String result,
-				final String storeOp) {
-			final byte index = classfile.getIndexOfVariableInMethod(methodName,
-					result);
-			op.add(Mnemonic.getMnemonic(storeOp, index), 1, index);
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param arg1
+		 * @return
+		 */
+		private Instruction loadBooleanOp(final String arg1) {
+			if (isConstant(arg1)) {
+				final short value = (short) (Translator.CONST_TRUE.equals(arg1
+						.toUpperCase()) ? 1 : 0);
+				return new Instruction(1, Mnemonic.ICONST(value),
+						ByteUtils.shortToByteArray(value));
+			} else {
+				final byte index = classfile.getIndexOfVariableInMethod(
+						methodName, arg1);
+				return new Instruction(1, Mnemonic.ILOAD(index), index);
+			}
 		}
 
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param result
+		 * @param storeOp
+		 * @return
+		 */
+		private Instruction storeOp(final String result, final String storeOp) {
+			final byte index = classfile.getIndexOfVariableInMethod(methodName,
+					result);
+			return new Instruction(1, Mnemonic.getMnemonic(storeOp, index),
+					index);
+		}
+
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param q
+		 * @param constType
+		 * @param loadOp
+		 * @param convertOp
+		 * @param storeOp
+		 * @return
+		 */
 		private ProgramBuilder assignNumber(final Quadruple q,
 				final InfoTag constType, final String loadOp,
 				final Mnemonic convertOp, final String storeOp) {
 			final OperationBuilder op = OperationBuilder.newBuilder();
-			load(op, true, q.getArgument1(), constType, loadOp);
+			op.add(loadOp(true, q.getArgument1(), constType, loadOp));
 			if (convertOp != null) {
 				op.add(convertOp);
 			}
-			store(op, q.getResult(), storeOp);
+			op.add(storeOp(q.getResult(), storeOp));
 			return add(op.build());
 		}
 
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param q
+		 * @param constType
+		 * @param loadOp
+		 * @param calcOp
+		 * @param storeOp
+		 * @return
+		 */
 		private ProgramBuilder calculateNumber(final Quadruple q,
 				final InfoTag constType, final String loadOp,
 				final Mnemonic calcOp, final String storeOp) {
 			final OperationBuilder op = OperationBuilder.newBuilder();
-			load(op, true, q.getArgument1(), constType, loadOp);
-			load(op, true, q.getArgument2(), constType, loadOp);
+			op.add(loadOp(true, q.getArgument1(), constType, loadOp));
+			op.add(loadOp(true, q.getArgument2(), constType, loadOp));
 			op.add(calcOp);
-			store(op, q.getResult(), storeOp);
+			op.add(storeOp(q.getResult(), storeOp));
+			return add(op.build());
+		}
+
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param q
+		 * @param constType
+		 * @param loadOp
+		 * @param compareOp
+		 * @param jumpOp
+		 * @return
+		 */
+		private ProgramBuilder compareNumber(final Quadruple q,
+				final InfoTag constType, final String loadOp,
+				final Mnemonic compareOp, final String jumpOp) {
+			final OperationBuilder op = OperationBuilder.newBuilder();
+			final Instruction iCmpFalse = new Instruction(1, Mnemonic.ICONST_0);
+			final Instruction iStore = storeOp(q.getResult(), "ISTORE");
+
+			op.add(loadOp(true, q.getArgument1(), constType, loadOp));
+			op.add(loadOp(true, q.getArgument2(), constType, loadOp));
+			op.add(compareOp);
+			op.add(new JumpInstruction(3, Mnemonic.getMnemonic(jumpOp),
+					iCmpFalse));
+			op.add(Mnemonic.ICONST_1);
+			op.add(new JumpInstruction(3, Mnemonic.GOTO, iStore));
+			op.add(iCmpFalse);
+			op.add(iStore);
+			return add(op.build());
+		}
+
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param q
+		 * @param mnemonic
+		 * @return
+		 */
+		private ProgramBuilder booleanOp(final Quadruple q,
+				final Mnemonic mnemonic) {
+			final OperationBuilder op = OperationBuilder.newBuilder();
+			op.add(loadBooleanOp(q.getArgument1()));
+			if (!"!".equals(q.getArgument2())) {
+				op.add(loadBooleanOp(q.getArgument2()));
+			}
+			op.add(mnemonic);
+			op.add(storeOp(q.getResult(), "ISTORE"));
 			return add(op.build());
 		}
 
@@ -174,6 +298,7 @@ public class Program {
 		private short addSystemExitMethodToClassfile() {
 			if (!this.returnFlag) {
 				this.returnFlag = true;
+				// TODO externalize static strings
 				this.systemExitIndex = this.classfile
 						.addMethodrefConstantToConstantPool("exit", "(I)V",
 								"java/lang/System");
@@ -195,6 +320,7 @@ public class Program {
 
 			// add system.out fieldref info to constant pool, if necessary
 			if (this.systemOutIndex == 0) {
+				// TODO externalize static strings
 				this.systemOutIndex = this.classfile
 						.addFieldrefConstantToConstantPool("out",
 								"Ljava/io/PrintStream;", "java/lang/System");
@@ -202,6 +328,7 @@ public class Program {
 
 			// add print methodref info to constant pool, if necessary
 			if (this.printIndex == 0) {
+				// TODO externalize static strings
 				this.printIndex = this.classfile
 						.addMethodrefConstantToConstantPool("print",
 								"(Ljava/lang/String;)V", "java/io/PrintStream");
@@ -378,8 +505,8 @@ public class Program {
 		 */
 		public ProgramBuilder assignString(final Quadruple q) {
 			final OperationBuilder op = OperationBuilder.newBuilder();
-			load(op, false, q.getArgument1(), InfoTag.STRING, "ALOAD");
-			store(op, q.getResult(), "ASTORE");
+			op.add(loadOp(false, q.getArgument1(), InfoTag.STRING, "ALOAD"));
+			op.add(storeOp(q.getResult(), "ASTORE"));
 			return add(op.build());
 		}
 
@@ -411,19 +538,8 @@ public class Program {
 		 */
 		public ProgramBuilder assignBoolean(final Quadruple q) {
 			final OperationBuilder op = OperationBuilder.newBuilder();
-			if (isConstant(q.getArgument1())) {
-				final short value = (short) (Translator.CONST_TRUE.equals(q
-						.getArgument1().toUpperCase()) ? 1 : 0);
-				op.add(Mnemonic.ICONST(value), 1,
-						ByteUtils.shortToByteArray(value));
-			} else {
-				final byte index = classfile.getIndexOfVariableInMethod(
-						methodName, q.getArgument1());
-				op.add(Mnemonic.ILOAD(index), 1, index);
-			}
-			final byte index = classfile.getIndexOfVariableInMethod(methodName,
-					q.getResult());
-			op.add(Mnemonic.ISTORE(index), 1, index);
+			op.add(loadBooleanOp(q.getArgument1()));
+			op.add(storeOp(q.getResult(), "ISTORE"));
 			return add(op.build());
 		}
 
@@ -705,15 +821,7 @@ public class Program {
 			final short systemExitIndex = this.addSystemExitMethodToClassfile();
 
 			final OperationBuilder op = OperationBuilder.newBuilder();
-			if (isConstant(q.getArgument1())) {
-				final short index = classfile.getIndexOfConstantInConstantPool(
-						InfoTag.LONG, removeConstantSign(q.getArgument1()));
-				op.add(Mnemonic.LDC2_W, 2, ByteUtils.shortToByteArray(index));
-			} else {
-				final byte index = classfile.getIndexOfVariableInMethod(
-						methodName, q.getArgument1());
-				op.add(Mnemonic.LLOAD(index), 1, index);
-			}
+			op.add(loadOp(true, q.getArgument1(), InfoTag.LONG, "LLOAD"));
 			op.add(Mnemonic.L2I);
 			op.add(Mnemonic.INVOKESTATIC, 2,
 					ByteUtils.shortToByteArray(systemExitIndex));
@@ -726,125 +834,85 @@ public class Program {
 		 */
 
 		public ProgramBuilder notBoolean(final Quadruple q) {
-			// TODO implement
-			// 1 -> 0
-			// 0 -> 1
-			// bitwise negation
-			// ineg
-			return this;
+			return booleanOp(q, Mnemonic.INEG);
 		}
 
 		public ProgramBuilder orBoolean(final Quadruple q) {
-			// TODO implement
-			// 0, 0 -> 0
-			// 0, 1 -> 1
-			// 1, 0 -> 1
-			// 1, 1 -> 1
-			// bitwise or
-			// ior
-			return this;
+			return booleanOp(q, Mnemonic.IOR);
 		}
 
 		public ProgramBuilder andBoolean(final Quadruple q) {
-			// TODO implement
-			// 0, 0 -> 0
-			// 0, 1 -> 0
-			// 1, 0 -> 0
-			// 1, 1 -> 1
-			// bitwise and
-			// iand
-			return this;
+			return booleanOp(q, Mnemonic.IAND);
 		}
 
 		public ProgramBuilder compareLongE(final Quadruple q) {
-			// TODO implement
-			// a == b
-			// compare long, skip if not equal
-			// lcmp ifne
-			return this;
+			return compareNumber(q, InfoTag.LONG, "LLOAD", Mnemonic.LCMP,
+					"IFNE");
 		}
 
 		public ProgramBuilder compareLongG(final Quadruple q) {
-			// TODO implement
-			// a > b
-			// compare long, skip if lesser or equal
-			// lcmp ifle
-			return this;
+			return compareNumber(q, InfoTag.LONG, "LLOAD", Mnemonic.LCMP,
+					"IFLE");
 		}
 
 		public ProgramBuilder compareLongL(final Quadruple q) {
-			// TODO implement
-			// a < b
-			// compare long, skip if greater or equal
-			// lcmp ifge
-			return this;
+			return compareNumber(q, InfoTag.LONG, "LLOAD", Mnemonic.LCMP,
+					"IFGE");
 		}
 
 		public ProgramBuilder compareLongGE(final Quadruple q) {
-			// TODO implement
-			// a >= b
-			// compare long, skip if lesser
-			// lcmp iflt
-			return this;
+			return compareNumber(q, InfoTag.LONG, "LLOAD", Mnemonic.LCMP,
+					"IFLT");
 		}
 
 		public ProgramBuilder compareLongLE(final Quadruple q) {
-			// TODO implement
-			// a <= b
-			// compare long, skip if greater
-			// lcmp ifgt
-			return this;
+			return compareNumber(q, InfoTag.LONG, "LLOAD", Mnemonic.LCMP,
+					"IFGT");
 		}
 
 		public ProgramBuilder compareDoubleE(final Quadruple q) {
-			// TODO implement
-			// a == b
-			// compare double, skip if not equal
-			// dcmpl ifne
-			return this;
+			return compareNumber(q, InfoTag.DOUBLE, "DLOAD", Mnemonic.DCMPL,
+					"IFNE");
 		}
 
 		public ProgramBuilder compareDoubleG(final Quadruple q) {
-			// TODO implement
-			// a > b
-			// compare double, skip if lesser or equal
-			// dcmpl ifle
-			return this;
+			return compareNumber(q, InfoTag.DOUBLE, "DLOAD", Mnemonic.DCMPL,
+					"IFLE");
 		}
 
 		public ProgramBuilder compareDoubleL(final Quadruple q) {
-			// TODO implement
-			// a < b
-			// compare double, skip if greater or equal
-			// dcmpg ifge
-			return this;
+			return compareNumber(q, InfoTag.DOUBLE, "DLOAD", Mnemonic.DCMPG,
+					"IFGE");
 		}
 
 		public ProgramBuilder compareDoubleGE(final Quadruple q) {
-			// TODO implement
-			// a >= b
-			// compare double, skip if lesser
-			// dcmpl iflt
-			return this;
+			return compareNumber(q, InfoTag.DOUBLE, "DLOAD", Mnemonic.DCMPL,
+					"IFLT");
 		}
 
 		public ProgramBuilder compareDoubleLE(final Quadruple q) {
-			// TODO implement
-			// a <= b
-			// compare double, skip if greater
-			// dcmpg ifgt
-			return this;
+			return compareNumber(q, InfoTag.DOUBLE, "DLOAD", Mnemonic.DCMPG,
+					"IFGT");
 		}
 
 		public ProgramBuilder label(final Quadruple q) {
-			// TODO implement
+			labelFlag = true;
 			return this;
 		}
 
 		public ProgramBuilder branch(final Quadruple q) {
 			// TODO implement
-			// goto
-			return this;
+			final OperationBuilder op = OperationBuilder.newBuilder();
+			if ("!".equals(q.getResult())) {
+				// unconditional branch
+				final Instruction target = getJumpTarget(q.getArgument1());
+				op.add(new JumpInstruction(3, Mnemonic.GOTO, target));
+			} else {
+				final Instruction trueTarget = getJumpTarget(q.getArgument1());
+				final Instruction falseTarget = getJumpTarget(q.getArgument2());
+				// conditional branch
+			}
+			return add(op.build());
 		}
 
 		public ProgramBuilder printBoolean(final Quadruple q) {
@@ -868,6 +936,7 @@ public class Program {
 		public ProgramBuilder printString(final Quadruple q) {
 			// TODO implement
 			// syso string
+			addPrintMethodToClassfile();
 			return this;
 		}
 

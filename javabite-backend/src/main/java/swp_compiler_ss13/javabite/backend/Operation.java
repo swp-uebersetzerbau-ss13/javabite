@@ -49,6 +49,18 @@ public class Operation {
 		}
 
 		/**
+		 * TODO javadoc
+		 * 
+		 * @param instruction
+		 * @return
+		 */
+		public OperationBuilder add(final Instruction instruction) {
+			instructions.add(instruction);
+			this.size += instruction.getByteCount();
+			return this;
+		}
+
+		/**
 		 * Add a new instruction to this builder instance.
 		 * 
 		 * @param mnemonic
@@ -61,20 +73,15 @@ public class Operation {
 		 */
 		public OperationBuilder add(final Mnemonic mnemonic,
 				final int argsSize, final byte... arguments) {
-			final int size;
 			final Instruction instruction;
 			if (mnemonic.getArgsCount() > 0) {
 				assert arguments != null
 						&& arguments.length == mnemonic.getArgsCount();
-				size = 1 + argsSize;
-				instruction = new Instruction(size, mnemonic, arguments);
+				instruction = new Instruction(1 + argsSize, mnemonic, arguments);
 			} else {
-				size = 1;
-				instruction = new Instruction(size, mnemonic);
+				instruction = new Instruction(1, mnemonic);
 			}
-			instructions.add(instruction);
-			this.size += size;
-			return this;
+			return add(instruction);
 		}
 
 		/**

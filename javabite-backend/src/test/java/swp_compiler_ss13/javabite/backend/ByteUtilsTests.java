@@ -14,37 +14,37 @@ public class ByteUtilsTests {
 	static final Logger log = LoggerFactory.getLogger(ByteUtilsTests.class);
 
 	private static final Pattern HEX_BYTES = Pattern.compile("(.{2})");
-	
+
 	private static String splitHexBytes(final String hex) {
 		return HEX_BYTES.matcher(hex).replaceAll("$1 ");
 	}
-	
+
 	private static String toHexString(final int i) {
 		return splitHexBytes(String.format("%08x", Integer.valueOf(i)));
 	}
-	
+
 	private static String toHexString(final short i) {
 		return splitHexBytes(String.format("%08x", Short.valueOf(i)));
 	}
-	
+
 	private static String toHexString(final byte i) {
 		return splitHexBytes(String.format("%08x", Byte.valueOf(i)));
 	}
-	
+
 	@Rule
 	public TestName name = new TestName();
-	
+
 	@Before
 	public void setUp() {
 		log.info(name.getMethodName());
 	}
-	
+
 	@After
 	public void tearDown() {
 		log.info("===");
 	}
 
-	//@Test
+	// @Test
 	public void testHexFromInt2() {
 		final int posInt = Integer.MAX_VALUE;
 		final int negInt = Integer.MIN_VALUE;
@@ -53,8 +53,8 @@ public class ByteUtilsTests {
 		log.info("java neg {}", Integer.toHexString(negInt));
 		log.info("mine neg {}", toHexString(negInt));
 	}
-	
-	//@Test
+
+	// @Test
 	public void testHexFromShort() {
 		final short posShort = Short.MAX_VALUE;
 		final short negShort = Short.MIN_VALUE;
@@ -63,8 +63,8 @@ public class ByteUtilsTests {
 		log.info("java neg {}", Integer.toHexString(negShort));
 		log.info("mine neg {}", toHexString(negShort));
 	}
-	
-	//@Test
+
+	// @Test
 	public void testHexFromByte() {
 		final byte posByte = Byte.MAX_VALUE;
 		final byte negByte = Byte.MIN_VALUE;

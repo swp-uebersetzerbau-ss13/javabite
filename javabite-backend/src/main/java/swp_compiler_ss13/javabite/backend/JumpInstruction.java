@@ -1,8 +1,19 @@
 package swp_compiler_ss13.javabite.backend;
 
+/**
+ * TODO javadoc
+ * 
+ * @author eike
+ * @since May 30, 2013 6:51:26 PM
+ */
 public class JumpInstruction extends Instruction {
 
 	private Instruction targetInstruction;
+
+	public JumpInstruction(final int size, final Mnemonic mnemonic,
+			final byte... arguments) {
+		super(size, mnemonic, arguments);
+	}
 
 	public JumpInstruction(final int size, final Mnemonic mnemonic,
 			final Instruction targetInstruction, final byte... arguments) {
@@ -10,13 +21,14 @@ public class JumpInstruction extends Instruction {
 		this.targetInstruction = targetInstruction;
 	}
 
-	public JumpInstruction(final int size, final Mnemonic mnemonic,
-			final byte... arguments) {
-		super(size, mnemonic, arguments);
-	}
-
 	public JumpInstruction(int size, Mnemonic mnemonic) {
 		super(size, mnemonic);
+	}
+
+	public JumpInstruction(int size, Mnemonic mnemonic,
+			final Instruction targetInstruction) {
+		super(size, mnemonic);
+		this.targetInstruction = targetInstruction;
 	}
 
 	public Instruction getTargetInstruction() {
