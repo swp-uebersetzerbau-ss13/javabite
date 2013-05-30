@@ -17,18 +17,39 @@ public class SourecodeDocumentListener implements DocumentListener {
 	@Override
 	public void insertUpdate(DocumentEvent e) {
 		mf.fileChanged = true;
+		String fileName = "";
+		if(mf.openedFile == null) {
+			fileName = "Unknown";
+		} else {
+			fileName = mf.openedFile.getName();
+		}
+		mf.setTitle("Javabite Compiler - *" + fileName);
 		toolBarLabel.setText("Sourcecode changed.");
 	}
 
 	@Override
 	public void removeUpdate(DocumentEvent e) {
 		mf.fileChanged = true;
+		String fileName = "";
+		if(mf.openedFile == null) {
+			fileName = "Unknown";
+		} else {
+			fileName = mf.openedFile.getName();
+		}
+		mf.setTitle("Javabite Compiler - *" + fileName);
 		toolBarLabel.setText("Sourcecode changed.");
 	}
 
 	@Override
 	public void changedUpdate(DocumentEvent e) {
 		mf.fileChanged = true;
+		String fileName = "";
+		if(mf.openedFile == null) {
+			fileName = "Unknown";
+		} else {
+			fileName = mf.openedFile.getName();
+		}
+		mf.setTitle("Javabite Compiler - *" + fileName);
 		toolBarLabel.setText("Sourcecode changed.");
 	}
 
