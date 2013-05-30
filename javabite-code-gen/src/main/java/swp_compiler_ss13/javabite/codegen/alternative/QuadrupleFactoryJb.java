@@ -67,8 +67,7 @@ public class QuadrupleFactoryJb {
         case BOOLEAN:
             return new QuadrupleJB(Operator.ASSIGN_BOOLEAN, rightData.getIdentifier(), Quadruple.EmptyArgument, leftData.getIdentifier());
         case STRING:
-            return new QuadrupleJB(Operator.ASSIGN_STRING, rightData.getIdentifier(), Quadruple.EmptyArgument, leftData.getIdentifier());
-            
+            return new QuadrupleJB(Operator.ASSIGN_STRING, rightData.getIdentifier(), Quadruple.EmptyArgument, leftData.getIdentifier());	
         default:
             throw new IntermediateCodeGeneratorException("Unsupported type: " + leftData.getType().getKind());
         }
@@ -202,7 +201,6 @@ public class QuadrupleFactoryJb {
     
         
         public static Quadruple generatePrint (IdentifierData data) throws IntermediateCodeGeneratorException {
-            //TODO: boolean, string, struct and array declaration has to be added
             switch (data.getType().getKind()) {
             case LONG:
                 //return new QuadrupleJB(Operator.PRINT_LONG, Quadruple.EmptyArgument, Quadruple.EmptyArgument, Quadruple.EmptyArgument);
@@ -212,15 +210,18 @@ public class QuadrupleFactoryJb {
                 //return new QuadrupleJB(Operator.PRINT_BOOLEAN, Quadruple.EmptyArgument, Quadruple.EmptyArgument, Quadruple.EmptyArgument);
             case STRING:
                 //return new QuadrupleJB(Operator.PRINT_STRING, Quadruple.EmptyArgument, Quadruple.EmptyArgument, Quadruple.EmptyArgument);
-                
+            case STRUCT:
+            	//return new QuadrupleJB(Operator.PRINT_STRUCT, Quadruple.EmptyArgument , Quadruple.EmptyArgument, Quadruple.EmptyArgument);
+            case ARRAY:
+            	//return new QuadrupleJB(Operator.PRINT_ARRAY, Quadruple.EmptyArgument, Quadruple.EmptyArgument, Quadruple.EmptyArgument);            	
             default:
                 throw new IntermediateCodeGeneratorException("Unsupported type: " + data.getType().getKind());
             }
             
             
-        //public static generateLabel throws IntermediateCodeGeneratorException {
-            //return new QuadrupleJB(LABEL, Quadruple.EmptyArgument, Quadruple.EmptyArgument,  )
-        }
+//        public static generateLabel throws IntermediateCodeGeneratorException {
+//            return new QuadrupleJB(Operator., Quadruple.EmptyArgument, Quadruple.EmptyArgument,  )
+//        }
 }
     
-//}
+}
