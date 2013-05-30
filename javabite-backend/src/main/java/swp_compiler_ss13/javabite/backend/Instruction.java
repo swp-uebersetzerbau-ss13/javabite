@@ -5,6 +5,7 @@ import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.toHexString;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -159,6 +160,48 @@ public class Instruction {
 	 */
 	public short getStackChange() {
 		return stackChange;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.hashCode(arguments);
+		result = prime * result
+				+ ((mnemonic == null) ? 0 : mnemonic.hashCode());
+		result = prime * result + size;
+		result = prime * result + stackChange;
+		return result;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof Instruction))
+			return false;
+		Instruction other = (Instruction) obj;
+		if (!Arrays.equals(arguments, other.arguments))
+			return false;
+		if (mnemonic != other.mnemonic)
+			return false;
+		if (size != other.size)
+			return false;
+		if (stackChange != other.stackChange)
+			return false;
+		return true;
 	}
 
 }

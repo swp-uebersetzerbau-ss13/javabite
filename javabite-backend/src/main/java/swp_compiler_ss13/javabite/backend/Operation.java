@@ -172,4 +172,47 @@ public class Operation {
 		return sb.toString();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((instructions == null) ? 0 : instructions.hashCode());
+		result = prime * result
+				+ ((operator == null) ? 0 : operator.hashCode());
+		result = prime * result + size;
+		return result;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof Operation))
+			return false;
+		Operation other = (Operation) obj;
+		if (instructions == null) {
+			if (other.instructions != null)
+				return false;
+		} else if (!instructions.equals(other.instructions))
+			return false;
+		if (operator != other.operator)
+			return false;
+		if (size != other.size)
+			return false;
+		return true;
+	}
+
 }

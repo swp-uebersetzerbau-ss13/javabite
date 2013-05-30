@@ -871,6 +871,61 @@ public class Program {
 			return this;
 		}
 
+		public ProgramBuilder arrayGetLong(final Quadruple q) {
+			// TODO implement
+			return this;
+		}
+
+		public ProgramBuilder arrayGetDouble(final Quadruple q) {
+			// TODO implement
+			return this;
+		}
+
+		public ProgramBuilder arrayGetBoolean(final Quadruple q) {
+			// TODO implement
+			return this;
+		}
+
+		public ProgramBuilder arrayGetString(final Quadruple q) {
+			// TODO implement
+			return this;
+		}
+
+		public ProgramBuilder arrayGetArray(final Quadruple q) {
+			// TODO implement
+			return this;
+		}
+
+		public ProgramBuilder arrayGetReference(final Quadruple q) {
+			// TODO implement
+			return this;
+		}
+
+		public ProgramBuilder arraySetLong(final Quadruple q) {
+			// TODO implement
+			return this;
+		}
+
+		public ProgramBuilder arraySetDouble(final Quadruple q) {
+			// TODO implement
+			return this;
+		}
+
+		public ProgramBuilder arraySetBoolean(final Quadruple q) {
+			// TODO implement
+			return this;
+		}
+
+		public ProgramBuilder arraySetString(final Quadruple q) {
+			// TODO implement
+			return this;
+		}
+
+		public ProgramBuilder arraySetArray(final Quadruple q) {
+			// TODO implement
+			return this;
+		}
+
 		/*
 		 * === M3 === WORK IN PROGRESS
 		 */
@@ -969,6 +1024,42 @@ public class Program {
 			}
 		}
 		return count;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((operations == null) ? 0 : operations.hashCode());
+		return result;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof Program))
+			return false;
+		Program other = (Program) obj;
+		if (operations == null) {
+			if (other.operations != null)
+				return false;
+		} else if (!operations.equals(other.operations))
+			return false;
+		return true;
 	}
 
 }
