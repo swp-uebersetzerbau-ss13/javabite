@@ -39,7 +39,7 @@ import com.mxgraph.view.mxStylesheet;
 ;
 
 public class ASTVisualizerJb implements ASTVisualization {
-	mxGraph graph;
+	public mxGraph graph;
 	JScrollPane frame;
 	Queue<Object> toVisit_celledCopy;
 	
