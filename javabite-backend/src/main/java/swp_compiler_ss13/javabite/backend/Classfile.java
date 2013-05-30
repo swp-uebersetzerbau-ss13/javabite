@@ -81,10 +81,10 @@ public class Classfile implements IClassfile {
 	 *            string describing the classfile's name being used when the
 	 *            actual file is created.
 	 * @param thisClassNameEIF
-	 *            string describing this classname encoded in internal form
+	 *            string describing this class name encoded in internal form
 	 *            according to the jvm specification.
 	 * @param superClassNameEIF
-	 *            string describing the superclass' classname encoded in
+	 *            string describing the superclass' class name encoded in
 	 *            internal form according to the jvm specification.
 	 * @param accessFlags
 	 *            arbitrary amount of classfile access flags.
@@ -117,8 +117,8 @@ public class Classfile implements IClassfile {
 	/**
 	 * <h1>initializeClassfile</h1>
 	 * <p>
-	 * This method initializes the classfile. It sets basic constant pool
-	 * values and creates an init method (constructor).
+	 * This method initializes the classfile. It sets basic constant pool values
+	 * and creates an init method (constructor).
 	 * </p>
 	 * 
 	 * @author Marco
@@ -282,23 +282,42 @@ public class Classfile implements IClassfile {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public short addMethodRefConstantToConstantPool(final String methodName,
-			final String methodNameDescriptor, final String superClassNameEIF) {
+	public short addMethodrefConstantToConstantPool(final String methodName,
+			final String methodNameDescriptor, final String classNameEIF) {
 
-		// add constants
-		this.addUTF8ConstantToConstantPool(methodName);
-		this.addUTF8ConstantToConstantPool(methodNameDescriptor);
-		final short superClassIndex = this
-				.addClassConstantToConstantPool(superClassNameEIF);
+		// add class
+		final short classIndex = this
+				.addClassConstantToConstantPool(classNameEIF);
 		// add NAT
 		final short natIndex = this.constantPool
 				.generateConstantNameAndTypeInfo(methodName,
 						methodNameDescriptor);
-		// add methodRef
-		final short methodRefIndex = this.constantPool
-				.generateConstantMethodrefInfo(superClassIndex, natIndex);
+		// add methodref
+		final short methodrefIndex = this.constantPool
+				.generateConstantMethodrefInfo(classIndex, natIndex);
 
-		return methodRefIndex;
+		return methodrefIndex;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public short addFieldrefConstantToConstantPool(final String fieldName,
+			final String fieldNameDescriptor, final String classNameEIF) {
+
+		// add class
+		final short classIndex = this
+				.addClassConstantToConstantPool(classNameEIF);
+		// add NAT
+		final short natIndex = this.constantPool
+				.generateConstantNameAndTypeInfo(fieldName,
+						fieldNameDescriptor);
+		// add fieldref
+		final short fieldrefIndex = this.constantPool
+				.generateConstantFieldrefInfo(classIndex, natIndex);
+
+		return fieldrefIndex;
 	}
 
 	/**
@@ -480,7 +499,7 @@ public class Classfile implements IClassfile {
 		/**
 		 * <h1>generateConstantLongInfo</h1>
 		 * <p>
-		 * This method creates an LongInfo-entry meeting the jvm classfile
+		 * This method creates a LongInfo-entry meeting the jvm classfile
 		 * constant pool CONSTANT_LONG_info standard in the constant pool. If
 		 * the entry does not exist yet, it'll be appended to the existing list
 		 * and the new entry will be returned. Otherwise the existing entry's
@@ -519,7 +538,7 @@ public class Classfile implements IClassfile {
 		/**
 		 * <h1>generateConstantDoubleInfo</h1>
 		 * <p>
-		 * This method creates an DoubleInfo-entry meeting the jvm classfile
+		 * This method creates a DoubleInfo-entry meeting the jvm classfile
 		 * constant pool CONSTANT_DOUBLE_info standard in the constant pool. If
 		 * the entry does not exist yet, it'll be appended to the existing list
 		 * and the new entry will be returned. Otherwise the existing entry's
@@ -558,7 +577,7 @@ public class Classfile implements IClassfile {
 		/**
 		 * <h1>generateConstantStringInfo</h1>
 		 * <p>
-		 * This method creates an StringInfo-entry meeting the jvm classfile
+		 * This method creates a StringInfo-entry meeting the jvm classfile
 		 * constant pool CONSTANT_STRING_info standard in the constant pool. If
 		 * the entry does not exist yet, it'll be appended to the existing list
 		 * and the new entry will be returned. Otherwise the existing entry's
@@ -597,7 +616,7 @@ public class Classfile implements IClassfile {
 		/**
 		 * <h1>generateConstantClassInfo</h1>
 		 * <p>
-		 * This method creates an ClassInfo-entry meeting the jvm classfile
+		 * This method creates a ClassInfo-entry meeting the jvm classfile
 		 * constant pool CONSTANT_CLASS_info standard in the constant pool. If
 		 * the entry does not exist yet, it'll be appended to the existing list
 		 * and the new entry will be returned. Otherwise the existing entry's
@@ -676,11 +695,11 @@ public class Classfile implements IClassfile {
 		/**
 		 * <h1>generateConstantMethodrefInfo</h1>
 		 * <p>
-		 * This method creates an MethodRefInfo-entry meeting the jvm
-		 * classfile constant pool CONSTANT_MethodRef_info standard in the
-		 * constant pool. If the entry does not exist yet, it'll be appended to
-		 * the existing list and the new entry will be returned. Otherwise the
-		 * existing entry's index is returned.
+		 * This method creates a MethodrefInfo-entry meeting the jvm classfile
+		 * constant pool CONSTANT_Methodref_info standard in the constant pool.
+		 * If the entry does not exist yet, it'll be appended to the existing
+		 * list and the new entry will be returned. Otherwise the existing
+		 * entry's index is returned.
 		 * </p>
 		 * 
 		 * @author Marco
@@ -689,7 +708,7 @@ public class Classfile implements IClassfile {
 		 *            short index of a CLASS info entry in this constant pool
 		 * @param nameAndTypeIndex
 		 *            short index of a NameAndType entry in this constant pool
-		 * @return short index of a MethodRef info entry in the constant pool of
+		 * @return short index of a Methodref info entry in the constant pool of
 		 *         this classfile meeting the parameters.
 		 */
 		private short generateConstantMethodrefInfo(final short classIndex,
@@ -712,6 +731,55 @@ public class Classfile implements IClassfile {
 				final CPInfo methodrefInfo = new CPInfo(InfoTag.METHODREF,
 						info.array());
 				this.entryList.add(methodrefInfo);
+
+				// return index + 1
+				short index = (short) this.entryList.size();
+				this.addCPMapEntry(key, index);
+				return index;
+			} else {
+				return 0;
+			}
+		}
+		
+		/**
+		 * <h1>generateConstantFieldrefInfo</h1>
+		 * <p>
+		 * This method creates a FieldrefInfo-entry meeting the jvm classfile
+		 * constant pool CONSTANT_Fieldref_info standard in the constant pool.
+		 * If the entry does not exist yet, it'll be appended to the existing
+		 * list and the new entry will be returned. Otherwise the existing
+		 * entry's index is returned.
+		 * </p>
+		 * 
+		 * @author Marco
+		 * @since 30.05.2013
+		 * @param classIndex
+		 *            short index of a CLASS info entry in this constant pool
+		 * @param nameAndTypeIndex
+		 *            short index of a NameAndType entry in this constant pool
+		 * @return short index of a Fieldref info entry in the constant pool of
+		 *         this classfile meeting the parameters.
+		 */
+		private short generateConstantFieldrefInfo(final short classIndex,
+				final short nameAndTypeIndex) {
+			checkConstantPoolSize();
+			String key = InfoTag.METHODREF.name() + classIndex + "."
+					+ nameAndTypeIndex;
+
+			// return existing entry's index, if it exists already
+			if (this.getCPMapEntry(key) > 0) {
+				return this.getCPMapEntry(key);
+			}
+
+			if ((classIndex != 0) && (nameAndTypeIndex != 0)) {
+				// generate entry
+				ByteBuffer info = ByteBuffer.allocate(4);
+				info.put(shortToByteArray(classIndex));
+				info.put(shortToByteArray(nameAndTypeIndex));
+
+				final CPInfo fieldrefInfo = new CPInfo(InfoTag.FIELDREF,
+						info.array());
+				this.entryList.add(fieldrefInfo);
 
 				// return index + 1
 				short index = (short) this.entryList.size();

@@ -92,7 +92,7 @@ public interface IClassfile {
 	 */
 	public enum InfoTag {
 		NONE(0x00), UTF8(0x01), LONG(0x05), DOUBLE(0x06), CLASS(0x07), STRING(
-				0x08), METHODREF(0x0a), NAMEANDTYPE(0x0c);
+				0x08), METHODREF(0x0a), NAMEANDTYPE(0x0c), FIELDREF(0x09);
 
 		final byte tag;
 
@@ -238,14 +238,14 @@ public interface IClassfile {
 	public short addClassConstantToConstantPool(String value);
 
 	/**
-	 * <h1>addMethodRefConstantToConstantPool</h1>
+	 * <h1>addMethodrefConstantToConstantPool</h1>
 	 * <p>
 	 * This method creates an methodrefInfo-entry meeting the jvm classfile
 	 * constant pool CONSTANT_Methodref_info standard in the constantPool of
 	 * this classfile. The generated entry is appended to the existing list, if
 	 * it is not already in it. The entry's index is returned. Therefore this
 	 * method adds all necessary data to the constant pool needed to call the
-	 * defined method via the instruction invokeStatic.
+	 * defined method via the instruction invokestatic.
 	 * </p>
 	 * 
 	 * @author Marco
@@ -254,14 +254,40 @@ public interface IClassfile {
 	 *            string name of the method
 	 * @param methodNameDescriptor
 	 *            string method descriptor as specified by the jvm specification
-	 * @param superClassNameEIF
-	 *            string describing the superclass' classname encoded in
+	 * @param classNameEIF
+	 *            string describing the method's class' class name encoded in
 	 *            internal form according to the jvm specification
-	 * @return short index of a methodRef info entry in the constant pool of
+	 * @return short index of a methodref info entry in the constant pool of
 	 *         this classfile meeting the parameters.
 	 */
-	public short addMethodRefConstantToConstantPool(String methodName,
-			String methodNameDescriptor, String superClassNameEIF);
+	public short addMethodrefConstantToConstantPool(String methodName,
+			String methodNameDescriptor, String classNameEIF);
+
+	/**
+	 * <h1>addFieldrefConstantToConstantPool</h1>
+	 * <p>
+	 * This method creates a fieldrefInfo-entry meeting the jvm classfile
+	 * constant pool CONSTANT_Fieldref_info standard in the constantPool of this
+	 * classfile. The generated entry is appended to the existing list, if it is
+	 * not already in it. The entry's index is returned. Therefore this method
+	 * adds all necessary data to the constant pool needed to get data from
+	 * another class via the instruction getstatic.
+	 * </p>
+	 * 
+	 * @author Marco
+	 * @since 30.05.2013
+	 * @param fieldName
+	 *            string name of the field
+	 * @param fieldNameDescriptor
+	 *            string field descriptor as specified by the jvm specification
+	 * @param classNameEIF
+	 *            string describing the method's class' class name encoded in
+	 *            internal form according to the jvm specification
+	 * @return short index of a fieldref info entry in the constant pool of this
+	 *         classfile meeting the parameters.
+	 */
+	public short addFieldrefConstantToConstantPool(String fieldName,
+			String fieldNameDescriptor, String classNameEIF);
 
 	/**
 	 * <h1>getIndexOfConstantInConstantPool</h1>
@@ -275,7 +301,7 @@ public interface IClassfile {
 	 * STRING - {string value}<br/>
 	 * CLASS - {class description}<br/>
 	 * UTF8 - {utf8 value}<br/>
-	 * MethodRef - {class index}.{nameAndType index}<br/>
+	 * Methodref - {class index}.{nameAndType index}<br/>
 	 * NameAndType - {method name}{method descriptor}
 	 * </p>
 	 * 
@@ -408,7 +434,8 @@ public interface IClassfile {
 	 * This method adds a new Instruction to the code area of the code attribute
 	 * of the provided method of the method area of this classfile using the
 	 * method
-	 * {@link Classfile.MethodArea#addInstructionToMethodsCode(String, Instruction)}.
+	 * {@link Classfile.MethodArea#addInstructionToMethodsCode(String, Instruction)}
+	 * .
 	 * </p>
 	 * 
 	 * @author Marco
@@ -418,7 +445,8 @@ public interface IClassfile {
 	 * @param instruction
 	 *            instance of class Instruction
 	 * @see Classfile.MethodArea
-	 * @see Classfile.MethodArea#addInstructionToMethodsCode(String, Instruction)
+	 * @see Classfile.MethodArea#addInstructionToMethodsCode(String,
+	 *      Instruction)
 	 * @see Instruction
 	 */
 	public void addInstructionToMethodsCode(String methodName,

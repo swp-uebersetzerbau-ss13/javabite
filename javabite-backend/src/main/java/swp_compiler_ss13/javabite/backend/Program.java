@@ -56,7 +56,7 @@ public class Program {
 		// determines, whether the System exit function has already been added/
 		// a return statement is present in the tac
 		private boolean returnFlag;
-		// index of methodRef of system exit function in constant pool
+		// index of methodref info of system exit function in constant pool
 		private short systemExitIndex;
 
 		private ProgramBuilder(final int initialOffset,
@@ -168,7 +168,7 @@ public class Program {
 			if (!this.returnFlag) {
 				this.returnFlag = true;
 				this.systemExitIndex = this.classfile
-						.addMethodRefConstantToConstantPool("exit", "(I)V",
+						.addMethodrefConstantToConstantPool("exit", "(I)V",
 								"java/lang/System");
 			}
 			return this.systemExitIndex;
