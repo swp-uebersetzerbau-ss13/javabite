@@ -524,7 +524,6 @@ public class Classfile implements IClassfile {
 
 			// generate entry
 			final byte[] info = longToByteArray(value);
-			// TODO better solution -> dummy
 			final CPInfo longInfo = new CPInfo(InfoTag.LONG, info);
 			this.entryList.add(longInfo);
 			final CPInfo longInfo2ndPartDummy = new CPInfo();
@@ -563,7 +562,6 @@ public class Classfile implements IClassfile {
 
 			// generate entry
 			final byte[] info = doubleToByteArray(value);
-			// TODO better solution -> dummy
 			final CPInfo doubleInfo = new CPInfo(InfoTag.DOUBLE, info);
 			this.entryList.add(doubleInfo);
 			final CPInfo doubleInfo2ndPartDummy = new CPInfo();

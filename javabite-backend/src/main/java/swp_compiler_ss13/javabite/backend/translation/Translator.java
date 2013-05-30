@@ -16,7 +16,7 @@ import swp_compiler_ss13.javabite.backend.Program.ProgramBuilder;
 import swp_compiler_ss13.javabite.backend.external.QuadrupleImpl;
 
 /**
- * Translator class.
+ * <h1>Translator class.
  * 
  * @author Marco
  * @since 27.04.2013
@@ -155,10 +155,12 @@ public class Translator {
 					|| operator == Quadruple.Operator.DIV_LONG) {
 
 				if (arg1.startsWith(SYM_CONST)) {
-					classFile.addLongConstantToConstantPool(Long.parseLong(arg1.substring(1)));
+					classFile.addLongConstantToConstantPool(Long.parseLong(arg1
+							.substring(1)));
 				}
 				if (arg2.startsWith(SYM_CONST)) {
-					classFile.addLongConstantToConstantPool(Long.parseLong(arg2.substring(1)));
+					classFile.addLongConstantToConstantPool(Long.parseLong(arg2
+							.substring(1)));
 				}
 			}
 
@@ -168,20 +170,24 @@ public class Translator {
 					|| operator == Quadruple.Operator.DIV_DOUBLE) {
 
 				if (arg1.startsWith(SYM_CONST)) {
-					classFile.addDoubleConstantToConstantPool(Double.parseDouble(arg1.substring(1)));
+					classFile.addDoubleConstantToConstantPool(Double
+							.parseDouble(arg1.substring(1)));
 				}
 				if (arg2.startsWith(SYM_CONST)) {
-					classFile.addDoubleConstantToConstantPool(Double.parseDouble(arg2.substring(1)));
+					classFile.addDoubleConstantToConstantPool(Double
+							.parseDouble(arg2.substring(1)));
 				}
 			}
 
 			final InfoTag type = getDataTypeOfOperator(operator);
 
 			if (type.equals(InfoTag.LONG) && arg1.startsWith(SYM_CONST)) {
-				classFile.addLongConstantToConstantPool(Long.parseLong(arg1.substring(1)));
+				classFile.addLongConstantToConstantPool(Long.parseLong(arg1
+						.substring(1)));
 			}
 			if (type.equals(InfoTag.DOUBLE) && arg1.startsWith(SYM_CONST)) {
-				classFile.addDoubleConstantToConstantPool(Double.parseDouble(arg1.substring(1)));
+				classFile.addDoubleConstantToConstantPool(Double
+						.parseDouble(arg1.substring(1)));
 			}
 			if (type.equals(InfoTag.STRING) && arg1.startsWith(SYM_CONST)) {
 				classFile.addStringConstantToConstantPool(arg1.substring(1));
@@ -225,6 +231,8 @@ public class Translator {
 			final IClassfile file, final String methodName,
 			final List<Quadruple> tac) {
 
+		// is set, while array is declared
+		boolean arrayFlag = false;
 		for (final ListIterator<Quadruple> tacIter = tac.listIterator(); tacIter
 				.hasNext();) {
 
@@ -236,7 +244,31 @@ public class Translator {
 			final Quadruple q;
 			final VariableType varType;
 
+			/*
+			 * While an array is declared, skip further checks until a basic
+			 * type is declared/ the array declaration is finished.
+			 */
+			if (arrayFlag) {
+				if (quad.getOperator().equals(Operator.DECLARE_STRING)
+						|| quad.getOperator().equals(Operator.DECLARE_BOOLEAN)
+						|| quad.getOperator().equals(Operator.DECLARE_LONG)
+						|| quad.getOperator().equals(Operator.DECLARE_DOUBLE)) {
+					arrayFlag = false;
+					continue;
+				}
+			}
+
 			switch (quad.getOperator()) {
+			case DECLARE_REFERENCE:
+				file.addVariableToMethodsCode(methodName, result,
+						VariableType.AREF);
+				tacIter.remove();
+				continue;
+			case DECLARE_ARRAY:
+				arrayFlag = true;
+				file.addVariableToMethodsCode(methodName, result,
+						VariableType.AREF);
+				continue;
 			case DECLARE_STRING:
 				op = Operator.ASSIGN_STRING;
 				defValue = DEF_STRING;

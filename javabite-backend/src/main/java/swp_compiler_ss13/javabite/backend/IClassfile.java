@@ -67,7 +67,7 @@ public interface IClassfile {
 	 * @since 03.05.2013
 	 */
 	public enum VariableType {
-		LONG(2), DOUBLE(2), STRING(1), BOOLEAN(1);
+		LONG(2), DOUBLE(2), STRING(1), BOOLEAN(1), AREF(1);
 
 		private final short length;
 
