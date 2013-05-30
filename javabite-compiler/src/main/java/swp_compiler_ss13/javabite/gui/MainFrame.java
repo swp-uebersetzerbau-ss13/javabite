@@ -30,6 +30,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
@@ -155,6 +156,29 @@ public class MainFrame extends JFrame implements ReportLog {
 		menuFileOpen = new JMenuItem("Open");
 		menuFileOpen.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				
+				// if another file is already opened, save it
+				if(openedFile != null || fileChanged == true) {
+					JFrame frame = new JFrame("Save");
+					Object[] options = {"Cancel",
+		                    "No",
+		                    "Yes"};
+					int n = JOptionPane.showOptionDialog(frame,
+					    "Save file \"" + openedFile.getName() + "\"?\n",
+					    "Save",
+					    JOptionPane.YES_NO_CANCEL_OPTION,
+					    JOptionPane.QUESTION_MESSAGE,
+					    null,
+					    options,
+					    options[2]);
+					if(n == 2) { // save
+						// TODO: save and open filechooser
+					} else if (n == 1) {
+						// TODO: open file chooser
+					} else {	// cancel
+						
+					}
+				}
 				
 				// create default file chooser
 				JFileChooser chooser = new JFileChooser();
