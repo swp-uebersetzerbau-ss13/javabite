@@ -11,17 +11,13 @@ import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
-import java.lang.ProcessBuilder.Redirect;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -112,9 +108,10 @@ public class MainFrame extends JFrame implements ReportLog {
 	JTabbedPane tabbedPaneLog;
 	private static JTextPane editorPaneSourcode;
 	
-	// Files
+	// Files and file information
 	Properties properties = new Properties();
 	File openedFile;
+	boolean fileChanged = false;
 	
 	// undo and redo
 	private Document editorPaneDocument;
@@ -158,47 +155,40 @@ public class MainFrame extends JFrame implements ReportLog {
 		menuFileOpen = new JMenuItem("Open");
 		menuFileOpen.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// TODO: open document
-				//toolBarLabel.setText("Document opened.");
-				//JFileChooser fc = new JFileChooser();
-				//fc.showOpenDialog( null );
+				
+				// create default file chooser
 				JFileChooser chooser = new JFileChooser();
 				int returnVal = chooser.showOpenDialog(null);
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
-					openedFile = chooser.getSelectedFile(); // editorPaneSourcode
+					openedFile = chooser.getSelectedFile();
 				}
+				
+				// set main frame header name to file name
 				String fileName = openedFile.getName();
 				setTitle("Javabite Compiler - " + fileName);
 				
+				// read out lines
 				BufferedReader in = null;
-				try {
-					in = new BufferedReader(new FileReader(openedFile));
-				} catch (FileNotFoundException ex) {
-					ex.printStackTrace();
-				}
-				
 				String line = null;
 				try {
+					in = new BufferedReader(new FileReader(openedFile));
 					line = in.readLine();
 				} catch (IOException ex) {
 					ex.printStackTrace();
 				}
 				
+				// insert lines into source code editor
 				Document doc = editorPaneSourcode.getDocument();
 				try {
 					doc.remove(0, doc.getLength()); // remove old content
-				} catch (BadLocationException ex) {
-					ex.printStackTrace();
-				}
-				
-				while (line != null) {
-					try {
+					while (line != null) {
 						doc.insertString(doc.getLength(), line + "\n", null);
 						line = in.readLine();
-					} catch (IOException | BadLocationException ex) {
-						ex.printStackTrace();
 					}
+				} catch (BadLocationException | IOException ex) {
+					ex.printStackTrace();
 				}
+				toolBarLabel.setText("Document opened.");
 			}
 		});
 		menuFile.add(menuFileOpen);
@@ -206,6 +196,8 @@ public class MainFrame extends JFrame implements ReportLog {
 		menuFileSave = new JMenuItem("Save");
 		menuFileSave.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				
+				// open the file chooser
 				JFileChooser jfc = new JFileChooser("./");  
 				int returnVal = jfc.showSaveDialog(null);
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -220,7 +212,6 @@ public class MainFrame extends JFrame implements ReportLog {
 					} catch (IOException ex) {
 						ex.printStackTrace();
 					}
-					// version++;
 				} else {
 					System.out.println("Save command cancelled by user. ");
 				}
@@ -289,25 +280,27 @@ public class MainFrame extends JFrame implements ReportLog {
 		});
 		menuBar.add(buttonRunCompile);
 		
-		// undo Button
+		// undo button
 		undoButton = new JButton("<-");
 		undoButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
 				if (undoManager.canUndo()) {
 					undoManager.undo();
+					fileChanged = true;
 				}
 			}
 		});
 		menuBar.add(undoButton);
 		
-		// redo Button
+		// redo button
 		redoButton = new JButton("->");
 		redoButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (undoManager.canRedo()) {
 					undoManager.redo();
+					fileChanged = true;
 				}
 				styleEditorText();
 			}
@@ -341,7 +334,6 @@ public class MainFrame extends JFrame implements ReportLog {
 		lexer = new LexerJb();
 		
 		// get properties for syntax highlighting
-		// read properties
 		try {
 			BufferedInputStream stream = new BufferedInputStream(new FileInputStream("src\\main\\java\\swp_compiler_ss13\\javabite\\gui\\highlighting.properties"));
 			properties.load(stream);
@@ -368,7 +360,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		editorPaneSourcode = new JTextPane(doc);
 		scrollPane.setViewportView(editorPaneSourcode);
 		editorPaneSourcode.setText("enter your sourcecode here");
-		editorPaneSourcode.getDocument().addDocumentListener(new SourecodeDocumentListener(toolBarLabel));
+		editorPaneSourcode.getDocument().addDocumentListener(new SourecodeDocumentListener(toolBarLabel, this));
 		
 		// setup undo redo
 		editorPaneSourcode.getDocument().addUndoableEditListener(new UndoableEditListener() {
