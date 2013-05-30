@@ -53,11 +53,15 @@ public class Program {
 		private final IClassfile classfile;
 		private final String methodName;
 
-		// determines, whether the System exit function has already been added/
+		// determines, whether the System exit method has already been added/
 		// a return statement is present in the tac
 		private boolean returnFlag;
-		// index of methodref info of system exit function in constant pool
+		// index of methodref info of system exit method in constant pool
 		private short systemExitIndex;
+		// index of fieldref info of system out in constant pool
+		private short systemOutIndex;
+		// index of methodref info of print method in constant pool
+		private short printIndex;
 
 		private ProgramBuilder(final int initialOffset,
 				final IClassfile classfile, final String methodName) {
@@ -66,6 +70,8 @@ public class Program {
 			this.methodName = methodName;
 			this.returnFlag = false;
 			this.systemExitIndex = 0;
+			this.systemOutIndex = 0;
+			this.printIndex = 0;
 		}
 
 		private ProgramBuilder add(final Operation operation) {
@@ -152,10 +158,11 @@ public class Program {
 		}
 
 		/**
-		 * <h1>addSystemExitFunctionToClassfile</h1>
+		 * <h1>addSystemExitMethodToClassfile</h1>
 		 * <p>
 		 * This method checks whether the return flag is already set and if not,
-		 * it'll add the system exit data to the classfile.
+		 * it'll add the needed system exit data to the classfile's constant
+		 * pool.
 		 * </p>
 		 * 
 		 * @author Marco
@@ -164,7 +171,7 @@ public class Program {
 		 * @return short index into the constant pool of the system exit's
 		 *         methodref entry.
 		 */
-		private short addSystemExitFunctionToClassfile() {
+		private short addSystemExitMethodToClassfile() {
 			if (!this.returnFlag) {
 				this.returnFlag = true;
 				this.systemExitIndex = this.classfile
@@ -172,6 +179,33 @@ public class Program {
 								"java/lang/System");
 			}
 			return this.systemExitIndex;
+		}
+
+		/**
+		 * <h1>addPrintMethodToClassfile</h1>
+		 * <p>
+		 * This method checks whether the print index is already set and if not,
+		 * it'll add the needed print data to the classfile's constant pool.
+		 * </p>
+		 * 
+		 * @author Marco
+		 * @since 30.05.2013
+		 */
+		private void addPrintMethodToClassfile() {
+
+			// add system.out fieldref info to constant pool, if necessary
+			if (this.systemOutIndex == 0) {
+				this.systemOutIndex = this.classfile
+						.addFieldrefConstantToConstantPool("out",
+								"Ljava/io/PrintStream;", "java/lang/System");
+			}
+
+			// add print methodref info to constant pool, if necessary
+			if (this.printIndex == 0) {
+				this.printIndex = this.classfile
+						.addMethodrefConstantToConstantPool("print",
+								"(Ljava/lang/String;)V", "java/io/PrintStream");
+			}
 		}
 
 		/*
@@ -668,8 +702,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder returnLong(final Quadruple q) {
-			final short systemExitIndex = this
-					.addSystemExitFunctionToClassfile();
+			final short systemExitIndex = this.addSystemExitMethodToClassfile();
 
 			final OperationBuilder op = OperationBuilder.newBuilder();
 			if (isConstant(q.getArgument1())) {
