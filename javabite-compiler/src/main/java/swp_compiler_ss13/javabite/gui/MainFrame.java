@@ -359,7 +359,8 @@ public class MainFrame extends JFrame implements ReportLog {
 		
 		// get properties for syntax highlighting
 		try {
-			BufferedInputStream stream = new BufferedInputStream(new FileInputStream("src\\main\\java\\swp_compiler_ss13\\javabite\\gui\\highlighting.properties"));
+			String separator = System.getProperty("file.separator");
+			BufferedInputStream stream = new BufferedInputStream(new FileInputStream("src"+separator+"main"+separator+"java"+separator+"swp_compiler_ss13"+separator+"javabite"+separator+"gui"+separator+"highlighting.properties"));
 			properties.load(stream);
 			stream.close();
 		} catch (IOException ex) {
