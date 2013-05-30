@@ -7,6 +7,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.internal.util.reflection.Whitebox;
 
+import swp_compiler_ss13.javabite.backend.classfile.Classfile;
+import swp_compiler_ss13.javabite.backend.classfile.IClassfile;
+
 public class ClassfileTest {
 
 	IClassfile classfile;

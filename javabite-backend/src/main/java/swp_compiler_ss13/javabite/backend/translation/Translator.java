@@ -1,5 +1,6 @@
 package swp_compiler_ss13.javabite.backend.translation;
 
+import static org.junit.Assert.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -7,12 +8,12 @@ import java.util.ListIterator;
 
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
-import swp_compiler_ss13.javabite.backend.Classfile;
-import swp_compiler_ss13.javabite.backend.IClassfile;
-import swp_compiler_ss13.javabite.backend.IClassfile.InfoTag;
-import swp_compiler_ss13.javabite.backend.IClassfile.VariableType;
 import swp_compiler_ss13.javabite.backend.Program;
 import swp_compiler_ss13.javabite.backend.Program.ProgramBuilder;
+import swp_compiler_ss13.javabite.backend.classfile.Classfile;
+import swp_compiler_ss13.javabite.backend.classfile.IClassfile;
+import swp_compiler_ss13.javabite.backend.classfile.IClassfile.InfoTag;
+import swp_compiler_ss13.javabite.backend.classfile.IClassfile.VariableType;
 import swp_compiler_ss13.javabite.backend.external.QuadrupleImpl;
 
 /**
@@ -185,15 +186,16 @@ public class Translator {
 
 			final InfoTag type = getDataTypeOfOperator(operator);
 
-			if (type.equals(InfoTag.LONG) && arg1.startsWith(SYM_CONST)) {
+			if (type == InfoTag.LONG && arg1.startsWith(SYM_CONST)) {
+				assertNotNull(arg1);
 				classFile.addLongConstantToConstantPool(Long.parseLong(arg1
 						.substring(1)));
 			}
-			if (type.equals(InfoTag.DOUBLE) && arg1.startsWith(SYM_CONST)) {
+			if (type == InfoTag.DOUBLE && arg1.startsWith(SYM_CONST)) {
 				classFile.addDoubleConstantToConstantPool(Double
 						.parseDouble(arg1.substring(1)));
 			}
-			if (type.equals(InfoTag.STRING) && arg1.startsWith(SYM_CONST)) {
+			if (type == InfoTag.STRING && arg1.startsWith(SYM_CONST)) {
 				classFile.addStringConstantToConstantPool(arg1.substring(1));
 			}
 		}

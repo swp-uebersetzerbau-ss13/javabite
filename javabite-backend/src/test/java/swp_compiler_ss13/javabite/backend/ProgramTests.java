@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.Program.ProgramBuilder;
+import swp_compiler_ss13.javabite.backend.classfile.Classfile;
 import swp_compiler_ss13.javabite.backend.external.QuadrupleImpl;
 
 public class ProgramTests {

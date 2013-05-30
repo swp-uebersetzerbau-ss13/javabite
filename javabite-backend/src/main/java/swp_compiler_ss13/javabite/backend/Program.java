@@ -9,8 +9,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import swp_compiler_ss13.common.backend.Quadruple;
-import swp_compiler_ss13.javabite.backend.IClassfile.InfoTag;
 import swp_compiler_ss13.javabite.backend.Operation.OperationBuilder;
+import swp_compiler_ss13.javabite.backend.classfile.IClassfile;
+import swp_compiler_ss13.javabite.backend.classfile.IClassfile.InfoTag;
 import swp_compiler_ss13.javabite.backend.translation.Translator;
 import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
 
