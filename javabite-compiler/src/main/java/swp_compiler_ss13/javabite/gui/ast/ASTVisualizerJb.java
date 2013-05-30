@@ -1,10 +1,12 @@
 package swp_compiler_ss13.javabite.gui.ast;
 
 import java.util.ArrayDeque;
+import java.util.Hashtable;
 import java.util.Queue;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
+import javax.swing.SwingConstants;
 
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.ASTNode;
@@ -29,7 +31,10 @@ import com.mxgraph.layout.mxGraphLayout;
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.swing.mxGraphComponent;
+import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxGraph;
+import com.mxgraph.view.mxLayoutManager;
+import com.mxgraph.view.mxStylesheet;
 
 ;
 
@@ -44,14 +49,27 @@ public class ASTVisualizerJb implements ASTVisualization {
 			"GREATERTHANEQUAL","EQUAL","INEQUAL","LOGICAL_AND","LOGICAL_OR"};
 	String[] operationS={"+","-","*","/","<","<=",">",">=","=","=!","UND","ODER"};
 	
+	
+
 	/**
 	 * visualizes the ast
 	 */
 	@Override
 	public void visualizeAST(AST ast) {
 		graph = new mxGraph();
+		graph.getStylesheet();
+		mxStylesheet stylesheet = graph.getStylesheet();
+		Hashtable<String, Object> style = new Hashtable<String, Object>();
+		style.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_RECTANGLE);
+		style.put(mxConstants.STYLE_OPACITY, 50);
+		style.put(mxConstants.STYLE_FONTCOLOR, "#000000");
+		stylesheet.putCellStyle("ROUNDED", style);
 		initTree(ast);
-		mxGraphLayout layout = new mxHierarchicalLayout(graph);
+		mxHierarchicalLayout layout = new mxHierarchicalLayout(graph);
+		layout.setOrientation(SwingConstants.WEST);
+		layout.setInterRankCellSpacing(80);
+		layout.setInterHierarchySpacing(20);
+		layout.setIntraCellSpacing(5);
 		layout.execute(graph.getDefaultParent());
 		frame = new mxGraphComponent(graph);
 		
@@ -132,7 +150,7 @@ public class ASTVisualizerJb implements ASTVisualization {
 		String color=null;
 		if (ast instanceof BasicIdentifierNode){
 			value="Id= "+ ((BasicIdentifierNode) ast).getIdentifier();
-			color="gray";
+			color="0000ff";
 			}
 		else if (ast instanceof ArithmeticBinaryExpressionNode){
 			while(!(((ArithmeticBinaryExpressionNode) ast).getOperator()).toString().equals(operation[i])){
@@ -177,6 +195,7 @@ public class ASTVisualizerJb implements ASTVisualization {
 			value= "Index= "+ ((StructIdentifierNodeJb) ast).getIdentifierNode();
 		    color="red";
 		}
+
 		else if (ast instanceof LoopNodeJb){
 			value= "Condition= "+ ((LoopNodeJb) ast).getCondition() + "\nBody"+ ((LoopNodeJb) ast).getLoopBody();
 		    color="violet";
@@ -187,7 +206,7 @@ public class ASTVisualizerJb implements ASTVisualization {
 		}
 		else if (ast instanceof BranchNodeJb){
 			value= "Condition ="+ ((BranchNodeJb) ast).getCondition();
-		    color="silver";
+		    color="ffafaf";
 		}
 		
 		else{
@@ -195,7 +214,7 @@ public class ASTVisualizerJb implements ASTVisualization {
 			color="white";
 		}
 
-		returnVal=graph.insertVertex(graph.getDefaultParent(), null, value, 20, 40, 100, 35,"strokeColor=black;fillColor="+color);
+		returnVal=graph.insertVertex(graph.getDefaultParent(), null, value, 20, 40, 100, 35,"ROUNDED;strokeColor=black;fillColor="+color);
 		return returnVal;
 		
 		
