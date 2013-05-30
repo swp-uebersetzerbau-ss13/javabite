@@ -121,6 +121,7 @@ public class MainFrame extends JFrame implements ReportLog {
 	private JButton redoButton;
 	private JScrollPane scrollPane;
 	private JMenuItem mntmProperties;
+	private JMenuItem mntmNew;
 	
 	/**
 	 * Launch the application.
@@ -216,6 +217,15 @@ public class MainFrame extends JFrame implements ReportLog {
 				toolBarLabel.setText("Document opened.");
 			}
 		});
+		
+		mntmNew = new JMenuItem("New");
+		mntmNew.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// TODO save old docs
+				editorPaneSourcode.setText("");
+			}
+		});
+		menuFile.add(mntmNew);
 		menuFile.add(menuFileOpen);
 		
 		menuFileSave = new JMenuItem("Save");
