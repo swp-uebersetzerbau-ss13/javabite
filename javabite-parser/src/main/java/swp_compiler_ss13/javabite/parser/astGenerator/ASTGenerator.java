@@ -322,7 +322,7 @@ public class ASTGenerator {
 			StatementNode rightAssign = useAssignProduction();
 			AssignmentNode assignNode = new AssignmentNodeJb();
 			assignNode.setLeftValue(leftLoc);
-			assignNode.setRightValue(rightAssign);
+			assignNode.setRightValue((ExpressionNode)rightAssign);
 			assign = assignNode;
 			break;
 		case "assign -> bool":
