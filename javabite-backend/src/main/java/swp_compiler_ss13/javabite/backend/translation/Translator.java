@@ -132,7 +132,7 @@ public class Translator {
 
 	/**
 	 * addTACConstantsToConstantPool function. This function parses the TAC and
-	 * adds all constants to the files constantPool.
+	 * adds all constants to the files constant pool.
 	 * 
 	 * @author Robert, Marco
 	 * @since 29.04.2013
@@ -162,6 +162,7 @@ public class Translator {
 					classFile.addLongConstantToConstantPool(Long.parseLong(arg2
 							.substring(1)));
 				}
+				continue;
 			}
 
 			if (operator == Quadruple.Operator.ADD_DOUBLE
@@ -177,6 +178,7 @@ public class Translator {
 					classFile.addDoubleConstantToConstantPool(Double
 							.parseDouble(arg2.substring(1)));
 				}
+				continue;
 			}
 
 			final InfoTag type = getDataTypeOfOperator(operator);
@@ -213,6 +215,8 @@ public class Translator {
 			return InfoTag.DOUBLE;
 		case ASSIGN_STRING:
 			return InfoTag.STRING;
+		case DECLARE_ARRAY:
+			return InfoTag.LONG;
 		default:
 			return null;
 		}
