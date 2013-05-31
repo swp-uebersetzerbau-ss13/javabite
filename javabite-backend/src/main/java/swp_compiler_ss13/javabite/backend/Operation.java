@@ -30,7 +30,7 @@ public class Operation {
 	 * @author eike
 	 * @since 07.05.2013 00:41:08
 	 */
-	public static class OperationBuilder {
+	static class OperationBuilder {
 
 		private int size;
 		private final List<Instruction> instructions;
@@ -71,8 +71,8 @@ public class Operation {
 		 *            arguments to be passed along the bytecode instruction
 		 * @return instance of this builder
 		 */
-		public OperationBuilder add(final Mnemonic mnemonic,
-				final int argsSize, final byte... arguments) {
+		public OperationBuilder add(final Mnemonic mnemonic, final int argsSize,
+				final byte... arguments) {
 			final Instruction instruction;
 			if (mnemonic.getArgsCount() > 0) {
 				assert arguments != null
@@ -102,17 +102,19 @@ public class Operation {
 		 * @return new object, created by this builder
 		 */
 		public Operation build() {
-			return new Operation(instructions, size);
+			final Operation op = new Operation(instructions, size);
+			return op;
 		}
 
 	}
 
-	private final List<Instruction> instructions;
+	private final Instruction[] instructions;
 	private final int size;
 	private Operator operator;
 
 	private Operation(final List<Instruction> instructions, final int size) {
-		this.instructions = instructions;
+		this.instructions = instructions.toArray(new Instruction[instructions
+				.size()]);
 		this.size = size;
 	}
 
@@ -121,7 +123,7 @@ public class Operation {
 	 * 
 	 * @return the instructions
 	 */
-	public List<Instruction> getInstructions() {
+	public Instruction[] getInstructions() {
 		return instructions;
 	}
 
@@ -140,7 +142,7 @@ public class Operation {
 	 * @return the instruction count
 	 */
 	public int getInstructionCount() {
-		return instructions.size();
+		return instructions.length;
 	}
 
 	/**

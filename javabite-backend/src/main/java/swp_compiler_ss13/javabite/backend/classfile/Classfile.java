@@ -8,23 +8,13 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.nio.ByteBuffer;
-
 import swp_compiler_ss13.javabite.backend.Instruction;
 import swp_compiler_ss13.javabite.backend.Mnemonic;
-import swp_compiler_ss13.javabite.backend.classfile.IClassfile.ClassfileAccessFlag;
-import swp_compiler_ss13.javabite.backend.classfile.IClassfile.InfoTag;
-import swp_compiler_ss13.javabite.backend.classfile.IClassfile.MethodAccessFlag;
-import swp_compiler_ss13.javabite.backend.classfile.IClassfile.VariableType;
 import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
 
 /**
@@ -338,19 +328,19 @@ public class Classfile implements IClassfile {
 	/**
 	 * {@inheritDoc}
 	 */
-	//TODO: UPDATE JAVADOC
+	// TODO: UPDATE JAVADOC
 	@Override
 	public void addMethodToMethodArea(final String methodName,
 			final String methodDescriptor,
 			final MethodAccessFlag... accessFlags) {
 
-		
 		// add constants to this classfile's constant pool
 		final short nameIndex = addUTF8ConstantToConstantPool(methodName);
 		final short descriptorIndex = addUTF8ConstantToConstantPool(methodDescriptor);
 		final short codeIndex = addUTF8ConstantToConstantPool("Code");
-		
-		this.methodArea.addMethod(methodName, nameIndex, descriptorIndex, codeIndex, methodDescriptor, accessFlags);
+
+		this.methodArea.addMethod(methodName, nameIndex, descriptorIndex,
+				codeIndex, methodDescriptor, accessFlags);
 	}
 
 	/**
@@ -422,7 +412,7 @@ public class Classfile implements IClassfile {
 	 */
 	@Override
 	public void addInstructionsToMethodsCode(final String methodName,
-			final Collection<Instruction> instructions) {
+			final Instruction[] instructions) {
 		for (final Instruction instruction : instructions) {
 			this.methodArea
 					.addInstructionToMethodsCode(methodName, instruction);

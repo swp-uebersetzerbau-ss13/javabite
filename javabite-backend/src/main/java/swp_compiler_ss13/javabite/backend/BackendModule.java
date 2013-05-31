@@ -8,6 +8,7 @@ import java.util.Map;
 
 import swp_compiler_ss13.common.backend.Backend;
 import swp_compiler_ss13.common.backend.Quadruple;
+import swp_compiler_ss13.javabite.backend.classfile.IClassfile;
 import swp_compiler_ss13.javabite.backend.translation.TACOptimizer;
 import swp_compiler_ss13.javabite.backend.translation.TargetCodeOptimizer;
 import swp_compiler_ss13.javabite.backend.translation.Translator;

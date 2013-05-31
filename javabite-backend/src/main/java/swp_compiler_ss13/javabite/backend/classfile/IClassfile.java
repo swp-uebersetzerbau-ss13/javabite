@@ -471,5 +471,5 @@ public interface IClassfile {
 	 * @see Classfile#addInstructionToMethodsCode(String, Instruction)
 	 */
 	public void addInstructionsToMethodsCode(String methodName,
-			Collection<Instruction> instructions);
+			Instruction[] instructions);
 }

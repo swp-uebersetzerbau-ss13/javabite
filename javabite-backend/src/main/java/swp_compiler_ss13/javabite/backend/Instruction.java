@@ -57,8 +57,8 @@ public class Instruction {
 	 * @param mnemonic
 	 *            mnemonic of opcode
 	 */
-	public Instruction(final int size, final Mnemonic mnemonic) {
-		this(size, mnemonic, null);
+	public Instruction(final Mnemonic mnemonic) {
+		this(1, mnemonic, null);
 	}
 
 	/**

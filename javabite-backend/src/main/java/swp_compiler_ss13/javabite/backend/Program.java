@@ -1022,16 +1022,17 @@ public class Program {
 	 * 
 	 * @return the instructions
 	 */
-	public List<Instruction> toInstructionsList() {
+	public Instruction[] toInstructionsArray() {
 		int icount = 0;
 		for (final Operation op : operations) {
 			icount += op.getInstructionCount();
 		}
-		final List<Instruction> instructions = new ArrayList<Instruction>(
-				icount);
+		final Instruction[] instructions = new Instruction[icount];
+		int currIndex = 0;
 		if (operations != null) {
 			for (final Operation op : operations) {
-				instructions.addAll(op.getInstructions());
+				System.arraycopy(op.getInstructions(), 0, instructions,
+						currIndex, op.getInstructionCount());
 			}
 		}
 		return instructions;

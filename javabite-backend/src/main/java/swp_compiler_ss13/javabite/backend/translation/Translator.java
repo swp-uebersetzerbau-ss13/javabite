@@ -403,7 +403,8 @@ public class Translator {
 		}
 
 		final Program pr = pb.build();
-		classfile.addInstructionsToMethodsCode("main", pr.toInstructionsList());
+		classfile
+				.addInstructionsToMethodsCode("main", pr.toInstructionsArray());
 	}
 
 }
