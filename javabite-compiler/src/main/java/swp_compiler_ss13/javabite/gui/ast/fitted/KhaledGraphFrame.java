@@ -14,7 +14,8 @@ import swp_compiler_ss13.javabite.gui.ast.ASTVisualizerJb;
 import com.mxgraph.view.mxGraph;
 
 public class KhaledGraphFrame extends GraphFrame {
-
+	Queue<Integer> sizeQ= new ArrayDeque<>();
+	
 	@Override
 	public void initWith(AST ast, mxGraph graph) {
 		
@@ -25,13 +26,15 @@ public class KhaledGraphFrame extends GraphFrame {
 		this.setVisible(true);
 	}
 	
-	public void levelsCounter(AST ast){
+	public int levelsCounter(AST ast){
 		int counter=1;
-		Queue<ASTNode> nextLevel= new ArrayDeque<>();
 		Queue<Queue<ASTNode>> queue= new ArrayDeque<>();
+		Queue<ASTNode> nextLevel= new ArrayDeque<>();
 		Queue<ASTNode> level= new ArrayDeque<>();
 		level.add(ast.getRootNode());
 		queue.add(level);
+		sizeQ.add(1);
+		
 		while(counter!=ast.getNumberOfNodes()){
 			for (ASTNode node:level){
 				for (ASTNode child : node.getChildren()){
@@ -40,14 +43,24 @@ public class KhaledGraphFrame extends GraphFrame {
 					}
 				}
 			queue.add(nextLevel);
+			sizeQ.add(nextLevel.size());
 			level.clear();
 			for(ASTNode node:nextLevel ){
 				level.add(node);
-			}
+				}
 			nextLevel.clear();
 			}
-		System.out.println(queue.size());
+		return queue.size();
 		}
+	
+	public int maximumOfNodesInLevels(){
+		int i=0;
+		for (int k: sizeQ){
+			if (i<k) i=k;
+			}
+		return i;
+	}
+	
 	public static void main(String[] args){
 		AST ast=ASTSource.getSecondAST();
 		ASTVisualizerJb astViz=new ASTVisualizerJb();
