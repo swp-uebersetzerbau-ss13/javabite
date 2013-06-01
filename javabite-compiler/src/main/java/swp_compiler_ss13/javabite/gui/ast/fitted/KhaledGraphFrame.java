@@ -61,6 +61,10 @@ public class KhaledGraphFrame extends GraphFrame {
 		return i;
 	}
 	
+	public int getNumberOfNodes(AST ast){
+		return ast.getNumberOfNodes();
+	}
+	
 	public static void main(String[] args){
 		AST ast=ASTSource.getSecondAST();
 		ASTVisualizerJb astViz=new ASTVisualizerJb();
