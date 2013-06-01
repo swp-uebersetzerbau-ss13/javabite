@@ -2,7 +2,9 @@ package swp_compiler_ss13.javabite.gui.ast;
 
 import java.util.ArrayDeque;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
@@ -26,6 +28,7 @@ import swp_compiler_ss13.javabite.ast.nodes.unary.ArrayIdentifierNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.unary.DeclarationNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.unary.ReturnNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.unary.StructIdentifierNodeJb;
+import swp_compiler_ss13.javabite.gui.ast.fitted.KhaledGraphFrame;
 
 import com.mxgraph.layout.mxGraphLayout;
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
@@ -65,6 +68,8 @@ public class ASTVisualizerJb implements ASTVisualization {
 		style.put(mxConstants.STYLE_FONTCOLOR, "#000000");
 		stylesheet.putCellStyle("ROUNDED", style);
 		initTree(ast);
+		KhaledGraphFrame k= new KhaledGraphFrame();
+		k.levelsCounter(ast);
 		mxHierarchicalLayout layout = new mxHierarchicalLayout(graph);
 		layout.setOrientation(SwingConstants.WEST);
 		layout.setInterRankCellSpacing(80);
@@ -84,19 +89,31 @@ public class ASTVisualizerJb implements ASTVisualization {
 	 * converts the ast to a tree representation of JGraphX, represented in the frame.
 	 * @param ast
 	 */
+	
+	
+	
+	
+	
+	
 	private void initTree(AST ast){
 		// necessary for the model, not important for us
 		Object parent=graph.getDefaultParent();
 		
+		
 		// double-valued BFS. We have to do so since we have two different data structures
 		// this queue holds the ASTNodes we need to visit
 		Queue<ASTNode> toVisit_original=new ArrayDeque<>();
+		
 		// this queue holds the Objects we get from the graph, called cell
 		Queue<Object> toVisit_celled=new ArrayDeque<>();
 		
 		// add the root node
 		toVisit_original.add(ast.getRootNode());
+		
+		
 		toVisit_celled.add(asCell(ast.getRootNode()));
+		
+		
 
 		
 		
@@ -106,6 +123,8 @@ public class ASTVisualizerJb implements ASTVisualization {
 			// get the current Node
 			ASTNode current_ast=toVisit_original.poll();
 			Object current_cell=toVisit_celled.poll();
+			
+			
 			// visit node
 			// nothing to do here, functional part follows
 			
@@ -122,10 +141,15 @@ public class ASTVisualizerJb implements ASTVisualization {
 				// this is the line which do the necessary stuff.
 				// inserts a edge to every children
 				graph.insertEdge(parent, null,"",current_cell,child_as_cell);
+			
+				
 				
 			}
+			
 		}
 		this.toVisit_celledCopy=toVisit_celled;
+		
+		
 	}
 	
 	void treeNodes(){
@@ -231,5 +255,6 @@ public class ASTVisualizerJb implements ASTVisualization {
 		frame.setSize(900, 400);
 		frame.add(ast_frame);
 		frame.setVisible(true);
+		
 	}
 }
