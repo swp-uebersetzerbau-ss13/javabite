@@ -76,7 +76,8 @@ public class ASTVisualizerJb implements ASTVisualization {
 
 		initTree(ast);
 		KhaledGraphFrame k= new KhaledGraphFrame();
-		k.levelsCounter(ast);
+		System.out.println(k.levelsCounter(ast));
+		System.out.println(k.maximumOfNodesInLevels());
 		mxHierarchicalLayout layout = new mxHierarchicalLayout(graph);
 		layout.setOrientation(SwingConstants.WEST);
 		layout.setInterRankCellSpacing(80);
