@@ -223,6 +223,8 @@ public class MainFrame extends JFrame implements ReportLog {
 			public void actionPerformed(ActionEvent e) {
 				// TODO save old docs
 				editorPaneSourcode.setText("");
+				toolBarLabel.setText("New document opened.");
+				setTitle("Javabite Compiler - *Unknown");
 			}
 		});
 		menuFile.add(mntmNew);
@@ -232,8 +234,11 @@ public class MainFrame extends JFrame implements ReportLog {
 		menuFileSave.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
-				// open the file chooser
-				JFileChooser jfc = new JFileChooser("./");  
+				// create and open the file chooser
+				JFileChooser jfc = new JFileChooser();
+				jfc.setCurrentDirectory(new File(System.getProperty("user.home")));
+				jfc.setSelectedFile(new File("Unknown.prog"));
+				
 				int returnVal = jfc.showSaveDialog(null);
 				if (returnVal == JFileChooser.APPROVE_OPTION) {
 					File file = jfc.getSelectedFile();
