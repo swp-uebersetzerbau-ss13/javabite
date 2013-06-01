@@ -71,8 +71,8 @@ public class Operation {
 		 *            arguments to be passed along the bytecode instruction
 		 * @return instance of this builder
 		 */
-		public OperationBuilder add(final Mnemonic mnemonic, final int argsSize,
-				final byte... arguments) {
+		public OperationBuilder add(final Mnemonic mnemonic,
+				final int argsSize, final byte... arguments) {
 			final Instruction instruction;
 			if (mnemonic.getArgsCount() > 0) {
 				assert arguments != null
@@ -125,6 +125,17 @@ public class Operation {
 	 */
 	public Instruction[] getInstructions() {
 		return instructions;
+	}
+
+	/**
+	 * Returns the instruction at index
+	 * 
+	 * @param index
+	 *            index of instruction
+	 * @return instruction at index
+	 */
+	public Instruction getInstruction(final int index) {
+		return instructions[index];
 	}
 
 	/**
