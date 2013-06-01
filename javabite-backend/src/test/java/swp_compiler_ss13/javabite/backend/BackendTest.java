@@ -100,7 +100,8 @@ public class BackendTest {
 			throws BackendException {
 		String retVal = null;
 
-		Map<String, InputStream> results = backend.generateTargetCode("", tac);
+		Map<String, InputStream> results = backend.generateTargetCode(
+				"Program", tac);
 
 		assertTrue("Invalid amount of files generated",
 				fileamount == results.size());

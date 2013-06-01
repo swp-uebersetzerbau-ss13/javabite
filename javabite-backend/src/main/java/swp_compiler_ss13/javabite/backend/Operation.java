@@ -30,7 +30,7 @@ public class Operation {
 	 * @author eike
 	 * @since 07.05.2013 00:41:08
 	 */
-	public static class OperationBuilder {
+	static class OperationBuilder {
 
 		private int size;
 		private final List<Instruction> instructions;
@@ -49,6 +49,18 @@ public class Operation {
 		}
 
 		/**
+		 * TODO javadoc
+		 * 
+		 * @param instruction
+		 * @return
+		 */
+		public OperationBuilder add(final Instruction instruction) {
+			instructions.add(instruction);
+			this.size += instruction.getByteCount();
+			return this;
+		}
+
+		/**
 		 * Add a new instruction to this builder instance.
 		 * 
 		 * @param mnemonic
@@ -59,22 +71,17 @@ public class Operation {
 		 *            arguments to be passed along the bytecode instruction
 		 * @return instance of this builder
 		 */
-		public OperationBuilder add(final Mnemonic mnemonic,
-				final int argsSize, final byte... arguments) {
-			final int size;
+		public OperationBuilder add(final Mnemonic mnemonic, final int argsSize,
+				final byte... arguments) {
 			final Instruction instruction;
 			if (mnemonic.getArgsCount() > 0) {
 				assert arguments != null
 						&& arguments.length == mnemonic.getArgsCount();
-				size = 1 + argsSize;
-				instruction = new Instruction(size, mnemonic, arguments);
+				instruction = new Instruction(1 + argsSize, mnemonic, arguments);
 			} else {
-				size = 1;
-				instruction = new Instruction(size, mnemonic);
+				instruction = new Instruction(1, mnemonic);
 			}
-			instructions.add(instruction);
-			this.size += size;
-			return this;
+			return add(instruction);
 		}
 
 		/**
@@ -95,17 +102,19 @@ public class Operation {
 		 * @return new object, created by this builder
 		 */
 		public Operation build() {
-			return new Operation(instructions, size);
+			final Operation op = new Operation(instructions, size);
+			return op;
 		}
 
 	}
 
-	private final List<Instruction> instructions;
+	private final Instruction[] instructions;
 	private final int size;
 	private Operator operator;
 
 	private Operation(final List<Instruction> instructions, final int size) {
-		this.instructions = instructions;
+		this.instructions = instructions.toArray(new Instruction[instructions
+				.size()]);
 		this.size = size;
 	}
 
@@ -114,7 +123,7 @@ public class Operation {
 	 * 
 	 * @return the instructions
 	 */
-	public List<Instruction> getInstructions() {
+	public Instruction[] getInstructions() {
 		return instructions;
 	}
 
@@ -133,7 +142,7 @@ public class Operation {
 	 * @return the instruction count
 	 */
 	public int getInstructionCount() {
-		return instructions.size();
+		return instructions.length;
 	}
 
 	/**
@@ -170,6 +179,49 @@ public class Operation {
 			}
 		}
 		return sb.toString();
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((instructions == null) ? 0 : instructions.hashCode());
+		result = prime * result
+				+ ((operator == null) ? 0 : operator.hashCode());
+		result = prime * result + size;
+		return result;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (!(obj instanceof Operation))
+			return false;
+		Operation other = (Operation) obj;
+		if (instructions == null) {
+			if (other.instructions != null)
+				return false;
+		} else if (!instructions.equals(other.instructions))
+			return false;
+		if (operator != other.operator)
+			return false;
+		if (size != other.size)
+			return false;
+		return true;
 	}
 
 }

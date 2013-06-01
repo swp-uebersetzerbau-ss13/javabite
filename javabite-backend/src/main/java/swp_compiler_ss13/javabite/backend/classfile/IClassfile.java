@@ -1,8 +1,10 @@
-package swp_compiler_ss13.javabite.backend;
+package swp_compiler_ss13.javabite.backend.classfile;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Collection;
+
+import swp_compiler_ss13.javabite.backend.Instruction;
 
 public interface IClassfile {
 	/**
@@ -469,5 +471,5 @@ public interface IClassfile {
 	 * @see Classfile#addInstructionToMethodsCode(String, Instruction)
 	 */
 	public void addInstructionsToMethodsCode(String methodName,
-			Collection<Instruction> instructions);
+			Instruction[] instructions);
 }

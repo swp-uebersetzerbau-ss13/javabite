@@ -1,4 +1,0 @@
-variablen nicht vorinitialisiert
-return nicht immer gegeben
-return ohne wert ist return mit 0
-return immer mit long
