@@ -260,6 +260,7 @@ public class Translator {
 					arrayFlag = false;
 					continue;
 				}
+				continue;
 			}
 
 			switch (quad.getOperator()) {
