@@ -39,6 +39,10 @@ import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxLayoutManager;
 import com.mxgraph.view.mxStylesheet;
 
+import com.mxgraph.swing.mxGraphComponent;
+import com.mxgraph.util.mxConstants;
+import com.mxgraph.view.mxStylesheet;
+
 ;
 
 public class ASTVisualizerJb implements ASTVisualization {
@@ -63,10 +67,13 @@ public class ASTVisualizerJb implements ASTVisualization {
 		graph.getStylesheet();
 		mxStylesheet stylesheet = graph.getStylesheet();
 		Hashtable<String, Object> style = new Hashtable<String, Object>();
+		stylesheet.putCellStyle("ROUNDED", style);
 		style.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_RECTANGLE);
 		style.put(mxConstants.STYLE_OPACITY, 50);
 		style.put(mxConstants.STYLE_FONTCOLOR, "#000000");
-		stylesheet.putCellStyle("ROUNDED", style);
+		style.put(mxConstants.STYLE_FONTSTYLE, mxConstants.FONT_BOLD);
+		stylesheet.putCellStyle("BOLD", style);
+
 		initTree(ast);
 		KhaledGraphFrame k= new KhaledGraphFrame();
 		k.levelsCounter(ast);
