@@ -20,6 +20,8 @@ import swp_compiler_ss13.javabite.backend.classfile.IClassfile.VariableType;
  * <p>
  * This class represents all information needed to create a JVM-Classfile method
  * code attribute.
+ * 
+ * @see <a href="http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.3">JVM attributes Specification</a>
  * </p>
  * 
  * @author Marco

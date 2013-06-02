@@ -157,7 +157,6 @@ class Method {
 	 */
 	void addVariableToCodeAttribute(final String variableName,
 			final VariableType variableType) {
-
 		this.codeAttribute.addVariable(variableName, variableType);
 	}
 
