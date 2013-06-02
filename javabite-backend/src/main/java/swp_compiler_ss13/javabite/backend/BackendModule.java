@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import swp_compiler_ss13.common.backend.Backend;
+import swp_compiler_ss13.common.backend.BackendException;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.javabite.backend.classfile.IClassfile;
 import swp_compiler_ss13.javabite.backend.translation.TACOptimizer;
@@ -39,7 +40,7 @@ public class BackendModule implements Backend {
 	 */
 	@Override
 	public Map<String, InputStream> generateTargetCode(
-			final String baseFileName, final List<Quadruple> tac) {
+			String baseFileName, List<Quadruple> tac) throws BackendException {
 
 		// TAC Optimizer
 		// ### currently empty ###

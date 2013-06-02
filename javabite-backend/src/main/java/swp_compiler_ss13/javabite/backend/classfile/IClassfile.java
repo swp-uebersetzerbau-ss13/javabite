@@ -2,7 +2,6 @@ package swp_compiler_ss13.javabite.backend.classfile;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Collection;
 
 import swp_compiler_ss13.javabite.backend.Instruction;
 
@@ -93,18 +92,26 @@ public interface IClassfile {
 	 * @since May 25, 2013 1:27:22 AM
 	 */
 	public enum InfoTag {
-		NONE(0x00), UTF8(0x01), LONG(0x05), DOUBLE(0x06), CLASS(0x07), STRING(
-				0x08), METHODREF(0x0a), NAMEANDTYPE(0x0c), FIELDREF(0x09);
+		NONE(0x00, false), UTF8(0x01, false), LONG(0x05, true), DOUBLE(0x06,
+				true), CLASS(0x07, false), STRING(0x08, false), METHODREF(0x0a,
+				false), NAMEANDTYPE(0x0c, false), FIELDREF(0x09, false);
 
 		final byte tag;
+		final boolean wide;
 
-		InfoTag(final int tag) {
+		InfoTag(final int tag, final boolean wide) {
 			this.tag = (byte) tag;
+			this.wide = wide;
 		}
 
 		public byte getByte() {
 			return tag;
 		}
+
+		public boolean isWide() {
+			return wide;
+		}
+
 	}
 
 	/**
@@ -471,5 +478,5 @@ public interface IClassfile {
 	 * @see Classfile#addInstructionToMethodsCode(String, Instruction)
 	 */
 	public void addInstructionsToMethodsCode(String methodName,
-			Collection<Instruction> instructions);
+			Instruction[] instructions);
 }

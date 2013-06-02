@@ -190,8 +190,7 @@ class CodeAttribute {
 	 * @see VariableType
 	 * @see #variableMap
 	 */
-	void addVariable(final String variableName,
-			final VariableType variableType) {
+	void addVariable(final String variableName, final VariableType variableType) {
 
 		if (!this.variableMap.containsKey(variableName)) {
 			this.variableMap.put(variableName, (byte) this.maxLocals);

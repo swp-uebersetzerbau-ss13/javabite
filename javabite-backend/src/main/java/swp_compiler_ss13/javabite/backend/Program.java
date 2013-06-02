@@ -69,6 +69,8 @@ public class Program {
 		private short printIndex;
 		// indicates last instruction was a label, denoting a jump location
 		private boolean labelFlag;
+		// label name of last label
+		private String labelName;
 
 		private ProgramBuilder(final int initialOffset,
 				final IClassfile classfile, final String methodName) {
@@ -83,6 +85,12 @@ public class Program {
 
 		private ProgramBuilder add(final Operation operation) {
 			operations.add(operation);
+			if (labelFlag) {
+				if (jumpTargets == null)
+					jumpTargets = new HashMap<>();
+				labelFlag = false;
+				jumpTargets.put(labelName, operation.getInstruction(0));
+			}
 			return this;
 		}
 
@@ -117,14 +125,7 @@ public class Program {
 			return jumpTargets.get(s);
 		}
 
-		private void putJumpTarget(final String s, final Instruction i) {
-			if (labelFlag) {
-				if (jumpTargets == null)
-					jumpTargets = new HashMap<>();
-				labelFlag = false;
-				jumpTargets.put(s, i);
-			}
-		}
+		// INSTRUCTION CREATORS ------------------------------------------------
 
 		/**
 		 * TODO javadoc
@@ -191,6 +192,8 @@ public class Program {
 					index);
 		}
 
+		// GENERIC OPERATIONS --------------------------------------------------
+
 		/**
 		 * TODO javadoc
 		 * 
@@ -235,24 +238,31 @@ public class Program {
 		}
 
 		/**
-		 * TODO javadoc
+		 * compares two numbers and stores the result at range [-1,1] on the
+		 * stack
 		 * 
 		 * @param q
-		 * @param constType
+		 *            the quadruple of the comparation
+		 * @param type
+		 *            the data type of the numbers to compare. Long or Double
 		 * @param loadOp
+		 *            the load operation to perform for loading the numbers
 		 * @param compareOp
+		 *            the comparation operation to perform
 		 * @param jumpOp
-		 * @return
+		 *            the jump operation to perform after comparation. TODO more
+		 *            explanation
+		 * @return this builder instance
 		 */
 		private ProgramBuilder compareNumber(final Quadruple q,
-				final InfoTag constType, final String loadOp,
+				final InfoTag type, final String loadOp,
 				final Mnemonic compareOp, final String jumpOp) {
 			final OperationBuilder op = OperationBuilder.newBuilder();
 			final Instruction iCmpFalse = new Instruction(1, Mnemonic.ICONST_0);
 			final Instruction iStore = storeOp(q.getResult(), "ISTORE");
 
-			op.add(loadOp(true, q.getArgument1(), constType, loadOp));
-			op.add(loadOp(true, q.getArgument2(), constType, loadOp));
+			op.add(loadOp(true, q.getArgument1(), type, loadOp));
+			op.add(loadOp(true, q.getArgument2(), type, loadOp));
 			op.add(compareOp);
 			op.add(new JumpInstruction(3, Mnemonic.getMnemonic(jumpOp),
 					iCmpFalse));
@@ -264,11 +274,13 @@ public class Program {
 		}
 
 		/**
-		 * TODO javadoc
+		 * Generic binary boolean operation. TAC supports AND and OR.
 		 * 
 		 * @param q
+		 *            quadruple of operation
 		 * @param mnemonic
-		 * @return
+		 *            mnemonic of binary boolean bytecode operation
+		 * @return this builder instance
 		 */
 		private ProgramBuilder booleanOp(final Quadruple q,
 				final Mnemonic mnemonic) {
@@ -281,6 +293,33 @@ public class Program {
 			op.add(storeOp(q.getResult(), "ISTORE"));
 			return add(op.build());
 		}
+
+		/**
+		 * Operation to print a constant value or the content of a variable of
+		 * the types string, long or double. Loads the System.out object and
+		 * calls the virtual method println
+		 * 
+		 * @param arg1
+		 *            constant or variable name to be printed
+		 * @param type
+		 *            type of arg1
+		 * @param varLoadOp
+		 *            operation to use for loading arg1 as a variable
+		 * @return this builder instance
+		 */
+		private ProgramBuilder print(final String arg1, final InfoTag type,
+				final String varLoadOp) {
+			addPrintMethodToClassfile();
+			final OperationBuilder op = OperationBuilder.newBuilder();
+			op.add(Mnemonic.GETSTATIC, 2,
+					ByteUtils.shortToByteArray(systemOutIndex));
+			op.add(loadOp(type.isWide(), arg1, type, varLoadOp));
+			op.add(Mnemonic.INVOKEVIRTUAL, 2,
+					ByteUtils.shortToByteArray(printIndex));
+			return add(op.build());
+		}
+
+		// CONSTANT POOL HELPERS -----------------------------------------------
 
 		/**
 		 * <h1>addSystemExitMethodToClassfile</h1>
@@ -335,6 +374,8 @@ public class Program {
 								"(Ljava/lang/String;)V", "java/io/PrintStream");
 			}
 		}
+
+		// OPERATIONS ----------------------------------------------------------
 
 		/*
 		 * === M1 === FINISHED
@@ -898,6 +939,7 @@ public class Program {
 
 		public ProgramBuilder label(final Quadruple q) {
 			labelFlag = true;
+			labelName = q.getArgument1();
 			return this;
 		}
 
@@ -917,28 +959,26 @@ public class Program {
 		}
 
 		public ProgramBuilder printBoolean(final Quadruple q) {
-			// TODO implement
-			// syso boolean
-			return this;
+			addPrintMethodToClassfile();
+			final OperationBuilder op = OperationBuilder.newBuilder();
+			op.add(Mnemonic.GETSTATIC, 2,
+					ByteUtils.shortToByteArray(systemOutIndex));
+			op.add(loadBooleanOp(q.getArgument1()));
+			op.add(Mnemonic.INVOKEVIRTUAL, 2,
+					ByteUtils.shortToByteArray(printIndex));
+			return add(op.build());
 		}
 
 		public ProgramBuilder printLong(final Quadruple q) {
-			// TODO implement
-			// syso long
-			return this;
+			return print(q.getArgument1(), InfoTag.LONG, "LDC2_W");
 		}
 
 		public ProgramBuilder printDouble(final Quadruple q) {
-			// TODO implement
-			// syso double
-			return this;
+			return print(q.getArgument1(), InfoTag.DOUBLE, "LDC2_W");
 		}
 
 		public ProgramBuilder printString(final Quadruple q) {
-			// TODO implement
-			// syso string
-			addPrintMethodToClassfile();
-			return this;
+			return print(q.getArgument1(), InfoTag.STRING, "LDC");
 		}
 
 		public ProgramBuilder arrayGetLong(final Quadruple q) {
@@ -1022,16 +1062,17 @@ public class Program {
 	 * 
 	 * @return the instructions
 	 */
-	public List<Instruction> toInstructionsList() {
+	public Instruction[] toInstructionsArray() {
 		int icount = 0;
 		for (final Operation op : operations) {
 			icount += op.getInstructionCount();
 		}
-		final List<Instruction> instructions = new ArrayList<Instruction>(
-				icount);
+		final Instruction[] instructions = new Instruction[icount];
+		int currIndex = 0;
 		if (operations != null) {
 			for (final Operation op : operations) {
-				instructions.addAll(op.getInstructions());
+				System.arraycopy(op.getInstructions(), 0, instructions,
+						currIndex, op.getInstructionCount());
 			}
 		}
 		return instructions;

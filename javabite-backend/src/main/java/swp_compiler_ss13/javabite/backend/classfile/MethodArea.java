@@ -90,12 +90,14 @@ class MethodArea {
 	 *            arbitrary amount of method access flags
 	 * @see Method
 	 */
-	//TODO: UPDATE JAVADOC
-	void addMethod(final String methodName, final short nameIndex, final short descriptorIndex, final short codeIndex,
+	// TODO: UPDATE JAVADOC
+	void addMethod(final String methodName, final short nameIndex,
+			final short descriptorIndex, final short codeIndex,
 			final String methodDescriptor,
 			final MethodAccessFlag... accessFlags) {
-		
-		final Method newMethod = new Method(nameIndex, descriptorIndex, codeIndex, accessFlags);
+
+		final Method newMethod = new Method(nameIndex, descriptorIndex,
+				codeIndex, accessFlags);
 
 		methodMap.put(methodName, newMethod);
 	}
@@ -203,5 +205,4 @@ class MethodArea {
 		method.addInstructionToCodeAttribute(instruction);
 	}
 
-	
 }
