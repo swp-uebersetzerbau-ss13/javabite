@@ -20,8 +20,10 @@ import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.lexer.Lexer;
+import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.parser.Parser;
-import swp_compiler_ss13.common.parser.ReportLog;
+import swp_compiler_ss13.common.report.ReportLog;
+import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.common.util.ModuleProvider;
 
 /**
@@ -144,9 +146,43 @@ public class JavabiteCompiler implements ReportLog {
 	}
 
 	@Override
-	public void reportError(String text, Integer line, Integer column,
+	public void reportWarning(ReportType type, List<Token> tokens,
 			String message) {
+		
+		System.out.println("Warning at (" + getLine(tokens) + "," + getColumn(tokens) + ") around '" + getTokenAsString(tokens) + "' : " + message);
+	}
+
+	@Override
+	public void reportError(ReportType type, List<Token> tokens, String message) {
 		errorReported = true;
-		System.out.println("Error at (" + line + "," + column + ") around '" + text + "' : " + message);
+		System.out.println("Error at (" + getLine(tokens) + "," + getColumn(tokens) + ") around '" + getTokenAsString(tokens) + "' : " + message);
+	}
+	
+	private int getLine(List<Token> tokens) {
+		if (tokens.isEmpty())
+			return 0;
+		
+		return tokens.get(0).getLine();
+	}
+	
+	private int getColumn(List<Token> tokens) {
+		if (tokens.isEmpty())
+			return 0;
+		
+		return tokens.get(0).getColumn();
+	}
+	
+	private String getTokenAsString(List<Token> tokens) {
+		if (tokens.isEmpty())
+			return "";
+		//TODO: this is not optimal because we don't know which tokens and
+		//      space-characters are missing between
+		StringBuilder sb = new StringBuilder();
+		for (Token t:tokens) {
+			sb.append(" ");
+			sb.append(t.getValue());
+		}
+		
+		return sb.substring(sb.length()>0?1:0);
 	}
 }

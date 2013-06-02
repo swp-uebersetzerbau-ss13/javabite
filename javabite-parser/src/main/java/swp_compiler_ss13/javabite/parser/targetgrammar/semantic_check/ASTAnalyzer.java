@@ -1,5 +1,6 @@
 package swp_compiler_ss13.javabite.parser.targetgrammar.semantic_check;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -16,8 +17,10 @@ import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOper
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
-import swp_compiler_ss13.common.parser.ReportLog;
+import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.parser.SymbolTable;
+import swp_compiler_ss13.common.report.ReportLog;
+import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.common.types.Type;
 import swp_compiler_ss13.javabite.ast.nodes.leaf.LiteralNodeJb;
 
@@ -78,7 +81,7 @@ public class ASTAnalyzer {
 						BasicIdentifierNode bin=(BasicIdentifierNode) node;
 						String identifier = bin.getIdentifier();
 						if (!table.isDeclared(identifier))
-							reportLog.reportError(identifier, 0, 0, "Identifier '" + identifier + "' used but never declared");
+							reportLog.reportError(ReportType.UNDECLARED_VARIABLE_USAGE, node.coverage(),"Identifier '" + identifier + "' used but never declared");
 					}
 				}
 			}
@@ -117,7 +120,7 @@ public class ASTAnalyzer {
 				for(DeclarationNode decl:block.getDeclarationList()) {
 					String identifier = decl.getIdentifier();
 					if (varSet.contains(identifier))
-						reportLog.reportError(identifier, 0, 0, "Identifier '" + identifier + "' was declared multiple times");
+						reportLog.reportError(ReportType.DOUBLE_DECLARATION, decl.coverage(), "Identifier '" + identifier + "' was declared multiple times");
 					else
 						varSet.add(identifier);
 				}
@@ -126,8 +129,9 @@ public class ASTAnalyzer {
 	}
 	
 	void checkDivisionByZero() {
+		//TODO: change structure so that error-reporting contains the tokens.
 		if (containsDivisionByZeroQ())
-			reportLog.reportError("", 0, 0, "Somewhere inside the input is a division by zero.");
+			reportLog.reportError(ReportType.DIVISION_BY_ZERO, new ArrayList<Token>(), "Somewhere inside the input is a division by zero.");
 	}
 	
 	/**

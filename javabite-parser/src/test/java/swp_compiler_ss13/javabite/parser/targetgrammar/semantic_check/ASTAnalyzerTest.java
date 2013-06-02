@@ -1,23 +1,27 @@
 package swp_compiler_ss13.javabite.parser.targetgrammar.semantic_check;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyListOf;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 
 import java.util.LinkedList;
 import java.util.List;
 
 import org.junit.Test;
 import org.mockito.Mockito;
-import static org.mockito.Mockito.*;
 
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
-import swp_compiler_ss13.common.parser.ReportLog;
+import swp_compiler_ss13.common.report.ReportLog;
+import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.javabite.parser.astGenerator.ASTGenerator;
 import swp_compiler_ss13.javabite.parser.targetgrammar.TargetGrammar;
 import swp_compiler_ss13.javabite.parser.targetgrammar.TargetGrammar.Reduction;
-import swp_compiler_ss13.javabite.parser.targetgrammar.semantic_check.ASTAnalyzer;
 import swp_compiler_ss13.javabite.token.NumTokenJb;
 import swp_compiler_ss13.javabite.token.TokenJb;
 
@@ -70,8 +74,8 @@ public class ASTAnalyzerTest {
 		instance = new ASTAnalyzer(reportLog);
 		instance.setAst(ast);
 		instance.checkDivisionByZero();
-		verify(reportLog, never()).reportError(anyString(), anyInt(), anyInt(),
-				anyString());
+		verify(reportLog, never()).reportError(any(ReportType.class),
+				anyListOf(Token.class), anyString());
 	}
 
 	@Test
@@ -112,8 +116,8 @@ public class ASTAnalyzerTest {
 		instance = new ASTAnalyzer(reportLog);
 		instance.setAst(ast);
 		instance.checkDivisionByZero();
-		verify(reportLog, never()).reportError(anyString(), anyInt(), anyInt(),
-				anyString());
+		verify(reportLog, never()).reportError(any(ReportType.class),
+				anyListOf(Token.class), anyString());
 	}
 
 	@Test
@@ -154,7 +158,8 @@ public class ASTAnalyzerTest {
 		instance = new ASTAnalyzer(reportLog);
 		instance.setAst(ast);
 		instance.checkDivisionByZero();
-		verify(reportLog, atLeastOnce()).reportError("", 0, 0,
+		verify(reportLog, atLeastOnce()).reportError(
+				ReportType.DIVISION_BY_ZERO, anyListOf(Token.class),
 				"Somewhere inside the input is a division by zero.");
 	}
 
@@ -196,8 +201,8 @@ public class ASTAnalyzerTest {
 		instance = new ASTAnalyzer(reportLog);
 		instance.setAst(ast);
 		instance.checkNonDeclaredVariableUsedQ();
-		verify(reportLog, never()).reportError(anyString(), anyInt(), anyInt(),
-				anyString());
+		verify(reportLog, never()).reportError(any(ReportType.class),
+				anyListOf(Token.class), anyString());
 	}
 
 	@Test
@@ -212,7 +217,7 @@ public class ASTAnalyzerTest {
 		tList.add(new TokenJb(TokenType.ID, "i"));
 		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
 		// i=(2);
-		
+
 		tList.add(new TokenJb(TokenType.ID, "i"));
 		tList.add(new TokenJb(TokenType.ASSIGNOP, "="));
 		tList.add(new TokenJb(TokenType.LEFT_PARAN, "("));
@@ -233,8 +238,10 @@ public class ASTAnalyzerTest {
 		instance = new ASTAnalyzer(reportLog);
 		instance.setAst(ast);
 		instance.checkDoubleDeclaration();
-		verify(reportLog, never()).reportError("i", 0, 0,
-				"IDENTEFIER 'i' were multiple decleard");
+		verify(reportLog, never())
+				.reportError(ReportType.DOUBLE_DECLARATION,
+						anyListOf(Token.class),
+						"IDENTEFIER 'i' were multiple decleard");
 	}
 
 	@Test
@@ -275,7 +282,8 @@ public class ASTAnalyzerTest {
 		instance = new ASTAnalyzer(reportLog);
 		instance.setAst(ast);
 		instance.checkNonDeclaredVariableUsedQ();
-		verify(reportLog, atLeastOnce()).reportError("ND", 0, 0,
-				"Identifier 'ND' used but never declared");
+		verify(reportLog, atLeastOnce()).reportError(
+				ReportType.UNDECLARED_VARIABLE_USAGE, anyListOf(Token.class),
+				anyString());
 	}
 }

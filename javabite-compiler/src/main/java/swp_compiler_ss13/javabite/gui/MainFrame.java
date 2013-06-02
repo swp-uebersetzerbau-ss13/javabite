@@ -57,7 +57,8 @@ import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.parser.Parser;
-import swp_compiler_ss13.common.parser.ReportLog;
+import swp_compiler_ss13.common.report.ReportLog;
+import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.common.util.ModuleProvider;
 import swp_compiler_ss13.javabite.ast.ASTJb;
 import swp_compiler_ss13.javabite.gui.ast.ASTVisualizerJb;
@@ -571,7 +572,15 @@ public class MainFrame extends JFrame implements ReportLog {
 	}
 	
 	@Override
-	public void reportError(String text, Integer line, Integer column, String message) {
+	public void reportWarning(ReportType type, List<Token> tokens,
+			String message) {
 		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void reportError(ReportType type, List<Token> tokens, String message) {
+		// TODO Auto-generated method stub
+		
 	}
 }

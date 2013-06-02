@@ -1,5 +1,6 @@
 package swp_compiler_ss13.javabite.parser;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -10,7 +11,8 @@ import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.parser.Parser;
-import swp_compiler_ss13.common.parser.ReportLog;
+import swp_compiler_ss13.common.report.ReportLog;
+import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.javabite.ast.ASTJb;
 import swp_compiler_ss13.javabite.parser.astGenerator.ASTGenerator;
 import swp_compiler_ss13.javabite.parser.grammar.exceptions.AmbiguityInDerivationGrammarException;
@@ -69,7 +71,9 @@ public class ParserJb implements Parser {
 		} catch(WordNotInLanguageGrammarException | AmbiguityInDerivationGrammarException e){
 			log.warn("Grammer throws exeception {}", e.getClass());
 			Token prob=e.getRelatedToken();
-			reportLog.reportError(prob.getValue(), prob.getLine(), prob.getColumn(), "Can not proceed AST build with Token '" + prob.getValue() + "' at this position.");
+			List<Token> tokenList = new ArrayList<>(1);
+			tokenList.add(prob);
+			reportLog.reportError(ReportType.UNDEFINED, tokenList, "Can not proceed AST build with Token '" + prob.getValue() + "' at this position.");
 		}
 		return new ASTJb();
 	}
