@@ -247,7 +247,7 @@ public class ASTVisualizerJb implements ASTVisualization {
 			color="white";
 		}
 
-		returnVal=graph.insertVertex(graph.getDefaultParent(), null, value, 20, 40, 100, 35,"ROUNDED;strokeColor=black;fillColor="+color);
+		returnVal=graph.insertVertex(graph.getDefaultParent(), null, value, 20, 40, 100, 35,"ROUNDED;strokeWidth=2.0;strokeColor=white;shadow=false;rounded=true;autosize=1;separatorColor=white;gradientColor=white;fillColor="+color);
 		return returnVal;
 		
 		
