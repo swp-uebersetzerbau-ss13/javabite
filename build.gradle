@@ -59,7 +59,7 @@ project(':javabite-compiler') {
 	mainClassName = 'swp_compiler_ss13.javabite.compiler.JavabiteCompiler'
 
 	dependencies {
-		compile project(':javabite-common'), project(':javabite-lexer'), project(':javabite-parser'), project(':javabite-code-gen'), project(':javabite-backend')
+		compile project(':javabite-common'), project(':javabite-lexer'), project(':javabite-parser'), project(':javabite-code-gen'), project(':javabite-backend'), project(':javabite-semantic')
 	}
 }
 project(':javabite-lexer') {
@@ -69,6 +69,9 @@ project(':javabite-lexer') {
 	}
 }
 project(':javabite-parser') {
+	dependencies { compile project(':javabite-common') }
+}
+project(':javabite-semantic') {
 	dependencies { compile project(':javabite-common') }
 }
 project(':javabite-code-gen') {
