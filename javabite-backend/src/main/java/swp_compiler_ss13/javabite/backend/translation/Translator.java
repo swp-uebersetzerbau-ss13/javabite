@@ -181,15 +181,13 @@ public class Translator {
 				}
 				// result can be a cnstant of different types
 				if (result.startsWith(SYM_CONST)) {
-					if (operator.name().endsWith("LONG")) {
+					if (operator == Operator.ARRAY_SET_LONG) {
 						classFile.addLongConstantToConstantPool(Long
 								.parseLong(result.substring(1)));
-					}
-					if (operator.name().endsWith("DOUBLE")) {
+					} else if (operator == Operator.ARRAY_SET_DOUBLE) {
 						classFile.addDoubleConstantToConstantPool(Double
 								.parseDouble(result.substring(1)));
-					}
-					if (operator.name().endsWith("STRING")) {
+					} else if (operator == Operator.ARRAY_SET_STRING) {
 						classFile.addStringConstantToConstantPool(result
 								.substring(1));
 					}
