@@ -29,7 +29,6 @@ public class Instruction {
 	private Mnemonic mnemonic;
 	private byte[] arguments;
 	private final int size;
-	private final short stackChange;
 
 	/**
 	 * Create a new instruction class instance
@@ -45,8 +44,12 @@ public class Instruction {
 			final byte... arguments) {
 		this.size = size;
 		this.mnemonic = mnemonic;
-		this.arguments = arguments;
-		this.stackChange = this.mnemonic.getStackChange();
+		if (mnemonic.getArgsCount() > 0) {
+			assert arguments.length >= mnemonic.getArgsCount();
+			this.arguments = arguments;
+		} else {
+			this.arguments = null;
+		}
 	}
 
 	/**
@@ -159,7 +162,7 @@ public class Instruction {
 	 * @return the stack change value
 	 */
 	public short getStackChange() {
-		return stackChange;
+		return mnemonic.getStackChange();
 	}
 
 	/*
@@ -175,7 +178,7 @@ public class Instruction {
 		result = prime * result
 				+ ((mnemonic == null) ? 0 : mnemonic.hashCode());
 		result = prime * result + size;
-		result = prime * result + stackChange;
+		result = prime * result + mnemonic.getStackChange();
 		return result;
 	}
 
@@ -198,8 +201,6 @@ public class Instruction {
 		if (mnemonic != other.mnemonic)
 			return false;
 		if (size != other.size)
-			return false;
-		if (stackChange != other.stackChange)
 			return false;
 		return true;
 	}

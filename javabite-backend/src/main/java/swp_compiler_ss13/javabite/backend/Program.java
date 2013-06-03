@@ -985,6 +985,34 @@ public class Program {
 			// TODO implement
 			return this;
 		}
+		
+		public ProgramBuilder declareArray(final Quadruple q) {
+			// TODO implement
+			
+			/*
+			 * 1D-Array
+			 * 	DECLARE_ARRAY #5 ! foo
+			 *  DECLARE_LONG
+			 * 
+			 * bytecode
+			 * 	iconst_5
+			 *  newarray long
+			 *  astore_1
+			 *  
+			 * 2D-Array
+			 * 	DECLARE_ARRAY #3 ! foo
+			 *  DECLARE_ARRAY #2 ! !
+			 *  DECLARE_LONG
+			 *  
+			 * bytecode
+			 *  iconst_2
+			 *  iconst_4
+			 *  multianewarray #2, 2
+			 *  astore_1
+			 */
+			
+			return this;
+		}
 
 		public ProgramBuilder arrayGetDouble(final Quadruple q) {
 			// TODO implement
