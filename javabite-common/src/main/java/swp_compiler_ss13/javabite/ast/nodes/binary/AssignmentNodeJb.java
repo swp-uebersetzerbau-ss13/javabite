@@ -1,12 +1,16 @@
 package swp_compiler_ss13.javabite.ast.nodes.binary;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import swp_compiler_ss13.common.ast.nodes.ExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.IdentifierNode;
-import swp_compiler_ss13.common.ast.nodes.StatementNode;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
-import swp_compiler_ss13.javabite.ast.nodes.StatementNodeJb;
+import swp_compiler_ss13.common.lexer.Token;
+import swp_compiler_ss13.common.lexer.TokenType;
+import swp_compiler_ss13.javabite.ast.nodes.ExpressionNodeJb;
 
-public class AssignmentNodeJb extends StatementNodeJb implements AssignmentNode {
+public class AssignmentNodeJb extends ExpressionNodeJb implements AssignmentNode {
 	public IdentifierNode getLeftValue() {
 		return leftValue;
 	}
@@ -30,6 +34,15 @@ public class AssignmentNodeJb extends StatementNodeJb implements AssignmentNode 
 
 	public AssignmentNodeJb() {
 		super(ASTNodeType.AssignmentNode);
+	}
+
+	@Override
+	public List<Token> coverage() {
+		List<Token> res=new LinkedList<>();
+		res.addAll(leftValue.coverage());
+		res.add(getAssociatedTokenListFromTypeUnique(TokenType.ASSIGNOP));
+		res.addAll(rightValue.coverage());
+		return res;
 	}
 
 }

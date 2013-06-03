@@ -1,8 +1,12 @@
 package swp_compiler_ss13.javabite.ast.nodes.unary;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Properties;
 
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
+import swp_compiler_ss13.common.lexer.Token;
+import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.types.Type;
 import swp_compiler_ss13.javabite.ast.ASTNodeJb;
 
@@ -33,5 +37,14 @@ public class DeclarationNodeJb extends ASTNodeJb implements DeclarationNode {
 	protected void fillNodeProperties(Properties props) {
 		props.put("id",identifier);
 		props.put("type", type);
+	}
+
+	@Override
+	public List<Token> coverage() {
+		List<Token> res=new LinkedList<>();
+		res.add(getAssociatedTokenListFromTypeUnique(TokenType.BOOL_SYMBOL,TokenType.DOUBLE_SYMBOL,TokenType.LONG_SYMBOL,TokenType.STRING_SYMBOL));
+		res.add(getAssociatedTokenListFromTypeUnique(TokenType.ID));
+		res.add(getAssociatedTokenListFromTypeUnique(TokenType.SEMICOLON));
+		return res;
 	}
 }

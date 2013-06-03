@@ -1,8 +1,11 @@
 package swp_compiler_ss13.javabite.ast.nodes.ternary;
 
+import java.util.List;
+
 import swp_compiler_ss13.common.ast.nodes.ExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.StatementNode;
 import swp_compiler_ss13.common.ast.nodes.ternary.BranchNode;
+import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.javabite.ast.nodes.StatementNodeJb;
 
 public class BranchNodeJb extends StatementNodeJb implements BranchNode {
@@ -43,5 +46,9 @@ public class BranchNodeJb extends StatementNodeJb implements BranchNode {
 		this.statementNodeOnFalse = statementNodeOnFalse;
 		addChild(this.statementNodeOnFalse, 1);
 	}
-
+	@Override
+	public List<Token> coverage() {
+		//TODO implement
+		throw new RuntimeException("not requested for MS2");
+	}
 }
