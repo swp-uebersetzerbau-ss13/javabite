@@ -1099,8 +1099,10 @@ public class Program {
 		int currIndex = 0;
 		if (operations != null) {
 			for (final Operation op : operations) {
+				
 				System.arraycopy(op.getInstructions(), 0, instructions,
 						currIndex, op.getInstructionCount());
+				currIndex += op.getInstructionCount();
 			}
 		}
 		return instructions;
