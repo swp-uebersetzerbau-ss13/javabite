@@ -42,7 +42,7 @@ public abstract class BinaryExpressionNodeJb extends ExpressionNodeJb implements
 		props.put("Op", operator);
 	}
 	@Override
-	public List<Token> coverage() {
+	public List<Token> nestedCoverage() {
 		List<Token> res=new LinkedList<>();
 		res.addAll(leftValue.coverage());
 		res.add(getAssociatedTokenListFromTypeUnique(

@@ -40,7 +40,7 @@ public class LiteralNodeJb extends ExpressionNodeJb implements LiteralNode {
 		
 	}
 	@Override
-	public List<Token> coverage() {
+	public List<Token> nestedCoverage() {
 		List<Token> res=new LinkedList<>();
 		res.add(getAssociatedTokenListFromTypeUnique(
 				TokenType.STRING,

@@ -30,6 +30,7 @@ public class ReturnNodeJb extends StatementNodeJb implements ReturnNode {
 		List<Token> res=new LinkedList<>();
 		res.add(getAssociatedTokenListFromTypeUnique(TokenType.RETURN));
 		if (rightValue!=null) res.addAll(rightValue.coverage());
+		res.add(getAssociatedTokenListFromTypeUnique(TokenType.SEMICOLON));
 		return res;
 	}
 }

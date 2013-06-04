@@ -33,7 +33,7 @@ public class StructIdentifierNodeJb extends IdentifierNodeJb implements StructId
 		props.put("fieldname", fieldName);
 	}
 	@Override
-	public List<Token> coverage() {
+	public List<Token> nestedCoverage() {
 		//TODO implement
 		throw new RuntimeException("not requested for MS2");
 	}

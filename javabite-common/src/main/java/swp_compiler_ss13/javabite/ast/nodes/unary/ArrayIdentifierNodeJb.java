@@ -31,7 +31,7 @@ public class ArrayIdentifierNodeJb extends IdentifierNodeJb implements ArrayIden
 		props.put("index", index);
 	}
 	@Override
-	public List<Token> coverage() {
+	public List<Token> nestedCoverage() {
 		//TODO implement
 		throw new RuntimeException("not requested for MS2");
 	}

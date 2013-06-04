@@ -28,7 +28,7 @@ public class BasicIdentifierNodeJb extends IdentifierNodeJb implements BasicIden
 		props.put("id", identifier);
 	}
 	@Override
-	public List<Token> coverage() {
+	public List<Token> nestedCoverage() {
 		List<Token> res=new LinkedList<>();
 		res.add(getAssociatedTokenListFromTypeUnique(TokenType.ID));
 		return res;

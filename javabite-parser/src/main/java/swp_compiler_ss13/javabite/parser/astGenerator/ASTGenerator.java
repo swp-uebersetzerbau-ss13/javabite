@@ -159,7 +159,6 @@ public class ASTGenerator {
 			Token t=(Token)this.reductions.get(0).getRightSide().get(0);
 			decl.setType(useTypeProduction());
 			String id=(((Token)thisReduction.getRightSide().get(1)).getValue());
-			// add type
 			decl.associateTypeWith(t);			
 			decl.setIdentifier(id);
 			break;
@@ -241,7 +240,6 @@ public class ASTGenerator {
 		switch (thisReduction.toString()) {
 		case "stmt -> assign SEMICOLON":
 			stmt = this.useAssignProduction();
-			stmt.putAllTokens(thisReduction.getRightSide());
 			break;
 		case "stmt -> RETURN SEMICOLON":
 			ReturnNodeJb returnNode = new ReturnNodeJb();

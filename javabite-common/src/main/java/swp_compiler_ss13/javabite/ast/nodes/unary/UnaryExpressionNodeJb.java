@@ -36,7 +36,7 @@ public class UnaryExpressionNodeJb extends ExpressionNodeJb implements UnaryExpr
 	}
 	
 	@Override
-	public List<Token> coverage() {
+	public List<Token> nestedCoverage() {
 		List<Token> res=new LinkedList<Token>();
 		res.add(getAssociatedTokenListFromTypeUnique(TokenType.MINUS,TokenType.NOT));
 		res.addAll(rightValue.coverage());

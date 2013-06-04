@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import swp_compiler_ss13.common.ast.AST;
+import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.parser.SymbolTable;
@@ -39,13 +40,26 @@ public class ASTGeneratorTest {
 	@Test
 	public void testSimpleDeclaration(){
 		List<Token> tList=new LinkedList<>();
-		tList.add(new TokenJb(TokenType.LONG_SYMBOL, "long"));
-		tList.add(new TokenJb(TokenType.ID, "i"));
-		tList.add(new TokenJb(TokenType.SEMICOLON,";"));
+		Token l_token=new TokenJb(TokenType.LONG_SYMBOL, "long");
+		tList.add(l_token);
+		Token id_token=new TokenJb(TokenType.ID, "i");
+		tList.add(id_token);
+		Token sem_token=new TokenJb(TokenType.SEMICOLON,";");
+		tList.add(sem_token);
 		TargetGrammar.SourceCode sc = syn.new SourceCode(tList);
 		List<Reduction> res= syn.derivateDFLeftToRight(sc);
 		instance=new ASTGenerator(res);
 		AST ast=instance.generateAST();
+		BlockNode bn=ast.getRootNode();
+		assertTrue("must be empty",bn.getStatementList().isEmpty());
+		assertTrue("must contain one",bn.getDeclarationList().size()==1);
+		List<Token> expected=new LinkedList<Token>();
+		expected.add(l_token);
+		expected.add(id_token);
+		expected.add(sem_token);
+		assertTrue("must hold",bn.coverage().equals(bn.getDeclarationList().get(0).coverage()));
+		assertEquals(expected, bn.coverage());
+		assertEquals(expected, bn.coverage());
 		
 	}
 	
@@ -204,6 +218,12 @@ public class ASTGeneratorTest {
 		assertEquals("should be the same",Kind.LONG,table.lookupType("i").getKind());
 		assertEquals("should be the same",Kind.LONG,table.lookupType("j").getKind());
 		assertNull("should not exist",table.lookupType("ij"));
+		BlockNode root=ast.getRootNode();
+		
+		assertEquals(21,root.coverage().size());
+		assertEquals(3,root.getDeclarationList().get(0).coverage().size());
+		assertEquals(8,root.getStatementList().get(0).coverage().size());
+		
 	}
 	
 	

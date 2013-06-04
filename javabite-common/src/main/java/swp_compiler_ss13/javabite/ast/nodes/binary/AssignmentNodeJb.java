@@ -37,7 +37,7 @@ public class AssignmentNodeJb extends ExpressionNodeJb implements AssignmentNode
 	}
 
 	@Override
-	public List<Token> coverage() {
+	public List<Token> nestedCoverage() {
 		List<Token> res=new LinkedList<>();
 		res.addAll(leftValue.coverage());
 		res.add(getAssociatedTokenListFromTypeUnique(TokenType.ASSIGNOP));

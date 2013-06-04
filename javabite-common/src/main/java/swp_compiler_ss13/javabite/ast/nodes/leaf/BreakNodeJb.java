@@ -12,7 +12,7 @@ public class BreakNodeJb extends ExpressionNodeJb implements BreakNode {
 		super(ASTNodeType.BreakNode);
 	}
 	@Override
-	public List<Token> coverage() {
+	public List<Token> nestedCoverage() {
 		//TODO implement
 		throw new RuntimeException("not requested for MS2");
 	}
