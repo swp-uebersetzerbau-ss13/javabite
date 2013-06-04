@@ -229,7 +229,7 @@ public enum Mnemonic {
 	private final int argc;
 
 	private Mnemonic(final int hexCode, final int stackChange, final int argc) {
-		this.byteCode = (byte) hexCode;
+		byteCode = (byte) hexCode;
 		this.stackChange = (short) stackChange;
 		this.argc = argc;
 	}

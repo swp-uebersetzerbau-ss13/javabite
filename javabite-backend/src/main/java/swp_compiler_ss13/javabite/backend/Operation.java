@@ -36,7 +36,7 @@ public class Operation {
 		private final List<Instruction> instructions;
 
 		private OperationBuilder() {
-			this.instructions = new ArrayList<>();
+			instructions = new ArrayList<>();
 		}
 
 		/**
@@ -56,7 +56,7 @@ public class Operation {
 		 */
 		public OperationBuilder add(final Instruction instruction) {
 			instructions.add(instruction);
-			this.size += instruction.getByteCount();
+			size += instruction.getByteCount();
 			return this;
 		}
 
@@ -77,9 +77,11 @@ public class Operation {
 			if (mnemonic.getArgsCount() > 0) {
 				assert arguments != null
 						&& arguments.length == mnemonic.getArgsCount();
-				instruction = new Instruction(1 + argsSize, mnemonic, arguments);
+				//instruction = new Instruction(1 + argsSize, mnemonic, arguments);
+				instruction = new Instruction(mnemonic, arguments);
 			} else {
-				instruction = new Instruction(1, mnemonic);
+				//instruction = new Instruction(1, mnemonic);
+				instruction = new Instruction(mnemonic);
 			}
 			return add(instruction);
 		}
@@ -202,9 +204,8 @@ public class Operation {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result
-				+ ((instructions == null) ? 0 : instructions.hashCode());
-		result = prime * result
-				+ ((operator == null) ? 0 : operator.hashCode());
+				+ (instructions == null ? 0 : instructions.hashCode());
+		result = prime * result + (operator == null ? 0 : operator.hashCode());
 		result = prime * result + size;
 		return result;
 	}
@@ -215,14 +216,14 @@ public class Operation {
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj)
 			return true;
 		if (obj == null)
 			return false;
 		if (!(obj instanceof Operation))
 			return false;
-		Operation other = (Operation) obj;
+		final Operation other = (Operation) obj;
 		if (instructions == null) {
 			if (other.instructions != null)
 				return false;

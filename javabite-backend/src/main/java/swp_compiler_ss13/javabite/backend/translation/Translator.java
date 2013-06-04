@@ -1,6 +1,5 @@
 package swp_compiler_ss13.javabite.backend.translation;
 
-import static org.junit.Assert.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -101,12 +100,12 @@ public class Translator {
 			List<Quadruple> tac) {
 
 		// some initialization
-		String classFileName = mainClassName + FILEENDING_CLASS;
+		final String classFileName = mainClassName + FILEENDING_CLASS;
 		final Collection<IClassfile> classfiles = new ArrayList<IClassfile>();
-		String mainMethodName = METHODNAME_MAIN;
+		final String mainMethodName = METHODNAME_MAIN;
 
 		// create a new (main)classfile/ classfile with main method
-		final IClassfile classfile = this.generateClassfile(classFileName,
+		final IClassfile classfile = generateClassfile(classFileName,
 				mainClassName, OBJECT_CLASSNAME_EIF,
 				Classfile.ClassfileAccessFlag.ACC_PUBLIC,
 				Classfile.ClassfileAccessFlag.ACC_SUPER);
@@ -176,6 +175,7 @@ public class Translator {
 			if (operator.name().startsWith("ARRAY_SET")) {
 				// argument 2 is a long constant
 				if (arg2.startsWith(SYM_CONST)) {
+					// TODO remove substring, replace by method!
 					classFile.addLongConstantToConstantPool(Long.parseLong(arg2
 							.substring(1)));
 				}
@@ -210,35 +210,40 @@ public class Translator {
 			 * check type and argument and create appropriate constant pool
 			 * entry if necessary
 			 */
-			if (type == InfoTag.LONG && arg1.startsWith(SYM_CONST)) {
-				assertNotNull(arg1);
-				classFile.addLongConstantToConstantPool(Long.parseLong(arg1
-						.substring(1)));
-			}
-			if (type == InfoTag.LONG && arg2.startsWith(SYM_CONST)) {
-				assertNotNull(arg2);
-				classFile.addLongConstantToConstantPool(Long.parseLong(arg2
-						.substring(1)));
-				continue;
-			}
-			if (type == InfoTag.DOUBLE && arg1.startsWith(SYM_CONST)) {
-				assertNotNull(arg1);
-				classFile.addDoubleConstantToConstantPool(Double
-						.parseDouble(arg1.substring(1)));
-			}
-			if (type == InfoTag.DOUBLE && arg2.startsWith(SYM_CONST)) {
-				assertNotNull(arg2);
-				classFile.addDoubleConstantToConstantPool(Double
-						.parseDouble(arg2.substring(1)));
-				continue;
-			}
-			if (type == InfoTag.STRING && arg1.startsWith(SYM_CONST)) {
-				assertNotNull(arg1);
-				classFile.addStringConstantToConstantPool(arg1.substring(1));
-			}
-			if (type == InfoTag.STRING && arg2.startsWith(SYM_CONST)) {
-				assertNotNull(arg2);
-				classFile.addStringConstantToConstantPool(arg2.substring(1));
+
+			switch (type) {
+			case LONG:
+				if (arg1.startsWith(SYM_CONST)) {
+					classFile.addLongConstantToConstantPool(Long.parseLong(arg1
+							.substring(1)));
+				}
+				if (arg2.startsWith(SYM_CONST)) {
+					classFile.addLongConstantToConstantPool(Long.parseLong(arg2
+							.substring(1)));
+				}
+				break;
+
+			case DOUBLE:
+				if (arg1.startsWith(SYM_CONST)) {
+					classFile.addDoubleConstantToConstantPool(Double
+							.parseDouble(arg1.substring(1)));
+				}
+				if (arg2.startsWith(SYM_CONST)) {
+					classFile.addDoubleConstantToConstantPool(Double
+							.parseDouble(arg2.substring(1)));
+				}
+				break;
+
+			case STRING:
+			default:
+				if (type == InfoTag.STRING && arg1.startsWith(SYM_CONST)) {
+					classFile
+							.addStringConstantToConstantPool(arg1.substring(1));
+				}
+				if (type == InfoTag.STRING && arg2.startsWith(SYM_CONST)) {
+					classFile
+							.addStringConstantToConstantPool(arg2.substring(1));
+				}
 			}
 		}
 	}

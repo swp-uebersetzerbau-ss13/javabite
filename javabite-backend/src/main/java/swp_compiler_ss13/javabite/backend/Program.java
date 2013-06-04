@@ -5,12 +5,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.javabite.backend.Operation.OperationBuilder;
 import swp_compiler_ss13.javabite.backend.classfile.IClassfile;
+import swp_compiler_ss13.javabite.backend.classfile.IClassfile.ArrayType;
 import swp_compiler_ss13.javabite.backend.classfile.IClassfile.InfoTag;
 import swp_compiler_ss13.javabite.backend.translation.Translator;
 import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
@@ -71,16 +73,20 @@ public class Program {
 		private boolean labelFlag;
 		// label name of last label
 		private String labelName;
+		// name of last array seen
+		private String arrayName;
+		// sizes of last array declaration, in reverse order on the stack
+		private final Stack<String> arraySizes = new Stack<>();
 
 		private ProgramBuilder(final int initialOffset,
 				final IClassfile classfile, final String methodName) {
-			this.operations = new ArrayList<>();
+			operations = new ArrayList<>();
 			this.classfile = classfile;
 			this.methodName = methodName;
-			this.returnFlag = false;
-			this.systemExitIndex = 0;
-			this.systemOutIndex = 0;
-			this.printIndex = 0;
+			returnFlag = false;
+			systemExitIndex = 0;
+			systemOutIndex = 0;
+			printIndex = 0;
 		}
 
 		private ProgramBuilder add(final Operation operation) {
@@ -102,7 +108,7 @@ public class Program {
 		public Program build() {
 			// check, whether there is a return instruction in the end
 			// if not, set it
-			if (!this.returnFlag) {
+			if (!returnFlag) {
 				final OperationBuilder op = OperationBuilder.newBuilder();
 				op.add(Mnemonic.RETURN);
 				operations.add(op.build());
@@ -142,20 +148,27 @@ public class Program {
 						constType, removeConstantSign(arg1));
 				assert index > 0;
 				if (wide) {
-					return new Instruction(2, Mnemonic.LDC2_W,
+					// return new Instruction(3, Mnemonic.LDC2_W,
+					// ByteUtils.shortToByteArray(index));
+					return new Instruction(Mnemonic.LDC2_W,
 							ByteUtils.shortToByteArray(index));
 				} else if (index >= 256) {
-					return new Instruction(1, Mnemonic.LDC_W,
+					// return new Instruction(1, Mnemonic.LDC_W,
+					// ByteUtils.shortToByteArray(index));
+					return new Instruction(Mnemonic.LDC_W,
 							ByteUtils.shortToByteArray(index));
 				} else {
-					return new Instruction(1, Mnemonic.LDC, (byte) index);
+					// return new Instruction(1, Mnemonic.LDC, (byte) index);
+					return new Instruction(Mnemonic.LDC, (byte) index);
 				}
 			} else {
 				final byte index = classfile.getIndexOfVariableInMethod(
 						methodName, arg1);
 				assert index > 0;
-				return new Instruction(1,
-						Mnemonic.getMnemonic(varLoadOp, index), index);
+				// return new Instruction(1, Mnemonic.getMnemonic(varLoadOp,
+				// index), index);
+				return new Instruction(Mnemonic.getMnemonic(varLoadOp, index),
+						index);
 			}
 		}
 
@@ -169,12 +182,15 @@ public class Program {
 			if (isConstant(arg1)) {
 				final short value = (short) (Translator.CONST_TRUE.equals(arg1
 						.toUpperCase()) ? 1 : 0);
-				return new Instruction(1, Mnemonic.ICONST(value),
+				// return new Instruction(1, Mnemonic.ICONST(value),
+				// ByteUtils.shortToByteArray(value));
+				return new Instruction(Mnemonic.ICONST(value),
 						ByteUtils.shortToByteArray(value));
 			} else {
 				final byte index = classfile.getIndexOfVariableInMethod(
 						methodName, arg1);
-				return new Instruction(1, Mnemonic.ILOAD(index), index);
+				// return new Instruction(1, Mnemonic.ILOAD(index), index);
+				return new Instruction(Mnemonic.ILOAD(index), index);
 			}
 		}
 
@@ -188,8 +204,9 @@ public class Program {
 		private Instruction storeOp(final String result, final String storeOp) {
 			final byte index = classfile.getIndexOfVariableInMethod(methodName,
 					result);
-			return new Instruction(1, Mnemonic.getMnemonic(storeOp, index),
-					index);
+			// return new Instruction(1, Mnemonic.getMnemonic(storeOp, index),
+			// index);
+			return new Instruction(Mnemonic.getMnemonic(storeOp, index), index);
 		}
 
 		// GENERIC OPERATIONS --------------------------------------------------
@@ -258,16 +275,19 @@ public class Program {
 				final InfoTag type, final String loadOp,
 				final Mnemonic compareOp, final String jumpOp) {
 			final OperationBuilder op = OperationBuilder.newBuilder();
-			final Instruction iCmpFalse = new Instruction(1, Mnemonic.ICONST_0);
+			// final Instruction iCmpFalse = new Instruction(1,
+			// Mnemonic.ICONST_0);
+			final Instruction iCmpFalse = new Instruction(Mnemonic.ICONST_0);
 			final Instruction iStore = storeOp(q.getResult(), "ISTORE");
 
 			op.add(loadOp(true, q.getArgument1(), type, loadOp));
 			op.add(loadOp(true, q.getArgument2(), type, loadOp));
 			op.add(compareOp);
-			op.add(new JumpInstruction(3, Mnemonic.getMnemonic(jumpOp),
-					iCmpFalse));
+			//op.add(new JumpInstruction(3, Mnemonic.getMnemonic(jumpOp), iCmpFalse));
+			op.add(new JumpInstruction(Mnemonic.getMnemonic(jumpOp), iCmpFalse));
 			op.add(Mnemonic.ICONST_1);
-			op.add(new JumpInstruction(3, Mnemonic.GOTO, iStore));
+			//op.add(new JumpInstruction(3, Mnemonic.GOTO, iStore));
+			op.add(new JumpInstruction(Mnemonic.GOTO, iStore));
 			op.add(iCmpFalse);
 			op.add(iStore);
 			return add(op.build());
@@ -319,6 +339,60 @@ public class Program {
 			return add(op.build());
 		}
 
+		/**
+		 * Creates an array of a primitive datatype. TODO javadoc
+		 * 
+		 * @param type
+		 * @return
+		 */
+		private ProgramBuilder arrayCreate(final ArrayType type) {
+			// long array declaration
+			assert arrayName != null && !arraySizes.isEmpty();
+			final OperationBuilder op = OperationBuilder.newBuilder();
+			for (final String size : arraySizes) {
+				op.add(loadOp(true, size, InfoTag.LONG, "LLOAD"));
+				op.add(Mnemonic.L2I);
+			}
+			op.add(Mnemonic.NEWARRAY, 1, type.getValue());
+			op.add(storeOp(arrayName, "ASTORE"));
+			return add(op.build());
+		}
+
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param q
+		 * @param loadOp
+		 * @param storeOp
+		 * @return
+		 */
+		private ProgramBuilder arrayGet(final Quadruple q,
+				final Mnemonic loadOp, final String storeOp) {
+			final OperationBuilder op = OperationBuilder.newBuilder();
+			final byte arrayIndex = classfile.getIndexOfVariableInMethod(
+					methodName, q.getArgument1());
+			op.add(Mnemonic.getMnemonic("ALOAD", arrayIndex), 1, arrayIndex);
+			op.add(loadOp(true, q.getArgument2(), InfoTag.LONG, "LLOAD"));
+			op.add(Mnemonic.L2I);
+			op.add(loadOp);
+			op.add(storeOp(q.getResult(), storeOp));
+			return add(op.build());
+		}
+
+		private ProgramBuilder arraySet(final Quadruple q, final boolean wide,
+				final InfoTag constType, final String varLoadOp,
+				final Mnemonic storeOp) {
+			final OperationBuilder op = OperationBuilder.newBuilder();
+			final byte arrayIndex = classfile.getIndexOfVariableInMethod(
+					methodName, q.getArgument1());
+			op.add(Mnemonic.getMnemonic("ALOAD", arrayIndex), 1, arrayIndex);
+			op.add(loadOp(true, q.getArgument2(), InfoTag.LONG, "LLOAD"));
+			op.add(Mnemonic.L2I);
+			op.add(loadOp(wide, q.getResult(), constType, varLoadOp));
+			op.add(storeOp);
+			return add(op.build());
+		}
+
 		// CONSTANT POOL HELPERS -----------------------------------------------
 
 		/**
@@ -336,14 +410,13 @@ public class Program {
 		 *         methodref entry.
 		 */
 		private short addSystemExitMethodToClassfile() {
-			if (!this.returnFlag) {
-				this.returnFlag = true;
+			if (!returnFlag) {
+				returnFlag = true;
 				// TODO externalize static strings
-				this.systemExitIndex = this.classfile
-						.addMethodrefConstantToConstantPool("exit", "(I)V",
-								"java/lang/System");
+				systemExitIndex = classfile.addMethodrefConstantToConstantPool(
+						"exit", "(I)V", "java/lang/System");
 			}
-			return this.systemExitIndex;
+			return systemExitIndex;
 		}
 
 		/**
@@ -359,20 +432,28 @@ public class Program {
 		private void addPrintMethodToClassfile() {
 
 			// add system.out fieldref info to constant pool, if necessary
-			if (this.systemOutIndex == 0) {
+			if (systemOutIndex == 0) {
 				// TODO externalize static strings
-				this.systemOutIndex = this.classfile
-						.addFieldrefConstantToConstantPool("out",
-								"Ljava/io/PrintStream;", "java/lang/System");
+				systemOutIndex = classfile.addFieldrefConstantToConstantPool(
+						"out", "Ljava/io/PrintStream;", "java/lang/System");
 			}
 
 			// add print methodref info to constant pool, if necessary
-			if (this.printIndex == 0) {
+			if (printIndex == 0) {
 				// TODO externalize static strings
-				this.printIndex = this.classfile
+				printIndex = classfile
 						.addMethodrefConstantToConstantPool("print",
 								"(Ljava/lang/String;)V", "java/io/PrintStream");
 			}
+		}
+
+		/**
+		 * TODO javadoc
+		 * 
+		 * @return
+		 */
+		private short addStringClassToClassfile() {
+			return classfile.addClassConstantToConstantPool("java/lang/String");
 		}
 
 		// OPERATIONS ----------------------------------------------------------
@@ -382,19 +463,44 @@ public class Program {
 		 */
 
 		public ProgramBuilder declareLong(final Quadruple q) {
-			throw new UnsupportedOperationException();
+			if (q.getResult() == null) {
+				return arrayCreate(ArrayType.LONG);
+			}
+
+			return this;
 		}
 
 		public ProgramBuilder declareDouble(final Quadruple q) {
-			throw new UnsupportedOperationException();
+			if (q.getResult() == null) {
+				return arrayCreate(ArrayType.DOUBLE);
+			}
+
+			return this;
 		}
 
 		public ProgramBuilder declareString(final Quadruple q) {
-			throw new UnsupportedOperationException();
+			if (q.getResult() == null) {
+				assert arrayName != null && !arraySizes.isEmpty();
+				final OperationBuilder op = OperationBuilder.newBuilder();
+				for (final String size : arraySizes) {
+					op.add(loadOp(true, size, InfoTag.LONG, "LLOAD"));
+					op.add(Mnemonic.L2I);
+				}
+				op.add(Mnemonic.ANEWARRAY, 2,
+						ByteUtils.shortToByteArray(addStringClassToClassfile()));
+				op.add(storeOp(arrayName, "ASTORE"));
+				return add(op.build());
+			}
+
+			return this;
 		}
 
 		public ProgramBuilder declareBoolean(final Quadruple q) {
-			throw new UnsupportedOperationException();
+			if (q.getResult() == null) {
+				return arrayCreate(ArrayType.BOOLEAN);
+			}
+
+			return this;
 		}
 
 		/**
@@ -860,7 +966,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder returnLong(final Quadruple q) {
-			final short systemExitIndex = this.addSystemExitMethodToClassfile();
+			final short systemExitIndex = addSystemExitMethodToClassfile();
 
 			final OperationBuilder op = OperationBuilder.newBuilder();
 			op.add(loadOp(true, q.getArgument1(), InfoTag.LONG, "LLOAD"));
@@ -875,89 +981,211 @@ public class Program {
 		 * === M2 === WORK IN PROGRESS
 		 */
 
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public ProgramBuilder notBoolean(final Quadruple q) {
 			return booleanOp(q, Mnemonic.INEG);
 		}
 
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public ProgramBuilder orBoolean(final Quadruple q) {
 			return booleanOp(q, Mnemonic.IOR);
 		}
 
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public ProgramBuilder andBoolean(final Quadruple q) {
 			return booleanOp(q, Mnemonic.IAND);
 		}
 
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public ProgramBuilder compareLongE(final Quadruple q) {
 			return compareNumber(q, InfoTag.LONG, "LLOAD", Mnemonic.LCMP,
 					"IFNE");
 		}
 
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public ProgramBuilder compareLongG(final Quadruple q) {
 			return compareNumber(q, InfoTag.LONG, "LLOAD", Mnemonic.LCMP,
 					"IFLE");
 		}
 
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public ProgramBuilder compareLongL(final Quadruple q) {
 			return compareNumber(q, InfoTag.LONG, "LLOAD", Mnemonic.LCMP,
 					"IFGE");
 		}
 
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public ProgramBuilder compareLongGE(final Quadruple q) {
 			return compareNumber(q, InfoTag.LONG, "LLOAD", Mnemonic.LCMP,
 					"IFLT");
 		}
 
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public ProgramBuilder compareLongLE(final Quadruple q) {
 			return compareNumber(q, InfoTag.LONG, "LLOAD", Mnemonic.LCMP,
 					"IFGT");
 		}
 
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public ProgramBuilder compareDoubleE(final Quadruple q) {
 			return compareNumber(q, InfoTag.DOUBLE, "DLOAD", Mnemonic.DCMPL,
 					"IFNE");
 		}
 
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public ProgramBuilder compareDoubleG(final Quadruple q) {
 			return compareNumber(q, InfoTag.DOUBLE, "DLOAD", Mnemonic.DCMPL,
 					"IFLE");
 		}
 
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public ProgramBuilder compareDoubleL(final Quadruple q) {
 			return compareNumber(q, InfoTag.DOUBLE, "DLOAD", Mnemonic.DCMPG,
 					"IFGE");
 		}
 
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public ProgramBuilder compareDoubleGE(final Quadruple q) {
 			return compareNumber(q, InfoTag.DOUBLE, "DLOAD", Mnemonic.DCMPL,
 					"IFLT");
 		}
 
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public ProgramBuilder compareDoubleLE(final Quadruple q) {
 			return compareNumber(q, InfoTag.DOUBLE, "DLOAD", Mnemonic.DCMPG,
 					"IFGT");
 		}
 
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public ProgramBuilder label(final Quadruple q) {
 			labelFlag = true;
 			labelName = q.getArgument1();
 			return this;
 		}
 
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public ProgramBuilder branch(final Quadruple q) {
 			// TODO implement
 			final OperationBuilder op = OperationBuilder.newBuilder();
 			if ("!".equals(q.getResult())) {
 				// unconditional branch
 				final Instruction target = getJumpTarget(q.getArgument1());
-				op.add(new JumpInstruction(3, Mnemonic.GOTO, target));
+				//op.add(new JumpInstruction(3, Mnemonic.GOTO, target));
+				op.add(new JumpInstruction(Mnemonic.GOTO, target));
 			} else {
 				final Instruction trueTarget = getJumpTarget(q.getArgument1());
 				final Instruction falseTarget = getJumpTarget(q.getArgument2());
+				final Instruction endNop = new Instruction(Mnemonic.NOP);
 				// conditional branch
+				op.add(loadBooleanOp(q.getResult()));
+				//op.add(new JumpInstruction(2, Mnemonic.IFEQ, falseTarget));
+				op.add(new JumpInstruction(Mnemonic.IFEQ, falseTarget));
+				op.add(trueTarget);
+				//op.add(new JumpInstruction(3, Mnemonic.GOTO, endNop));
+				op.add(new JumpInstruction(Mnemonic.GOTO, endNop));
+				op.add(falseTarget);
+				op.add(endNop);
 			}
 			return add(op.build());
 		}
 
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public ProgramBuilder printBoolean(final Quadruple q) {
 			addPrintMethodToClassfile();
 			final OperationBuilder op = OperationBuilder.newBuilder();
@@ -969,96 +1197,173 @@ public class Program {
 			return add(op.build());
 		}
 
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public ProgramBuilder printLong(final Quadruple q) {
 			return print(q.getArgument1(), InfoTag.LONG, "LDC2_W");
 		}
 
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public ProgramBuilder printDouble(final Quadruple q) {
 			return print(q.getArgument1(), InfoTag.DOUBLE, "LDC2_W");
 		}
 
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public ProgramBuilder printString(final Quadruple q) {
 			return print(q.getArgument1(), InfoTag.STRING, "LDC");
 		}
 
-		public ProgramBuilder arrayGetLong(final Quadruple q) {
-			// TODO implement
-			return this;
-		}
-		
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public ProgramBuilder declareArray(final Quadruple q) {
-			// TODO implement
-			
-			/*
-			 * 1D-Array
-			 * 	DECLARE_ARRAY #5 ! foo
-			 *  DECLARE_LONG
-			 * 
-			 * bytecode
-			 * 	iconst_5
-			 *  newarray long
-			 *  astore_1
-			 *  
-			 * 2D-Array
-			 * 	DECLARE_ARRAY #3 ! foo
-			 *  DECLARE_ARRAY #2 ! !
-			 *  DECLARE_LONG
-			 *  
-			 * bytecode
-			 *  iconst_2
-			 *  iconst_4
-			 *  multianewarray #2, 2
-			 *  astore_1
-			 */
-			
+			if (q.getResult() != null) {
+				arrayName = q.getResult();
+			}
+			arraySizes.push(q.getArgument1());
 			return this;
 		}
 
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
+		public ProgramBuilder arrayGetLong(final Quadruple q) {
+			return arrayGet(q, Mnemonic.LALOAD, "LSTORE");
+		}
+
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public ProgramBuilder arrayGetDouble(final Quadruple q) {
-			// TODO implement
-			return this;
+			return arrayGet(q, Mnemonic.DALOAD, "DSTORE");
 		}
 
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public ProgramBuilder arrayGetBoolean(final Quadruple q) {
-			// TODO implement
-			return this;
+			return arrayGet(q, Mnemonic.BALOAD, "ISTORE");
 		}
 
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public ProgramBuilder arrayGetString(final Quadruple q) {
-			// TODO implement
-			return this;
+			return arrayGet(q, Mnemonic.AALOAD, "ASTORE");
 		}
 
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public ProgramBuilder arrayGetArray(final Quadruple q) {
-			// TODO implement
-			return this;
+			return arrayGet(q, Mnemonic.AALOAD, "ASTORE");
 		}
 
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public ProgramBuilder arrayGetReference(final Quadruple q) {
-			// TODO implement
-			return this;
+			return arrayGet(q, Mnemonic.AALOAD, "ASTORE");
 		}
 
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public ProgramBuilder arraySetLong(final Quadruple q) {
-			// TODO implement
-			return this;
+			return arraySet(q, true, InfoTag.LONG, "LDC2_W", Mnemonic.LASTORE);
 		}
 
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public ProgramBuilder arraySetDouble(final Quadruple q) {
-			// TODO implement
-			return this;
+			return arraySet(q, true, InfoTag.DOUBLE, "LDC2_W", Mnemonic.DASTORE);
 		}
 
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public ProgramBuilder arraySetBoolean(final Quadruple q) {
 			// TODO implement
 			return this;
 		}
 
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public ProgramBuilder arraySetString(final Quadruple q) {
 			// TODO implement
 			return this;
 		}
 
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public ProgramBuilder arraySetArray(final Quadruple q) {
 			// TODO implement
 			return this;
@@ -1099,7 +1404,7 @@ public class Program {
 		int currIndex = 0;
 		if (operations != null) {
 			for (final Operation op : operations) {
-				
+
 				System.arraycopy(op.getInstructions(), 0, instructions,
 						currIndex, op.getInstructionCount());
 				currIndex += op.getInstructionCount();
@@ -1177,7 +1482,7 @@ public class Program {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result
-				+ ((operations == null) ? 0 : operations.hashCode());
+				+ (operations == null ? 0 : operations.hashCode());
 		return result;
 	}
 
@@ -1187,14 +1492,14 @@ public class Program {
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj)
 			return true;
 		if (obj == null)
 			return false;
 		if (!(obj instanceof Program))
 			return false;
-		Program other = (Program) obj;
+		final Program other = (Program) obj;
 		if (operations == null) {
 			if (other.operations != null)
 				return false;

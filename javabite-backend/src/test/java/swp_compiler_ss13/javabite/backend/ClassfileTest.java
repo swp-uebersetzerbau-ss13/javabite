@@ -1,6 +1,7 @@
 package swp_compiler_ss13.javabite.backend;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import org.junit.After;
 import org.junit.Before;
@@ -30,15 +31,15 @@ public class ClassfileTest {
 	public void initializeClassfile() {
 		assertEquals("The classname is set incorrect while initiation",
 				classfile.getName(),
-				(String) Whitebox.getInternalState(classfile, "name"));
+				Whitebox.getInternalState(classfile, "name"));
 		assertEquals(
 				"The thisClassNameEIF field is set incorrect while initiation",
-				"thisClassNameEIF", (String) Whitebox.getInternalState(
-						classfile, "thisClassNameEIF"));
+				"thisClassNameEIF",
+				Whitebox.getInternalState(classfile, "thisClassNameEIF"));
 		assertEquals(
 				"The superClassNameEIF field is set incorrect while initiation",
-				"superClassNameEIF", (String) Whitebox.getInternalState(
-						classfile, "superClassNameEIF"));
+				"superClassNameEIF",
+				Whitebox.getInternalState(classfile, "superClassNameEIF"));
 
 		assertNotNull("No constantPool set",
 				Whitebox.getInternalState(classfile, "constantPool"));

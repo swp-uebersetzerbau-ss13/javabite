@@ -28,7 +28,7 @@ public class ByteUtils {
 	 * @return
 	 */
 	public static byte[] shortToByteArray(final short x) {
-		return new byte[] { (byte) ((x >> 8) & 0xff), (byte) (x & 0xff) };
+		return new byte[] { (byte) (x >> 8 & 0xff), (byte) (x & 0xff) };
 	}
 
 	/**
@@ -38,11 +38,10 @@ public class ByteUtils {
 	 * @return
 	 */
 	public static byte[] longToByteArray(final long x) {
-		return new byte[] { (byte) ((x >> 56) & 0xff),
-				(byte) ((x >> 48) & 0xff), (byte) ((x >> 40) & 0xff),
-				(byte) ((x >> 32) & 0xff), (byte) ((x >> 24) & 0xff),
-				(byte) ((x >> 16) & 0xff), (byte) ((x >> 8) & 0xff),
-				(byte) (x & 0xff) };
+		return new byte[] { (byte) (x >> 56 & 0xff), (byte) (x >> 48 & 0xff),
+				(byte) (x >> 40 & 0xff), (byte) (x >> 32 & 0xff),
+				(byte) (x >> 24 & 0xff), (byte) (x >> 16 & 0xff),
+				(byte) (x >> 8 & 0xff), (byte) (x & 0xff) };
 	}
 
 	/**
@@ -135,7 +134,7 @@ public class ByteUtils {
 			byte b;
 			try {
 				while ((b = (byte) dis.read()) != -1) {
-					final String tmp = Integer.toHexString(((b + 256) % 256));
+					final String tmp = Integer.toHexString((b + 256) % 256);
 					if (tmp.length() < 2) {
 						sb.append(0).append(tmp).append(" ");
 					} else {

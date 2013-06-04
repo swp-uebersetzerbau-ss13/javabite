@@ -30,9 +30,9 @@ public class BackendModule implements Backend {
 	private final TargetCodeOptimizer targetCodeOptimizer;
 
 	public BackendModule() {
-		this.tacOptimizer = new TACOptimizer();
-		this.translator = new Translator();
-		this.targetCodeOptimizer = new TargetCodeOptimizer();
+		tacOptimizer = new TACOptimizer();
+		translator = new Translator();
+		targetCodeOptimizer = new TargetCodeOptimizer();
 	}
 
 	/**
@@ -40,12 +40,13 @@ public class BackendModule implements Backend {
 	 */
 	@Override
 	public Map<String, InputStream> generateTargetCode(
-			String baseFileName, List<Quadruple> tac) throws BackendException {
+			final String baseFileName, final List<Quadruple> tac)
+			throws BackendException {
 
 		// TAC Optimizer
 		// ### currently empty ###
 		// Translator
-		final Collection<IClassfile> classfiles = this.translator.translate(
+		final Collection<IClassfile> classfiles = translator.translate(
 				baseFileName, tac);
 		// Target Code Optimizer
 		// ### currently empty ###

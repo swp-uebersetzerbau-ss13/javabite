@@ -33,22 +33,24 @@ public class Instruction {
 	/**
 	 * Create a new instruction class instance
 	 * 
-	 * @param size
-	 *            byte size
 	 * @param mnemonic
 	 *            mnemonic of opcode
 	 * @param arguments
 	 *            arguments for opcode
 	 */
-	public Instruction(final int size, final Mnemonic mnemonic,
-			final byte... arguments) {
-		this.size = size;
+	public Instruction(final Mnemonic mnemonic, final byte... arguments) {
 		this.mnemonic = mnemonic;
 		if (mnemonic.getArgsCount() > 0) {
+			// TODO: argument count is not necessarily byte count!
+			// ex: LDC2_W takes 1 argument of 2 bytes
+			// Mnemonic LDC2_W has ArgCount 1, arguments array has length 2
+			// fix this?
 			assert arguments.length >= mnemonic.getArgsCount();
 			this.arguments = arguments;
+			this.size = 1 + arguments.length;
 		} else {
 			this.arguments = null;
+			this.size = 1;
 		}
 	}
 
@@ -61,7 +63,7 @@ public class Instruction {
 	 *            mnemonic of opcode
 	 */
 	public Instruction(final Mnemonic mnemonic) {
-		this(1, mnemonic, null);
+		this(mnemonic, null);
 	}
 
 	/**
@@ -72,21 +74,21 @@ public class Instruction {
 	 */
 	public void writeTo(final DataOutputStream outputStream) {
 		try {
-			outputStream.writeByte(this.mnemonic.getBytecode());
+			outputStream.writeByte(mnemonic.getBytecode());
 
 			if (logger.isDebugEnabled()) {
 				logger.debug("mnemonic bcode");
-				logger.debug("{}", toHexString(this.mnemonic.getBytecode()));
+				logger.debug("{}", toHexString(mnemonic.getBytecode()));
 			}
 
-			if (this.getArguments() != null) {
-				for (final Byte b : this.getArguments()) {
+			if (getArguments() != null) {
+				for (final Byte b : getArguments()) {
 					outputStream.writeByte(b);
 				}
 
 				if (logger.isDebugEnabled()) {
 					logger.debug("arguments");
-					logger.debug("{}", hexFromBytes(this.getArguments()));
+					logger.debug("{}", hexFromBytes(getArguments()));
 				}
 			}
 		} catch (final IOException e) {
@@ -175,8 +177,7 @@ public class Instruction {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + Arrays.hashCode(arguments);
-		result = prime * result
-				+ ((mnemonic == null) ? 0 : mnemonic.hashCode());
+		result = prime * result + (mnemonic == null ? 0 : mnemonic.hashCode());
 		result = prime * result + size;
 		result = prime * result + mnemonic.getStackChange();
 		return result;
@@ -188,14 +189,14 @@ public class Instruction {
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj)
 			return true;
 		if (obj == null)
 			return false;
 		if (!(obj instanceof Instruction))
 			return false;
-		Instruction other = (Instruction) obj;
+		final Instruction other = (Instruction) obj;
 		if (!Arrays.equals(arguments, other.arguments))
 			return false;
 		if (mnemonic != other.mnemonic)

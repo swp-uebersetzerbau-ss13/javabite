@@ -10,24 +10,23 @@ public class JumpInstruction extends Instruction {
 
 	private Instruction targetInstruction;
 
-	public JumpInstruction(final int size, final Mnemonic mnemonic,
-			final byte... arguments) {
-		super(size, mnemonic, arguments);
+	public JumpInstruction(final Mnemonic mnemonic, final byte... arguments) {
+		super(mnemonic, arguments);
 	}
 
-	public JumpInstruction(final int size, final Mnemonic mnemonic,
+	public JumpInstruction(final Mnemonic mnemonic,
 			final Instruction targetInstruction, final byte... arguments) {
-		super(size, mnemonic, arguments);
+		super(mnemonic, arguments);
 		this.targetInstruction = targetInstruction;
 	}
 
-	public JumpInstruction(int size, Mnemonic mnemonic) {
-		super(size, mnemonic);
+	public JumpInstruction(final Mnemonic mnemonic) {
+		super(mnemonic);
 	}
 
-	public JumpInstruction(int size, Mnemonic mnemonic,
+	public JumpInstruction(final Mnemonic mnemonic,
 			final Instruction targetInstruction) {
-		super(size, mnemonic);
+		super(mnemonic);
 		this.targetInstruction = targetInstruction;
 	}
 
@@ -35,7 +34,7 @@ public class JumpInstruction extends Instruction {
 		return targetInstruction;
 	}
 
-	public void setTargetInstruction(Instruction targetInstruction) {
+	public void setTargetInstruction(final Instruction targetInstruction) {
 		this.targetInstruction = targetInstruction;
 	}
 
@@ -50,8 +49,7 @@ public class JumpInstruction extends Instruction {
 		int result = super.hashCode();
 		result = prime
 				* result
-				+ ((targetInstruction == null) ? 0 : targetInstruction
-						.hashCode());
+				+ (targetInstruction == null ? 0 : targetInstruction.hashCode());
 		return result;
 	}
 
@@ -61,14 +59,14 @@ public class JumpInstruction extends Instruction {
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	@Override
-	public boolean equals(Object obj) {
+	public boolean equals(final Object obj) {
 		if (this == obj)
 			return true;
 		if (!super.equals(obj))
 			return false;
 		if (!(obj instanceof JumpInstruction))
 			return false;
-		JumpInstruction other = (JumpInstruction) obj;
+		final JumpInstruction other = (JumpInstruction) obj;
 		if (targetInstruction == null) {
 			if (other.targetInstruction != null)
 				return false;

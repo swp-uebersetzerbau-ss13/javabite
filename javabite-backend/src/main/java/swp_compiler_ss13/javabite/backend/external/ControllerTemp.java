@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import swp_compiler_ss13.common.backend.BackendException;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.BackendModule;
-import swp_compiler_ss13.common.backend.BackendException;
 
 /**
  * ControllerTemp class. Implementation of a temporary controller to instantiate
@@ -141,7 +141,7 @@ public class ControllerTemp {
 		}
 	};
 
-	public static void main(final String[] args) throws BackendException{
+	public static void main(final String[] args) throws BackendException {
 
 		final StringBuilder sb = new StringBuilder();
 

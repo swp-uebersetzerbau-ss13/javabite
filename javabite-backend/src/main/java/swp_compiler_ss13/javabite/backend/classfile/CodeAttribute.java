@@ -21,8 +21,9 @@ import swp_compiler_ss13.javabite.backend.classfile.IClassfile.VariableType;
  * This class represents all information needed to create a JVM-Classfile method
  * code attribute.
  * 
- * @see <a href="http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.3">JVM attributes Specification</a>
- * </p>
+ * @see <a
+ *      href="http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.3">JVM
+ *      attributes Specification</a> </p>
  * 
  * @author Marco
  * @since 28.04.2013
@@ -75,13 +76,13 @@ class CodeAttribute {
 	 */
 	public CodeAttribute(final short codeIndex) {
 		this.codeIndex = codeIndex;
-		this.variableMap = new HashMap<String, Byte>();
-		this.codeArea = new ArrayList<Instruction>();
+		variableMap = new HashMap<String, Byte>();
+		codeArea = new ArrayList<Instruction>();
 
-		this.maxStack = 1;
-		this.maxLocals = 1;
-		this.exceptionTableLength = 0;
-		this.attributesCount = 0;
+		maxStack = 1;
+		maxLocals = 1;
+		exceptionTableLength = 0;
+		attributesCount = 0;
 	};
 
 	/**
@@ -106,12 +107,12 @@ class CodeAttribute {
 		final ByteArrayOutputStream codeBAOS = new ByteArrayOutputStream();
 		final DataOutputStream codeDOS = new DataOutputStream(codeBAOS);
 
-		this.maxStack = calculateMaxStack();
+		maxStack = calculateMaxStack();
 
 		try {
-			attributesDOS.writeShort(this.maxStack);
-			logger.debug("MAX_STACK: " + this.maxStack);
-			attributesDOS.writeShort(this.maxLocals);
+			attributesDOS.writeShort(maxStack);
+			logger.debug("MAX_STACK: " + maxStack);
+			attributesDOS.writeShort(maxLocals);
 
 			for (final Instruction instruction : codeArea) {
 				instruction.writeTo(codeDOS);
@@ -121,10 +122,10 @@ class CodeAttribute {
 
 			attributesDOS.write(codeBAOS.toByteArray());
 
-			attributesDOS.writeShort(this.exceptionTableLength);
-			attributesDOS.writeShort(this.attributesCount);
+			attributesDOS.writeShort(exceptionTableLength);
+			attributesDOS.writeShort(attributesCount);
 
-			classfileDOS.writeShort(this.codeIndex);
+			classfileDOS.writeShort(codeIndex);
 			classfileDOS.writeInt(attributesDOS.size());
 			classfileDOS.write(attributesBAOS.toByteArray());
 
@@ -192,9 +193,9 @@ class CodeAttribute {
 	 */
 	void addVariable(final String variableName, final VariableType variableType) {
 
-		if (!this.variableMap.containsKey(variableName)) {
-			this.variableMap.put(variableName, (byte) this.maxLocals);
-			this.maxLocals += variableType.getLength();
+		if (!variableMap.containsKey(variableName)) {
+			variableMap.put(variableName, (byte) maxLocals);
+			maxLocals += variableType.getLength();
 		}
 	}
 
@@ -216,8 +217,8 @@ class CodeAttribute {
 	byte getIndexOfVariable(final String variableName) {
 		// TODO check size of variable space overflow -> exception
 
-		if (this.variableMap.containsKey(variableName)) {
-			return this.variableMap.get(variableName);
+		if (variableMap.containsKey(variableName)) {
+			return variableMap.get(variableName);
 		} else {
 			return 0;
 		}
@@ -239,6 +240,6 @@ class CodeAttribute {
 	 */
 	void addInstruction(final Instruction instruction) {
 
-		this.codeArea.add(instruction);
+		codeArea.add(instruction);
 	}
 }

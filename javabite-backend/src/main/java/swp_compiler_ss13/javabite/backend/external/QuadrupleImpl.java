@@ -26,7 +26,7 @@ public class QuadrupleImpl implements Quadruple {
 	 */
 	@Override
 	public Operator getOperator() {
-		return this.op;
+		return op;
 	}
 
 	/**
@@ -34,7 +34,7 @@ public class QuadrupleImpl implements Quadruple {
 	 */
 	@Override
 	public String getArgument1() {
-		return this.arg1;
+		return arg1;
 	}
 
 	/**
@@ -42,7 +42,7 @@ public class QuadrupleImpl implements Quadruple {
 	 */
 	@Override
 	public String getArgument2() {
-		return this.arg2;
+		return arg2;
 	}
 
 	/**
@@ -50,7 +50,7 @@ public class QuadrupleImpl implements Quadruple {
 	 */
 	@Override
 	public String getResult() {
-		return this.res;
+		return res;
 	}
 
 }

@@ -27,7 +27,7 @@ public interface IClassfile {
 		}
 
 		public short getValue() {
-			return this.value;
+			return value;
 		}
 	}
 
@@ -53,7 +53,7 @@ public interface IClassfile {
 		}
 
 		public short getValue() {
-			return this.value;
+			return value;
 		}
 	}
 
@@ -77,7 +77,7 @@ public interface IClassfile {
 		}
 
 		public short getLength() {
-			return this.length;
+			return length;
 		}
 	}
 
@@ -112,6 +112,26 @@ public interface IClassfile {
 			return wide;
 		}
 
+	}
+
+	/**
+	 * TODO javadoc
+	 * 
+	 * @author eike
+	 * @since Jun 3, 2013 8:29:55 PM
+	 */
+	public enum ArrayType {
+		BOOLEAN(0x04), DOUBLE(0x07), LONG(0x0b);
+
+		private final byte value;
+
+		ArrayType(final int value) {
+			this.value = (byte) value;
+		}
+
+		public byte getValue() {
+			return value;
+		}
 	}
 
 	/**

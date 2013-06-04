@@ -75,11 +75,11 @@ class ConstantPool {
 		try {
 			if (logger.isDebugEnabled()) {
 				logger.debug("constantPool size");
-				logger.debug("{}", toHexString(this.entryList.size() + 1));
+				logger.debug("{}", toHexString(entryList.size() + 1));
 			}
 
 			// specification determines size as size of cp plus 1
-			classfileDOS.writeShort((short) (this.entryList.size() + 1));
+			classfileDOS.writeShort((short) (entryList.size() + 1));
 
 			for (final CPInfo entry : entryList) {
 				entry.writeTo(classfileDOS);
@@ -118,22 +118,22 @@ class ConstantPool {
 	 */
 	short generateConstantLongInfo(final long value) {
 		checkConstantPoolSize();
-		String key = InfoTag.LONG.name() + String.valueOf(value);
+		final String key = InfoTag.LONG.name() + value;
 
 		// return existing entry's index, if it exists already
-		if (this.getCPMapEntry(key) > 0) {
-			return this.getCPMapEntry(key);
+		if (getCPMapEntry(key) > 0) {
+			return getCPMapEntry(key);
 		}
 
 		// generate entry
 		final byte[] info = longToByteArray(value);
 		final CPInfo longInfo = new CPInfo(InfoTag.LONG, info);
-		this.entryList.add(longInfo);
+		entryList.add(longInfo);
 		final CPInfo longInfo2ndPartDummy = new CPInfo();
-		this.entryList.add(longInfo2ndPartDummy);
+		entryList.add(longInfo2ndPartDummy);
 
-		short index = (short) (this.entryList.size() - 1);
-		this.addCPMapEntry(key, index);
+		final short index = (short) (entryList.size() - 1);
+		addCPMapEntry(key, index);
 		return index;
 	}
 
@@ -155,22 +155,22 @@ class ConstantPool {
 	 */
 	short generateConstantDoubleInfo(final double value) {
 		checkConstantPoolSize();
-		String key = InfoTag.DOUBLE.name() + String.valueOf(value);
+		final String key = InfoTag.DOUBLE.name() + value;
 
 		// return existing entry's index, if it exists already
-		if (this.getCPMapEntry(key) > 0) {
-			return this.getCPMapEntry(key);
+		if (getCPMapEntry(key) > 0) {
+			return getCPMapEntry(key);
 		}
 
 		// generate entry
 		final byte[] info = doubleToByteArray(value);
 		final CPInfo doubleInfo = new CPInfo(InfoTag.DOUBLE, info);
-		this.entryList.add(doubleInfo);
+		entryList.add(doubleInfo);
 		final CPInfo doubleInfo2ndPartDummy = new CPInfo();
-		this.entryList.add(doubleInfo2ndPartDummy);
+		entryList.add(doubleInfo2ndPartDummy);
 
-		short index = (short) (this.entryList.size() - 1);
-		this.addCPMapEntry(key, index);
+		final short index = (short) (entryList.size() - 1);
+		addCPMapEntry(key, index);
 		return index;
 	}
 
@@ -192,23 +192,23 @@ class ConstantPool {
 	 */
 	short generateConstantStringInfo(final String value) {
 		checkConstantPoolSize();
-		String key = InfoTag.STRING.name() + value;
+		final String key = InfoTag.STRING.name() + value;
 
 		// return existing entry's index, if it exists already
-		if (this.getCPMapEntry(key) > 0) {
-			return this.getCPMapEntry(key);
+		if (getCPMapEntry(key) > 0) {
+			return getCPMapEntry(key);
 		}
 
 		// generate UTF8-entry
-		final short nameIndex = this.generateConstantUTF8Info(value);
+		final short nameIndex = generateConstantUTF8Info(value);
 		// generate String entry
 		final byte[] info = ByteUtils.shortToByteArray(nameIndex);
 		final CPInfo stringInfo = new CPInfo(InfoTag.STRING, info);
-		this.entryList.add(stringInfo);
+		entryList.add(stringInfo);
 
 		// return index + 1
-		short index = (short) this.entryList.size();
-		this.addCPMapEntry(key, index);
+		final short index = (short) entryList.size();
+		addCPMapEntry(key, index);
 		return index;
 	}
 
@@ -230,23 +230,23 @@ class ConstantPool {
 	 */
 	short generateConstantClassInfo(final String value) {
 		checkConstantPoolSize();
-		String key = InfoTag.CLASS.name() + value;
+		final String key = InfoTag.CLASS.name() + value;
 
 		// return existing entry's index, if it exists already
-		if (this.getCPMapEntry(key) > 0) {
-			return this.getCPMapEntry(key);
+		if (getCPMapEntry(key) > 0) {
+			return getCPMapEntry(key);
 		}
 
 		// generate UTF8-entry
-		final short nameIndex = this.generateConstantUTF8Info(value);
+		final short nameIndex = generateConstantUTF8Info(value);
 		// generate CLASS-entry
 		final byte[] info = ByteUtils.shortToByteArray(nameIndex);
 		final CPInfo longInfo = new CPInfo(InfoTag.CLASS, info);
-		this.entryList.add(longInfo);
+		entryList.add(longInfo);
 
 		// return index + 1
-		short index = (short) this.entryList.size();
-		this.addCPMapEntry(key, index);
+		final short index = (short) entryList.size();
+		addCPMapEntry(key, index);
 		return index;
 	}
 
@@ -268,24 +268,24 @@ class ConstantPool {
 	 */
 	short generateConstantUTF8Info(final String value) {
 		checkConstantPoolSize();
-		String key = InfoTag.UTF8.name() + value;
+		final String key = InfoTag.UTF8.name() + value;
 
 		// return existing entry's index, if it exists already
-		if (this.getCPMapEntry(key) > 0) {
-			return this.getCPMapEntry(key);
+		if (getCPMapEntry(key) > 0) {
+			return getCPMapEntry(key);
 		}
 
 		// generate entry
-		ByteBuffer info = ByteBuffer.allocate(value.length() + 2);
+		final ByteBuffer info = ByteBuffer.allocate(value.length() + 2);
 		info.put(shortToByteArray((short) value.length()));
 		info.put(value.getBytes());
 
 		final CPInfo utf8Info = new CPInfo(InfoTag.UTF8, info.array());
-		this.entryList.add(utf8Info);
+		entryList.add(utf8Info);
 
 		// return index + 1
-		short index = (short) this.entryList.size();
-		this.addCPMapEntry(key, index);
+		final short index = (short) entryList.size();
+		addCPMapEntry(key, index);
 		return index;
 	}
 
@@ -311,27 +311,27 @@ class ConstantPool {
 	short generateConstantMethodrefInfo(final short classIndex,
 			final short nameAndTypeIndex) {
 		checkConstantPoolSize();
-		String key = InfoTag.METHODREF.name() + classIndex + "."
+		final String key = InfoTag.METHODREF.name() + classIndex + "."
 				+ nameAndTypeIndex;
 
 		// return existing entry's index, if it exists already
-		if (this.getCPMapEntry(key) > 0) {
-			return this.getCPMapEntry(key);
+		if (getCPMapEntry(key) > 0) {
+			return getCPMapEntry(key);
 		}
 
-		if ((classIndex != 0) && (nameAndTypeIndex != 0)) {
+		if (classIndex != 0 && nameAndTypeIndex != 0) {
 			// generate entry
-			ByteBuffer info = ByteBuffer.allocate(4);
+			final ByteBuffer info = ByteBuffer.allocate(4);
 			info.put(shortToByteArray(classIndex));
 			info.put(shortToByteArray(nameAndTypeIndex));
 
 			final CPInfo methodrefInfo = new CPInfo(InfoTag.METHODREF,
 					info.array());
-			this.entryList.add(methodrefInfo);
+			entryList.add(methodrefInfo);
 
 			// return index + 1
-			short index = (short) this.entryList.size();
-			this.addCPMapEntry(key, index);
+			final short index = (short) entryList.size();
+			addCPMapEntry(key, index);
 			return index;
 		} else {
 			return 0;
@@ -360,27 +360,27 @@ class ConstantPool {
 	short generateConstantFieldrefInfo(final short classIndex,
 			final short nameAndTypeIndex) {
 		checkConstantPoolSize();
-		String key = InfoTag.METHODREF.name() + classIndex + "."
+		final String key = InfoTag.METHODREF.name() + classIndex + "."
 				+ nameAndTypeIndex;
 
 		// return existing entry's index, if it exists already
-		if (this.getCPMapEntry(key) > 0) {
-			return this.getCPMapEntry(key);
+		if (getCPMapEntry(key) > 0) {
+			return getCPMapEntry(key);
 		}
 
-		if ((classIndex != 0) && (nameAndTypeIndex != 0)) {
+		if (classIndex != 0 && nameAndTypeIndex != 0) {
 			// generate entry
-			ByteBuffer info = ByteBuffer.allocate(4);
+			final ByteBuffer info = ByteBuffer.allocate(4);
 			info.put(shortToByteArray(classIndex));
 			info.put(shortToByteArray(nameAndTypeIndex));
 
 			final CPInfo fieldrefInfo = new CPInfo(InfoTag.FIELDREF,
 					info.array());
-			this.entryList.add(fieldrefInfo);
+			entryList.add(fieldrefInfo);
 
 			// return index + 1
-			short index = (short) this.entryList.size();
-			this.addCPMapEntry(key, index);
+			final short index = (short) entryList.size();
+			addCPMapEntry(key, index);
 			return index;
 		} else {
 			return 0;
@@ -409,44 +409,44 @@ class ConstantPool {
 	short generateConstantNameAndTypeInfo(final String name,
 			final String descriptor) {
 		checkConstantPoolSize();
-		String key = InfoTag.NAMEANDTYPE.name() + name + descriptor;
+		final String key = InfoTag.NAMEANDTYPE.name() + name + descriptor;
 
 		// return existing entry's index, if it exists already
-		if (this.getCPMapEntry(key) > 0) {
-			return this.getCPMapEntry(key);
+		if (getCPMapEntry(key) > 0) {
+			return getCPMapEntry(key);
 		}
 
 		// check, whether name exists already, else add it
-		String nameKey = InfoTag.UTF8.name() + name;
+		final String nameKey = InfoTag.UTF8.name() + name;
 		final short nameIndex;
-		if (this.getCPMapEntry(nameKey) > 0) {
-			nameIndex = this.getCPMapEntry(nameKey);
+		if (getCPMapEntry(nameKey) > 0) {
+			nameIndex = getCPMapEntry(nameKey);
 		} else {
-			nameIndex = this.generateConstantUTF8Info(name);
+			nameIndex = generateConstantUTF8Info(name);
 		}
 
 		// check, whether descriptor exists already, else add it
-		String descriptorKey = InfoTag.UTF8.name() + descriptor;
+		final String descriptorKey = InfoTag.UTF8.name() + descriptor;
 		final short descriptorIndex;
-		if (this.getCPMapEntry(descriptorKey) > 0) {
-			descriptorIndex = this.getCPMapEntry(descriptorKey);
+		if (getCPMapEntry(descriptorKey) > 0) {
+			descriptorIndex = getCPMapEntry(descriptorKey);
 		} else {
-			descriptorIndex = this.generateConstantUTF8Info(descriptor);
+			descriptorIndex = generateConstantUTF8Info(descriptor);
 		}
 
-		if ((nameIndex != 0) && (descriptorIndex != 0)) {
+		if (nameIndex != 0 && descriptorIndex != 0) {
 			// generate key
-			ByteBuffer info = ByteBuffer.allocate(4);
+			final ByteBuffer info = ByteBuffer.allocate(4);
 			info.put(shortToByteArray(nameIndex));
 			info.put(shortToByteArray(descriptorIndex));
 
 			final CPInfo nameAndTypeInfo = new CPInfo(InfoTag.NAMEANDTYPE,
 					info.array());
-			this.entryList.add(nameAndTypeInfo);
+			entryList.add(nameAndTypeInfo);
 
 			// return index + 1
-			short index = (short) this.entryList.size();
-			this.addCPMapEntry(key, index);
+			final short index = (short) entryList.size();
+			addCPMapEntry(key, index);
 			return index;
 		} else {
 			return 0;
@@ -471,8 +471,7 @@ class ConstantPool {
 	 */
 	public short getIndexOfConstant(final InfoTag constantType,
 			final String constantName) {
-		final Short index = this.cpEntryMap.get(constantType.name()
-				+ constantName);
+		final Short index = cpEntryMap.get(constantType.name() + constantName);
 		if (index != null) {
 			return index;
 		} else {
@@ -495,7 +494,7 @@ class ConstantPool {
 	 *            short value which is to be used in the mapping
 	 */
 	public int addCPMapEntry(final String key, final short value) {
-		this.cpEntryMap.put(key, value);
+		cpEntryMap.put(key, value);
 		return 0;
 	}
 
@@ -512,7 +511,7 @@ class ConstantPool {
 	 *            String key which is to be checked
 	 */
 	public boolean cpMapEntryExists(final String key) {
-		if (this.cpEntryMap.containsKey(key)) {
+		if (cpEntryMap.containsKey(key)) {
 			return true;
 		}
 		return false;
@@ -533,7 +532,7 @@ class ConstantPool {
 	 */
 	public Short getCPMapEntry(final String key) {
 		if (cpMapEntryExists(key)) {
-			return this.cpEntryMap.get(key);
+			return cpEntryMap.get(key);
 		}
 		return 0;
 	}

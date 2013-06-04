@@ -25,7 +25,7 @@ import swp_compiler_ss13.javabite.backend.classfile.IClassfile.InfoTag;
  */
 class CPInfo {
 
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	// General CPInfo structure information
 	private final InfoTag tag;
@@ -37,8 +37,8 @@ class CPInfo {
 	}
 
 	CPInfo() {
-		this.tag = InfoTag.NONE;
-		this.info = null;
+		tag = InfoTag.NONE;
+		info = null;
 	}
 
 	/**
@@ -56,9 +56,9 @@ class CPInfo {
 	 */
 	void writeTo(final DataOutputStream classfileDOS) {
 		// write only, if CPInfo is no dummy entry
-		if (this.info != null) {
+		if (info != null) {
 			try {
-				classfileDOS.writeByte(this.tag.getByte());
+				classfileDOS.writeByte(tag.getByte());
 
 				classfileDOS.write(info);
 

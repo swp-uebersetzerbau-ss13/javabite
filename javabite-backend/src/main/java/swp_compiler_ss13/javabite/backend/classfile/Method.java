@@ -24,7 +24,7 @@ import swp_compiler_ss13.javabite.backend.classfile.IClassfile.VariableType;
  */
 class Method {
 
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	// General method structure information
 	private short accessFlags;
@@ -92,7 +92,7 @@ class Method {
 			final short codeIndex, final MethodAccessFlag... accessFlags) {
 		this.nameIndex = nameIndex;
 		this.descriptorIndex = descriptorIndex;
-		this.codeAttribute = new CodeAttribute(codeIndex);
+		codeAttribute = new CodeAttribute(codeIndex);
 
 		for (final MethodAccessFlag a : accessFlags) {
 			this.accessFlags = (short) (this.accessFlags | a.getValue());
@@ -115,10 +115,10 @@ class Method {
 	 */
 	void writeTo(final DataOutputStream classfileDOS) {
 		try {
-			classfileDOS.writeShort(this.accessFlags);
-			classfileDOS.writeShort(this.nameIndex);
-			classfileDOS.writeShort(this.descriptorIndex);
-			classfileDOS.writeShort(this.attributesCount);
+			classfileDOS.writeShort(accessFlags);
+			classfileDOS.writeShort(nameIndex);
+			classfileDOS.writeShort(descriptorIndex);
+			classfileDOS.writeShort(attributesCount);
 
 			if (logger.isDebugEnabled()) {
 				logger.debug("accessFlags, nameIndex, descriptorIndex, attributesCount:");
@@ -157,7 +157,7 @@ class Method {
 	 */
 	void addVariableToCodeAttribute(final String variableName,
 			final VariableType variableType) {
-		this.codeAttribute.addVariable(variableName, variableType);
+		codeAttribute.addVariable(variableName, variableType);
 	}
 
 	/**
@@ -177,7 +177,7 @@ class Method {
 	 * @see CodeAttribute#getIndexOfVariable(String)
 	 */
 	byte getIndexOfVariable(final String variableName) {
-		return this.codeAttribute.getIndexOfVariable(variableName);
+		return codeAttribute.getIndexOfVariable(variableName);
 	}
 
 	/**
@@ -198,6 +198,6 @@ class Method {
 	 */
 	void addInstructionToCodeAttribute(final Instruction instruction) {
 
-		this.codeAttribute.addInstruction(instruction);
+		codeAttribute.addInstruction(instruction);
 	}
 }

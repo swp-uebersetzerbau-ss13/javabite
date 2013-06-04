@@ -96,24 +96,24 @@ public class BackendTest {
 				9 == testToReturnValueOfTac(tac3, 1));
 	}
 
-	public long testToReturnValueOfTac(final List<Quadruple> tac, int fileamount)
-			throws BackendException {
+	public long testToReturnValueOfTac(final List<Quadruple> tac,
+			final int fileamount) throws BackendException {
 		String retVal = null;
 
-		Map<String, InputStream> results = backend.generateTargetCode(
+		final Map<String, InputStream> results = backend.generateTargetCode(
 				"Program", tac);
 
 		assertTrue("Invalid amount of files generated",
 				fileamount == results.size());
 
-		for (Entry<String, InputStream> e : results.entrySet()) {
-			File outFile = new File(e.getKey());
+		for (final Entry<String, InputStream> e : results.entrySet()) {
+			final File outFile = new File(e.getKey());
 			FileOutputStream fos;
 			try {
 				fos = new FileOutputStream(outFile);
 				IOUtils.copy(e.getValue(), fos);
 				fos.close();
-			} catch (IOException e1) {
+			} catch (final IOException e1) {
 				e1.printStackTrace();
 			}
 		}
@@ -124,8 +124,8 @@ public class BackendTest {
 			logger.debug("Waiting for execution of \"bash -c java Program ; $?\"");
 			cli1.waitFor();
 
-			BufferedReader reader = new BufferedReader(new InputStreamReader(
-					cli1.getErrorStream()));
+			final BufferedReader reader = new BufferedReader(
+					new InputStreamReader(cli1.getErrorStream()));
 
 			retVal = extractReturnValue(reader.readLine());
 
@@ -136,14 +136,14 @@ public class BackendTest {
 		}
 
 		cleanup();
-		long l = Long.valueOf(retVal);
+		final long l = Long.valueOf(retVal);
 
 		logger.debug("return value: {}", l);
 		return l;
 	}
 
-	private static String extractReturnValue(String line) {
-		String s = line.substring(line.indexOf(':') + 2);
+	private static String extractReturnValue(final String line) {
+		final String s = line.substring(line.indexOf(':') + 2);
 		return s.subSequence(0, s.indexOf(':')).toString();
 	}
 }

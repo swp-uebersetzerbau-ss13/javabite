@@ -38,7 +38,7 @@ class MethodArea {
 	private final HashMap<String, Method> methodMap;
 
 	MethodArea() {
-		this.methodMap = new HashMap<String, Method>();
+		methodMap = new HashMap<String, Method>();
 	}
 
 	/**
@@ -57,15 +57,15 @@ class MethodArea {
 	void writeTo(final DataOutputStream classfileDOS) {
 
 		try {
-			classfileDOS.writeShort(this.methodMap.size());
+			classfileDOS.writeShort(methodMap.size());
 
 			if (logger.isDebugEnabled()) {
 				logger.debug("method count");
-				logger.debug("{}", toHexString((short) this.methodMap.size()));
+				logger.debug("{}", toHexString((short) methodMap.size()));
 			}
 
 			// get method_info - bytes of methods
-			for (final Method method : this.methodMap.values()) {
+			for (final Method method : methodMap.values()) {
 				method.writeTo(classfileDOS);
 			}
 		} catch (final IOException e) {
@@ -117,7 +117,7 @@ class MethodArea {
 	 * @see Method
 	 */
 	private Method getMethodByMethodName(final String methodName) {
-		return this.methodMap.get(methodName);
+		return methodMap.get(methodName);
 	}
 
 	/**
@@ -147,7 +147,7 @@ class MethodArea {
 	void addVariableToMethodsCode(final String methodName,
 			final String variableName, final VariableType variableType) {
 
-		final Method method = this.getMethodByMethodName(methodName);
+		final Method method = getMethodByMethodName(methodName);
 		method.addVariableToCodeAttribute(variableName, variableType);
 	}
 
@@ -174,7 +174,7 @@ class MethodArea {
 	 */
 	byte getIndexOfVariableInMethod(final String methodName,
 			final String variableName) {
-		final Method method = this.getMethodByMethodName(methodName);
+		final Method method = getMethodByMethodName(methodName);
 		return method.getIndexOfVariable(variableName);
 	}
 
@@ -201,7 +201,7 @@ class MethodArea {
 	 */
 	void addInstructionToMethodsCode(final String methodName,
 			final Instruction instruction) {
-		final Method method = this.getMethodByMethodName(methodName);
+		final Method method = getMethodByMethodName(methodName);
 		method.addInstructionToCodeAttribute(instruction);
 	}
 
