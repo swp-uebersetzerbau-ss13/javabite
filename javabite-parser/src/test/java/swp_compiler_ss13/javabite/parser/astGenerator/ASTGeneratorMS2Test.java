@@ -290,11 +290,6 @@ public class ASTGeneratorMS2Test{
 		tList.add(new TokenJb(TokenType.COMMENT, "18121313223"));
 		tList.add(new TokenJb(TokenType.COMMENT, "2.323e-99"));
 		tList.add(new TokenJb(TokenType.COMMENT, "jagAErEttString\""));
-		
-		// string linebreak;
-		tList.add(new TokenJb(TokenType.STRING_SYMBOL, "string"));
-		tList.add(new TokenJb(TokenType.ID, "linebreak"));
-		tList.add(new TokenJb(TokenType.SEMICOLON, ";"));
 				
 		
 		// long l;
@@ -397,7 +392,7 @@ public class ASTGeneratorMS2Test{
 		ASTJb ast=astgen.generateAST();
 		
 		BlockNode root=ast.getRootNode();
-		assertEquals(67, root.coverage().size());
+		assertEquals(64, root.coverage().size());
 		
 	}
 }
