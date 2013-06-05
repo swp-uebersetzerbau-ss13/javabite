@@ -127,6 +127,7 @@ public class MainFrame extends JFrame implements ReportLog {
 	Properties properties = new Properties();
 	File openedFile = null;
 	boolean fileChanged = false;
+	SourecodeDocumentListener sourceCodeListener;
 	
 	// undo and redo
 	private Document editorPaneDocument;
@@ -173,6 +174,8 @@ public class MainFrame extends JFrame implements ReportLog {
 		menuFileOpen = new JMenuItem("Open");
 		menuFileOpen.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				
+				editorPaneSourcode.getDocument().removeDocumentListener(sourceCodeListener);
 				
 				// if file was not changed, just replace content with file content
 				if (!fileChanged) {
@@ -233,7 +236,7 @@ public class MainFrame extends JFrame implements ReportLog {
 						
 					}
 				}*/
-				
+				editorPaneSourcode.getDocument().addDocumentListener(sourceCodeListener);
 				
 			}
 		});
@@ -468,7 +471,8 @@ public class MainFrame extends JFrame implements ReportLog {
 		editorPaneSourcode = new JTextPane(doc);
 		scrollPane.setViewportView(editorPaneSourcode);
 		editorPaneSourcode.setText("enter your sourcecode here");
-		editorPaneSourcode.getDocument().addDocumentListener(new SourecodeDocumentListener(this));
+		sourceCodeListener = new SourecodeDocumentListener(this);
+		editorPaneSourcode.getDocument().addDocumentListener(sourceCodeListener);
 		
 		// setup undo redo
 		editorPaneSourcode.getDocument().addUndoableEditListener(new UndoableEditListener() {
