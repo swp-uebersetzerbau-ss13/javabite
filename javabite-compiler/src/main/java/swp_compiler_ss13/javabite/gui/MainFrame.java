@@ -156,6 +156,44 @@ public class MainFrame extends JFrame implements ReportLog {
 	}
 	
 	/**
+	 * Reads current editor code and writes it into given file
+	 * */
+	private void saveEditorContentIntoFile(File file) {
+		BufferedWriter bw;
+		try {
+			bw = new BufferedWriter(new FileWriter(file));
+			bw.write(editorPaneSourcode.getText());
+			bw.flush();
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+	}
+	
+	private void saveFileContentIntoEditor(File file) {
+		// read out lines
+		BufferedReader in = null;
+		String line = null;
+		try {
+			in = new BufferedReader(new FileReader(file));
+			line = in.readLine();
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+		
+		// insert lines into source code editor
+		Document doc = editorPaneSourcode.getDocument();
+		try {
+			doc.remove(0, doc.getLength()); // remove old content
+			while (line != null) {
+				doc.insertString(doc.getLength(), line + "\n", null);
+				line = in.readLine();
+			}
+		} catch (BadLocationException | IOException ex) {
+			ex.printStackTrace();
+		}
+	}
+	
+	/**
 	 * Create the frame.
 	 */
 	public MainFrame() {
@@ -190,27 +228,8 @@ public class MainFrame extends JFrame implements ReportLog {
 					String fileName = openedFile.getName();
 					setTitle("Javabite Compiler - " + fileName);
 					
-					// read out lines
-					BufferedReader in = null;
-					String line = null;
-					try {
-						in = new BufferedReader(new FileReader(openedFile));
-						line = in.readLine();
-					} catch (IOException ex) {
-						ex.printStackTrace();
-					}
+					saveFileContentIntoEditor(openedFile);
 					
-					// insert lines into source code editor
-					Document doc = editorPaneSourcode.getDocument();
-					try {
-						doc.remove(0, doc.getLength()); // remove old content
-						while (line != null) {
-							doc.insertString(doc.getLength(), line + "\n", null);
-							line = in.readLine();
-						}
-					} catch (BadLocationException | IOException ex) {
-						ex.printStackTrace();
-					}
 					toolBarLabel.setText("Document opened.");
 				} else {
 					// file was changed (regardless if saved or unsaved)
@@ -236,35 +255,23 @@ public class MainFrame extends JFrame implements ReportLog {
 								
 								int returnVal = jfc.showSaveDialog(null);
 								if (returnVal == JFileChooser.APPROVE_OPTION) {
-									File file = jfc.getSelectedFile();
-									fileName = jfc.getSelectedFile().getName();
+									openedFile = jfc.getSelectedFile();
+									fileName = openedFile.getName();
 									
-									// save the file
-									BufferedWriter bw;
-									try {
-										bw = new BufferedWriter(new FileWriter(file));
-										bw.write(editorPaneSourcode.getText());
-										bw.flush();
-									} catch (IOException ex) {
-										ex.printStackTrace();
-									}
+									saveEditorContentIntoFile(openedFile);
+									
 									setTitle("Javabite Compiler - " + fileName);
 									toolBarLabel.setText("Document saved.");
-									openedFile = file;
+									
 									fileChanged = false;
 								} else {
 									toolBarLabel.setText("Save command cancelled by user.");
 								}
 							} else {
 								// firstly save file
-								BufferedWriter bw;
-								try {
-									bw = new BufferedWriter(new FileWriter(openedFile));
-									bw.write(editorPaneSourcode.getText());
-									bw.flush();
-								} catch (IOException ex) {
-									ex.printStackTrace();
-								}
+								saveEditorContentIntoFile(openedFile);
+								setTitle("Javabite Compiler - " + openedFile.getName());
+								toolBarLabel.setText("Document saved.");
 								
 								// now, display filechooser
 								JFileChooser chooser = new JFileChooser();
@@ -278,27 +285,9 @@ public class MainFrame extends JFrame implements ReportLog {
 								fileName = openedFile.getName();
 								setTitle("Javabite Compiler - " + fileName);
 								
-								// read out lines
-								BufferedReader in = null;
-								String line = null;
-								try {
-									in = new BufferedReader(new FileReader(openedFile));
-									line = in.readLine();
-								} catch (IOException ex) {
-									ex.printStackTrace();
-								}
+								// insert file content into editor
+								saveFileContentIntoEditor(openedFile);
 								
-								// insert lines into source code editor
-								Document doc = editorPaneSourcode.getDocument();
-								try {
-									doc.remove(0, doc.getLength()); // remove old content
-									while (line != null) {
-										doc.insertString(doc.getLength(), line + "\n", null);
-										line = in.readLine();
-									}
-								} catch (BadLocationException | IOException ex) {
-									ex.printStackTrace();
-								}
 								toolBarLabel.setText("Document opened.");
 							}
 						} else if (n == 1) {
@@ -315,27 +304,9 @@ public class MainFrame extends JFrame implements ReportLog {
 							fileName = (openedFile == null) ? "New File.prog" : openedFile.getName();
 							setTitle("Javabite Compiler - " + fileName);
 							
-							// read out lines
-							BufferedReader in = null;
-							String line = null;
-							try {
-								in = new BufferedReader(new FileReader(openedFile));
-								line = in.readLine();
-							} catch (IOException ex) {
-								ex.printStackTrace();
-							}
+							// insert file content into editor
+							saveFileContentIntoEditor(openedFile);
 							
-							// insert lines into source code editor
-							Document doc = editorPaneSourcode.getDocument();
-							try {
-								doc.remove(0, doc.getLength()); // remove old content
-								while (line != null) {
-									doc.insertString(doc.getLength(), line + "\n", null);
-									line = in.readLine();
-								}
-							} catch (BadLocationException | IOException ex) {
-								ex.printStackTrace();
-							}
 							toolBarLabel.setText("Document opened.");
 						} else {
 							// cancel
@@ -343,31 +314,7 @@ public class MainFrame extends JFrame implements ReportLog {
 						}
 					}
 				}
-				
-				// if another file is already opened, save it
-				/*if(openedFile != null || fileChanged == true) {
-					JFrame frame = new JFrame("Save");
-					Object[] options = {"Cancel",
-		                    "No",
-		                    "Yes"};
-					int n = JOptionPane.showOptionDialog(frame,
-					    "Save file \"" + openedFile.getName() + "\"?\n",
-					    "Save",
-					    JOptionPane.YES_NO_CANCEL_OPTION,
-					    JOptionPane.QUESTION_MESSAGE,
-					    null,
-					    options,
-					    options[2]);
-					if(n == 2) { // save
-						// TODO: save and open filechooser
-					} else if (n == 1) {
-						// TODO: open file chooser
-					} else {	// cancel
-						
-					}
-				}*/
 				editorPaneSourcode.getDocument().addDocumentListener(sourceCodeListener);
-				
 			}
 		});
 		
@@ -382,10 +329,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		});
 		menuFile.add(mntmNew);
 		menuFile.add(menuFileOpen);
-		
-		/**
-		 * Save: 
-		 * */
+
 		menuFileSave = new JMenuItem("Save");
 		menuFileSave.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -398,39 +342,22 @@ public class MainFrame extends JFrame implements ReportLog {
 					
 					int returnVal = jfc.showSaveDialog(null);
 					if (returnVal == JFileChooser.APPROVE_OPTION) {
-						File file = jfc.getSelectedFile();
-						String fileName = jfc.getSelectedFile().getName();
-						
-						// save the file
-						BufferedWriter bw;
-						try {
-							bw = new BufferedWriter(new FileWriter(file));
-							bw.write(editorPaneSourcode.getText());
-							bw.flush();
-						} catch (IOException ex) {
-							ex.printStackTrace();
-						}
+						openedFile = jfc.getSelectedFile();
+						String fileName = openedFile.getName();
+						saveEditorContentIntoFile(openedFile);
 						setTitle("Javabite Compiler - " + fileName);
 						toolBarLabel.setText("Document saved.");
-						openedFile = file;
 						fileChanged = false;
 					} else {
 						toolBarLabel.setText("Save command cancelled by user.");
 					}
 				} else if(openedFile != null && !fileChanged) {
-					// file is already saved
+					// file exists, but was not changed
 					JFrame frame = new JFrame();
 					JOptionPane.showMessageDialog(frame, "File is already saved!");
 				} else {
 					// file exists, but was changed
-					BufferedWriter bw;
-					try {
-						bw = new BufferedWriter(new FileWriter(openedFile));
-						bw.write(editorPaneSourcode.getText());
-						bw.flush();
-					} catch (IOException ex) {
-						ex.printStackTrace();
-					}
+					saveEditorContentIntoFile(openedFile);
 					setTitle("Javabite Compiler - " + openedFile.getName());
 					toolBarLabel.setText("Document saved.");
 					fileChanged = false;
