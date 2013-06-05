@@ -212,6 +212,29 @@ public class MainFrame extends JFrame implements ReportLog {
 						ex.printStackTrace();
 					}
 					toolBarLabel.setText("Document opened.");
+				} else {
+					// file was changed (regardless if saved or unsaved)
+					if(openedFile != null || fileChanged == true) {
+						JFrame frame = new JFrame("Save");
+						Object[] options = {"Cancel", "No", "Yes"};
+						String fileName = (openedFile == null) ? "New File.prog" : openedFile.getName();
+						int n = JOptionPane.showOptionDialog(frame,
+						    "Save file \"" + fileName + "\"?\n",
+						    "Save",
+						    JOptionPane.YES_NO_CANCEL_OPTION,
+						    JOptionPane.QUESTION_MESSAGE,
+						    null,
+						    options,
+						    options[2]);
+						if(n == 2) { // save
+							// TODO: save and open filechooser
+						} else if (n == 1) {
+							// TODO: open file chooser
+						} else {
+							// cancel
+							return;
+						}
+					}
 				}
 				
 				// if another file is already opened, save it
