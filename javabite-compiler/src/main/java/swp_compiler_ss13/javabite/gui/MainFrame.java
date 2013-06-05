@@ -146,7 +146,7 @@ public class MainFrame extends JFrame implements ReportLog {
 	 * Create the frame.
 	 */
 	public MainFrame() {
-		setTitle("Javabite Compiler - Unknown");
+		setTitle("Javabite Compiler - New File.prog");
 		setSize(800, 600);
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

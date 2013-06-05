@@ -30,7 +30,7 @@ public class SourecodeDocumentListener implements DocumentListener {
 		mf.fileChanged = true;
 		String fileName = "";
 		if(mf.openedFile == null) {
-			fileName = "New File";
+			fileName = "New File.prog";
 		} else {
 			fileName = mf.openedFile.getName();
 		}
