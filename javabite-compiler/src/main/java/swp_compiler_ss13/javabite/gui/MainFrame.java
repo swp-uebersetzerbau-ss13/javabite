@@ -174,8 +174,45 @@ public class MainFrame extends JFrame implements ReportLog {
 		menuFileOpen.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				
+				// if file was not changed, just replace content with file content
+				if (!fileChanged) {
+					// create default file chooser
+					JFileChooser chooser = new JFileChooser();
+					int returnVal = chooser.showOpenDialog(null);
+					if (returnVal == JFileChooser.APPROVE_OPTION) {
+						openedFile = chooser.getSelectedFile();
+					}
+					
+					// set main frame header name to file name
+					String fileName = openedFile.getName();
+					setTitle("Javabite Compiler - " + fileName);
+					
+					// read out lines
+					BufferedReader in = null;
+					String line = null;
+					try {
+						in = new BufferedReader(new FileReader(openedFile));
+						line = in.readLine();
+					} catch (IOException ex) {
+						ex.printStackTrace();
+					}
+					
+					// insert lines into source code editor
+					Document doc = editorPaneSourcode.getDocument();
+					try {
+						doc.remove(0, doc.getLength()); // remove old content
+						while (line != null) {
+							doc.insertString(doc.getLength(), line + "\n", null);
+							line = in.readLine();
+						}
+					} catch (BadLocationException | IOException ex) {
+						ex.printStackTrace();
+					}
+					toolBarLabel.setText("Document opened.");
+				}
+				
 				// if another file is already opened, save it
-				if(openedFile != null || fileChanged == true) {
+				/*if(openedFile != null || fileChanged == true) {
 					JFrame frame = new JFrame("Save");
 					Object[] options = {"Cancel",
 		                    "No",
@@ -195,41 +232,9 @@ public class MainFrame extends JFrame implements ReportLog {
 					} else {	// cancel
 						
 					}
-				}
+				}*/
 				
-				// create default file chooser
-				JFileChooser chooser = new JFileChooser();
-				int returnVal = chooser.showOpenDialog(null);
-				if (returnVal == JFileChooser.APPROVE_OPTION) {
-					openedFile = chooser.getSelectedFile();
-				}
 				
-				// set main frame header name to file name
-				String fileName = openedFile.getName();
-				setTitle("Javabite Compiler - " + fileName);
-				
-				// read out lines
-				BufferedReader in = null;
-				String line = null;
-				try {
-					in = new BufferedReader(new FileReader(openedFile));
-					line = in.readLine();
-				} catch (IOException ex) {
-					ex.printStackTrace();
-				}
-				
-				// insert lines into source code editor
-				Document doc = editorPaneSourcode.getDocument();
-				try {
-					doc.remove(0, doc.getLength()); // remove old content
-					while (line != null) {
-						doc.insertString(doc.getLength(), line + "\n", null);
-						line = in.readLine();
-					}
-				} catch (BadLocationException | IOException ex) {
-					ex.printStackTrace();
-				}
-				toolBarLabel.setText("Document opened.");
 			}
 		});
 		
