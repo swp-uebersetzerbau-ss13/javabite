@@ -13,13 +13,13 @@ import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.parser.Parser;
 import swp_compiler_ss13.common.report.ReportLog;
 import swp_compiler_ss13.common.report.ReportType;
+import swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser;
 import swp_compiler_ss13.javabite.ast.ASTJb;
 import swp_compiler_ss13.javabite.parser.astGenerator.ASTGenerator;
 import swp_compiler_ss13.javabite.parser.grammar.exceptions.AmbiguityInDerivationGrammarException;
 import swp_compiler_ss13.javabite.parser.grammar.exceptions.WordNotInLanguageGrammarException;
 import swp_compiler_ss13.javabite.parser.targetgrammar.TargetGrammar;
 import swp_compiler_ss13.javabite.parser.targetgrammar.TargetGrammar.Reduction;
-import swp_compiler_ss13.javabite.parser.targetgrammar.semantic_check.ASTAnalyzer;
 
 /**
  * Responsible to convert the token stream to an AST.
@@ -65,8 +65,6 @@ public class ParserJb implements Parser {
 			// generate the necessary AST
 			ASTJb astJb=astGen.generateAST();
 			
-			ASTAnalyzer analyzer = new ASTAnalyzer(reportLog);
-			analyzer.analyse(astJb);
 			return astJb;
 		} catch(WordNotInLanguageGrammarException | AmbiguityInDerivationGrammarException e){
 			log.warn("Grammer throws exeception {}", e.getClass());

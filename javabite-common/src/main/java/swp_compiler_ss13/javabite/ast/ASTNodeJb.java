@@ -22,7 +22,7 @@ public abstract class ASTNodeJb implements ASTNode, Iterable<ASTNode>{
 	final private TreeMap<Integer,ASTNode> children=new TreeMap<>();
 	protected ASTNodeType astNodeType;
 	private Map<TokenType,List<Token>> typeTokenMap=new HashMap<>();
-	Logger logger=LoggerFactory.getLogger(ASTNodeJb.class);
+	Logger logger=LoggerFactory.getLogger(this.getClass());
 	
 	ASTNode parent;
 	
@@ -178,6 +178,7 @@ public abstract class ASTNodeJb implements ASTNode, Iterable<ASTNode>{
 		while (res.isEmpty() && i<types.length)
 			res.addAll(getAssociatedTokenFromType(types[i++]));
 		if (res.size()!=1) logger.error("{} looked for type {},{}. result was {}",this.getClass(),type,Arrays.toString(types),res);
+		
 		return res.get(0);
 	}
 	
