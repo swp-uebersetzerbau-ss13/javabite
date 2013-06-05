@@ -122,7 +122,7 @@ public class MainFrame extends JFrame implements ReportLog {
 	
 	// Files and file information
 	Properties properties = new Properties();
-	File openedFile;
+	File openedFile = null;
 	boolean fileChanged = false;
 	
 	// undo and redo
@@ -155,7 +155,7 @@ public class MainFrame extends JFrame implements ReportLog {
 	 * Create the frame.
 	 */
 	public MainFrame() {
-		setTitle("Javabite Compiler - Unknown");
+		setTitle("Javabite Compiler - New File.prog");
 		setSize(800, 600);
 		
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -432,7 +432,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		editorPaneSourcode = new JTextPane(doc);
 		scrollPane.setViewportView(editorPaneSourcode);
 		editorPaneSourcode.setText("enter your sourcecode here");
-		editorPaneSourcode.getDocument().addDocumentListener(new SourecodeDocumentListener(toolBarLabel, this));
+		editorPaneSourcode.getDocument().addDocumentListener(new SourecodeDocumentListener(this));
 		
 		// setup undo redo
 		editorPaneSourcode.getDocument().addUndoableEditListener(new UndoableEditListener() {
