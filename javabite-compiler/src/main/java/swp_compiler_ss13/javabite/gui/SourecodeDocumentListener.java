@@ -27,7 +27,10 @@ public class SourecodeDocumentListener implements DocumentListener {
 	}
 	
 	private void remarkFileAsChanged() {
+		// mark file as changed
 		mf.fileChanged = true;
+		
+		// mark filename in the title bar as changed
 		String fileName = "";
 		if(mf.openedFile == null) {
 			fileName = "New File.prog";
