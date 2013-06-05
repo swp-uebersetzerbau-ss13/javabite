@@ -227,38 +227,46 @@ public class MainFrame extends JFrame implements ReportLog {
 				// TODO save old docs
 				editorPaneSourcode.setText("");
 				toolBarLabel.setText("New document opened.");
-				setTitle("Javabite Compiler - *Unknown");
+				setTitle("Javabite Compiler - *New File.prog");
 			}
 		});
 		menuFile.add(mntmNew);
 		menuFile.add(menuFileOpen);
 		
+		/**
+		 * Save: 
+		 * */
 		menuFileSave = new JMenuItem("Save");
 		menuFileSave.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
-				// create and open the file chooser
-				JFileChooser jfc = new JFileChooser();
-				jfc.setCurrentDirectory(new File(System.getProperty("user.home")));
-				jfc.setSelectedFile(new File("Unknown.prog"));
-				
-				int returnVal = jfc.showSaveDialog(null);
-				if (returnVal == JFileChooser.APPROVE_OPTION) {
-					File file = jfc.getSelectedFile();
+				// if global file is null, source code was never saved
+				if (openedFile == null) {
+					// create and open the file chooser
+					JFileChooser jfc = new JFileChooser();
+					jfc.setCurrentDirectory(new File(System.getProperty("user.home")));
+					jfc.setSelectedFile(new File("New File.prog"));
 					
-					// save the file
-					BufferedWriter bw;
-					try {
-						bw = new BufferedWriter(new FileWriter(file));
-						bw.write(editorPaneSourcode.getText());
-						bw.flush();
-					} catch (IOException ex) {
-						ex.printStackTrace();
+					int returnVal = jfc.showSaveDialog(null);
+					if (returnVal == JFileChooser.APPROVE_OPTION) {
+						File file = jfc.getSelectedFile();
+						openedFile = file;
+						String fileName = jfc.getSelectedFile().getName();
+						
+						// save the file
+						BufferedWriter bw;
+						try {
+							bw = new BufferedWriter(new FileWriter(file));
+							bw.write(editorPaneSourcode.getText());
+							bw.flush();
+						} catch (IOException ex) {
+							ex.printStackTrace();
+						}
+						setTitle("Javabite Compiler - " + fileName);
+						toolBarLabel.setText("Document saved.");
+					} else {
+						System.out.println("Save command cancelled by user. ");
 					}
-				} else {
-					System.out.println("Save command cancelled by user. ");
 				}
-				toolBarLabel.setText("Document saved.");
 			}
 		});
 		menuFile.add(menuFileSave);
