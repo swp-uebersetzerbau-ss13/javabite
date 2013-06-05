@@ -226,10 +226,45 @@ public class MainFrame extends JFrame implements ReportLog {
 						    null,
 						    options,
 						    options[2]);
-						if(n == 2) { // save
+						if(n == 2) {
+							// save was selected
 							// TODO: save and open filechooser
 						} else if (n == 1) {
-							// TODO: open file chooser
+							// not save was selected, thus just replace content with text
+							// create default file chooser
+							JFileChooser chooser = new JFileChooser();
+							int returnVal = chooser.showOpenDialog(null);
+							if (returnVal == JFileChooser.APPROVE_OPTION) {
+								openedFile = chooser.getSelectedFile();
+								fileChanged = false;
+							}
+							
+							// set main frame header name to file name
+							fileName = openedFile.getName();
+							setTitle("Javabite Compiler - " + fileName);
+							
+							// read out lines
+							BufferedReader in = null;
+							String line = null;
+							try {
+								in = new BufferedReader(new FileReader(openedFile));
+								line = in.readLine();
+							} catch (IOException ex) {
+								ex.printStackTrace();
+							}
+							
+							// insert lines into source code editor
+							Document doc = editorPaneSourcode.getDocument();
+							try {
+								doc.remove(0, doc.getLength()); // remove old content
+								while (line != null) {
+									doc.insertString(doc.getLength(), line + "\n", null);
+									line = in.readLine();
+								}
+							} catch (BadLocationException | IOException ex) {
+								ex.printStackTrace();
+							}
+							toolBarLabel.setText("Document opened.");
 						} else {
 							// cancel
 							return;
