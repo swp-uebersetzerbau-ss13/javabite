@@ -18,10 +18,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Queue;
 import java.util.Map.Entry;
 
 import javax.swing.JButton;
@@ -40,6 +42,7 @@ import javax.swing.JTextPane;
 import javax.swing.JToolBar;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.Document;
@@ -62,8 +65,10 @@ import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.common.util.ModuleProvider;
 import swp_compiler_ss13.javabite.ast.ASTJb;
 import swp_compiler_ss13.javabite.gui.ast.ASTVisualizerJb;
+import swp_compiler_ss13.javabite.lexer.JavabiteTokenType;
 import swp_compiler_ss13.javabite.lexer.LexerJb;
 import swp_compiler_ss13.javabite.parser.ParserJb;
+import swp_compiler_ss13.javabite.token.TokenJb;
 
 import java.awt.FlowLayout;
 import java.awt.event.ActionListener;
@@ -75,6 +80,8 @@ import org.apache.commons.io.IOUtils;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import java.awt.ScrollPane;
 
 public class MainFrame extends JFrame implements ReportLog {
 	
@@ -109,6 +116,7 @@ public class MainFrame extends JFrame implements ReportLog {
 	JTextPane textPaneConsole;
 	JTextPane textPaneLogs;
 	JTable tableReportLogs;
+	DefaultTableModel modelReportLogs;
 	JTabbedPane tabbedPaneLog;
 	private static JTextPane editorPaneSourcode;
 	
@@ -125,6 +133,7 @@ public class MainFrame extends JFrame implements ReportLog {
 	private JScrollPane scrollPane;
 	private JMenuItem mntmProperties;
 	private JMenuItem mntmNew;
+	private JScrollPane scrollPaneReportLogs;
 	
 	/**
 	 * Launch the application.
@@ -412,8 +421,17 @@ public class MainFrame extends JFrame implements ReportLog {
 		textPaneLogs.setText("");
 		tabbedPaneLog.addTab("Log", null, textPaneLogs, null);
 		
-		tableReportLogs = new JTable();
+		modelReportLogs = new DefaultTableModel();
+		tableReportLogs = new JTable(modelReportLogs);
 		tabbedPaneLog.addTab("Report Logs", null, tableReportLogs, null);
+		modelReportLogs.addColumn("Type");
+		modelReportLogs.addColumn("Line");
+		modelReportLogs.addColumn("Column");
+		modelReportLogs.addColumn("Message");
+		
+		List<Token> tokens = new ArrayList<>(1000);
+		tokens.add(new TokenJb(TokenType.NUM, "sdfs", 4, 3));
+		reportWarning(ReportType.UNRECOGNIZED_TOKEN, tokens, "TEST");
 		
 		scrollPane = new JScrollPane();
 		splitPane.setLeftComponent(scrollPane);
@@ -585,15 +603,12 @@ public class MainFrame extends JFrame implements ReportLog {
 	}
 	
 	@Override
-	public void reportWarning(ReportType type, List<Token> tokens,
-			String message) {
-		// TODO Auto-generated method stub
-		
+	public void reportWarning(ReportType type, List<Token> tokens, String message) {
+		modelReportLogs.addRow(new Object[] { type, tokens.get(0).getLine(), tokens.get(0).getColumn(), message });
 	}
-
+	
 	@Override
 	public void reportError(ReportType type, List<Token> tokens, String message) {
-		// TODO Auto-generated method stub
-		
+		modelReportLogs.addRow(new Object[] { type, tokens.get(0).getLine(), tokens.get(0).getColumn(), message });
 	}
 }
