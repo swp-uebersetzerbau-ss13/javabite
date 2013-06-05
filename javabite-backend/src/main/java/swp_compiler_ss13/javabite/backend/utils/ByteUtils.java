@@ -22,20 +22,22 @@ public class ByteUtils {
 			.getLogger(ByteUtils.class);
 
 	/**
-	 * TODO javadoc
+	 * splits a short value into a byte array. Array starts with higher bytes.
 	 * 
 	 * @param x
-	 * @return
+	 *            short to split into array
+	 * @return byte array
 	 */
 	public static byte[] shortToByteArray(final short x) {
 		return new byte[] { (byte) (x >> 8 & 0xff), (byte) (x & 0xff) };
 	}
 
 	/**
-	 * TODO javadoc
+	 * splits a long value into a byte array. Array starts with higher bytes.
 	 * 
 	 * @param x
-	 * @return
+	 *            long to split into array
+	 * @return byte array
 	 */
 	public static byte[] longToByteArray(final long x) {
 		return new byte[] { (byte) (x >> 56 & 0xff), (byte) (x >> 48 & 0xff),
@@ -45,10 +47,11 @@ public class ByteUtils {
 	}
 
 	/**
-	 * TODO javadoc
+	 * splits a double value into a byte array. Array starts with higher bytes.
 	 * 
 	 * @param x
-	 * @return
+	 *            double to split into array
+	 * @return byte array
 	 */
 	public static byte[] doubleToByteArray(final double x) {
 		final ByteBuffer byteBuffer = ByteBuffer.allocate(8);
@@ -56,46 +59,77 @@ public class ByteUtils {
 		return byteBuffer.array();
 	}
 
+	/**
+	 * Split a hexadecimal representation of bytes into columns of 2 (eg. 1
+	 * byte)
+	 * 
+	 * @param hex
+	 *            hexadecimal string of bytes
+	 * @return hexadecimal string with bytes splitted into columns of 2
+	 */
 	private static String splitHexBytes(final String hex) {
 		return HEX_BYTES.matcher(hex).replaceAll("$1 ");
 	}
 
-	public static String toHexString(final int i) {
+	/**
+	 * Returns a hexadecimal string representation of an integer value.
+	 * 
+	 * @param i
+	 *            integer to turn into a hex string
+	 * @return hex string
+	 */
+	public static String intToHexString(final int i) {
 		return splitHexBytes(String.format("%08x", Integer.valueOf(i)));
 	}
 
-	public static String toHexString(final short i) {
-		return splitHexBytes(String.format("%08x", Short.valueOf(i)));
-	}
-
-	public static String toHexString(final byte i) {
-		return splitHexBytes(String.format("%08x", Byte.valueOf(i)));
+	/**
+	 * Returns a hexadecimal string representation of a short value.
+	 * 
+	 * @param i
+	 *            short to turn into a hex string
+	 * @return hex string
+	 */
+	public static String shortToHexString(final short i) {
+		return splitHexBytes(String.format("%04x", Short.valueOf(i)));
 	}
 
 	/**
-	 * TODO javadoc
+	 * Returns a hexadecimal string representation of a byte value.
+	 * 
+	 * @param i
+	 *            byte to turn into a hex string
+	 * @return hex string
+	 */
+	public static String byteToHexString(final byte i) {
+		return String.format("%02x", Byte.valueOf(i));
+	}
+
+	/**
+	 * Returns a hexadecimal string representation of a byte array.
 	 * 
 	 * @param bytes
-	 * @return
+	 *            byte array to turn into a hex string
+	 * @return hex string
 	 */
-	public static String hexFromBytes(final byte[] bytes) {
+	public static String byteArrayToHexString(final byte[] bytes) {
 		final StringBuilder sb = new StringBuilder();
 		for (final byte b : bytes) {
-			sb.append(toHexString(b)).append(" ");
+			sb.append(byteToHexString(b)).append(" ");
 		}
 		return sb.toString();
 	}
 
 	/**
-	 * TODO javadoc
+	 * Returns a hexadecimal string representation of a byte iterable.
 	 * 
 	 * @param bytes
-	 * @return
+	 *            byte iterable to turn into a hex string
+	 * @return hex string
 	 */
-	public static String hexFromBytes(final Iterable<Byte> bytes) {
+	public static String byteIterableToHexString(final Iterable<Byte> bytes) {
 		final StringBuilder sb = new StringBuilder();
 		for (final Byte b : bytes) {
-			sb.append(toHexString(b)).append(" ");
+			sb.append(byteToHexString(b)).append(" ");
 		}
 		return sb.toString();
 	}

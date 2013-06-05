@@ -1,7 +1,7 @@
 package swp_compiler_ss13.javabite.backend.classfile;
 
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.hexFromBytes;
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.toHexString;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.byteArrayToHexString;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.byteToHexString;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -64,9 +64,9 @@ class CPInfo {
 
 				if (logger.isDebugEnabled()) {
 					logger.debug("CPInfo tag");
-					logger.debug("{}", toHexString(tag.getByte()));
+					logger.debug("{}", byteToHexString(tag.getByte()));
 					logger.debug("CPInfo info");
-					logger.debug("{}", hexFromBytes(info));
+					logger.debug("{}", byteArrayToHexString(info));
 				}
 			} catch (final IOException e) {
 				e.printStackTrace();

@@ -1,5 +1,7 @@
 package swp_compiler_ss13.javabite.backend;
 
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.byteArrayToHexString;
+
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -109,9 +111,7 @@ public class Program {
 			// check, whether there is a return instruction in the end
 			// if not, set it
 			if (!returnFlag) {
-				final OperationBuilder op = OperationBuilder.newBuilder();
-				op.add(Mnemonic.RETURN);
-				operations.add(op.build());
+				addReturnOp();
 			}
 			return new Program(operations);
 		}
@@ -134,20 +134,24 @@ public class Program {
 		// INSTRUCTION CREATORS ------------------------------------------------
 
 		/**
-		 * TODO javadoc
+		 * Creates a load instruction, that can be added to a program flow. This
+		 * operation can distinguish between constants and variables, but needs
+		 * information on the size of the variable to be loaded.
 		 * 
-		 * @param wide
 		 * @param arg1
+		 *            argument containing constant or variable name
 		 * @param constType
+		 *            type of variable/constant to load
 		 * @param varLoadOp
+		 *            load operation to execute if arg1 is a variable
 		 */
-		private Instruction loadOp(final boolean wide, final String arg1,
-				final InfoTag constType, final String varLoadOp) {
-			if (isConstant(arg1)) {
+		private Instruction loadOp(final String arg1, final InfoTag constType,
+				final Mnemonic varLoadOp) {
+			if (isConstant(arg1) && constType != null) {
 				final short index = classfile.getIndexOfConstantInConstantPool(
 						constType, removeConstantSign(arg1));
 				assert index > 0;
-				if (wide) {
+				if (constType.isWide()) {
 					// return new Instruction(3, Mnemonic.LDC2_W,
 					// ByteUtils.shortToByteArray(index));
 					return new Instruction(Mnemonic.LDC2_W,
@@ -167,16 +171,19 @@ public class Program {
 				assert index > 0;
 				// return new Instruction(1, Mnemonic.getMnemonic(varLoadOp,
 				// index), index);
-				return new Instruction(Mnemonic.getMnemonic(varLoadOp, index),
-						index);
+				return new Instruction(Mnemonic.getMnemonic(varLoadOp.name(),
+						index), index);
 			}
 		}
 
 		/**
-		 * TODO javadoc
+		 * loads a boolean onto the stack. Constants (#true, #false) are
+		 * immediately turned into their int equivalents (1, 0), boolean
+		 * variables are loaded (as int)
 		 * 
 		 * @param arg1
-		 * @return
+		 *            constant boolean value or boolean variable name
+		 * @return new instruction
 		 */
 		private Instruction loadBooleanOp(final String arg1) {
 			if (isConstant(arg1)) {
@@ -195,37 +202,48 @@ public class Program {
 		}
 
 		/**
-		 * TODO javadoc
+		 * creates a store operation, which stores the value on the stack into a
+		 * variable identified by the result-string.
 		 * 
 		 * @param result
+		 *            name of variable to store value in
 		 * @param storeOp
-		 * @return
+		 *            operation to use for storing value
+		 * @return new instruction
 		 */
-		private Instruction storeOp(final String result, final String storeOp) {
+		private Instruction storeOp(final String result, final Mnemonic storeOp) {
 			final byte index = classfile.getIndexOfVariableInMethod(methodName,
 					result);
 			// return new Instruction(1, Mnemonic.getMnemonic(storeOp, index),
 			// index);
-			return new Instruction(Mnemonic.getMnemonic(storeOp, index), index);
+			return new Instruction(Mnemonic.getMnemonic(storeOp.name(), index),
+					index);
 		}
 
 		// GENERIC OPERATIONS --------------------------------------------------
 
 		/**
-		 * TODO javadoc
+		 * Assigns a number (constant or variable) to a variable. If needed, the
+		 * number is converted into another format. This convertion is done by
+		 * the passed convert operation, if not null.
 		 * 
 		 * @param q
+		 *            quadruple of operation
 		 * @param constType
+		 *            type of constant (if is constant)
 		 * @param loadOp
+		 *            operation to perform for loading variables
 		 * @param convertOp
+		 *            operation to perform for converting the number
 		 * @param storeOp
-		 * @return
+		 *            operation to perform to store the number
+		 * @return this builders instance
 		 */
 		private ProgramBuilder assignNumber(final Quadruple q,
-				final InfoTag constType, final String loadOp,
-				final Mnemonic convertOp, final String storeOp) {
+				final InfoTag constType, final Mnemonic loadOp,
+				final Mnemonic convertOp, final Mnemonic storeOp) {
 			final OperationBuilder op = OperationBuilder.newBuilder();
-			op.add(loadOp(true, q.getArgument1(), constType, loadOp));
+			op.add(loadOp(q.getArgument1(), constType, loadOp));
 			if (convertOp != null) {
 				op.add(convertOp);
 			}
@@ -234,21 +252,27 @@ public class Program {
 		}
 
 		/**
-		 * TODO javadoc
+		 * loads two numbers, performes a caluclation on them and stores the
+		 * result back into a variable.
 		 * 
 		 * @param q
+		 *            quadruple of operation
 		 * @param constType
+		 *            type of constants (if any constants)
 		 * @param loadOp
+		 *            operation to perform for loading variables
 		 * @param calcOp
+		 *            operation to perform for calculation
 		 * @param storeOp
-		 * @return
+		 *            operation to perform to store the result
+		 * @return this builders instance
 		 */
 		private ProgramBuilder calculateNumber(final Quadruple q,
-				final InfoTag constType, final String loadOp,
-				final Mnemonic calcOp, final String storeOp) {
+				final InfoTag constType, final Mnemonic loadOp,
+				final Mnemonic calcOp, final Mnemonic storeOp) {
 			final OperationBuilder op = OperationBuilder.newBuilder();
-			op.add(loadOp(true, q.getArgument1(), constType, loadOp));
-			op.add(loadOp(true, q.getArgument2(), constType, loadOp));
+			op.add(loadOp(q.getArgument1(), constType, loadOp));
+			op.add(loadOp(q.getArgument2(), constType, loadOp));
 			op.add(calcOp);
 			op.add(storeOp(q.getResult(), storeOp));
 			return add(op.build());
@@ -257,6 +281,21 @@ public class Program {
 		/**
 		 * compares two numbers and stores the result at range [-1,1] on the
 		 * stack
+		 * 
+		 * Explanation: Because java bytecode number comparison produces numbers
+		 * instead of boolean values, we have to use conditional jumps to assign
+		 * boolean values to the desired variable. The default behavoir of this
+		 * construct is:
+		 * <ol>
+		 * <li>compare numbers</li>
+		 * <li>jump to false-branch if comparison-result is 0</li>
+		 * <li>enter true-branch and load true</li>
+		 * <li>jump over false-branch</li>
+		 * <li>enter false branch and load false</li>
+		 * <li>save result into variable.</li>
+		 * </ol>
+		 * 
+		 * Because this behavior is static, we can use fixed jump offsets.
 		 * 
 		 * @param q
 		 *            the quadruple of the comparation
@@ -267,29 +306,29 @@ public class Program {
 		 * @param compareOp
 		 *            the comparation operation to perform
 		 * @param jumpOp
-		 *            the jump operation to perform after comparation. TODO more
-		 *            explanation
+		 *            the jump operation to perform after comparation.
 		 * @return this builder instance
 		 */
 		private ProgramBuilder compareNumber(final Quadruple q,
-				final InfoTag type, final String loadOp,
-				final Mnemonic compareOp, final String jumpOp) {
+				final InfoTag type, final Mnemonic loadOp,
+				final Mnemonic compareOp, final Mnemonic jumpOp) {
 			final OperationBuilder op = OperationBuilder.newBuilder();
-			// final Instruction iCmpFalse = new Instruction(1,
-			// Mnemonic.ICONST_0);
-			final Instruction iCmpFalse = new Instruction(Mnemonic.ICONST_0);
-			final Instruction iStore = storeOp(q.getResult(), "ISTORE");
-
-			op.add(loadOp(true, q.getArgument1(), type, loadOp));
-			op.add(loadOp(true, q.getArgument2(), type, loadOp));
+			// 1: load first variable/constant
+			op.add(loadOp(q.getArgument1(), type, loadOp));
+			// 2: load second variable/constant
+			op.add(loadOp(q.getArgument2(), type, loadOp));
+			// 3: execute comparison (pushes -1/0/1 to the stack)
 			op.add(compareOp);
-			//op.add(new JumpInstruction(3, Mnemonic.getMnemonic(jumpOp), iCmpFalse));
-			op.add(new JumpInstruction(Mnemonic.getMnemonic(jumpOp), iCmpFalse));
+			// 4: execute a conditional jump with target line 7
+			op.add(new Instruction(jumpOp, (byte) 0x00, (byte) 0x07));
+			// 5: load 1 (true) onto the stack
 			op.add(Mnemonic.ICONST_1);
-			//op.add(new JumpInstruction(3, Mnemonic.GOTO, iStore));
-			op.add(new JumpInstruction(Mnemonic.GOTO, iStore));
-			op.add(iCmpFalse);
-			op.add(iStore);
+			// 6: execute an unconditional jump with target line 8
+			op.add(new Instruction(Mnemonic.GOTO, (byte) 0x00, (byte) 0x04));
+			// 7: load 0 (false) onto the stack
+			op.add(Mnemonic.ICONST_0);
+			// 8: store result 1/0 into variable
+			op.add(storeOp(q.getResult(), Mnemonic.ISTORE));
 			return add(op.build());
 		}
 
@@ -310,7 +349,7 @@ public class Program {
 				op.add(loadBooleanOp(q.getArgument2()));
 			}
 			op.add(mnemonic);
-			op.add(storeOp(q.getResult(), "ISTORE"));
+			op.add(storeOp(q.getResult(), Mnemonic.ISTORE));
 			return add(op.build());
 		}
 
@@ -328,67 +367,77 @@ public class Program {
 		 * @return this builder instance
 		 */
 		private ProgramBuilder print(final String arg1, final InfoTag type,
-				final String varLoadOp) {
+				final Mnemonic varLoadOp) {
 			addPrintMethodToClassfile();
 			final OperationBuilder op = OperationBuilder.newBuilder();
 			op.add(Mnemonic.GETSTATIC, 2,
 					ByteUtils.shortToByteArray(systemOutIndex));
-			op.add(loadOp(type.isWide(), arg1, type, varLoadOp));
+			op.add(loadOp(arg1, type, varLoadOp));
 			op.add(Mnemonic.INVOKEVIRTUAL, 2,
 					ByteUtils.shortToByteArray(printIndex));
 			return add(op.build());
 		}
 
 		/**
-		 * Creates an array of a primitive datatype. TODO javadoc
+		 * Creates an array of a primitive datatype. Because arrays with
+		 * primitive datatypes differ from arrays with objects in their creation
+		 * (NEWARRAY vs ANEWARRAY for "reference array"), no non-primitive
+		 * datatype arrays can be created with this method.
 		 * 
 		 * @param type
-		 * @return
+		 *            datatype of array contents
+		 * @return this builders instance
 		 */
 		private ProgramBuilder arrayCreate(final ArrayType type) {
 			// long array declaration
 			assert arrayName != null && !arraySizes.isEmpty();
 			final OperationBuilder op = OperationBuilder.newBuilder();
 			for (final String size : arraySizes) {
-				op.add(loadOp(true, size, InfoTag.LONG, "LLOAD"));
+				op.add(loadOp(size, InfoTag.LONG, Mnemonic.LLOAD));
 				op.add(Mnemonic.L2I);
 			}
 			op.add(Mnemonic.NEWARRAY, 1, type.getValue());
-			op.add(storeOp(arrayName, "ASTORE"));
+			op.add(storeOp(arrayName, Mnemonic.ASTORE));
 			return add(op.build());
 		}
 
 		/**
-		 * TODO javadoc
+		 * Returns the value of an array at a specified index. Because the
+		 * available type is by definition LONG, and the internal array index
+		 * type of java is INT, every index specification must be transformed
+		 * into INT, with L2I.
 		 * 
 		 * @param q
+		 *            quadruple of operation
 		 * @param loadOp
+		 *            operation to perform for loading the value from the array
 		 * @param storeOp
+		 *            operation to store the retrieved array value
 		 * @return
 		 */
 		private ProgramBuilder arrayGet(final Quadruple q,
-				final Mnemonic loadOp, final String storeOp) {
+				final Mnemonic loadOp, final Mnemonic storeOp) {
 			final OperationBuilder op = OperationBuilder.newBuilder();
 			final byte arrayIndex = classfile.getIndexOfVariableInMethod(
 					methodName, q.getArgument1());
 			op.add(Mnemonic.getMnemonic("ALOAD", arrayIndex), 1, arrayIndex);
-			op.add(loadOp(true, q.getArgument2(), InfoTag.LONG, "LLOAD"));
+			op.add(loadOp(q.getArgument2(), InfoTag.LONG, Mnemonic.LLOAD));
 			op.add(Mnemonic.L2I);
 			op.add(loadOp);
 			op.add(storeOp(q.getResult(), storeOp));
 			return add(op.build());
 		}
 
-		private ProgramBuilder arraySet(final Quadruple q, final boolean wide,
-				final InfoTag constType, final String varLoadOp,
+		private ProgramBuilder arraySet(final Quadruple q,
+				final InfoTag constType, final Mnemonic varLoadOp,
 				final Mnemonic storeOp) {
 			final OperationBuilder op = OperationBuilder.newBuilder();
 			final byte arrayIndex = classfile.getIndexOfVariableInMethod(
 					methodName, q.getArgument1());
 			op.add(Mnemonic.getMnemonic("ALOAD", arrayIndex), 1, arrayIndex);
-			op.add(loadOp(true, q.getArgument2(), InfoTag.LONG, "LLOAD"));
+			op.add(loadOp(q.getArgument2(), InfoTag.LONG, Mnemonic.LLOAD));
 			op.add(Mnemonic.L2I);
-			op.add(loadOp(wide, q.getResult(), constType, varLoadOp));
+			op.add(loadOp(q.getResult(), constType, varLoadOp));
 			op.add(storeOp);
 			return add(op.build());
 		}
@@ -448,12 +497,21 @@ public class Program {
 		}
 
 		/**
-		 * TODO javadoc
+		 * Adds a class reference to the String class to the constant pool.
 		 * 
-		 * @return
+		 * @return index of string class reference in constant pool
 		 */
 		private short addStringClassToClassfile() {
 			return classfile.addClassConstantToConstantPool("java/lang/String");
+		}
+
+		/**
+		 * TODO javadoc
+		 */
+		private void addReturnOp() {
+			final OperationBuilder op = OperationBuilder.newBuilder();
+			op.add(Mnemonic.RETURN);
+			operations.add(op.build());
 		}
 
 		// OPERATIONS ----------------------------------------------------------
@@ -483,12 +541,12 @@ public class Program {
 				assert arrayName != null && !arraySizes.isEmpty();
 				final OperationBuilder op = OperationBuilder.newBuilder();
 				for (final String size : arraySizes) {
-					op.add(loadOp(true, size, InfoTag.LONG, "LLOAD"));
+					op.add(loadOp(size, InfoTag.LONG, Mnemonic.LLOAD));
 					op.add(Mnemonic.L2I);
 				}
 				op.add(Mnemonic.ANEWARRAY, 2,
 						ByteUtils.shortToByteArray(addStringClassToClassfile()));
-				op.add(storeOp(arrayName, "ASTORE"));
+				op.add(storeOp(arrayName, Mnemonic.ASTORE));
 				return add(op.build());
 			}
 
@@ -530,8 +588,8 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder longToDouble(final Quadruple q) {
-			return assignNumber(q, InfoTag.LONG, "LLOAD", Mnemonic.L2D,
-					"DSTORE");
+			return assignNumber(q, InfoTag.LONG, Mnemonic.LLOAD, Mnemonic.L2D,
+					Mnemonic.DSTORE);
 		}
 
 		/**
@@ -561,8 +619,8 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder doubleToLong(final Quadruple q) {
-			return assignNumber(q, InfoTag.DOUBLE, "DLOAD", Mnemonic.D2L,
-					"LSTORE");
+			return assignNumber(q, InfoTag.DOUBLE, Mnemonic.DLOAD,
+					Mnemonic.D2L, Mnemonic.LSTORE);
 		}
 
 		/**
@@ -592,7 +650,8 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder assignLong(final Quadruple q) {
-			return assignNumber(q, InfoTag.LONG, "LLOAD", null, "LSTORE");
+			return assignNumber(q, InfoTag.LONG, Mnemonic.LLOAD, null,
+					Mnemonic.LSTORE);
 		}
 
 		/**
@@ -622,7 +681,8 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder assignDouble(final Quadruple q) {
-			return assignNumber(q, InfoTag.DOUBLE, "DLOAD", null, "DSTORE");
+			return assignNumber(q, InfoTag.DOUBLE, Mnemonic.DLOAD, null,
+					Mnemonic.DSTORE);
 		}
 
 		/**
@@ -653,8 +713,8 @@ public class Program {
 		 */
 		public ProgramBuilder assignString(final Quadruple q) {
 			final OperationBuilder op = OperationBuilder.newBuilder();
-			op.add(loadOp(false, q.getArgument1(), InfoTag.STRING, "ALOAD"));
-			op.add(storeOp(q.getResult(), "ASTORE"));
+			op.add(loadOp(q.getArgument1(), InfoTag.STRING, Mnemonic.ALOAD));
+			op.add(storeOp(q.getResult(), Mnemonic.ASTORE));
 			return add(op.build());
 		}
 
@@ -687,7 +747,7 @@ public class Program {
 		public ProgramBuilder assignBoolean(final Quadruple q) {
 			final OperationBuilder op = OperationBuilder.newBuilder();
 			op.add(loadBooleanOp(q.getArgument1()));
-			op.add(storeOp(q.getResult(), "ISTORE"));
+			op.add(storeOp(q.getResult(), Mnemonic.ISTORE));
 			return add(op.build());
 		}
 
@@ -718,8 +778,8 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder addLong(final Quadruple q) {
-			return calculateNumber(q, InfoTag.LONG, "LLOAD", Mnemonic.LADD,
-					"LSTORE");
+			return calculateNumber(q, InfoTag.LONG, Mnemonic.LLOAD,
+					Mnemonic.LADD, Mnemonic.LSTORE);
 		}
 
 		/**
@@ -749,8 +809,8 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder addDouble(final Quadruple q) {
-			return calculateNumber(q, InfoTag.DOUBLE, "DLOAD", Mnemonic.DADD,
-					"DSTORE");
+			return calculateNumber(q, InfoTag.DOUBLE, Mnemonic.DLOAD,
+					Mnemonic.DADD, Mnemonic.DSTORE);
 		}
 
 		/**
@@ -780,8 +840,8 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder subLong(final Quadruple q) {
-			return calculateNumber(q, InfoTag.LONG, "LLOAD", Mnemonic.LSUB,
-					"LSTORE");
+			return calculateNumber(q, InfoTag.LONG, Mnemonic.LLOAD,
+					Mnemonic.LSUB, Mnemonic.LSTORE);
 		}
 
 		/**
@@ -811,8 +871,8 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder subDouble(final Quadruple q) {
-			return calculateNumber(q, InfoTag.DOUBLE, "DLOAD", Mnemonic.DSUB,
-					"DSTORE");
+			return calculateNumber(q, InfoTag.DOUBLE, Mnemonic.DLOAD,
+					Mnemonic.DSUB, Mnemonic.DSTORE);
 		}
 
 		/**
@@ -842,8 +902,8 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder mulLong(final Quadruple q) {
-			return calculateNumber(q, InfoTag.LONG, "LLOAD", Mnemonic.LMUL,
-					"LSTORE");
+			return calculateNumber(q, InfoTag.LONG, Mnemonic.LLOAD,
+					Mnemonic.LMUL, Mnemonic.LSTORE);
 		}
 
 		/**
@@ -873,8 +933,8 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder mulDouble(final Quadruple q) {
-			return calculateNumber(q, InfoTag.DOUBLE, "DLOAD", Mnemonic.DMUL,
-					"DSTORE");
+			return calculateNumber(q, InfoTag.DOUBLE, Mnemonic.DLOAD,
+					Mnemonic.DMUL, Mnemonic.DSTORE);
 		}
 
 		/**
@@ -904,8 +964,8 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder divLong(final Quadruple q) {
-			return calculateNumber(q, InfoTag.LONG, "LLOAD", Mnemonic.LDIV,
-					"LSTORE");
+			return calculateNumber(q, InfoTag.LONG, Mnemonic.LLOAD,
+					Mnemonic.LDIV, Mnemonic.LSTORE);
 		}
 
 		/**
@@ -935,8 +995,8 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder divDouble(final Quadruple q) {
-			return calculateNumber(q, InfoTag.DOUBLE, "DLOAD", Mnemonic.DDIV,
-					"DSTORE");
+			return calculateNumber(q, InfoTag.DOUBLE, Mnemonic.DLOAD,
+					Mnemonic.DDIV, Mnemonic.DSTORE);
 		}
 
 		/**
@@ -969,7 +1029,7 @@ public class Program {
 			final short systemExitIndex = addSystemExitMethodToClassfile();
 
 			final OperationBuilder op = OperationBuilder.newBuilder();
-			op.add(loadOp(true, q.getArgument1(), InfoTag.LONG, "LLOAD"));
+			op.add(loadOp(q.getArgument1(), InfoTag.LONG, Mnemonic.LLOAD));
 			op.add(Mnemonic.L2I);
 			op.add(Mnemonic.INVOKESTATIC, 2,
 					ByteUtils.shortToByteArray(systemExitIndex));
@@ -982,7 +1042,31 @@ public class Program {
 		 */
 
 		/**
-		 * TODO javadoc
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>OR_BOOLEAN</td>
+		 * <td>lhs</td>
+		 * <td>rhs</td>
+		 * <td>destination</td>
+		 * <td>destination := lhs or rhs</td>
+		 * </tr>
+		 * <tr>
+		 * <td>AND_BOOLEAN</td>
+		 * <td>lhs</td>
+		 * <td>rhs</td>
+		 * <td>destination</td>
+		 * <td>destination := lhs and rhs</td>
+		 * </tr>
+		 * </tbody>
 		 * 
 		 * @param q
 		 *            the operation quadruple
@@ -993,7 +1077,24 @@ public class Program {
 		}
 
 		/**
-		 * TODO javadoc
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>OR_BOOLEAN</td>
+		 * <td>lhs</td>
+		 * <td>rhs</td>
+		 * <td>destination</td>
+		 * <td>destination := lhs or rhs</td>
+		 * </tr>
+		 * </tbody>
 		 * 
 		 * @param q
 		 *            the operation quadruple
@@ -1004,7 +1105,24 @@ public class Program {
 		}
 
 		/**
-		 * TODO javadoc
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>AND_BOOLEAN</td>
+		 * <td>lhs</td>
+		 * <td>rhs</td>
+		 * <td>destination</td>
+		 * <td>destination := lhs and rhs</td>
+		 * </tr>
+		 * </tbody>
 		 * 
 		 * @param q
 		 *            the operation quadruple
@@ -1015,127 +1133,328 @@ public class Program {
 		}
 
 		/**
-		 * TODO javadoc
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>COMPARE_LONG_E</td>
+		 * <td>lhs</td>
+		 * <td>rhs</td>
+		 * <td>destination</td>
+		 * <td>lhs equals rhs ?</td>
+		 * </tr>
+		 * <tr>
+		 * </tbody>
+		 * </table>
 		 * 
 		 * @param q
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder compareLongE(final Quadruple q) {
-			return compareNumber(q, InfoTag.LONG, "LLOAD", Mnemonic.LCMP,
-					"IFNE");
+			return compareNumber(q, InfoTag.LONG, Mnemonic.LLOAD,
+					Mnemonic.LCMP, Mnemonic.IFNE);
 		}
 
 		/**
-		 * TODO javadoc
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>COMPARE_LONG_G</td>
+		 * <td>lhs</td>
+		 * <td>rhs</td>
+		 * <td>destination</td>
+		 * <td>lhs greater than rhs ?</td>
+		 * </tr>
+		 * </tbody>
+		 * </table>
 		 * 
 		 * @param q
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder compareLongG(final Quadruple q) {
-			return compareNumber(q, InfoTag.LONG, "LLOAD", Mnemonic.LCMP,
-					"IFLE");
+			return compareNumber(q, InfoTag.LONG, Mnemonic.LLOAD,
+					Mnemonic.LCMP, Mnemonic.IFLE);
 		}
 
 		/**
-		 * TODO javadoc
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>COMPARE_LONG_L</td>
+		 * <td>lhs</td>
+		 * <td>rhs</td>
+		 * <td>destination</td>
+		 * <td>lhs less than rhs ?</td>
+		 * </tr>
+		 * </tbody>
+		 * </table>
 		 * 
 		 * @param q
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder compareLongL(final Quadruple q) {
-			return compareNumber(q, InfoTag.LONG, "LLOAD", Mnemonic.LCMP,
-					"IFGE");
+			return compareNumber(q, InfoTag.LONG, Mnemonic.LLOAD,
+					Mnemonic.LCMP, Mnemonic.IFGE);
 		}
 
 		/**
-		 * TODO javadoc
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <tr>
+		 * <td>COMPARE_LONG_GE</td>
+		 * <td>lhs</td>
+		 * <td>rhs</td>
+		 * <td>destination</td>
+		 * <td>lhs greater than or equals rhs ?</td>
+		 * </tr>
+		 * </tbody>
+		 * </table>
 		 * 
 		 * @param q
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder compareLongGE(final Quadruple q) {
-			return compareNumber(q, InfoTag.LONG, "LLOAD", Mnemonic.LCMP,
-					"IFLT");
+			return compareNumber(q, InfoTag.LONG, Mnemonic.LLOAD,
+					Mnemonic.LCMP, Mnemonic.IFLT);
 		}
 
 		/**
-		 * TODO javadoc
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>COMPARE_LONG_LE</td>
+		 * <td>lhs</td>
+		 * <td>rhs</td>
+		 * <td>destination</td>
+		 * <td>lhs less than or equals rhs ?</td>
+		 * </tr>
+		 * </tbody>
+		 * </table>
 		 * 
 		 * @param q
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder compareLongLE(final Quadruple q) {
-			return compareNumber(q, InfoTag.LONG, "LLOAD", Mnemonic.LCMP,
-					"IFGT");
+			return compareNumber(q, InfoTag.LONG, Mnemonic.LLOAD,
+					Mnemonic.LCMP, Mnemonic.IFGT);
 		}
 
 		/**
-		 * TODO javadoc
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>COMPARE_DOUBLE_E</td>
+		 * <td>lhs</td>
+		 * <td>rhs</td>
+		 * <td>destination</td>
+		 * <td>lhs equals rhs ?</td>
+		 * </tr>
+		 * <tr>
+		 * </tbody>
+		 * </table>
 		 * 
 		 * @param q
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder compareDoubleE(final Quadruple q) {
-			return compareNumber(q, InfoTag.DOUBLE, "DLOAD", Mnemonic.DCMPL,
-					"IFNE");
+			return compareNumber(q, InfoTag.DOUBLE, Mnemonic.DLOAD,
+					Mnemonic.DCMPL, Mnemonic.IFNE);
 		}
 
 		/**
-		 * TODO javadoc
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>COMPARE_DOUBLE_G</td>
+		 * <td>lhs</td>
+		 * <td>rhs</td>
+		 * <td>destination</td>
+		 * <td>lhs greater than rhs ?</td>
+		 * </tr>
+		 * </tbody>
+		 * </table>
 		 * 
 		 * @param q
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder compareDoubleG(final Quadruple q) {
-			return compareNumber(q, InfoTag.DOUBLE, "DLOAD", Mnemonic.DCMPL,
-					"IFLE");
+			return compareNumber(q, InfoTag.DOUBLE, Mnemonic.DLOAD,
+					Mnemonic.DCMPL, Mnemonic.IFLE);
 		}
 
 		/**
-		 * TODO javadoc
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>COMPARE_DOUBLE_L</td>
+		 * <td>lhs</td>
+		 * <td>rhs</td>
+		 * <td>destination</td>
+		 * <td>lhs less than rhs ?</td>
+		 * </tr>
+		 * </tbody>
+		 * </table>
 		 * 
 		 * @param q
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder compareDoubleL(final Quadruple q) {
-			return compareNumber(q, InfoTag.DOUBLE, "DLOAD", Mnemonic.DCMPG,
-					"IFGE");
+			return compareNumber(q, InfoTag.DOUBLE, Mnemonic.DLOAD,
+					Mnemonic.DCMPG, Mnemonic.IFGE);
 		}
 
 		/**
-		 * TODO javadoc
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>COMPARE_DOUBLE_GE</td>
+		 * <td>lhs</td>
+		 * <td>rhs</td>
+		 * <td>destination</td>
+		 * <td>lhs greater than or equals rhs ?</td>
+		 * </tr>
+		 * </tbody>
+		 * </table>
 		 * 
 		 * @param q
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder compareDoubleGE(final Quadruple q) {
-			return compareNumber(q, InfoTag.DOUBLE, "DLOAD", Mnemonic.DCMPL,
-					"IFLT");
+			return compareNumber(q, InfoTag.DOUBLE, Mnemonic.DLOAD,
+					Mnemonic.DCMPL, Mnemonic.IFLT);
 		}
 
 		/**
-		 * TODO javadoc
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>COMPARE_DOUBLE_LE</td>
+		 * <td>lhs</td>
+		 * <td>rhs</td>
+		 * <td>destination</td>
+		 * <td>lhs less than or equals rhs ?</td>
+		 * </tr>
+		 * </tbody>
+		 * </table>
 		 * 
 		 * @param q
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder compareDoubleLE(final Quadruple q) {
-			return compareNumber(q, InfoTag.DOUBLE, "DLOAD", Mnemonic.DCMPG,
-					"IFGT");
+			return compareNumber(q, InfoTag.DOUBLE, Mnemonic.DLOAD,
+					Mnemonic.DCMPG, Mnemonic.IFGT);
 		}
 
 		/**
-		 * TODO javadoc
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>LABEL</td>
+		 * <td>unique identifier</td>
+		 * <td></td>
+		 * <td></td>
+		 * <td>is a NOP</td>
+		 * </tr>
+		 * </tbody>
+		 * </table>
 		 * 
 		 * @param q
 		 *            the operation quadruple
@@ -1148,19 +1467,42 @@ public class Program {
 		}
 
 		/**
-		 * TODO javadoc
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>BRANCH</td>
+		 * <td>target</td>
+		 * <td></td>
+		 * <td></td>
+		 * <td>unconditional branch</td>
+		 * </tr>
+		 * <tr>
+		 * <td>BRANCH</td>
+		 * <td>true target</td>
+		 * <td>false target</td>
+		 * <td>condition</td>
+		 * <td>conditional branch, condition is a boolean variable</td>
+		 * </tr>
+		 * </tbody>
+		 * </table>
 		 * 
 		 * @param q
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder branch(final Quadruple q) {
-			// TODO implement
 			final OperationBuilder op = OperationBuilder.newBuilder();
 			if ("!".equals(q.getResult())) {
 				// unconditional branch
 				final Instruction target = getJumpTarget(q.getArgument1());
-				//op.add(new JumpInstruction(3, Mnemonic.GOTO, target));
 				op.add(new JumpInstruction(Mnemonic.GOTO, target));
 			} else {
 				final Instruction trueTarget = getJumpTarget(q.getArgument1());
@@ -1168,10 +1510,8 @@ public class Program {
 				final Instruction endNop = new Instruction(Mnemonic.NOP);
 				// conditional branch
 				op.add(loadBooleanOp(q.getResult()));
-				//op.add(new JumpInstruction(2, Mnemonic.IFEQ, falseTarget));
 				op.add(new JumpInstruction(Mnemonic.IFEQ, falseTarget));
 				op.add(trueTarget);
-				//op.add(new JumpInstruction(3, Mnemonic.GOTO, endNop));
 				op.add(new JumpInstruction(Mnemonic.GOTO, endNop));
 				op.add(falseTarget);
 				op.add(endNop);
@@ -1180,7 +1520,25 @@ public class Program {
 		}
 
 		/**
-		 * TODO javadoc
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>PRINT_BOOLEAN</td>
+		 * <td>value</td>
+		 * <td></td>
+		 * <td></td>
+		 * <td></td>
+		 * </tr>
+		 * </tbody>
+		 * </table>
 		 * 
 		 * @param q
 		 *            the operation quadruple
@@ -1198,40 +1556,112 @@ public class Program {
 		}
 
 		/**
-		 * TODO javadoc
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>PRINT_LONG</td>
+		 * <td>value</td>
+		 * <td></td>
+		 * <td></td>
+		 * <td></td>
+		 * </tr>
+		 * </tbody>
+		 * </table>
 		 * 
 		 * @param q
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder printLong(final Quadruple q) {
-			return print(q.getArgument1(), InfoTag.LONG, "LDC2_W");
+			return print(q.getArgument1(), InfoTag.LONG, Mnemonic.LDC2_W);
 		}
 
 		/**
-		 * TODO javadoc
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>PRINT_DOUBLE</td>
+		 * <td>value</td>
+		 * <td></td>
+		 * <td></td>
+		 * <td></td>
+		 * </tr>
+		 * </tbody>
+		 * </table>
 		 * 
 		 * @param q
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder printDouble(final Quadruple q) {
-			return print(q.getArgument1(), InfoTag.DOUBLE, "LDC2_W");
+			return print(q.getArgument1(), InfoTag.DOUBLE, Mnemonic.LDC2_W);
 		}
 
 		/**
-		 * TODO javadoc
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>PRINT_STRING</td>
+		 * <td>value</td>
+		 * <td></td>
+		 * <td></td>
+		 * <td></td>
+		 * </tr>
+		 * </tbody>
+		 * </table>
 		 * 
 		 * @param q
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder printString(final Quadruple q) {
-			return print(q.getArgument1(), InfoTag.STRING, "LDC");
+			return print(q.getArgument1(), InfoTag.STRING, Mnemonic.LDC);
 		}
 
 		/**
-		 * TODO javadoc
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>DECLARE_ARRAY</td>
+		 * <td>size</td>
+		 * <td></td>
+		 * <td>name</td>
+		 * <td></td>
+		 * </tr>
+		 * </tbody>
+		 * </table>
 		 * 
 		 * @param q
 		 *            the operation quadruple
@@ -1246,127 +1676,333 @@ public class Program {
 		}
 
 		/**
-		 * TODO javadoc
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>ARRAY_GET_LONG</td>
+		 * <td>array name or reference</td>
+		 * <td>element index</td>
+		 * <td>destination name</td>
+		 * <td></td>
+		 * </tr>
+		 * </tbody>
+		 * </table>
 		 * 
 		 * @param q
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder arrayGetLong(final Quadruple q) {
-			return arrayGet(q, Mnemonic.LALOAD, "LSTORE");
+			return arrayGet(q, Mnemonic.LALOAD, Mnemonic.LSTORE);
 		}
 
 		/**
-		 * TODO javadoc
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>ARRAY_GET_DOUBLE</td>
+		 * <td>array name or reference</td>
+		 * <td>element index</td>
+		 * <td>destination name</td>
+		 * <td></td>
+		 * </tr>
+		 * </tbody>
+		 * </table>
 		 * 
 		 * @param q
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder arrayGetDouble(final Quadruple q) {
-			return arrayGet(q, Mnemonic.DALOAD, "DSTORE");
+			return arrayGet(q, Mnemonic.DALOAD, Mnemonic.DSTORE);
 		}
 
 		/**
-		 * TODO javadoc
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>ARRAY_GET_BOOLEAN</td>
+		 * <td>array name or reference</td>
+		 * <td>element index</td>
+		 * <td>destination name</td>
+		 * <td></td>
+		 * </tr>
+		 * </tbody>
+		 * </table>
 		 * 
 		 * @param q
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder arrayGetBoolean(final Quadruple q) {
-			return arrayGet(q, Mnemonic.BALOAD, "ISTORE");
+			return arrayGet(q, Mnemonic.BALOAD, Mnemonic.ISTORE);
 		}
 
 		/**
-		 * TODO javadoc
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>ARRAY_GET_STRING</td>
+		 * <td>array name or reference</td>
+		 * <td>element index</td>
+		 * <td>destination name</td>
+		 * <td></td>
+		 * </tr>
+		 * </tbody>
+		 * </table>
 		 * 
 		 * @param q
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder arrayGetString(final Quadruple q) {
-			return arrayGet(q, Mnemonic.AALOAD, "ASTORE");
+			return arrayGet(q, Mnemonic.AALOAD, Mnemonic.ASTORE);
 		}
 
 		/**
-		 * TODO javadoc
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>ARRAY_GET_ARRAY</td>
+		 * <td>array name or reference</td>
+		 * <td>element index</td>
+		 * <td>destination name</td>
+		 * <td>deep copy</td>
+		 * </tr>
+		 * </tbody>
+		 * </table>
 		 * 
 		 * @param q
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder arrayGetArray(final Quadruple q) {
-			return arrayGet(q, Mnemonic.AALOAD, "ASTORE");
+			// TODO implement
+			return this;
 		}
 
 		/**
-		 * TODO javadoc
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>ARRAY_GET_REFERENCE</td>
+		 * <td>array name or reference</td>
+		 * <td>element index</td>
+		 * <td>destination name</td>
+		 * <td>destination will contain a reference to the array at the index</td>
+		 * </tr>
+		 * </tbody>
+		 * </table>
 		 * 
 		 * @param q
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder arrayGetReference(final Quadruple q) {
-			return arrayGet(q, Mnemonic.AALOAD, "ASTORE");
+			return arrayGet(q, Mnemonic.AALOAD, Mnemonic.ASTORE);
 		}
 
 		/**
-		 * TODO javadoc
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>ARRAY_SET_LONG</td>
+		 * <td>array name or reference</td>
+		 * <td>element index</td>
+		 * <td>source</td>
+		 * <td>source may be either an identifier or a Long constant</td>
+		 * </tr>
+		 * </tbody>
+		 * </table>
 		 * 
 		 * @param q
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder arraySetLong(final Quadruple q) {
-			return arraySet(q, true, InfoTag.LONG, "LDC2_W", Mnemonic.LASTORE);
+			return arraySet(q, InfoTag.LONG, Mnemonic.LDC2_W, Mnemonic.LASTORE);
 		}
 
 		/**
-		 * TODO javadoc
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>ARRAY_SET_DOUBLE</td>
+		 * <td>array name or reference</td>
+		 * <td>element index</td>
+		 * <td>source</td>
+		 * <td>source may be either an identifier or a Double constant</td>
+		 * </tr>
+		 * </tbody>
+		 * </table>
 		 * 
 		 * @param q
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder arraySetDouble(final Quadruple q) {
-			return arraySet(q, true, InfoTag.DOUBLE, "LDC2_W", Mnemonic.DASTORE);
+			return arraySet(q, InfoTag.DOUBLE, Mnemonic.LDC2_W,
+					Mnemonic.DASTORE);
 		}
 
 		/**
-		 * TODO javadoc
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>ARRAY_SET_BOOLEAN</td>
+		 * <td>array name or reference</td>
+		 * <td>element index</td>
+		 * <td>source</td>
+		 * <td>source may be either an identifier or a Boolean constant</td>
+		 * </tr>
+		 * </tbody>
+		 * </table>
 		 * 
 		 * @param q
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder arraySetBoolean(final Quadruple q) {
-			// TODO implement
-			return this;
+			final OperationBuilder op = OperationBuilder.newBuilder();
+			final byte arrayIndex = classfile.getIndexOfVariableInMethod(
+					methodName, q.getArgument1());
+			op.add(Mnemonic.getMnemonic("ALOAD", arrayIndex), 1, arrayIndex);
+			op.add(loadOp(q.getArgument2(), InfoTag.LONG, Mnemonic.LLOAD));
+			op.add(Mnemonic.L2I);
+			op.add(loadBooleanOp(q.getResult()));
+			op.add(Mnemonic.BASTORE);
+			return add(op.build());
 		}
 
 		/**
-		 * TODO javadoc
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>ARRAY_SET_STRING</td>
+		 * <td>array name or reference</td>
+		 * <td>element index</td>
+		 * <td>source</td>
+		 * <td>source may be either an identifier or a String constant</td>
+		 * </tr>
+		 * </tbody>
+		 * </table>
 		 * 
 		 * @param q
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder arraySetString(final Quadruple q) {
-			// TODO implement
-			return this;
+			return arraySet(q, InfoTag.STRING, Mnemonic.LDC, Mnemonic.AASTORE);
 		}
 
 		/**
-		 * TODO javadoc
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>ARRAY_SET_ARRAY</td>
+		 * <td>array name or reference</td>
+		 * <td>element index</td>
+		 * <td>source</td>
+		 * <td>source may be an identifier for either an array or an array
+		 * reference</td>
+		 * </tr>
+		 * </tbody>
+		 * </table>
 		 * 
 		 * @param q
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder arraySetArray(final Quadruple q) {
-			// TODO implement
-			return this;
+			return arraySet(q, null, Mnemonic.ALOAD, Mnemonic.AASTORE);
 		}
 
 		/*
@@ -1445,7 +2081,7 @@ public class Program {
 	 * @return the hex string
 	 */
 	public String toHexString() {
-		return ByteUtils.hexFromBytes(toByteArray());
+		return byteArrayToHexString(toByteArray());
 	}
 
 	/**

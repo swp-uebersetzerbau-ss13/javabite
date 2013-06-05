@@ -68,7 +68,7 @@ public interface IClassfile {
 	 * @since 03.05.2013
 	 */
 	public enum VariableType {
-		LONG(2), DOUBLE(2), STRING(1), BOOLEAN(1), AREF(1);
+		LONG(2), DOUBLE(2), STRING(1), BOOLEAN(1), AREF(1), INTEGER(1);
 
 		private final short length;
 
@@ -115,7 +115,9 @@ public interface IClassfile {
 	}
 
 	/**
-	 * TODO javadoc
+	 * ArrayType enum. This enum holds possible values for array types. It is
+	 * used to create arrays, because the opcode NEWARRAY requires a type
+	 * argument.
 	 * 
 	 * @author eike
 	 * @since Jun 3, 2013 8:29:55 PM
@@ -436,6 +438,24 @@ public interface IClassfile {
 	 * @see Classfile#addVariableToMethodsCode(String, String, VariableType)
 	 */
 	void addStringVariableToMethodsCode(String methodName, String variableName);
+
+	/**
+	 * <h1>addBooleanVariableToMethodsCode</h1>
+	 * <p>
+	 * This method adds explicitly a BOOLEAN variable to a methods code using
+	 * the Classfile method addVariableToMethodsCode with an appropriate
+	 * variable type.
+	 * </p>
+	 * 
+	 * @author Eike, Marco
+	 * @since 25.05.2013
+	 * @param methodName
+	 *            String name of the method
+	 * @param variableName
+	 *            String name of the variable
+	 * @see Classfile#addVariableToMethodsCode(String, String, VariableType)
+	 */
+	void addBooleanVariableToMethodsCode(String methodName, String variableName);
 
 	/**
 	 * <h1>getIndexOfVariableInMethod</h1>

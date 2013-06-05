@@ -1,6 +1,6 @@
 package swp_compiler_ss13.javabite.backend.classfile;
 
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.toHexString;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToHexString;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -61,7 +61,7 @@ class MethodArea {
 
 			if (logger.isDebugEnabled()) {
 				logger.debug("method count");
-				logger.debug("{}", toHexString((short) methodMap.size()));
+				logger.debug("{}", shortToHexString((short) methodMap.size()));
 			}
 
 			// get method_info - bytes of methods

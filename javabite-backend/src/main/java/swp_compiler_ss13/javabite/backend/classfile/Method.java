@@ -1,6 +1,6 @@
 package swp_compiler_ss13.javabite.backend.classfile;
 
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.toHexString;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToHexString;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -122,9 +122,10 @@ class Method {
 
 			if (logger.isDebugEnabled()) {
 				logger.debug("accessFlags, nameIndex, descriptorIndex, attributesCount:");
-				logger.debug("{} {} {} {}", toHexString(accessFlags),
-						toHexString(nameIndex), toHexString(descriptorIndex),
-						toHexString(attributesCount));
+				logger.debug("{} {} {} {}", shortToHexString(accessFlags),
+						shortToHexString(nameIndex),
+						shortToHexString(descriptorIndex),
+						shortToHexString(attributesCount));
 			}
 
 			codeAttribute.writeTo(classfileDOS);

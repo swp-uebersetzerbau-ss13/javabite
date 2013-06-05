@@ -1,7 +1,7 @@
 package swp_compiler_ss13.javabite.backend;
 
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.hexFromBytes;
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.toHexString;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.byteArrayToHexString;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.byteToHexString;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -47,10 +47,10 @@ public class Instruction {
 			// fix this?
 			assert arguments.length >= mnemonic.getArgsCount();
 			this.arguments = arguments;
-			this.size = 1 + arguments.length;
+			size = 1 + arguments.length;
 		} else {
 			this.arguments = null;
-			this.size = 1;
+			size = 1;
 		}
 	}
 
@@ -78,7 +78,7 @@ public class Instruction {
 
 			if (logger.isDebugEnabled()) {
 				logger.debug("mnemonic bcode");
-				logger.debug("{}", toHexString(mnemonic.getBytecode()));
+				logger.debug("{}", byteToHexString(mnemonic.getBytecode()));
 			}
 
 			if (getArguments() != null) {
@@ -88,7 +88,7 @@ public class Instruction {
 
 				if (logger.isDebugEnabled()) {
 					logger.debug("arguments");
-					logger.debug("{}", hexFromBytes(getArguments()));
+					logger.debug("{}", byteArrayToHexString(getArguments()));
 				}
 			}
 		} catch (final IOException e) {

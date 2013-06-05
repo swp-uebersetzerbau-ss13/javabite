@@ -1,7 +1,9 @@
 package swp_compiler_ss13.javabite.backend;
 
 /**
- * TODO javadoc
+ * Extension of Instruction-class. Instances of this class symbolize a jump
+ * instruction to the target instruction. Because jumps can be both forward and
+ * backward, the offsets are only calculated after completing a program.
  * 
  * @author eike
  * @since May 30, 2013 6:51:26 PM

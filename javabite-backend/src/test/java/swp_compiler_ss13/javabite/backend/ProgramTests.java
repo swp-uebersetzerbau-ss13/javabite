@@ -36,18 +36,16 @@ public class ProgramTests {
 		pb = ProgramBuilder.newBuilder(classfile, methodName);
 	}
 
-	@SuppressWarnings("unused")
 	private void buildAndLog(final ProgramBuilder pb) {
 		final Program p = pb.build();
 		System.out.println(name.getMethodName());
 		final String bex = p.toHexString();
-		System.out
-				.println("final byte[] bExpected = new byte[] { (byte)0x"
-						+ (bex != null ? bex.trim().replaceAll(" ",
-								", (byte)0x") : bex)
-						+ " };\nfinal String sExpected = \""
-						+ p.toString().replaceAll("\n", "\\\\n")
-						+ "\";\nmakeAssertions(pb, bExpected, sExpected);");
+		final String bex2 = bex != null ? bex.trim().replaceAll(" ",
+				", (byte)0x") : bex;
+		System.out.println("final byte[] bExpected = new byte[] { (byte)0x"
+				+ bex2 + " };\nfinal String sExpected = \""
+				+ p.toString().replaceAll("\n", "\\\\n")
+				+ "\";\nmakeAssertions(pb, bExpected, sExpected);");
 	}
 
 	private void makeAssertions(final ProgramBuilder pb,
@@ -58,28 +56,46 @@ public class ProgramTests {
 		Assert.assertEquals("string compare", sExpected, p.toString());
 	}
 
-	private void addLongVariable(final String variableName) {
-		classfile.addLongVariableToMethodsCode(methodName, variableName);
+	private void addLongVariable(final String... vars) {
+		for (final String v : vars) {
+			classfile.addLongVariableToMethodsCode(methodName, v);
+		}
 	}
 
-	private void addDoubleVariable(final String variableName) {
-		classfile.addDoubleVariableToMethodsCode(methodName, variableName);
+	private void addDoubleVariable(final String... vars) {
+		for (final String v : vars) {
+			classfile.addDoubleVariableToMethodsCode(methodName, v);
+		}
 	}
 
-	private void addStringVariable(final String variableName) {
-		classfile.addStringVariableToMethodsCode(methodName, variableName);
+	private void addStringVariable(final String... vars) {
+		for (final String v : vars) {
+			classfile.addStringVariableToMethodsCode(methodName, v);
+		}
 	}
 
-	private void addLongConstant(final long value) {
-		classfile.addLongConstantToConstantPool(value);
+	private void addBooleanVariable(final String... vars) {
+		for (final String v : vars) {
+			classfile.addBooleanVariableToMethodsCode(methodName, v);
+		}
 	}
 
-	private void addDoubleConstant(final double value) {
-		classfile.addDoubleConstantToConstantPool(value);
+	private void addLongConstant(final long... vals) {
+		for (final long v : vals) {
+			classfile.addLongConstantToConstantPool(v);
+		}
 	}
 
-	private void addStringConstant(final String value) {
-		classfile.addStringConstantToConstantPool(value);
+	private void addDoubleConstant(final double... vals) {
+		for (final double v : vals) {
+			classfile.addDoubleConstantToConstantPool(v);
+		}
+	}
+
+	private void addStringConstant(final String... vals) {
+		for (final String v : vals) {
+			classfile.addStringConstantToConstantPool(v);
+		}
 	}
 
 	@Test
@@ -145,8 +161,7 @@ public class ProgramTests {
 	@Test
 	public void testVAssignLong() {
 		addLongConstant(1234);
-		addLongVariable("longTest1");
-		addLongVariable("longTest2");
+		addLongVariable("longTest1", "longTest2");
 		pb.assignLong(new QuadrupleImpl(Operator.ASSIGN_LONG, "#1234", "!",
 				"longTest2"));
 		pb.assignLong(new QuadrupleImpl(Operator.ASSIGN_LONG, "longTest2", "!",
@@ -172,8 +187,7 @@ public class ProgramTests {
 	@Test
 	public void testVAssignDouble() {
 		addDoubleConstant(12.34);
-		addDoubleVariable("doubleTest1");
-		addDoubleVariable("doubleTest2");
+		addDoubleVariable("doubleTest1", "doubleTest2");
 		pb.assignDouble(new QuadrupleImpl(Operator.ASSIGN_DOUBLE, "#12.34",
 				"!", "doubleTest2"));
 		pb.assignDouble(new QuadrupleImpl(Operator.ASSIGN_DOUBLE,
@@ -198,8 +212,7 @@ public class ProgramTests {
 
 	@Test
 	public void testCCAddLong() {
-		addLongConstant(1000);
-		addLongConstant(234);
+		addLongConstant(1000, 234);
 		addLongVariable("longTest");
 		pb.addLong(new QuadrupleImpl(Operator.ADD_LONG, "#1000", "#234",
 				"longTest"));
@@ -212,8 +225,7 @@ public class ProgramTests {
 
 	@Test
 	public void testVVAddLong() {
-		addLongVariable("longTest1");
-		addLongVariable("longTest2");
+		addLongVariable("longTest1", "longTest2");
 		pb.addLong(new QuadrupleImpl(Operator.ADD_LONG, "longTest1",
 				"longTest2", "longTest1"));
 		final byte[] bExpected = new byte[] { (byte) 0x1f, (byte) 0x21,
@@ -224,8 +236,7 @@ public class ProgramTests {
 
 	@Test
 	public void testCCAddDouble() {
-		addDoubleConstant(12.34);
-		addDoubleConstant(43.21);
+		addDoubleConstant(12.34, 43.21);
 		addDoubleVariable("doubleTest");
 		pb.addDouble(new QuadrupleImpl(Operator.ADD_DOUBLE, "#12.34", "#43.21",
 				"doubleTest"));
@@ -238,8 +249,7 @@ public class ProgramTests {
 
 	@Test
 	public void testVVAddDouble() {
-		addDoubleVariable("doubleTest1");
-		addDoubleVariable("doubleTest2");
+		addDoubleVariable("doubleTest1", "doubleTest2");
 		pb.addDouble(new QuadrupleImpl(Operator.ADD_DOUBLE, "doubleTest1",
 				"doubleTest2", "doubleTest1"));
 		final byte[] bExpected = new byte[] { (byte) 0x27, (byte) 0x29,
@@ -250,8 +260,7 @@ public class ProgramTests {
 
 	@Test
 	public void testCCSubLong() {
-		addLongConstant(1000);
-		addLongConstant(234);
+		addLongConstant(1000, 234);
 		addLongVariable("longTest");
 		pb.addLong(new QuadrupleImpl(Operator.SUB_LONG, "#1000", "#234",
 				"longTest"));
@@ -264,8 +273,7 @@ public class ProgramTests {
 
 	@Test
 	public void testVVSubLong() {
-		addLongVariable("longTest1");
-		addLongVariable("longTest2");
+		addLongVariable("longTest1", "longTest2");
 		pb.subLong(new QuadrupleImpl(Operator.SUB_LONG, "longTest1",
 				"longTest2", "longTest1"));
 		final byte[] bExpected = new byte[] { (byte) 0x1f, (byte) 0x21,
@@ -276,8 +284,7 @@ public class ProgramTests {
 
 	@Test
 	public void testCCSubDouble() {
-		addDoubleConstant(12.34);
-		addDoubleConstant(43.21);
+		addDoubleConstant(12.34, 43.21);
 		addDoubleVariable("doubleTest");
 		pb.subDouble(new QuadrupleImpl(Operator.SUB_DOUBLE, "#12.34", "#43.21",
 				"doubleTest"));
@@ -290,8 +297,7 @@ public class ProgramTests {
 
 	@Test
 	public void testVVSubDouble() {
-		addDoubleVariable("doubleTest1");
-		addDoubleVariable("doubleTest2");
+		addDoubleVariable("doubleTest1", "doubleTest2");
 		pb.subDouble(new QuadrupleImpl(Operator.SUB_DOUBLE, "doubleTest1",
 				"doubleTest2", "doubleTest1"));
 		final byte[] bExpected = new byte[] { (byte) 0x27, (byte) 0x29,
@@ -302,8 +308,7 @@ public class ProgramTests {
 
 	@Test
 	public void testCCMulLong() {
-		addLongConstant(1000);
-		addLongConstant(234);
+		addLongConstant(1000, 234);
 		addLongVariable("longTest");
 		pb.mulLong(new QuadrupleImpl(Operator.MUL_LONG, "#1000", "#234",
 				"longTest"));
@@ -316,8 +321,7 @@ public class ProgramTests {
 
 	@Test
 	public void testVVMulLong() {
-		addLongVariable("longTest1");
-		addLongVariable("longTest2");
+		addLongVariable("longTest1", "longTest2");
 		pb.mulLong(new QuadrupleImpl(Operator.MUL_LONG, "longTest1",
 				"longTest2", "longTest1"));
 		final byte[] bExpected = new byte[] { (byte) 0x1f, (byte) 0x21,
@@ -328,8 +332,7 @@ public class ProgramTests {
 
 	@Test
 	public void testCCMulDouble() {
-		addDoubleConstant(12.34);
-		addDoubleConstant(43.21);
+		addDoubleConstant(12.34, 43.21);
 		addDoubleVariable("doubleTest");
 		pb.mulDouble(new QuadrupleImpl(Operator.MUL_DOUBLE, "#12.34", "#43.21",
 				"doubleTest"));
@@ -342,8 +345,7 @@ public class ProgramTests {
 
 	@Test
 	public void testVVMulDouble() {
-		addDoubleVariable("doubleTest1");
-		addDoubleVariable("doubleTest2");
+		addDoubleVariable("doubleTest1", "doubleTest2");
 		pb.mulDouble(new QuadrupleImpl(Operator.MUL_DOUBLE, "doubleTest1",
 				"doubleTest2", "doubleTest1"));
 		final byte[] bExpected = new byte[] { (byte) 0x27, (byte) 0x29,
@@ -354,8 +356,7 @@ public class ProgramTests {
 
 	@Test
 	public void testCCDivLong() {
-		addLongConstant(1000);
-		addLongConstant(234);
+		addLongConstant(1000, 234);
 		addLongVariable("longTest");
 		pb.divLong(new QuadrupleImpl(Operator.DIV_LONG, "#1000", "#234",
 				"longTest"));
@@ -368,8 +369,7 @@ public class ProgramTests {
 
 	@Test
 	public void testVVDivLong() {
-		addLongVariable("longTest1");
-		addLongVariable("longTest2");
+		addLongVariable("longTest1", "longTest2");
 		pb.divLong(new QuadrupleImpl(Operator.DIV_LONG, "longTest1",
 				"longTest2", "longTest1"));
 		final byte[] bExpected = new byte[] { (byte) 0x1f, (byte) 0x21,
@@ -380,8 +380,7 @@ public class ProgramTests {
 
 	@Test
 	public void testCCDivDouble() {
-		addDoubleConstant(12.34);
-		addDoubleConstant(43.21);
+		addDoubleConstant(12.34, 43.21);
 		addDoubleVariable("doubleTest");
 		pb.divDouble(new QuadrupleImpl(Operator.DIV_DOUBLE, "#12.34", "#43.21",
 				"doubleTest"));
@@ -394,8 +393,7 @@ public class ProgramTests {
 
 	@Test
 	public void testVVDivDouble() {
-		addDoubleVariable("doubleTest1");
-		addDoubleVariable("doubleTest2");
+		addDoubleVariable("doubleTest1", "doubleTest2");
 		pb.divDouble(new QuadrupleImpl(Operator.DIV_DOUBLE, "doubleTest1",
 				"doubleTest2", "doubleTest1"));
 		final byte[] bExpected = new byte[] { 0x27, 0x29, 0x6f, 0x48,
@@ -414,5 +412,331 @@ public class ProgramTests {
 		final String sExpected = "LDC2_W 00 0C\nL2I\nINVOKESTATIC 00 13\nRETURN\n";
 		makeAssertions(pb, bExpected, sExpected);
 	}
+
+	@Test
+	public void testCNotBoolean() {
+		addBooleanVariable("test");
+		pb.notBoolean(new QuadrupleImpl(Operator.NOT_BOOLEAN, "#true", "!",
+				"test"));
+		final byte[] bExpected = new byte[] { (byte) 0x04, (byte) 0x74,
+				(byte) 0x3c, (byte) 0xb1 };
+		final String sExpected = "ICONST_1\nINEG\nISTORE_1\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
+	}
+
+	@Test
+	public void testCAndBoolean() {
+		addBooleanVariable("test");
+		pb.notBoolean(new QuadrupleImpl(Operator.AND_BOOLEAN, "#true", "#true",
+				"test"));
+		final byte[] bExpected = new byte[] { (byte) 0x04, (byte) 0x04,
+				(byte) 0x74, (byte) 0x3c, (byte) 0xb1 };
+		final String sExpected = "ICONST_1\nICONST_1\nINEG\nISTORE_1\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
+	}
+
+	@Test
+	public void testCOrBoolean() {
+		addBooleanVariable("test");
+		pb.notBoolean(new QuadrupleImpl(Operator.NOT_BOOLEAN, "#true",
+				"#false", "test"));
+		final byte[] bExpected = new byte[] { (byte) 0x04, (byte) 0x03,
+				(byte) 0x74, (byte) 0x3c, (byte) 0xb1 };
+		final String sExpected = "ICONST_1\nICONST_0\nINEG\nISTORE_1\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
+	}
+
+	@Test
+	public void testCCompareLongE() {
+		addLongConstant(1, 2);
+		addBooleanVariable("test");
+		pb.compareLongE(new QuadrupleImpl(Operator.COMPARE_LONG_E, "#1", "#2",
+				"test"));
+		final byte[] bExpected = new byte[] { (byte) 0x14, (byte) 0x00,
+				(byte) 0x0c, (byte) 0x14, (byte) 0x00, (byte) 0x0e,
+				(byte) 0x94, (byte) 0x9a, (byte) 0x00, (byte) 0x07,
+				(byte) 0x04, (byte) 0xa7, (byte) 0x00, (byte) 0x04,
+				(byte) 0x03, (byte) 0x3c, (byte) 0xb1 };
+		final String sExpected = "LDC2_W 00 0C\nLDC2_W 00 0E\nLCMP\nIFNE 00 07\nICONST_1\nGOTO 00 04\nICONST_0\nISTORE_1\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
+	}
+
+	@Test
+	public void testCCompareLongG() {
+		addLongConstant(1, 2);
+		addBooleanVariable("test");
+		pb.compareLongG(new QuadrupleImpl(Operator.COMPARE_LONG_G, "#1", "#2",
+				"test"));
+		final byte[] bExpected = new byte[] { (byte) 0x14, (byte) 0x00,
+				(byte) 0x0c, (byte) 0x14, (byte) 0x00, (byte) 0x0e,
+				(byte) 0x94, (byte) 0x9e, (byte) 0x00, (byte) 0x07,
+				(byte) 0x04, (byte) 0xa7, (byte) 0x00, (byte) 0x04,
+				(byte) 0x03, (byte) 0x3c, (byte) 0xb1 };
+		final String sExpected = "LDC2_W 00 0C\nLDC2_W 00 0E\nLCMP\nIFLE 00 07\nICONST_1\nGOTO 00 04\nICONST_0\nISTORE_1\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
+	}
+
+	@Test
+	public void testCCompareLongL() {
+		addLongConstant(1, 2);
+		addBooleanVariable("test");
+		pb.compareLongL(new QuadrupleImpl(Operator.COMPARE_LONG_L, "#1", "#2",
+				"test"));
+		final byte[] bExpected = new byte[] { (byte) 0x14, (byte) 0x00,
+				(byte) 0x0c, (byte) 0x14, (byte) 0x00, (byte) 0x0e,
+				(byte) 0x94, (byte) 0x9c, (byte) 0x00, (byte) 0x07,
+				(byte) 0x04, (byte) 0xa7, (byte) 0x00, (byte) 0x04,
+				(byte) 0x03, (byte) 0x3c, (byte) 0xb1 };
+		final String sExpected = "LDC2_W 00 0C\nLDC2_W 00 0E\nLCMP\nIFGE 00 07\nICONST_1\nGOTO 00 04\nICONST_0\nISTORE_1\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
+	}
+
+	@Test
+	public void testCCompareLongGE() {
+		addLongConstant(1, 2);
+		addBooleanVariable("test");
+		pb.compareLongGE(new QuadrupleImpl(Operator.COMPARE_LONG_GE, "#1",
+				"#2", "test"));
+		final byte[] bExpected = new byte[] { (byte) 0x14, (byte) 0x00,
+				(byte) 0x0c, (byte) 0x14, (byte) 0x00, (byte) 0x0e,
+				(byte) 0x94, (byte) 0x9b, (byte) 0x00, (byte) 0x07,
+				(byte) 0x04, (byte) 0xa7, (byte) 0x00, (byte) 0x04,
+				(byte) 0x03, (byte) 0x3c, (byte) 0xb1 };
+		final String sExpected = "LDC2_W 00 0C\nLDC2_W 00 0E\nLCMP\nIFLT 00 07\nICONST_1\nGOTO 00 04\nICONST_0\nISTORE_1\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
+	}
+
+	@Test
+	public void testCCompareLongLE() {
+		addLongConstant(1, 2);
+		addBooleanVariable("test");
+		pb.compareLongLE(new QuadrupleImpl(Operator.COMPARE_LONG_LE, "#1",
+				"#2", "test"));
+		final byte[] bExpected = new byte[] { (byte) 0x14, (byte) 0x00,
+				(byte) 0x0c, (byte) 0x14, (byte) 0x00, (byte) 0x0e,
+				(byte) 0x94, (byte) 0x9d, (byte) 0x00, (byte) 0x07,
+				(byte) 0x04, (byte) 0xa7, (byte) 0x00, (byte) 0x04,
+				(byte) 0x03, (byte) 0x3c, (byte) 0xb1 };
+		final String sExpected = "LDC2_W 00 0C\nLDC2_W 00 0E\nLCMP\nIFGT 00 07\nICONST_1\nGOTO 00 04\nICONST_0\nISTORE_1\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
+	}
+
+	@Test
+	public void testVCompareLongE() {
+		addLongVariable("lhs", "rhs");
+		addBooleanVariable("test");
+		pb.compareLongE(new QuadrupleImpl(Operator.COMPARE_LONG_E, "lhs",
+				"rhs", "test"));
+		final byte[] bExpected = new byte[] { (byte) 0x1f, (byte) 0x21,
+				(byte) 0x94, (byte) 0x9a, (byte) 0x00, (byte) 0x07,
+				(byte) 0x04, (byte) 0xa7, (byte) 0x00, (byte) 0x04,
+				(byte) 0x03, (byte) 0x36, (byte) 0x05, (byte) 0xb1 };
+		final String sExpected = "LLOAD_1\nLLOAD_3\nLCMP\nIFNE 00 07\nICONST_1\nGOTO 00 04\nICONST_0\nISTORE 05\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
+	}
+
+	@Test
+	public void testVCompareLongG() {
+		addLongVariable("lhs", "rhs");
+		addBooleanVariable("test");
+		pb.compareLongG(new QuadrupleImpl(Operator.COMPARE_LONG_G, "lhs",
+				"rhs", "test"));
+		final byte[] bExpected = new byte[] { (byte) 0x1f, (byte) 0x21,
+				(byte) 0x94, (byte) 0x9e, (byte) 0x00, (byte) 0x07,
+				(byte) 0x04, (byte) 0xa7, (byte) 0x00, (byte) 0x04,
+				(byte) 0x03, (byte) 0x36, (byte) 0x05, (byte) 0xb1 };
+		final String sExpected = "LLOAD_1\nLLOAD_3\nLCMP\nIFLE 00 07\nICONST_1\nGOTO 00 04\nICONST_0\nISTORE 05\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
+	}
+
+	@Test
+	public void testVCompareLongL() {
+		addLongVariable("lhs", "rhs");
+		addBooleanVariable("test");
+		pb.compareLongL(new QuadrupleImpl(Operator.COMPARE_LONG_L, "lhs",
+				"rhs", "test"));
+		final byte[] bExpected = new byte[] { (byte) 0x1f, (byte) 0x21,
+				(byte) 0x94, (byte) 0x9c, (byte) 0x00, (byte) 0x07,
+				(byte) 0x04, (byte) 0xa7, (byte) 0x00, (byte) 0x04,
+				(byte) 0x03, (byte) 0x36, (byte) 0x05, (byte) 0xb1 };
+		final String sExpected = "LLOAD_1\nLLOAD_3\nLCMP\nIFGE 00 07\nICONST_1\nGOTO 00 04\nICONST_0\nISTORE 05\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
+	}
+
+	@Test
+	public void testVCompareLongGE() {
+		addLongVariable("lhs", "rhs");
+		addBooleanVariable("test");
+		pb.compareLongGE(new QuadrupleImpl(Operator.COMPARE_LONG_GE, "lhs",
+				"rhs", "test"));
+		final byte[] bExpected = new byte[] { (byte) 0x1f, (byte) 0x21,
+				(byte) 0x94, (byte) 0x9b, (byte) 0x00, (byte) 0x07,
+				(byte) 0x04, (byte) 0xa7, (byte) 0x00, (byte) 0x04,
+				(byte) 0x03, (byte) 0x36, (byte) 0x05, (byte) 0xb1 };
+		final String sExpected = "LLOAD_1\nLLOAD_3\nLCMP\nIFLT 00 07\nICONST_1\nGOTO 00 04\nICONST_0\nISTORE 05\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
+	}
+
+	@Test
+	public void testVCompareLongLE() {
+		addLongVariable("lhs", "rhs");
+		addBooleanVariable("test");
+		pb.compareLongLE(new QuadrupleImpl(Operator.COMPARE_LONG_LE, "lhs",
+				"rhs", "test"));
+		final byte[] bExpected = new byte[] { (byte) 0x1f, (byte) 0x21,
+				(byte) 0x94, (byte) 0x9d, (byte) 0x00, (byte) 0x07,
+				(byte) 0x04, (byte) 0xa7, (byte) 0x00, (byte) 0x04,
+				(byte) 0x03, (byte) 0x36, (byte) 0x05, (byte) 0xb1 };
+		final String sExpected = "LLOAD_1\nLLOAD_3\nLCMP\nIFGT 00 07\nICONST_1\nGOTO 00 04\nICONST_0\nISTORE 05\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
+	}
+
+	@Test
+	public void testCCompareDoubleE() {
+		addDoubleConstant(1.2, 2.5);
+		addBooleanVariable("test");
+		pb.compareDoubleE(new QuadrupleImpl(Operator.COMPARE_DOUBLE_E, "#1.2",
+				"#2.5", "test"));
+		final byte[] bExpected = new byte[] { (byte) 0x14, (byte) 0x00,
+				(byte) 0x0c, (byte) 0x14, (byte) 0x00, (byte) 0x0e,
+				(byte) 0x97, (byte) 0x9a, (byte) 0x00, (byte) 0x07,
+				(byte) 0x04, (byte) 0xa7, (byte) 0x00, (byte) 0x04,
+				(byte) 0x03, (byte) 0x3c, (byte) 0xb1 };
+		final String sExpected = "LDC2_W 00 0C\nLDC2_W 00 0E\nDCMPL\nIFNE 00 07\nICONST_1\nGOTO 00 04\nICONST_0\nISTORE_1\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
+	}
+
+	@Test
+	public void testCCompareDoubleG() {
+		addDoubleConstant(1.2, 2.5);
+		addBooleanVariable("test");
+		pb.compareDoubleG(new QuadrupleImpl(Operator.COMPARE_DOUBLE_G, "#1.2",
+				"#2.5", "test"));
+		final byte[] bExpected = new byte[] { (byte) 0x14, (byte) 0x00,
+				(byte) 0x0c, (byte) 0x14, (byte) 0x00, (byte) 0x0e,
+				(byte) 0x97, (byte) 0x9e, (byte) 0x00, (byte) 0x07,
+				(byte) 0x04, (byte) 0xa7, (byte) 0x00, (byte) 0x04,
+				(byte) 0x03, (byte) 0x3c, (byte) 0xb1 };
+		final String sExpected = "LDC2_W 00 0C\nLDC2_W 00 0E\nDCMPL\nIFLE 00 07\nICONST_1\nGOTO 00 04\nICONST_0\nISTORE_1\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
+	}
+
+	@Test
+	public void testCCompareDoubleL() {
+		addDoubleConstant(1.2, 2.5);
+		addBooleanVariable("test");
+		pb.compareDoubleL(new QuadrupleImpl(Operator.COMPARE_DOUBLE_L, "#1.2",
+				"#2.5", "test"));
+		final byte[] bExpected = new byte[] { (byte) 0x14, (byte) 0x00,
+				(byte) 0x0c, (byte) 0x14, (byte) 0x00, (byte) 0x0e,
+				(byte) 0x98, (byte) 0x9c, (byte) 0x00, (byte) 0x07,
+				(byte) 0x04, (byte) 0xa7, (byte) 0x00, (byte) 0x04,
+				(byte) 0x03, (byte) 0x3c, (byte) 0xb1 };
+		final String sExpected = "LDC2_W 00 0C\nLDC2_W 00 0E\nDCMPG\nIFGE 00 07\nICONST_1\nGOTO 00 04\nICONST_0\nISTORE_1\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
+	}
+
+	@Test
+	public void testCCompareDoubleGE() {
+		addDoubleConstant(1.2, 2.5);
+		addBooleanVariable("test");
+		pb.compareDoubleGE(new QuadrupleImpl(Operator.COMPARE_DOUBLE_GE,
+				"#1.2", "#2.5", "test"));
+		final byte[] bExpected = new byte[] { (byte) 0x14, (byte) 0x00,
+				(byte) 0x0c, (byte) 0x14, (byte) 0x00, (byte) 0x0e,
+				(byte) 0x97, (byte) 0x9b, (byte) 0x00, (byte) 0x07,
+				(byte) 0x04, (byte) 0xa7, (byte) 0x00, (byte) 0x04,
+				(byte) 0x03, (byte) 0x3c, (byte) 0xb1 };
+		final String sExpected = "LDC2_W 00 0C\nLDC2_W 00 0E\nDCMPL\nIFLT 00 07\nICONST_1\nGOTO 00 04\nICONST_0\nISTORE_1\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
+	}
+
+	@Test
+	public void testCCompareDoubleLE() {
+		addDoubleConstant(1.2, 2.5);
+		addBooleanVariable("test");
+		pb.compareDoubleLE(new QuadrupleImpl(Operator.COMPARE_DOUBLE_LE,
+				"#1.2", "#2.5", "test"));
+		final byte[] bExpected = new byte[] { (byte) 0x14, (byte) 0x00,
+				(byte) 0x0c, (byte) 0x14, (byte) 0x00, (byte) 0x0e,
+				(byte) 0x98, (byte) 0x9d, (byte) 0x00, (byte) 0x07,
+				(byte) 0x04, (byte) 0xa7, (byte) 0x00, (byte) 0x04,
+				(byte) 0x03, (byte) 0x3c, (byte) 0xb1 };
+		final String sExpected = "LDC2_W 00 0C\nLDC2_W 00 0E\nDCMPG\nIFGT 00 07\nICONST_1\nGOTO 00 04\nICONST_0\nISTORE_1\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
+	}
+
+	@Test
+	public void testVCompareDoubleE() {
+		addDoubleVariable("lhs", "rhs");
+		addBooleanVariable("test");
+		pb.compareDoubleE(new QuadrupleImpl(Operator.COMPARE_DOUBLE_E, "lhs",
+				"rhs", "test"));
+		final byte[] bExpected = new byte[] { (byte) 0x27, (byte) 0x29,
+				(byte) 0x97, (byte) 0x9a, (byte) 0x00, (byte) 0x07,
+				(byte) 0x04, (byte) 0xa7, (byte) 0x00, (byte) 0x04,
+				(byte) 0x03, (byte) 0x36, (byte) 0x05, (byte) 0xb1 };
+		final String sExpected = "DLOAD_1\nDLOAD_3\nDCMPL\nIFNE 00 07\nICONST_1\nGOTO 00 04\nICONST_0\nISTORE 05\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
+	}
+
+	@Test
+	public void testVCompareDoubleG() {
+		addDoubleVariable("lhs", "rhs");
+		addBooleanVariable("test");
+		pb.compareDoubleG(new QuadrupleImpl(Operator.COMPARE_DOUBLE_G, "lhs",
+				"rhs", "test"));
+		final byte[] bExpected = new byte[] { (byte) 0x27, (byte) 0x29,
+				(byte) 0x97, (byte) 0x9e, (byte) 0x00, (byte) 0x07,
+				(byte) 0x04, (byte) 0xa7, (byte) 0x00, (byte) 0x04,
+				(byte) 0x03, (byte) 0x36, (byte) 0x05, (byte) 0xb1 };
+		final String sExpected = "DLOAD_1\nDLOAD_3\nDCMPL\nIFLE 00 07\nICONST_1\nGOTO 00 04\nICONST_0\nISTORE 05\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
+	}
+
+	@Test
+	public void testVCompareDoubleL() {
+		addDoubleVariable("lhs", "rhs");
+		addBooleanVariable("test");
+		pb.compareDoubleL(new QuadrupleImpl(Operator.COMPARE_DOUBLE_L, "lhs",
+				"rhs", "test"));
+		final byte[] bExpected = new byte[] { (byte) 0x27, (byte) 0x29,
+				(byte) 0x98, (byte) 0x9c, (byte) 0x00, (byte) 0x07,
+				(byte) 0x04, (byte) 0xa7, (byte) 0x00, (byte) 0x04,
+				(byte) 0x03, (byte) 0x36, (byte) 0x05, (byte) 0xb1 };
+		final String sExpected = "DLOAD_1\nDLOAD_3\nDCMPG\nIFGE 00 07\nICONST_1\nGOTO 00 04\nICONST_0\nISTORE 05\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
+	}
+
+	@Test
+	public void testVCompareDoubleGE() {
+		addDoubleVariable("lhs", "rhs");
+		addBooleanVariable("test");
+		pb.compareDoubleGE(new QuadrupleImpl(Operator.COMPARE_DOUBLE_GE, "lhs",
+				"rhs", "test"));
+		final byte[] bExpected = new byte[] { (byte) 0x27, (byte) 0x29,
+				(byte) 0x97, (byte) 0x9b, (byte) 0x00, (byte) 0x07,
+				(byte) 0x04, (byte) 0xa7, (byte) 0x00, (byte) 0x04,
+				(byte) 0x03, (byte) 0x36, (byte) 0x05, (byte) 0xb1 };
+		final String sExpected = "DLOAD_1\nDLOAD_3\nDCMPL\nIFLT 00 07\nICONST_1\nGOTO 00 04\nICONST_0\nISTORE 05\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
+	}
+
+	@Test
+	public void testVCompareDoubleLE() {
+		addDoubleVariable("lhs", "rhs");
+		addBooleanVariable("test");
+		pb.compareDoubleLE(new QuadrupleImpl(Operator.COMPARE_DOUBLE_LE, "lhs",
+				"rhs", "test"));
+		final byte[] bExpected = new byte[] { (byte) 0x27, (byte) 0x29,
+				(byte) 0x98, (byte) 0x9d, (byte) 0x00, (byte) 0x07,
+				(byte) 0x04, (byte) 0xa7, (byte) 0x00, (byte) 0x04,
+				(byte) 0x03, (byte) 0x36, (byte) 0x05, (byte) 0xb1 };
+		final String sExpected = "DLOAD_1\nDLOAD_3\nDCMPG\nIFGT 00 07\nICONST_1\nGOTO 00 04\nICONST_0\nISTORE 05\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
+	}
+	//
+	// public void testLabel() {
+	// }
 
 }

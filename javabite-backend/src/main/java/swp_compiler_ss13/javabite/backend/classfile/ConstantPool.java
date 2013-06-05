@@ -1,9 +1,9 @@
 package swp_compiler_ss13.javabite.backend.classfile;
 
 import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.doubleToByteArray;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.intToHexString;
 import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.longToByteArray;
 import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToByteArray;
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.toHexString;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -75,7 +75,7 @@ class ConstantPool {
 		try {
 			if (logger.isDebugEnabled()) {
 				logger.debug("constantPool size");
-				logger.debug("{}", toHexString(entryList.size() + 1));
+				logger.debug("{}", intToHexString(entryList.size() + 1));
 			}
 
 			// specification determines size as size of cp plus 1

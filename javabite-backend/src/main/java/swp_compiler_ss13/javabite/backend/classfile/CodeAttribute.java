@@ -1,7 +1,8 @@
 package swp_compiler_ss13.javabite.backend.classfile;
 
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.hexFromBytes;
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.toHexString;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.byteArrayToHexString;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.intToHexString;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToHexString;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -131,15 +132,16 @@ class CodeAttribute {
 
 			if (logger.isDebugEnabled()) {
 				logger.debug("codeIndex");
-				logger.debug("{}", toHexString(codeIndex));
+				logger.debug("{}", shortToHexString(codeIndex));
 				logger.debug("code size");
-				logger.debug("{}", toHexString(codeDOS.size()));
+				logger.debug("{}", intToHexString(codeDOS.size()));
 				logger.debug("code");
-				logger.debug("{}", hexFromBytes(codeBAOS.toByteArray()));
+				logger.debug("{}", byteArrayToHexString(codeBAOS.toByteArray()));
 				logger.debug("attributes size");
-				logger.debug("{}", toHexString(attributesDOS.size()));
+				logger.debug("{}", intToHexString(attributesDOS.size()));
 				logger.debug("attributes");
-				logger.debug("{}", hexFromBytes(attributesBAOS.toByteArray()));
+				logger.debug("{}",
+						byteArrayToHexString(attributesBAOS.toByteArray()));
 			}
 		} catch (final IOException e) {
 			e.printStackTrace();

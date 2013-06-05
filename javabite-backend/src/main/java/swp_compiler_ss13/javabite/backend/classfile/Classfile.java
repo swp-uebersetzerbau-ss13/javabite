@@ -1,7 +1,7 @@
 package swp_compiler_ss13.javabite.backend.classfile;
 
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.hexFromBytes;
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.toHexString;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.byteArrayToHexString;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToHexString;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -186,8 +186,9 @@ public class Classfile implements IClassfile {
 		try {
 			if (logger.isDebugEnabled()) {
 				logger.debug("magic(4B), minorVersion(2B), majorVersion(2B)");
-				logger.debug("{} {} {}", hexFromBytes(magic),
-						hexFromBytes(minorVersion), hexFromBytes(majorVersion));
+				logger.debug("{} {} {}", byteArrayToHexString(magic),
+						byteArrayToHexString(minorVersion),
+						byteArrayToHexString(majorVersion));
 			}
 
 			final DataOutputStream classfileDOS = (DataOutputStream) classfileOS;
@@ -208,10 +209,11 @@ public class Classfile implements IClassfile {
 
 			if (logger.isDebugEnabled()) {
 				logger.debug("accessFlags(2), thisClassIndex(2), superClassIndex(2), interfaceCount(2), fieldsCount(2)");
-				logger.debug("{} {} {} {} {}", toHexString(accessFlags),
-						toHexString(thisClassIndex),
-						toHexString(superClassIndex),
-						toHexString(interfaceCount), toHexString(fieldsCount));
+				logger.debug("{} {} {} {} {}", shortToHexString(accessFlags),
+						shortToHexString(thisClassIndex),
+						shortToHexString(superClassIndex),
+						shortToHexString(interfaceCount),
+						shortToHexString(fieldsCount));
 			}
 
 			methodArea.writeTo(classfileDOS);
@@ -220,7 +222,7 @@ public class Classfile implements IClassfile {
 
 			if (logger.isDebugEnabled()) {
 				logger.debug("accessFlags(2), thisClassIndex(2), superClassIndex(2), interfaceCount(2), fieldsCount(2)");
-				logger.debug("{}", toHexString(attributesCount));
+				logger.debug("{}", shortToHexString(attributesCount));
 			}
 
 		} catch (final IOException e) {
@@ -380,6 +382,16 @@ public class Classfile implements IClassfile {
 			final String variableName) {
 
 		addVariableToMethodsCode(methodName, variableName, VariableType.STRING);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void addBooleanVariableToMethodsCode(final String methodName,
+			final String variableName) {
+
+		addVariableToMethodsCode(methodName, variableName, VariableType.BOOLEAN);
 	}
 
 	/**

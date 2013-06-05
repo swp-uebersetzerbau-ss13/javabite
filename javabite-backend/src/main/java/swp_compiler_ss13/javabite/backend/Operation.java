@@ -49,10 +49,11 @@ public class Operation {
 		}
 
 		/**
-		 * TODO javadoc
+		 * Adds an instruction to this operation
 		 * 
 		 * @param instruction
-		 * @return
+		 *            the instruction to add
+		 * @return this builders instance
 		 */
 		public OperationBuilder add(final Instruction instruction) {
 			instructions.add(instruction);
@@ -77,10 +78,11 @@ public class Operation {
 			if (mnemonic.getArgsCount() > 0) {
 				assert arguments != null
 						&& arguments.length == mnemonic.getArgsCount();
-				//instruction = new Instruction(1 + argsSize, mnemonic, arguments);
+				// instruction = new Instruction(1 + argsSize, mnemonic,
+				// arguments);
 				instruction = new Instruction(mnemonic, arguments);
 			} else {
-				//instruction = new Instruction(1, mnemonic);
+				// instruction = new Instruction(1, mnemonic);
 				instruction = new Instruction(mnemonic);
 			}
 			return add(instruction);
