@@ -272,9 +272,14 @@ public class MainFrame extends JFrame implements ReportLog {
 						}
 						setTitle("Javabite Compiler - " + fileName);
 						toolBarLabel.setText("Document saved.");
+						fileChanged = false;
 					} else {
 						System.out.println("Save command cancelled by user. ");
 					}
+				} else if(openedFile != null && !fileChanged) {
+					// file is already saved
+					JFrame frame = new JFrame();
+					JOptionPane.showMessageDialog(frame, "File is already saved!");
 				}
 			}
 		});
