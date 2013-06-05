@@ -46,7 +46,10 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.Document;
+import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleConstants.CharacterConstants;
 import javax.swing.text.StyledDocument;
 import javax.swing.undo.UndoManager;
 
@@ -466,7 +469,7 @@ public class MainFrame extends JFrame implements ReportLog {
 	}
 	
 	/**
-	 * Styles a special part of the sourccode
+	 * Styles a special part of the sourcecode
 	 */
 	private void styleToken(TokenType tokenType, int start, int end) {
 		//check properties file for tokentype key, if exist set defined color
@@ -480,6 +483,14 @@ public class MainFrame extends JFrame implements ReportLog {
 			StyleConstants.setForeground(style, Color.BLACK);
 			doc.setCharacterAttributes(start, end, editorPaneSourcode.getStyle("Black"), true);
 		}
+	}
+	
+	private void underlineToken(int start, int end) {
+		SimpleAttributeSet attributes = new SimpleAttributeSet();
+		attributes.addAttribute(CharacterConstants.Underline, Color.red);
+		StyleConstants.setUnderline(attributes, true);
+		StyledDocument doc = editorPaneSourcode.getStyledDocument();
+		doc.setCharacterAttributes(start, end, attributes, true);
 	}
 	
 	/**
@@ -498,6 +509,9 @@ public class MainFrame extends JFrame implements ReportLog {
 			index = text.indexOf(current_token.getValue(), lastIndex);
 			lastIndex = index + current_token.getValue().length();
 			styleToken(current_token.getTokenType(), index , current_token.getValue().length());
+			if (current_token.getTokenType() == TokenType.NOT_A_TOKEN) {
+				underlineToken(index , current_token.getValue().length());
+			}
 		}
 	}
 	
