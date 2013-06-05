@@ -429,10 +429,6 @@ public class MainFrame extends JFrame implements ReportLog {
 		modelReportLogs.addColumn("Column");
 		modelReportLogs.addColumn("Message");
 		
-		List<Token> tokens = new ArrayList<>(1000);
-		tokens.add(new TokenJb(TokenType.NUM, "sdfs", 4, 3));
-		reportWarning(ReportType.UNRECOGNIZED_TOKEN, tokens, "TEST");
-		
 		scrollPane = new JScrollPane();
 		splitPane.setLeftComponent(scrollPane);
 		
