@@ -228,7 +228,79 @@ public class MainFrame extends JFrame implements ReportLog {
 						    options[2]);
 						if(n == 2) {
 							// save was selected
-							// TODO: save and open filechooser
+							if (openedFile == null) {
+								// create and open the file chooser
+								JFileChooser jfc = new JFileChooser();
+								jfc.setCurrentDirectory(new File(System.getProperty("user.home")));
+								jfc.setSelectedFile(new File("New File.prog"));
+								
+								int returnVal = jfc.showSaveDialog(null);
+								if (returnVal == JFileChooser.APPROVE_OPTION) {
+									File file = jfc.getSelectedFile();
+									fileName = jfc.getSelectedFile().getName();
+									
+									// save the file
+									BufferedWriter bw;
+									try {
+										bw = new BufferedWriter(new FileWriter(file));
+										bw.write(editorPaneSourcode.getText());
+										bw.flush();
+									} catch (IOException ex) {
+										ex.printStackTrace();
+									}
+									setTitle("Javabite Compiler - " + fileName);
+									toolBarLabel.setText("Document saved.");
+									openedFile = file;
+									fileChanged = false;
+								} else {
+									toolBarLabel.setText("Save command cancelled by user.");
+								}
+							} else {
+								// firstly save file
+								BufferedWriter bw;
+								try {
+									bw = new BufferedWriter(new FileWriter(openedFile));
+									bw.write(editorPaneSourcode.getText());
+									bw.flush();
+								} catch (IOException ex) {
+									ex.printStackTrace();
+								}
+								
+								// now, display filechooser
+								JFileChooser chooser = new JFileChooser();
+								int returnVal = chooser.showOpenDialog(null);
+								if (returnVal == JFileChooser.APPROVE_OPTION) {
+									openedFile = chooser.getSelectedFile();
+									fileChanged = false;
+								}
+								
+								// set main frame header name to file name
+								fileName = openedFile.getName();
+								setTitle("Javabite Compiler - " + fileName);
+								
+								// read out lines
+								BufferedReader in = null;
+								String line = null;
+								try {
+									in = new BufferedReader(new FileReader(openedFile));
+									line = in.readLine();
+								} catch (IOException ex) {
+									ex.printStackTrace();
+								}
+								
+								// insert lines into source code editor
+								Document doc = editorPaneSourcode.getDocument();
+								try {
+									doc.remove(0, doc.getLength()); // remove old content
+									while (line != null) {
+										doc.insertString(doc.getLength(), line + "\n", null);
+										line = in.readLine();
+									}
+								} catch (BadLocationException | IOException ex) {
+									ex.printStackTrace();
+								}
+								toolBarLabel.setText("Document opened.");
+							}
 						} else if (n == 1) {
 							// not save was selected, thus just replace content with text
 							// create default file chooser
