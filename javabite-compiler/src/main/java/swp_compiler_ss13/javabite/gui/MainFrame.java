@@ -424,7 +424,13 @@ public class MainFrame extends JFrame implements ReportLog {
 		
 		// get properties for syntax highlighting
 		try {
-			BufferedInputStream stream = new BufferedInputStream(new FileInputStream("src\\main\\java\\swp_compiler_ss13\\javabite\\gui\\highlighting.properties"));
+			// get the file path os-independent 
+			// path is src\\main\\java\\swp_compiler_ss13\\javabite\\gui\\highlighting.properties
+			// or src/main/java/swp_compiler_ss13/javabite/gui/highlighting.properties
+			// respectively...   
+			String sep=File.separator;
+			String propPath="."+sep+"src"+sep+"main"+sep+"java"+sep+"swp_compiler_ss13"+sep+"javabite"+sep+"gui"+sep+"highlighting.properties";
+			BufferedInputStream stream = new BufferedInputStream(new FileInputStream(propPath));
 			properties.load(stream);
 			stream.close();
 		} catch (IOException ex) {
