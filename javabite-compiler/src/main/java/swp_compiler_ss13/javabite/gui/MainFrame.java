@@ -240,7 +240,7 @@ public class MainFrame extends JFrame implements ReportLog {
 							}
 							
 							// set main frame header name to file name
-							fileName = openedFile.getName();
+							fileName = (openedFile == null) ? "New File.prog" : openedFile.getName();
 							setTitle("Javabite Compiler - " + fileName);
 							
 							// read out lines
