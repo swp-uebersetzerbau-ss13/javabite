@@ -248,7 +248,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		menuFileSave = new JMenuItem("Save");
 		menuFileSave.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// if global file is null, source code was never saved
+				// file doesn't exist, thus save it
 				if (openedFile == null) {
 					// create and open the file chooser
 					JFileChooser jfc = new JFileChooser();
@@ -258,7 +258,6 @@ public class MainFrame extends JFrame implements ReportLog {
 					int returnVal = jfc.showSaveDialog(null);
 					if (returnVal == JFileChooser.APPROVE_OPTION) {
 						File file = jfc.getSelectedFile();
-						openedFile = file;
 						String fileName = jfc.getSelectedFile().getName();
 						
 						// save the file
@@ -272,14 +271,28 @@ public class MainFrame extends JFrame implements ReportLog {
 						}
 						setTitle("Javabite Compiler - " + fileName);
 						toolBarLabel.setText("Document saved.");
+						openedFile = file;
 						fileChanged = false;
 					} else {
-						System.out.println("Save command cancelled by user. ");
+						toolBarLabel.setText("Save command cancelled by user.");
 					}
 				} else if(openedFile != null && !fileChanged) {
 					// file is already saved
 					JFrame frame = new JFrame();
 					JOptionPane.showMessageDialog(frame, "File is already saved!");
+				} else {
+					// file exists, but was changed
+					BufferedWriter bw;
+					try {
+						bw = new BufferedWriter(new FileWriter(openedFile));
+						bw.write(editorPaneSourcode.getText());
+						bw.flush();
+					} catch (IOException ex) {
+						ex.printStackTrace();
+					}
+					setTitle("Javabite Compiler - " + openedFile.getName());
+					toolBarLabel.setText("Document saved.");
+					fileChanged = false;
 				}
 			}
 		});
