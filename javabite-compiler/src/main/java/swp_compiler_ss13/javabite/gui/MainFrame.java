@@ -74,6 +74,7 @@ import org.apache.commons.io.IOUtils;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import javax.swing.JTable;
 
 public class MainFrame extends JFrame implements ReportLog {
 	
@@ -107,7 +108,7 @@ public class MainFrame extends JFrame implements ReportLog {
 	JSplitPane splitPane;
 	JTextPane textPaneConsole;
 	JTextPane textPaneLogs;
-	JTextPane textPaneReportLogs;
+	JTable tableReportLogs;
 	JTabbedPane tabbedPaneLog;
 	private static JTextPane editorPaneSourcode;
 	
@@ -124,7 +125,6 @@ public class MainFrame extends JFrame implements ReportLog {
 	private JScrollPane scrollPane;
 	private JMenuItem mntmProperties;
 	private JMenuItem mntmNew;
-	private JTextPane textPane;
 	
 	/**
 	 * Launch the application.
@@ -404,9 +404,8 @@ public class MainFrame extends JFrame implements ReportLog {
 		textPaneLogs.setText("");
 		tabbedPaneLog.addTab("Log", null, textPaneLogs, null);
 		
-		textPaneReportLogs = new JTextPane();
-		textPaneReportLogs.setText("");
-		tabbedPaneLog.addTab("Report Log", null, textPaneReportLogs, null);
+		tableReportLogs = new JTable();
+		tabbedPaneLog.addTab("Report Logs", null, tableReportLogs, null);
 		
 		scrollPane = new JScrollPane();
 		splitPane.setLeftComponent(scrollPane);
