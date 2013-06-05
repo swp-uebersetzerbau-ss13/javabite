@@ -26,30 +26,10 @@ public class PrintNodeConverter extends CastingAst2CodeConverter{
         
         icg.processNode(printNode.getRightValue());
         IdentifierData rightData = icg.popIdentifierData();
-        Type stringType = new Type(Kind.STRING) {
-			
-			@Override
-			public String toString() {
-				// TODO Auto-generated method stub
-				return null;
-			}
-			
-			@Override
-			public String getTypeName() {
-				// TODO Auto-generated method stub
-				return null;
-			}
-		};
-        
-        // check if types matches
- 		if (rightData.getType().getKind() != Kind.STRING) {
- 			// cast is needed -> its arithmetic so one has to be double and one long
- 			// we always upcast to string
-			rightData = cast(stringType, rightData);
- 		}
 
+        
  		IdentifierData newData = icg.generateTempIdentifier(rightData.getType());
-      //  icg.addQuadruple(QuadrupleFactoryJb.generateRelation(binaryNode.getOperator(), leftData, rightData, newData));
+        icg.addQuadruple(QuadrupleFactoryJb.generatePrint(newData));
     }
     
     
