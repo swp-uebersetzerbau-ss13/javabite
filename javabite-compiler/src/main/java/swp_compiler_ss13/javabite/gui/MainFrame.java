@@ -107,6 +107,7 @@ public class MainFrame extends JFrame implements ReportLog {
 	JSplitPane splitPane;
 	JTextPane textPaneConsole;
 	JTextPane textPaneLogs;
+	JTextPane textPaneReportLogs;
 	JTabbedPane tabbedPaneLog;
 	private static JTextPane editorPaneSourcode;
 	
@@ -123,6 +124,7 @@ public class MainFrame extends JFrame implements ReportLog {
 	private JScrollPane scrollPane;
 	private JMenuItem mntmProperties;
 	private JMenuItem mntmNew;
+	private JTextPane textPane;
 	
 	/**
 	 * Launch the application.
@@ -401,6 +403,10 @@ public class MainFrame extends JFrame implements ReportLog {
 		textPaneLogs = new JTextPane();
 		textPaneLogs.setText("");
 		tabbedPaneLog.addTab("Log", null, textPaneLogs, null);
+		
+		textPaneReportLogs = new JTextPane();
+		textPaneReportLogs.setText("");
+		tabbedPaneLog.addTab("Report Log", null, textPaneReportLogs, null);
 		
 		scrollPane = new JScrollPane();
 		splitPane.setLeftComponent(scrollPane);
