@@ -1,6 +1,7 @@
 package swp_compiler_ss13.javabite.backend;
 
 import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.byteArrayToHexString;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToByteArray;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -56,33 +57,40 @@ public class Program {
 			return newBuilder(0, classfile, methodName);
 		}
 
+		// the list of operations of this program
 		private final List<Operation> operations;
+		// the classfile instance of this program
 		private final IClassfile classfile;
+		// the method name of this program
 		private final String methodName;
-
-		private Map<String, Instruction> jumpTargets;
-
+		// saves all jump targets (labels) for jump instruction creation
+		private final Map<String, Instruction> jumpTargets;
+		// saves all jump instructions for later offset calculation
+		private final List<JumpInstruction> jumpInstructions;
+		// sizes of last array declaration, in reverse order on the stack
+		private final Stack<String> arraySizes;
 		// determines, whether the System exit method has already been added/
 		// a return statement is present in the tac
 		private boolean returnFlag;
+		// indicates last instruction was a label, denoting a jump location
+		private boolean labelFlag;
 		// index of methodref info of system exit method in constant pool
 		private short systemExitIndex;
 		// index of fieldref info of system out in constant pool
 		private short systemOutIndex;
 		// index of methodref info of print method in constant pool
 		private short printIndex;
-		// indicates last instruction was a label, denoting a jump location
-		private boolean labelFlag;
 		// label name of last label
 		private String labelName;
 		// name of last array seen
 		private String arrayName;
-		// sizes of last array declaration, in reverse order on the stack
-		private final Stack<String> arraySizes = new Stack<>();
 
 		private ProgramBuilder(final int initialOffset,
 				final IClassfile classfile, final String methodName) {
 			operations = new ArrayList<>();
+			jumpTargets = new HashMap<>();
+			jumpInstructions = new ArrayList<>();
+			arraySizes = new Stack<>();
 			this.classfile = classfile;
 			this.methodName = methodName;
 			returnFlag = false;
@@ -94,8 +102,6 @@ public class Program {
 		private ProgramBuilder add(final Operation operation) {
 			operations.add(operation);
 			if (labelFlag) {
-				if (jumpTargets == null)
-					jumpTargets = new HashMap<>();
 				labelFlag = false;
 				jumpTargets.put(labelName, operation.getInstruction(0));
 			}
@@ -113,6 +119,23 @@ public class Program {
 			if (!returnFlag) {
 				addReturnOp();
 			}
+
+			// calculate offsets for jumping
+			long currentOffset = 0;
+			for (final Operation op : operations) {
+				for (final Instruction in : op.getInstructions()) {
+					in.setOffset(currentOffset);
+					currentOffset += in.getByteCount();
+				}
+			}
+
+			// caluclate jump offset for every jump, set as argument of jump
+			for (final JumpInstruction in : jumpInstructions) {
+				final Instruction target = getJumpTarget(in.getTargetLabel());
+				short offset = (short) (target.getOffset() - in.getOffset());
+				in.setArguments(shortToByteArray(offset));
+			}
+
 			return new Program(operations);
 		}
 
@@ -126,8 +149,6 @@ public class Program {
 		}
 
 		private Instruction getJumpTarget(final String s) {
-			if (jumpTargets == null)
-				return null;
 			return jumpTargets.get(s);
 		}
 
@@ -506,15 +527,26 @@ public class Program {
 		}
 
 		/**
-		 * TODO javadoc
+		 * Adds a return operation to the program.
 		 */
 		private void addReturnOp() {
 			final OperationBuilder op = OperationBuilder.newBuilder();
 			op.add(Mnemonic.RETURN);
-			operations.add(op.build());
+			add(op.build());
+		}
+
+		private void addNop() {
+			final OperationBuilder op = OperationBuilder.newBuilder();
+			op.add(Mnemonic.NOP);
+			add(op.build());
 		}
 
 		// OPERATIONS ----------------------------------------------------------
+
+		public ProgramBuilder nop() {
+			addNop();
+			return this;
+		}
 
 		/*
 		 * === M1 === FINISHED
@@ -1502,19 +1534,21 @@ public class Program {
 			final OperationBuilder op = OperationBuilder.newBuilder();
 			if ("!".equals(q.getResult())) {
 				// unconditional branch
-				final Instruction target = getJumpTarget(q.getArgument1());
-				op.add(new JumpInstruction(Mnemonic.GOTO, target));
+				final JumpInstruction jumpOp = new JumpInstruction(
+						Mnemonic.GOTO, q.getArgument1());
+				op.add(jumpOp);
+				jumpInstructions.add(jumpOp);
 			} else {
-				final Instruction trueTarget = getJumpTarget(q.getArgument1());
-				final Instruction falseTarget = getJumpTarget(q.getArgument2());
-				final Instruction endNop = new Instruction(Mnemonic.NOP);
 				// conditional branch
+				final JumpInstruction trueJump = new JumpInstruction(
+						Mnemonic.IFNE, q.getArgument1());
+				final JumpInstruction falseJump = new JumpInstruction(
+						Mnemonic.GOTO, q.getArgument2());
 				op.add(loadBooleanOp(q.getResult()));
-				op.add(new JumpInstruction(Mnemonic.IFEQ, falseTarget));
-				op.add(trueTarget);
-				op.add(new JumpInstruction(Mnemonic.GOTO, endNop));
-				op.add(falseTarget);
-				op.add(endNop);
+				op.add(trueJump);
+				op.add(falseJump);
+				jumpInstructions.add(trueJump);
+				jumpInstructions.add(falseJump);
 			}
 			return add(op.build());
 		}

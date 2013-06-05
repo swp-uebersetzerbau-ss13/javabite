@@ -25,10 +25,10 @@ public class Instruction {
 	private static final Logger logger = LoggerFactory
 			.getLogger(Instruction.class);
 
-	// offset to predecessor
-	private Mnemonic mnemonic;
-	private byte[] arguments;
+	private final Mnemonic mnemonic;
 	private final int size;
+	private byte[] arguments;
+	private long offset;
 
 	/**
 	 * Create a new instruction class instance
@@ -41,13 +41,8 @@ public class Instruction {
 	public Instruction(final Mnemonic mnemonic, final byte... arguments) {
 		this.mnemonic = mnemonic;
 		if (mnemonic.getArgsCount() > 0) {
-			// TODO: argument count is not necessarily byte count!
-			// ex: LDC2_W takes 1 argument of 2 bytes
-			// Mnemonic LDC2_W has ArgCount 1, arguments array has length 2
-			// fix this?
-			assert arguments.length >= mnemonic.getArgsCount();
 			this.arguments = arguments;
-			size = 1 + arguments.length;
+			size = 1 + mnemonic.getArgsCount();
 		} else {
 			this.arguments = null;
 			size = 1;
@@ -106,10 +101,6 @@ public class Instruction {
 		return mnemonic;
 	}
 
-	public void setMnemonic(final Mnemonic mnemonic) {
-		this.mnemonic = mnemonic;
-	}
-
 	/**
 	 * Returns this instructions arguments
 	 * 
@@ -133,6 +124,21 @@ public class Instruction {
 	}
 
 	/**
+	 * @return the offset
+	 */
+	public long getOffset() {
+		return offset;
+	}
+
+	/**
+	 * @param offset
+	 *            the offset to set
+	 */
+	public void setOffset(long offset) {
+		this.offset = offset;
+	}
+
+	/**
 	 * Returns a byte array of this instruction
 	 * 
 	 * @return the byte array
@@ -146,6 +152,15 @@ public class Instruction {
 		return bytes;
 	}
 
+	/**
+	 * Returns this instructions stack change value
+	 * 
+	 * @return the stack change value
+	 */
+	public short getStackChange() {
+		return mnemonic.getStackChange();
+	}
+
 	@Override
 	public String toString() {
 		final StringBuilder sb = new StringBuilder();
@@ -156,15 +171,6 @@ public class Instruction {
 			}
 		}
 		return sb.toString();
-	}
-
-	/**
-	 * Returns this instructions stack change value
-	 * 
-	 * @return the stack change value
-	 */
-	public short getStackChange() {
-		return mnemonic.getStackChange();
 	}
 
 	/*

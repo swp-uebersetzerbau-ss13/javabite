@@ -735,8 +735,21 @@ public class ProgramTests {
 		final String sExpected = "DLOAD_1\nDLOAD_3\nDCMPG\nIFGT 00 07\nICONST_1\nGOTO 00 04\nICONST_0\nISTORE 05\nRETURN\n";
 		makeAssertions(pb, bExpected, sExpected);
 	}
-	//
-	// public void testLabel() {
-	// }
+
+	@Test
+	public void testUncBranchForward() {
+		pb.branch(new QuadrupleImpl(Operator.BRANCH, "testLabel", "!", "!"));
+		pb.label(new QuadrupleImpl(Operator.LABEL, "testLabel", "!", "!"));
+		pb.nop();
+		buildAndLog(pb);
+	}
+
+	@Test
+	public void testUncBranchBackward() {
+		pb.label(new QuadrupleImpl(Operator.LABEL, "testLabel", "!", "!"));
+		pb.nop();
+		pb.branch(new QuadrupleImpl(Operator.BRANCH, "testLabel", "!", "!"));
+		buildAndLog(pb);
+	}
 
 }

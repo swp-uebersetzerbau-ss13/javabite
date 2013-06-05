@@ -10,34 +10,24 @@ package swp_compiler_ss13.javabite.backend;
  */
 public class JumpInstruction extends Instruction {
 
-	private Instruction targetInstruction;
-
-	public JumpInstruction(final Mnemonic mnemonic, final byte... arguments) {
-		super(mnemonic, arguments);
-	}
-
-	public JumpInstruction(final Mnemonic mnemonic,
-			final Instruction targetInstruction, final byte... arguments) {
-		super(mnemonic, arguments);
-		this.targetInstruction = targetInstruction;
-	}
+	private String targetLabel;
 
 	public JumpInstruction(final Mnemonic mnemonic) {
 		super(mnemonic);
 	}
 
 	public JumpInstruction(final Mnemonic mnemonic,
-			final Instruction targetInstruction) {
+			final String targetInstruction) {
 		super(mnemonic);
-		this.targetInstruction = targetInstruction;
+		this.targetLabel = targetInstruction;
 	}
 
-	public Instruction getTargetInstruction() {
-		return targetInstruction;
+	public String getTargetLabel() {
+		return targetLabel;
 	}
 
-	public void setTargetInstruction(final Instruction targetInstruction) {
-		this.targetInstruction = targetInstruction;
+	public void setTargetLabel(final String targetLabel) {
+		this.targetLabel = targetLabel;
 	}
 
 	/*
@@ -49,9 +39,8 @@ public class JumpInstruction extends Instruction {
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime
-				* result
-				+ (targetInstruction == null ? 0 : targetInstruction.hashCode());
+		result = prime * result
+				+ (targetLabel == null ? 0 : targetLabel.hashCode());
 		return result;
 	}
 
@@ -69,10 +58,10 @@ public class JumpInstruction extends Instruction {
 		if (!(obj instanceof JumpInstruction))
 			return false;
 		final JumpInstruction other = (JumpInstruction) obj;
-		if (targetInstruction == null) {
-			if (other.targetInstruction != null)
+		if (targetLabel == null) {
+			if (other.targetLabel != null)
 				return false;
-		} else if (!targetInstruction.equals(other.targetInstruction))
+		} else if (!targetLabel.equals(other.targetLabel))
 			return false;
 		return true;
 	}
