@@ -520,6 +520,16 @@ public class MainFrame extends JFrame implements ReportLog {
 		IntermediateCodeGenerator codegen = ModuleProvider.getCodeGeneratorInstance();
 		Backend backend = ModuleProvider.getBackendInstance();
 		
+		// set up report logs
+		modelReportLogs = new DefaultTableModel();
+		tableReportLogs = new JTable(modelReportLogs);
+		tabbedPaneLog.addTab("Report Logs", null, tableReportLogs, null);
+		modelReportLogs.addColumn("Type");
+		modelReportLogs.addColumn("Line");
+		modelReportLogs.addColumn("Column");
+		modelReportLogs.addColumn("Message");
+		parser.setReportLog(this);
+		
 		progressBar.setValue(10);
 		boolean setupOk = true;
 		if (lexer == null) {
