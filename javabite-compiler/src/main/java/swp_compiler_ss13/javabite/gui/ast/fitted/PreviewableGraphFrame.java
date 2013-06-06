@@ -22,14 +22,11 @@ import com.mxgraph.view.mxGraph;
 
 public class PreviewableGraphFrame extends GraphFrame {
 
-
-
 	@Override
 	public void initWith(AST ast, mxGraph graph) {
 		// this method shows just the functionality of the jframe:)
 
 		JFrame frame = new JFrame();
-
 
 		final mxGraphComponent graphComponent = new mxGraphComponent(graph);
 		frame.getContentPane().add(graphComponent, BorderLayout.CENTER);
@@ -38,7 +35,6 @@ public class PreviewableGraphFrame extends GraphFrame {
 		JPanel toolBar = new JPanel();
 		toolBar.setLayout(new BorderLayout());
 
-		
 		this.setSize(800, 50);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setVisible(true);
@@ -95,6 +91,27 @@ public class PreviewableGraphFrame extends GraphFrame {
 			}
 		});
 		buttonBar.add(btCenter);
+
+		// Zoom outside
+		JButton btZoomOut = new JButton("Zoom Out");
+		btCenter.addActionListener(new ActionListener() {
+
+			public void actionPerformed(ActionEvent arg0) {
+
+				Dimension graphSize = graphComponent.getGraphControl()
+						.getSize();
+				// Dimension viewPortSize =
+				// graphComponent.getViewport().getSize();
+
+				int x = graphSize.width * 2;
+				int y = graphSize.height * 2;
+
+				graphComponent.getGraphControl().scrollRectToVisible(
+						new Rectangle(x, y));
+
+			}
+		});
+		buttonBar.add(btZoomOut);
 
 		// put components on frame
 		toolBar.add(buttonBar, BorderLayout.CENTER);
