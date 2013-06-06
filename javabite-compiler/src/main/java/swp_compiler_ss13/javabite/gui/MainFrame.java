@@ -670,6 +670,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		
 		modelReportLogs = new DefaultTableModel();
 		tableReportLogs = new JTable(modelReportLogs);
+		tableReportLogs.setEnabled(false);
 		tabbedPaneLog.addTab("Report Logs", null, tableReportLogs, null);
 		modelReportLogs.addColumn("Type");
 		modelReportLogs.addColumn("Line");
@@ -938,14 +939,8 @@ public class MainFrame extends JFrame implements ReportLog {
 			IntermediateCodeGenerator codegen = ModuleProvider.getCodeGeneratorInstance();
 			Backend backend = ModuleProvider.getBackendInstance();
 			
-			// set up report logs
-			modelReportLogs = new DefaultTableModel();
-			tableReportLogs = new JTable(modelReportLogs);
-			tabbedPaneLog.addTab("Report Logs", null, tableReportLogs, null);
-			modelReportLogs.addColumn("Type");
-			modelReportLogs.addColumn("Line");
-			modelReportLogs.addColumn("Column");
-			modelReportLogs.addColumn("Message");
+			for (int i=0; i<modelReportLogs.getRowCount(); i++) modelReportLogs.removeRow(i);
+			
 			parser.setReportLog(this);
 			
 			progressBar.setValue(10);
