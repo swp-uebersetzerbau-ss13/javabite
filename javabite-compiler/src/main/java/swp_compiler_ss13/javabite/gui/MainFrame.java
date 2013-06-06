@@ -40,6 +40,7 @@ import javax.swing.JTextPane;
 import javax.swing.JToolBar;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
@@ -121,6 +122,7 @@ public class MainFrame extends JFrame implements ReportLog {
 	File openedFile = null;
 	boolean fileChanged = false;
 	SourecodeDocumentListener sourceCodeListener;
+	FileNameExtensionFilter filter = new FileNameExtensionFilter("Sourcecode (.prog)", "prog");
 	
 	// undo and redo
 	private Document editorPaneDocument;
@@ -218,6 +220,7 @@ public class MainFrame extends JFrame implements ReportLog {
 					// open file chooser
 					JFileChooser chooser = new JFileChooser();
 					chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+					chooser.setFileFilter(filter);
 					int returnVal = chooser.showOpenDialog(null);
 					if (returnVal == JFileChooser.APPROVE_OPTION) {
 						openedFile = chooser.getSelectedFile();
@@ -247,6 +250,7 @@ public class MainFrame extends JFrame implements ReportLog {
 								// create and open the file chooser
 								JFileChooser chooser = new JFileChooser();
 								chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+								chooser.setFileFilter(filter);
 								chooser.setSelectedFile(new File("New File.prog"));
 								
 								// save unchanged file
@@ -260,6 +264,7 @@ public class MainFrame extends JFrame implements ReportLog {
 									
 									// open file
 									chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+									chooser.setFileFilter(filter);
 									returnVal = chooser.showOpenDialog(null);
 									if (returnVal == JFileChooser.APPROVE_OPTION) {
 										openedFile = chooser.getSelectedFile();
@@ -279,6 +284,7 @@ public class MainFrame extends JFrame implements ReportLog {
 								// now, display filechooser
 								JFileChooser chooser = new JFileChooser();
 								chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+								chooser.setFileFilter(filter);
 								int returnVal = chooser.showOpenDialog(null);
 								if (returnVal == JFileChooser.APPROVE_OPTION) {
 									openedFile = chooser.getSelectedFile();
@@ -294,6 +300,7 @@ public class MainFrame extends JFrame implements ReportLog {
 							// display file chooser
 							JFileChooser chooser = new JFileChooser();
 							chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+							chooser.setFileFilter(filter);
 							int returnVal = chooser.showOpenDialog(null);
 							if (returnVal == JFileChooser.APPROVE_OPTION) {
 								openedFile = chooser.getSelectedFile();
@@ -335,6 +342,7 @@ public class MainFrame extends JFrame implements ReportLog {
 							// create and open the file chooser
 							JFileChooser chooser = new JFileChooser();
 							chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+							chooser.setFileFilter(filter);
 							chooser.setSelectedFile(new File("New File.prog"));
 							
 							// save unchanged file
@@ -404,6 +412,7 @@ public class MainFrame extends JFrame implements ReportLog {
 						// open the file chooser
 						JFileChooser chooser = new JFileChooser();
 						chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+						chooser.setFileFilter(filter);
 						chooser.setSelectedFile(new File("New File.prog"));
 						
 						// save unchanged file
@@ -455,6 +464,7 @@ public class MainFrame extends JFrame implements ReportLog {
 							// create and open the file chooser
 							JFileChooser chooser = new JFileChooser();
 							chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+							chooser.setFileFilter(filter);
 							chooser.setSelectedFile(new File("New File.prog"));
 							
 							// save unchanged file
@@ -735,7 +745,7 @@ public class MainFrame extends JFrame implements ReportLog {
 			}
 		}
 	}
-	// TODO
+	
 	private void compile(File file) throws IntermediateCodeGeneratorException, IOException, BackendException, ClassNotFoundException, InstantiationException, IllegalAccessException {
 		boolean canCompiled = false;
 		if (fileChanged) {
@@ -756,6 +766,7 @@ public class MainFrame extends JFrame implements ReportLog {
 					// create and open the file chooser
 					JFileChooser chooser = new JFileChooser();
 					chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+					chooser.setFileFilter(filter);
 					chooser.setSelectedFile(new File("New File.prog"));
 					
 					// save unchanged file
