@@ -66,14 +66,12 @@ public class Operation {
 		 * 
 		 * @param mnemonic
 		 *            bytecode mnemonic
-		 * @param argsSize
-		 *            byte size of passed arguments, if needed by opcode
 		 * @param arguments
 		 *            arguments to be passed along the bytecode instruction
 		 * @return instance of this builder
 		 */
 		public OperationBuilder add(final Mnemonic mnemonic,
-				final int argsSize, final byte... arguments) {
+				final byte... arguments) {
 			final Instruction instruction;
 			if (mnemonic.getArgsCount() > 0) {
 				assert arguments != null
@@ -86,18 +84,6 @@ public class Operation {
 				instruction = new Instruction(mnemonic);
 			}
 			return add(instruction);
-		}
-
-		/**
-		 * Adds a new instruction to this operation with only a mnemonic and no
-		 * arguments.
-		 * 
-		 * @param mnemonic
-		 *            the mnemonic of the instruction to add
-		 * @return this operation builder instance
-		 */
-		public OperationBuilder add(final Mnemonic mnemonic) {
-			return add(mnemonic, 0);
 		}
 
 		/**

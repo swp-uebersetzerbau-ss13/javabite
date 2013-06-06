@@ -193,7 +193,7 @@ public enum Mnemonic {
 	DRETURN	        (0xAF, -2),
 	ARETURN	        (0xB0, -1),
 	RETURN	        (0xB1),
-	GETSTATIC	    (0xB2, 0, 2),
+	GETSTATIC	    (0xB2, 1, 2),
 	PUTSTATIC	    (0xB3, 0, 2),
 	GETFIELD	    (0xB4, 0, 2),
 	PUTFIELD	    (0xB5, 0, 2),

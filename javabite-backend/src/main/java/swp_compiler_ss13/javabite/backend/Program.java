@@ -69,7 +69,7 @@ public class Program {
 		// saves all jump instructions for later offset calculation
 		private final List<JumpInstruction> jumpInstructions;
 		// sizes of last array declaration, in reverse order on the stack
-		private final Stack<String> arraySizes;
+		private final Stack<String> arrayDimensions;
 		// label name of last label
 		private Stack<String> labelNames;
 		// determines, whether the System exit method has already been added/
@@ -81,8 +81,6 @@ public class Program {
 		private short systemExitIndex;
 		// index of fieldref info of system out in constant pool
 		private short systemOutIndex;
-		// index of methodref info of print method in constant pool
-		private short printIndex;
 		// name of last array seen
 		private String arrayName;
 
@@ -91,14 +89,13 @@ public class Program {
 			operations = new ArrayList<>();
 			jumpTargets = new HashMap<>();
 			jumpInstructions = new ArrayList<>();
-			arraySizes = new Stack<>();
+			arrayDimensions = new Stack<>();
 			labelNames = new Stack<>();
 			this.classfile = classfile;
 			this.methodName = methodName;
 			returnFlag = false;
 			systemExitIndex = 0;
 			systemOutIndex = 0;
-			printIndex = 0;
 		}
 
 		private ProgramBuilder add(final Operation operation) {
@@ -397,13 +394,13 @@ public class Program {
 		 * @return this builder instance
 		 */
 		private ProgramBuilder print(final String arg1, final InfoTag type,
-				final Mnemonic varLoadOp) {
-			addPrintMethodToClassfile();
+				final String printMethodSignature, final Mnemonic varLoadOp) {
+			final short printIndex = addPrintMethodToClassfile(printMethodSignature);
 			final OperationBuilder op = OperationBuilder.newBuilder();
-			op.add(Mnemonic.GETSTATIC, 2,
+			op.add(Mnemonic.GETSTATIC,
 					ByteUtils.shortToByteArray(systemOutIndex));
 			op.add(loadOp(arg1, type, varLoadOp));
-			op.add(Mnemonic.INVOKEVIRTUAL, 2,
+			op.add(Mnemonic.INVOKEVIRTUAL,
 					ByteUtils.shortToByteArray(printIndex));
 			return add(op.build());
 		}
@@ -420,13 +417,28 @@ public class Program {
 		 */
 		private ProgramBuilder arrayCreate(final ArrayType type) {
 			// long array declaration
-			assert arrayName != null && !arraySizes.isEmpty();
+			assert arrayName != null && !arrayDimensions.isEmpty();
 			final OperationBuilder op = OperationBuilder.newBuilder();
-			for (final String size : arraySizes) {
+			for (final String size : arrayDimensions) {
 				op.add(loadOp(size, InfoTag.LONG, Mnemonic.LLOAD));
 				op.add(Mnemonic.L2I);
 			}
-			op.add(Mnemonic.NEWARRAY, 1, type.getValue());
+			if (arrayDimensions.size() > 1) {
+				final StringBuilder sb = new StringBuilder();
+				for (int i = 0; i < arrayDimensions.size(); i++) {
+					sb.append("[");
+				}
+				sb.append(type.getClassName());
+				short classIndex = classfile.addClassConstantToConstantPool(sb
+						.toString());
+				final byte[] classIndexArray = shortToByteArray(classIndex);
+				op.add(Mnemonic.MULTIANEWARRAY, classIndexArray[0],
+						classIndexArray[1], (byte) arrayDimensions.size());
+				System.out.println(arrayDimensions.size());
+			} else {
+				op.add(Mnemonic.NEWARRAY, type.getValue());
+			}
+			arrayDimensions.clear();
 			op.add(storeOp(arrayName, Mnemonic.ASTORE));
 			return add(op.build());
 		}
@@ -450,7 +462,7 @@ public class Program {
 			final OperationBuilder op = OperationBuilder.newBuilder();
 			final byte arrayIndex = classfile.getIndexOfVariableInMethod(
 					methodName, q.getArgument1());
-			op.add(Mnemonic.getMnemonic("ALOAD", arrayIndex), 1, arrayIndex);
+			op.add(Mnemonic.getMnemonic("ALOAD", arrayIndex), arrayIndex);
 			op.add(loadOp(q.getArgument2(), InfoTag.LONG, Mnemonic.LLOAD));
 			op.add(Mnemonic.L2I);
 			op.add(loadOp);
@@ -473,7 +485,7 @@ public class Program {
 			final OperationBuilder op = OperationBuilder.newBuilder();
 			final byte arrayIndex = classfile.getIndexOfVariableInMethod(
 					methodName, q.getArgument1());
-			op.add(Mnemonic.getMnemonic("ALOAD", arrayIndex), 1, arrayIndex);
+			op.add(Mnemonic.getMnemonic("ALOAD", arrayIndex), arrayIndex);
 			op.add(loadOp(q.getArgument2(), InfoTag.LONG, Mnemonic.LLOAD));
 			op.add(Mnemonic.L2I);
 			op.add(loadOp(q.getResult(), constType, varLoadOp));
@@ -517,7 +529,7 @@ public class Program {
 		 * @author Marco
 		 * @since 30.05.2013
 		 */
-		private void addPrintMethodToClassfile() {
+		private short addPrintMethodToClassfile(final String paramType) {
 
 			// add system.out fieldref info to constant pool, if necessary
 			if (systemOutIndex == 0) {
@@ -527,12 +539,9 @@ public class Program {
 			}
 
 			// add print methodref info to constant pool, if necessary
-			if (printIndex == 0) {
-				// TODO externalize static strings
-				printIndex = classfile
-						.addMethodrefConstantToConstantPool("print",
-								"(Ljava/lang/String;)V", "java/io/PrintStream");
-			}
+			// TODO externalize static strings
+			return classfile.addMethodrefConstantToConstantPool("print", "("
+					+ paramType + ")V", "java/io/PrintStream");
 		}
 
 		/**
@@ -571,7 +580,7 @@ public class Program {
 		 */
 
 		public ProgramBuilder declareLong(final Quadruple q) {
-			if (q.getResult() == null) {
+			if ("!".equals(q.getResult())) {
 				return arrayCreate(ArrayType.LONG);
 			}
 
@@ -579,7 +588,7 @@ public class Program {
 		}
 
 		public ProgramBuilder declareDouble(final Quadruple q) {
-			if (q.getResult() == null) {
+			if ("!".equals(q.getResult())) {
 				return arrayCreate(ArrayType.DOUBLE);
 			}
 
@@ -587,14 +596,14 @@ public class Program {
 		}
 
 		public ProgramBuilder declareString(final Quadruple q) {
-			if (q.getResult() == null) {
-				assert arrayName != null && !arraySizes.isEmpty();
+			if ("!".equals(q.getResult())) {
+				assert arrayName != null && !arrayDimensions.isEmpty();
 				final OperationBuilder op = OperationBuilder.newBuilder();
-				for (final String size : arraySizes) {
+				for (final String size : arrayDimensions) {
 					op.add(loadOp(size, InfoTag.LONG, Mnemonic.LLOAD));
 					op.add(Mnemonic.L2I);
 				}
-				op.add(Mnemonic.ANEWARRAY, 2,
+				op.add(Mnemonic.ANEWARRAY,
 						ByteUtils.shortToByteArray(addStringClassToClassfile()));
 				op.add(storeOp(arrayName, Mnemonic.ASTORE));
 				return add(op.build());
@@ -604,7 +613,7 @@ public class Program {
 		}
 
 		public ProgramBuilder declareBoolean(final Quadruple q) {
-			if (q.getResult() == null) {
+			if ("!".equals(q.getResult())) {
 				return arrayCreate(ArrayType.BOOLEAN);
 			}
 
@@ -1081,7 +1090,7 @@ public class Program {
 			final OperationBuilder op = OperationBuilder.newBuilder();
 			op.add(loadOp(q.getArgument1(), InfoTag.LONG, Mnemonic.LLOAD));
 			op.add(Mnemonic.L2I);
-			op.add(Mnemonic.INVOKESTATIC, 2,
+			op.add(Mnemonic.INVOKESTATIC,
 					ByteUtils.shortToByteArray(systemExitIndex));
 			op.add(Mnemonic.RETURN);
 			return add(op.build());
@@ -1597,12 +1606,12 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder printBoolean(final Quadruple q) {
-			addPrintMethodToClassfile();
+			short printIndex = addPrintMethodToClassfile("Z");
 			final OperationBuilder op = OperationBuilder.newBuilder();
-			op.add(Mnemonic.GETSTATIC, 2,
+			op.add(Mnemonic.GETSTATIC,
 					ByteUtils.shortToByteArray(systemOutIndex));
 			op.add(loadBooleanOp(q.getArgument1()));
-			op.add(Mnemonic.INVOKEVIRTUAL, 2,
+			op.add(Mnemonic.INVOKEVIRTUAL,
 					ByteUtils.shortToByteArray(printIndex));
 			return add(op.build());
 		}
@@ -1633,7 +1642,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder printLong(final Quadruple q) {
-			return print(q.getArgument1(), InfoTag.LONG, Mnemonic.LDC2_W);
+			return print(q.getArgument1(), InfoTag.LONG, "J", Mnemonic.LLOAD);
 		}
 
 		/**
@@ -1662,7 +1671,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder printDouble(final Quadruple q) {
-			return print(q.getArgument1(), InfoTag.DOUBLE, Mnemonic.LDC2_W);
+			return print(q.getArgument1(), InfoTag.DOUBLE, "D", Mnemonic.DLOAD);
 		}
 
 		/**
@@ -1691,7 +1700,8 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public ProgramBuilder printString(final Quadruple q) {
-			return print(q.getArgument1(), InfoTag.STRING, Mnemonic.LDC);
+			return print(q.getArgument1(), InfoTag.STRING,
+					"Ljava/lang/String;", Mnemonic.ALOAD);
 		}
 
 		/**
@@ -1723,7 +1733,7 @@ public class Program {
 			if (q.getResult() != null) {
 				arrayName = q.getResult();
 			}
-			arraySizes.push(q.getArgument1());
+			arrayDimensions.push(q.getArgument1());
 			return this;
 		}
 
@@ -1960,7 +1970,7 @@ public class Program {
 			final OperationBuilder op = OperationBuilder.newBuilder();
 			final byte arrayIndex = classfile.getIndexOfVariableInMethod(
 					methodName, q.getArgument1());
-			op.add(Mnemonic.getMnemonic("ALOAD", arrayIndex), 1, arrayIndex);
+			op.add(Mnemonic.getMnemonic("ALOAD", arrayIndex), arrayIndex);
 			op.add(loadOp(q.getArgument2(), InfoTag.LONG, Mnemonic.LLOAD));
 			op.add(Mnemonic.L2I);
 			op.add(loadBooleanOp(q.getResult()));
