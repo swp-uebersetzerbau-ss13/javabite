@@ -1,4 +1,4 @@
-package swp_compiler_ss13.javabite.codegen.alternative.converters;
+package swp_compiler_ss13.javabite.codegen.converters;
 
 
 
@@ -10,9 +10,9 @@ import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.types.Type;
 import swp_compiler_ss13.common.types.Type.Kind;
-import swp_compiler_ss13.javabite.codegen.alternative.CastingAst2CodeConverter;
-import swp_compiler_ss13.javabite.codegen.alternative.IdentifierData;
-import swp_compiler_ss13.javabite.codegen.alternative.QuadrupleFactoryJb;
+import swp_compiler_ss13.javabite.codegen.CastingAst2CodeConverter;
+import swp_compiler_ss13.javabite.codegen.IdentifierData;
+import swp_compiler_ss13.javabite.codegen.QuadrupleFactoryJb;
 import swp_compiler_ss13.javabite.quadtruple.QuadrupleJB;
 
 public class PrintNodeConverter extends CastingAst2CodeConverter{

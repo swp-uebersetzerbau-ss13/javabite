@@ -1,12 +1,12 @@
-package swp_compiler_ss13.javabite.codegen.alternative.converters;
+package swp_compiler_ss13.javabite.codegen.converters;
 
 import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.ASTNode.ASTNodeType;
 import swp_compiler_ss13.common.ast.nodes.binary.LogicBinaryExpressionNode;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
-import swp_compiler_ss13.javabite.codegen.alternative.CastingAst2CodeConverter;
-import swp_compiler_ss13.javabite.codegen.alternative.IdentifierData;
-import swp_compiler_ss13.javabite.codegen.alternative.QuadrupleFactoryJb;
+import swp_compiler_ss13.javabite.codegen.CastingAst2CodeConverter;
+import swp_compiler_ss13.javabite.codegen.IdentifierData;
+import swp_compiler_ss13.javabite.codegen.QuadrupleFactoryJb;
 
 public class LogicBinaryExpressionNodeConverter extends CastingAst2CodeConverter {
 

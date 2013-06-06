@@ -1,241 +1,200 @@
 package swp_compiler_ss13.javabite.codegen;
 
-import java.util.LinkedList;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import swp_compiler_ss13.common.ast.AST;
-import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
-import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
-import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
-import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
-import swp_compiler_ss13.common.ast.nodes.unary.ArithmeticUnaryExpressionNode;
-import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
-import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
+import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.backend.Quadruple;
-import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
-import swp_compiler_ss13.common.parser.SymbolTable;
 import swp_compiler_ss13.common.types.Type;
-import swp_compiler_ss13.javabite.ast.ASTNodeJb;
-import swp_compiler_ss13.javabite.ast.nodes.marynary.BlockNodeJb;
+import swp_compiler_ss13.javabite.codegen.converters.ArithmeticBinaryExpressionNodeConverter;
+import swp_compiler_ss13.javabite.codegen.converters.ArithmeticUnaryExpressionNodeConverter;
+import swp_compiler_ss13.javabite.codegen.converters.AssignmentNodeConverter;
+import swp_compiler_ss13.javabite.codegen.converters.BasicIdentifierNodeConverter;
+import swp_compiler_ss13.javabite.codegen.converters.BlockNodeConverter;
+import swp_compiler_ss13.javabite.codegen.converters.BranchNodeConverter;
+import swp_compiler_ss13.javabite.codegen.converters.DeclarationNodeConverter;
+import swp_compiler_ss13.javabite.codegen.converters.LiteralNodeConverter;
+import swp_compiler_ss13.javabite.codegen.converters.LogicBinaryExpressionNodeConverter;
+import swp_compiler_ss13.javabite.codegen.converters.LogicUnaryExpressionNodeConverter;
+import swp_compiler_ss13.javabite.codegen.converters.PrintNodeConverter;
+import swp_compiler_ss13.javabite.codegen.converters.RelationNodeConverter;
+import swp_compiler_ss13.javabite.codegen.converters.ReturnNodeConverter;
 
-/**
- * 
- * @author Alpin Sahin und Florian Mercks
- *
- */
-public class IntermediateCodeGeneratorJb implements IntermediateCodeGenerator {
+public class IntermediateCodeGeneratorJb implements
+		Ast2CodeConverterCompatibleGenerator {
+	private final static Logger log = LoggerFactory
+			.getLogger(IntermediateCodeGeneratorJb.class);
+
+	private static final Class<?>[] converterClasses = {
+			ArithmeticBinaryExpressionNodeConverter.class,
+			ArithmeticUnaryExpressionNodeConverter.class,
+			AssignmentNodeConverter.class, BasicIdentifierNodeConverter.class,
+			BlockNodeConverter.class, DeclarationNodeConverter.class,
+			LiteralNodeConverter.class, ReturnNodeConverter.class, 
+			BranchNodeConverter.class, RelationNodeConverter.class,
+			PrintNodeConverter.class, LogicBinaryExpressionNodeConverter.class,
+			LogicUnaryExpressionNodeConverter.class};
+
+	private static final String IDENTIFIER_GENERATION_PREFIX = "TMP";
+	private long identifierGenerationCounter = 0;
+
+	final List<Quadruple> quadruples = new ArrayList<>(1000);
 
 	/**
-	 * The list of generated quadruples
+	 * Set of used identifiers (in TAC is can't be use twice)
 	 */
-	public static List<Quadruple> quadruples;
-	
+	final Set<String> usedIds = new HashSet<>();
+
 	/**
-	 * List of used variable (identifier) names
+	 * Contains mapping of identifiers which were used twice for the current
+	 * scope
 	 */
-	static List<String> usedVariableNames;
-	
+	final Deque<Map<String, IdentifierData>> blockScopes = new ArrayDeque<>();
+
 	/**
-	 * The stack of the latest Identifier names.
+	 * Contains identifiers for inter-converter-communication
 	 */
-	static Stack<Map<String, String>> latestIdentifierNames;
-	
+	final Deque<IdentifierData> identifierDataStack = new ArrayDeque<>();
+
 	/**
-	 * The stack of symbol tables
+	 * All available converters for the AST
 	 */
-	static Stack<SymbolTable> symbolTable;
-	
-	/**
-	 * temporary result outputs, used while loading a result of a variable
-	 */
-	static Stack<String> temporaryResultOutputs;
-	
-	/**
-	 * temporary types, used while loading a result of a variable
-	 */
-	static Stack<Type> temporaryTypes;
-	
-	/**
-	* Constructor for the intermediate code generator
-	*/
+	private final Map<ASTNode.ASTNodeType, Ast2CodeConverter> converters = new HashMap<>();
+
 	public IntermediateCodeGeneratorJb() {
-		quadruples = new LinkedList<>();
-		usedVariableNames = new LinkedList<>();
-		latestIdentifierNames = new Stack<>();
-		symbolTable = new Stack<>();
-		temporaryResultOutputs = new Stack<>();
-		temporaryTypes = new Stack<>();
+		initConverters();
 	}
 
-
-	/**
-	 * generates the intermediate code for the given AST 
-	 * @param ast
-	 */
 	@Override
-	public List<Quadruple> generateIntermediateCode(AST ast)
+	public List<Quadruple> generateIntermediateCode(final AST ast)
 			throws IntermediateCodeGeneratorException {
-		BlockNodeJb program = (BlockNodeJb) ast.getRootNode();
-		new BlockNodeCG().convert(program);
-		return quadruples;
+		reset();
+		processNode(ast.getRootNode());
+		return new ArrayList<>(quadruples);
 	}
 
-	/**
-	 * handles the the node
-	 * @param node
-	 * @throws IntermediateCodeGeneratorException
-	 */
-	public static void differentiateNode(ASTNodeJb node) throws IntermediateCodeGeneratorException {
-		switch (node.getNodeType()) {
-		case ArithmeticBinaryExpressionNode:
-			new ArithmeticBinaryExpressionNodeCG().convert((ArithmeticBinaryExpressionNode)node);
-			break;
-		case ArithmeticUnaryExpressionNode:
-			new ArithmeticUnaryExpressionNodeCG().convert((ArithmeticUnaryExpressionNode) node);
-			break;
-		case ArrayIdentifierNode:
-			//TODO
-			break;
-		case AssignmentNode:
-			new AssignmentNodeCG().convert((AssignmentNode) node);
-			break;
-		case BasicIdentifierNode:
-			new BasicIdentifierNodeCG().convert((BasicIdentifierNode)node);
-			break;
-		case BlockNode:
-			new BlockNodeCG().convert((BlockNodeJb)node);
-			break;
-		case BranchNode:
-			//TODO
-			break;
-		case BreakNode:
-			//TODO
-			break;
-		case DeclarationNode:
-			new DeclarationNodeCG().convert((DeclarationNode) node);
-			break;
-		case DoWhileNode:
-			//TODO
-			break;
-		case LiteralNode:
-			new LiteralNodeCG().convert((LiteralNode) node);
-			break;
-		case LogicBinaryExpressionNode:
-			//TODO
-			break;
-		case LogicUnaryExpressionNode:
-			//TODO
-			break;
-		case PrintNode:
-			//TODO
-			break;
-		case RelationExpressionNode:
-			//TODO
-			break;
-		case ReturnNode:
-			new ReturnNodeCG().convert((ReturnNode) node);
-			break;
-		case StructIdentifierNode:
-			//TODO			
-			break;
-		case WhileNode:
-			//TODO
-			break;
-		default:
-			break;
-		}
+	@Override
+	public void addQuadruple(Quadruple quadruple) {
+		quadruples.add(quadruple);
 	}
 
+	@Override
+	public void processNode(ASTNode node)
+			throws IntermediateCodeGeneratorException {
+		Ast2CodeConverter converter = converters.get(node.getNodeType());
 
-	/**
-	 * declare the identifier
-	 * @param identifier
-	 * @param type
-	 * @return
-	 * @throws IntermediateCodeGeneratorException
-	 */
-	public static String addIdentifier(String identifier,
+		if (converter == null)
+			throw new IntermediateCodeGeneratorException(
+					"No converter available for type: " + node.getNodeType());
+
+		converter.convert(node);
+	}
+
+	@Override
+	public void enterNewScope() {
+		blockScopes.push(new HashMap<String, IdentifierData>());
+	}
+
+	@Override
+	public void leaveCurrentScope() {
+		blockScopes.pop();
+	}
+
+	@Override
+	public IdentifierData generateTempIdentifier(Type type)
+			throws IntermediateCodeGeneratorException {
+		IdentifierData data = generateIdentifierMapping(generateTacIdentifier(null), type);
+		addQuadruple(QuadrupleFactoryJb.generateDeclaration(data));
+		return data;
+	}
+
+	@Override
+	public IdentifierData generateIdentifierMapping(String astIdentifier,
 			Type type) throws IntermediateCodeGeneratorException {
-		
-		/* looks up if the identifier name is already used
-		 * create a temporary variable that keeps a new name for the variable,
-		 * if the identifier has been used
-		 */
-		if (usedVariableNames.contains(identifier)) {
-			// rename is required to keep single static assignment
-			String newVariableName = symbolTable.peek().getNextFreeTemporary();
-			symbolTable.peek().putTemporary(newVariableName, type);
-			usedVariableNames.add(newVariableName);
-			latestIdentifierNames.peek().put(identifier, newVariableName);
-			quadruples.add(QuadrupleFactoryJb.declaration(newVariableName, type));
-			return newVariableName;
-		}
-		 //if the identifier name not in the usedVariableNames,
-		 //add the new identifier name into the usedVariablenNames
-		else {
-			usedVariableNames.add(identifier);
-			latestIdentifierNames.peek().put(identifier, identifier);
-			quadruples.add(QuadrupleFactoryJb.declaration(identifier, type));
-			return identifier;
-		}
+		IdentifierData data = new IdentifierData(
+				generateTacIdentifier(astIdentifier), type);
+		blockScopes.peek().put(astIdentifier, data);
+		return data;
 	}
 
-		
-	/**
-	* Get the given identifier and return its current name 
-	* (if renaming was done)
-	*
-	* @param identifier
-	* The identifier name to load
-	* @return The actual name of the identifier
-	* @throws IntermediateCodeGeneratorException
-	* Identifier was not found
-	*/
-	public static String getIdentifier(String identifier) throws IntermediateCodeGeneratorException {
-		//Copy the all used names from latestIdentifierNames to a temporary variable
-		@SuppressWarnings("unchecked")
-		Stack<Map<String, String>> namesInBlocks = (Stack<Map<String, String>>) IntermediateCodeGeneratorJb.latestIdentifierNames.clone();
-		String id="";
-		while (!namesInBlocks.isEmpty()) {
-		Map<String, String> currentIdentifiers = namesInBlocks.pop();
-			if (currentIdentifiers.containsKey(identifier)) {
-				id= currentIdentifiers.get(identifier);
-				break;
+	@Override
+	public IdentifierData lookupIdentifierData(String astIdentifier)
+			throws IntermediateCodeGeneratorException {
+		for (Iterator<Map<String, IdentifierData>> it = blockScopes.iterator(); it
+				.hasNext();) {
+			Map<String, IdentifierData> current = it.next();
+			IdentifierData result = current.get(astIdentifier);
+			if (result != null) {
+				return result;
 			}
 		}
-		if(id==""){
-			throw new IntermediateCodeGeneratorException("Identifier "+id+" is not declared!");
+
+		throw new IntermediateCodeGeneratorException();
+	}
+
+	@Override
+	public void pushIdentifierData(IdentifierData data) {
+		identifierDataStack.push(data);
+	}
+
+	@Override
+	public IdentifierData popIdentifierData() {
+		return identifierDataStack.pop();
+	}
+
+	private String generateTacIdentifier(String astIdentifier)
+			throws IntermediateCodeGeneratorException {
+		String tacIdentifier = astIdentifier;
+		while (tacIdentifier == null || usedIds.contains(tacIdentifier)) {
+			// TODO: this solution add a limitation for the code generator
+			tacIdentifier = IDENTIFIER_GENERATION_PREFIX
+					+ identifierGenerationCounter++;
+
+			if (identifierGenerationCounter == 0) {
+				throw new IntermediateCodeGeneratorException(
+						"Can not generate enough identifier");
+			}
 		}
-		return id;
+		usedIds.add(tacIdentifier);
+		return tacIdentifier;
 	}
 
-	
 	/**
-	* Create a new temporary value and save it to the internal store of
-	* variables
-	*
-	* @param type
-	* The type of the new variable
-	* @return The name of the new variable
-	* @throws IntermediateCodeGeneratorException
-	* An error occurred
-	*/
-	public static String createAndAddTemporaryIdentifier(Type type) throws IntermediateCodeGeneratorException {
-		// find a name for the temporary identifier
-		String identifier = symbolTable.peek().getNextFreeTemporary();
-		// add the temporary identifier in the list of used variables
-		usedVariableNames.add(identifier);
-		// add the temporary identifier in the list of latest identifiers
-		latestIdentifierNames.peek().put(identifier, identifier);
-		// set the temporary identifier with its type in symbol table
-		symbolTable.peek().putTemporary(identifier, type);		
-		// generate the quadruple for its declaration and add it to the list
-		Quadruple declarationQuadruple = QuadrupleFactoryJb.declaration(identifier, type);
-		IntermediateCodeGeneratorJb.quadruples.add(declarationQuadruple);
-		return identifier;
+	 * initialize all known nodeConverters
+	 */
+	private void initConverters() {
+		try {
+			for (Class<?> converterClass : converterClasses) {
+				Ast2CodeConverter converter = (Ast2CodeConverter) converterClass
+						.newInstance();
+				converter.setIcgJb(this);
+				converters.put(converter.getNodeType(), converter);
+			}
+		} catch (InstantiationException | IllegalAccessException e) {
+			log.error("Unexpected error in instatiation of IntermediateCodeGeneratorJb");
+			e.printStackTrace();
+		}
 	}
 
+	/**
+	 * reset the generator for a new run
+	 */
+	private void reset() {
+		usedIds.clear();
+		blockScopes.clear();
+		identifierDataStack.clear();
+		identifierGenerationCounter = 0;
+	}
 }

@@ -1,4 +1,4 @@
-package swp_compiler_ss13.javabite.codegen.alternative;
+package swp_compiler_ss13.javabite.codegen;
 
 
 public abstract class AbstractAst2CodeConverter implements Ast2CodeConverter {
