@@ -24,6 +24,7 @@ import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.parser.Parser;
 import swp_compiler_ss13.common.report.ReportLog;
 import swp_compiler_ss13.common.report.ReportType;
+import swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser;
 import swp_compiler_ss13.common.util.ModuleProvider;
 
 /**
@@ -34,8 +35,10 @@ public class JavabiteCompiler implements ReportLog {
 	
 	Lexer lexer = null;
 	Parser parser = null;
+	SemanticAnalyser semanticAnalyser;
 	IntermediateCodeGenerator codegen = null;
 	Backend backend = null;
+	
 	
 	Boolean errorReported = false;
 	
@@ -44,6 +47,8 @@ public class JavabiteCompiler implements ReportLog {
 		parser = ModuleProvider.getParserInstance();
 		parser.setLexer(lexer);
 		parser.setReportLog(this);
+		semanticAnalyser=ModuleProvider.getSemanticAnalyserInstance();
+		semanticAnalyser.setReportLog(this);
 		codegen = ModuleProvider.getCodeGeneratorInstance();
 		backend = ModuleProvider.getBackendInstance();
 	}
@@ -86,7 +91,7 @@ public class JavabiteCompiler implements ReportLog {
 		lexer.setSourceStream(new FileInputStream(file));
 		System.out.println("Build ast: ");
 		AST ast = parser.getParsedAST();
-		
+		ast = semanticAnalyser.analyse(ast);
 		if (errorReported) {
 			System.out.println("Compilation failed!");
 			return;
