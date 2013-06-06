@@ -1,8 +1,12 @@
 package swp_compiler_ss13.javabite.gui;
 
+import java.awt.AWTEvent;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.EventQueue;
+import java.awt.Point;
+import java.awt.Toolkit;
+import java.awt.event.AWTEventListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.io.BufferedInputStream;
@@ -38,6 +42,9 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextPane;
 import javax.swing.JToolBar;
+import javax.swing.JToolTip;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -45,10 +52,12 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.Document;
+import javax.swing.text.JTextComponent;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleConstants.CharacterConstants;
 import javax.swing.text.StyledDocument;
+import javax.swing.text.Utilities;
 import javax.swing.undo.UndoManager;
 
 import swp_compiler_ss13.common.ast.AST;
@@ -675,6 +684,70 @@ public class MainFrame extends JFrame implements ReportLog {
 		sourceCodeListener = new SourecodeDocumentListener(this);
 		editorPaneSourcode.getDocument().addDocumentListener(sourceCodeListener);
 		
+		//tooltip
+		editorPaneSourcode.addMouseMotionListener(new MouseAdapter() {
+
+			  public void mouseMoved(MouseEvent e) {
+				  Point loc = e.getPoint();
+				  int pos = editorPaneSourcode.viewToModel(loc);
+				  String text = editorPaneSourcode.getText();
+				  
+				  //dont do anything if the cursor is not hover an element
+				  if(pos < text.length()) {
+					  char cursor = 'x';
+					  
+					  //search as long we find a whitespace in our pos
+					  int searchPos = 0;
+					  int delimiterPos = -1;
+					  while(searchPos < pos) {
+						  
+						  if(text.charAt(searchPos) == ' ')
+							  delimiterPos = searchPos;
+						  
+						  searchPos++;
+					  }
+					  
+					  //search next whitespace location 
+					  while(searchPos < text.length()) {
+						  if(text.charAt(searchPos) == ' ' || text.charAt(searchPos) == '\n' || text.charAt(searchPos) == '\0')
+							  break;
+						  
+						  searchPos++;
+					  }
+					  
+					  String mouseOverWord = text.substring(delimiterPos+1, searchPos);
+					  
+					  //get attribute of word, this is the token type
+					  //we dont like to search for all tokens again
+					  List<Token> tokens = getTokenList(mouseOverWord);
+					  
+					  //check if there is just 1 token type, if not there is no space between tokens and we have to identify what tokens is the target
+					  if(tokens.size() == 1)
+						   editorPaneSourcode.setToolTipText(tokens.get(0).getTokenType().name());
+					  else
+					  {
+						  int newPos = pos-delimiterPos;
+						  int posCount = 0;
+						  int tokenId = 0;
+						  String val;
+						  for(int i = 0; i < tokens.size(); i++) {
+							  val = tokens.get(i).getValue();
+							  posCount += val.length();
+							  if(posCount >= newPos)
+							  {
+								  tokenId = i;
+								  break;
+							  }
+						  }
+						  editorPaneSourcode.setToolTipText(tokens.get(tokenId).getTokenType().name());
+							 
+					  }
+				  } else {
+					  editorPaneSourcode.setToolTipText("");
+				  }
+			  }
+
+		});
 		// setup undo redo
 		editorPaneSourcode.getDocument().addUndoableEditListener(new UndoableEditListener() {
 			public void undoableEditHappened(UndoableEditEvent e) {
@@ -747,6 +820,15 @@ public class MainFrame extends JFrame implements ReportLog {
 	private void styleEditorText() {
 		String text = editorPaneSourcode.getText();
 		
+		//reset editor value to prevent some highlighting bugs
+		int cursorPos = editorPaneSourcode.getCaretPosition();
+		editorPaneSourcode.setText("");
+		javax.swing.text.Style style = editorPaneSourcode.addStyle("Black", null);
+		StyleConstants.setForeground(style, Color.BLACK);
+		doc.setCharacterAttributes(0, 1, editorPaneSourcode.getStyle("Black"), true);
+	
+		editorPaneSourcode.setText(text);
+		editorPaneSourcode.setCaretPosition(cursorPos);
 		int index = 0;
 		List<Token> tokens = getTokenList(text);
 		
@@ -953,4 +1035,28 @@ public class MainFrame extends JFrame implements ReportLog {
 	public void reportError(ReportType type, List<Token> tokens, String message) {
 		modelReportLogs.addRow(new Object[] { type, tokens.get(0).getLine(), tokens.get(0).getColumn(), message });
 	}
-}
+	
+	 public static int getRow(int pos, JTextComponent editor) {
+	        int rn = (pos==0) ? 1 : 0;
+	        try {
+	            int offs=pos;
+	            while( offs>0) {
+	                offs=Utilities.getRowStart(editor, offs)-1;
+	                rn++;
+	            }
+	        } catch (BadLocationException e) {
+	            e.printStackTrace();
+	        }
+	        return rn;
+	    }
+
+    public static int getColumn(int pos, JTextComponent editor) {
+        try {
+            return pos-Utilities.getRowStart(editor, pos)+1;
+        } catch (BadLocationException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+    
+ }
