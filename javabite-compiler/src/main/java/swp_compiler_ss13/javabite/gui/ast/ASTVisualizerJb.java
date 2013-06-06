@@ -77,7 +77,6 @@ public class ASTVisualizerJb implements ASTVisualization {
 		stylesheet.putCellStyle("BOLD", style);
 
 		initTree(ast);
-		test(ast);
 		KhaledGraphFrame k= new KhaledGraphFrame();
 
 
