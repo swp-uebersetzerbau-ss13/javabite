@@ -79,6 +79,7 @@ import org.apache.commons.io.IOUtils;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JTable;
+import javax.swing.JSeparator;
 
 public class MainFrame extends JFrame implements ReportLog {
 	
@@ -133,6 +134,8 @@ public class MainFrame extends JFrame implements ReportLog {
 	private JMenuItem mntmProperties;
 	private JMenuItem mntmNew;
 	private JScrollPane scrollPaneReportLogs;
+	private JSeparator separator;
+	private JSeparator separator_1;
 	
 	/**
 	 * Launch the application.
@@ -513,7 +516,13 @@ public class MainFrame extends JFrame implements ReportLog {
 				// TODO: Implementation of property editor here
 			}
 		});
+		
+		separator_1 = new JSeparator();
+		menuFile.add(separator_1);
 		menuFile.add(mntmProperties);
+		
+		separator = new JSeparator();
+		menuFile.add(separator);
 		menuFile.add(menuFileClose);
 		
 		menuVisual = new JMenu("Visual");
