@@ -1,56 +1,52 @@
 package swp_compiler_ss13.javabite.gui;
 
-import javax.swing.JLabel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.Document;
 
 public class SourecodeDocumentListener implements DocumentListener {
 	
-	private JLabel toolBarLabel;
 	private MainFrame mf;
+	private Document oldDoc;
 	
-	protected SourecodeDocumentListener(JLabel toolBarLabel, MainFrame mf) {
-		this.toolBarLabel = toolBarLabel;
+	protected SourecodeDocumentListener(MainFrame mf) {
 		this.mf = mf;
 	}
 
 	@Override
 	public void insertUpdate(DocumentEvent e) {
-		mf.fileChanged = true;
-		String fileName = "";
-		if(mf.openedFile == null) {
-			fileName = "Unknown";
-		} else {
-			fileName = mf.openedFile.getName();
-		}
-		mf.setTitle("Javabite Compiler - *" + fileName);
-		toolBarLabel.setText("Sourcecode changed.");
+		oldDoc = e.getDocument();
+		remarkFileAsChanged();
 	}
 
 	@Override
 	public void removeUpdate(DocumentEvent e) {
-		mf.fileChanged = true;
-		String fileName = "";
-		if(mf.openedFile == null) {
-			fileName = "Unknown";
-		} else {
-			fileName = mf.openedFile.getName();
-		}
-		mf.setTitle("Javabite Compiler - *" + fileName);
-		toolBarLabel.setText("Sourcecode changed.");
+		oldDoc = e.getDocument();
+		remarkFileAsChanged();
 	}
 
 	@Override
 	public void changedUpdate(DocumentEvent e) {
+		// this event is also fired, when focus is changed
+		// thus check, if old editor content and current content are different
+		if (e.getDocument() != oldDoc) {
+			remarkFileAsChanged();
+		}
+	}
+	
+	private void remarkFileAsChanged() {
+		// mark file as changed
 		mf.fileChanged = true;
+		
+		// mark filename in the title bar as changed
 		String fileName = "";
 		if(mf.openedFile == null) {
-			fileName = "Unknown";
+			fileName = "New File.prog";
 		} else {
 			fileName = mf.openedFile.getName();
 		}
 		mf.setTitle("Javabite Compiler - *" + fileName);
-		toolBarLabel.setText("Sourcecode changed.");
+		mf.toolBarLabel.setText("Sourcecode changed.");
 	}
-
+	
 }
