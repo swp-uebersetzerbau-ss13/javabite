@@ -70,6 +70,8 @@ public class BackendTest {
 	}
 
 	public void cleanup() {
+		System.out.println(System.getProperty("os.name"));
+		
 		logger.debug("Killing command line interface process...");
 		cli1.destroy();
 		logger.debug("Command line interface process killed.");
