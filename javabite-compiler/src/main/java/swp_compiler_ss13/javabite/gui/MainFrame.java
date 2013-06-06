@@ -216,25 +216,24 @@ public class MainFrame extends JFrame implements ReportLog {
 				// unregister source code change listener
 				editorPaneSourcode.getDocument().removeDocumentListener(sourceCodeListener);
 				
-				if (!fileChanged) {		// file was not changed, thus just open new file
+				// file was not changed, thus just open new file
+				if (!fileChanged) {
 					
-					// create default file chooser
+					// open file chooser
 					JFileChooser chooser = new JFileChooser();
 					chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
 					int returnVal = chooser.showOpenDialog(null);
 					if (returnVal == JFileChooser.APPROVE_OPTION) {
 						openedFile = chooser.getSelectedFile();
-						
-						// set main frame header name to file name
 						String fileName = openedFile.getName();
 						setTitle("Javabite Compiler - " + fileName);
-						
 						saveFileContentIntoEditor(openedFile);
-						
 						toolBarLabel.setText("Document opened.");
 					}
-				} else {	// file was changed (regardless if saved or unsaved)
-					if(openedFile != null || fileChanged == true) {
+				} 
+				// file was changed, ask what to do
+				else {
+					if (openedFile != null || fileChanged == true) {
 						JFrame frame = new JFrame("Save");
 						Object[] options = {"Cancel", "No", "Yes"};
 						String fileName = (openedFile == null) ? "New File.prog" : openedFile.getName();
@@ -246,28 +245,36 @@ public class MainFrame extends JFrame implements ReportLog {
 						    null,
 						    options,
 						    options[2]);
-						if(n == 2) {	// save was selected
+						// 'Yes' was selected
+						if(n == 2) {
 							if (openedFile == null) {
 								// create and open the file chooser
-								JFileChooser jfc = new JFileChooser();
-								jfc.setCurrentDirectory(new File(System.getProperty("user.home")));
-								jfc.setSelectedFile(new File("New File.prog"));
+								JFileChooser chooser = new JFileChooser();
+								chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+								chooser.setSelectedFile(new File("New File.prog"));
 								
-								int returnVal = jfc.showSaveDialog(null);
+								// save unchanged file
+								int returnVal = chooser.showSaveDialog(null);
 								if (returnVal == JFileChooser.APPROVE_OPTION) {
-									openedFile = jfc.getSelectedFile();
-									fileName = openedFile.getName();
-									
-									saveEditorContentIntoFile(openedFile);
-									
-									setTitle("Javabite Compiler - " + fileName);
+									openedFile = chooser.getSelectedFile();
+									setTitle("Javabite Compiler - " + openedFile.getName());
 									toolBarLabel.setText("Document saved.");
-									
+									saveEditorContentIntoFile(openedFile);
 									fileChanged = false;
-								} else {
-									toolBarLabel.setText("Save command cancelled by user.");
+									
+									// open new file
+									chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+									returnVal = chooser.showOpenDialog(null);
+									if (returnVal == JFileChooser.APPROVE_OPTION) {
+										openedFile = chooser.getSelectedFile();
+										setTitle("Javabite Compiler - " + openedFile.getName());
+										toolBarLabel.setText("Document opened.");
+										saveFileContentIntoEditor(openedFile);
+										fileChanged = false;
+									}
 								}
-							} else {
+							} 
+							else {
 								// firstly save file
 								saveEditorContentIntoFile(openedFile);
 								setTitle("Javabite Compiler - " + openedFile.getName());
@@ -275,41 +282,33 @@ public class MainFrame extends JFrame implements ReportLog {
 								
 								// now, display filechooser
 								JFileChooser chooser = new JFileChooser();
+								chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
 								int returnVal = chooser.showOpenDialog(null);
 								if (returnVal == JFileChooser.APPROVE_OPTION) {
 									openedFile = chooser.getSelectedFile();
+									setTitle("Javabite Compiler - " + openedFile.getName());
+									saveFileContentIntoEditor(openedFile);
+									toolBarLabel.setText("Document opened.");
 									fileChanged = false;
 								}
-								
-								// set main frame header name to file name
-								fileName = openedFile.getName();
-								setTitle("Javabite Compiler - " + fileName);
-								
-								// insert file content into editor
-								saveFileContentIntoEditor(openedFile);
-								
-								toolBarLabel.setText("Document opened.");
 							}
-						} else if (n == 1) {
-							// not save was selected, thus just replace content with text
-							// create default file chooser
+						} 
+						// 'No' was selected
+						else if (n == 1) {
+							// display file chooser
 							JFileChooser chooser = new JFileChooser();
+							chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
 							int returnVal = chooser.showOpenDialog(null);
 							if (returnVal == JFileChooser.APPROVE_OPTION) {
 								openedFile = chooser.getSelectedFile();
+								setTitle("Javabite Compiler - " + openedFile.getName());
+								saveFileContentIntoEditor(openedFile);
+								toolBarLabel.setText("Document opened.");
 								fileChanged = false;
 							}
-							
-							// set main frame header name to file name
-							fileName = (openedFile == null) ? "New File.prog" : openedFile.getName();
-							setTitle("Javabite Compiler - " + fileName);
-							
-							// insert file content into editor
-							saveFileContentIntoEditor(openedFile);
-							
-							toolBarLabel.setText("Document opened.");
-						} else {
-							// cancel
+						} 
+						// 'Cancel' was selected
+						else {
 							return;
 						}
 					}
@@ -321,7 +320,10 @@ public class MainFrame extends JFrame implements ReportLog {
 		mntmNew = new JMenuItem("New");
 		mntmNew.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// TODO save old docs
+				// check, if file has changed
+				if(fileChanged) {
+					
+				}
 				editorPaneSourcode.setText("");
 				toolBarLabel.setText("New document opened.");
 				setTitle("Javabite Compiler - *New File.prog");
