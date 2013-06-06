@@ -71,9 +71,9 @@ public class ParserJb implements Parser {
 			Token prob=e.getRelatedToken();
 			List<Token> tokenList = new ArrayList<>(1);
 			tokenList.add(prob);
-			reportLog.reportError(ReportType.UNDEFINED, tokenList, "Can not proceed AST build with Token '" + prob.getValue() + "' at this position.");
+			reportLog.reportError(ReportType.WORD_NOT_IN_GRAMMAR, tokenList, "Can not proceed AST built with Token '" + prob.getValue() + "' at this position.");
 		}
-		return new ASTJb();
+		return null;
 	}
 
 	/**

@@ -146,6 +146,8 @@ public class MainFrame extends JFrame implements ReportLog {
 	private JScrollPane scrollPaneReportLogs;
 	private JSeparator separator;
 	private JSeparator separator_1;
+
+	private boolean errorReported;
 	
 	/**
 	 * Launch the application.
@@ -979,13 +981,18 @@ public class MainFrame extends JFrame implements ReportLog {
 			
 			toolBarLabel.setText("Compiling sourcecode.");
 			progressBar.setValue(30);
-			boolean errorReported = false;
+			errorReported = false;
 			lexer.setSourceStream(new FileInputStream(file));
 			toolBarLabel.setText("Building AST.");
 			textPaneLogs.setText(textPaneLogs.getText() + "\nStarting Lexer.");
 			textPaneLogs.setText(textPaneLogs.getText() + "\nStarting Parser.");
 			textPaneLogs.setText(textPaneLogs.getText() + "\nCreating AST.");
 			AST ast = parser.getParsedAST();
+			if (errorReported) {
+				textPaneLogs.setText(textPaneLogs.getText() + "\nSourcecode could not compile.");
+				toolBarLabel.setText("Sourcecode could not compile.");
+				return;
+			}
 			semanticAnalyser.analyse(ast);
 			if (errorReported) {
 				textPaneLogs.setText(textPaneLogs.getText() + "\nSourcecode could not compile.");
@@ -1028,11 +1035,13 @@ public class MainFrame extends JFrame implements ReportLog {
 	
 	@Override
 	public void reportWarning(ReportType type, List<Token> tokens, String message) {
+		errorReported=true;
 		modelReportLogs.addRow(new Object[] { type, tokens.get(0).getLine(), tokens.get(0).getColumn(), message });
 	}
 	
 	@Override
 	public void reportError(ReportType type, List<Token> tokens, String message) {
+		errorReported=true;
 		modelReportLogs.addRow(new Object[] { type, tokens.get(0).getLine(), tokens.get(0).getColumn(), message });
 	}
 	
