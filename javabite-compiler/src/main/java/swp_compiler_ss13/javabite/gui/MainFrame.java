@@ -18,12 +18,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Queue;
 import java.util.Map.Entry;
 
 import javax.swing.JButton;
@@ -47,7 +45,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.Document;
 import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleConstants.CharacterConstants;
 import javax.swing.text.StyledDocument;
@@ -68,10 +65,8 @@ import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.common.util.ModuleProvider;
 import swp_compiler_ss13.javabite.ast.ASTJb;
 import swp_compiler_ss13.javabite.gui.ast.ASTVisualizerJb;
-import swp_compiler_ss13.javabite.lexer.JavabiteTokenType;
 import swp_compiler_ss13.javabite.lexer.LexerJb;
 import swp_compiler_ss13.javabite.parser.ParserJb;
-import swp_compiler_ss13.javabite.token.TokenJb;
 
 import java.awt.FlowLayout;
 import java.awt.event.ActionListener;
@@ -83,8 +78,6 @@ import org.apache.commons.io.IOUtils;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.JTable;
-import javax.swing.ListSelectionModel;
-import java.awt.ScrollPane;
 
 public class MainFrame extends JFrame implements ReportLog {
 	
