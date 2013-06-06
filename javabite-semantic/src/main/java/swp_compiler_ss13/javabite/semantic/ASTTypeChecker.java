@@ -199,8 +199,6 @@ public class ASTTypeChecker {
 		default:
 			reportLog.reportError(ReportType.UNDEFINED, use_coverage?node.coverage():new LinkedList<Token>(), "invalid AST has been produced");
 		}
-		
-		System.out.println("type of "+node+" = "+type);
 		types.put(node, type);
 	}
 	

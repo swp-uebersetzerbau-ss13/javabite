@@ -77,8 +77,18 @@ public class ASTVisualizerJb implements ASTVisualization {
 
 		initTree(ast);
 		KhaledGraphFrame k= new KhaledGraphFrame();
-		this.x=162*k.levelsCounter(ast);
-		this.y=44*k.maximumOfNodesInLevels();
+<<<<<<< HEAD
+
+		this.x=170*k.levelsCounter(ast);
+		this.y=50*k.maximumOfNodesInLevels();
+
+		this.x=167*k.levelsCounter(ast);
+		this.y=47*k.maximumOfNodesInLevels();
+
+=======
+		this.x=167*k.levelsCounter(ast);
+		this.y=47*k.maximumOfNodesInLevels();
+>>>>>>> cb1c160bda6a085f0ba03625c2f6e713ae5756b0
 		mxHierarchicalLayout layout = new mxHierarchicalLayout(graph);
 		layout.setOrientation(SwingConstants.WEST);
 		layout.setInterRankCellSpacing(80);
@@ -247,7 +257,7 @@ public class ASTVisualizerJb implements ASTVisualization {
 			color="white";
 		}
 
-		returnVal=graph.insertVertex(graph.getDefaultParent(), null, value, 20, 40, 100, 35,"ROUNDED;strokeWidth=2.0;strokeColor=white;shadow=false;rounded=true;autosize=1;separatorColor=white;gradientColor=white;fillColor="+color);
+		returnVal=graph.insertVertex(graph.getDefaultParent(), null, value, 20, 40, 100, 35,"ROUNDED;strokeWidth=2.0;strokeColor=white;shadow=false;autosize=0;foldable=0;editable=0;bendable=0;movable=0;resizable=0;cloneable=0;deletable=0;rounded=true;autosize=1;separatorColor=white;gradientColor=white;fillColor="+color);
 		return returnVal;
 		
 		

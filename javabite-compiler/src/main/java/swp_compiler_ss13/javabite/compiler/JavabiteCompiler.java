@@ -33,6 +33,7 @@ import swp_compiler_ss13.common.util.ModuleProvider;
 public class JavabiteCompiler implements ReportLog {
 	final static Logger log = LoggerFactory.getLogger(JavabiteCompiler.class);
 	
+	
 	Lexer lexer = null;
 	Parser parser = null;
 	SemanticAnalyser semanticAnalyser;

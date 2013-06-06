@@ -76,6 +76,7 @@ import swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser;
 import swp_compiler_ss13.common.util.ModuleProvider;
 import swp_compiler_ss13.javabite.ast.ASTJb;
 import swp_compiler_ss13.javabite.gui.ast.ASTVisualizerJb;
+import swp_compiler_ss13.javabite.gui.ast.fitted.KhaledGraphFrame;
 import swp_compiler_ss13.javabite.lexer.LexerJb;
 import swp_compiler_ss13.javabite.parser.ParserJb;
 
@@ -146,6 +147,8 @@ public class MainFrame extends JFrame implements ReportLog {
 	private JScrollPane scrollPaneReportLogs;
 	private JSeparator separator;
 	private JSeparator separator_1;
+
+	private boolean errorReported;
 	
 	/**
 	 * Launch the application.
@@ -555,7 +558,10 @@ public class MainFrame extends JFrame implements ReportLog {
 				JFrame frame = new JFrame();
 				JScrollPane ast_frame=visualizer.getFrame();
 				frame.setVisible(true);
-				frame.setSize(800, 600);
+				KhaledGraphFrame k= new KhaledGraphFrame();
+				
+				
+			    frame.setSize(167*k.levelsCounter(ast), 55*k.maximumOfNodesInLevels());
 				frame.getContentPane().add(ast_frame);
 				frame.setVisible(true);
 				toolBarLabel.setText("Rendered AST.");
@@ -668,6 +674,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		
 		modelReportLogs = new DefaultTableModel();
 		tableReportLogs = new JTable(modelReportLogs);
+		tableReportLogs.setEnabled(false);
 		tabbedPaneLog.addTab("Report Logs", null, tableReportLogs, null);
 		modelReportLogs.addColumn("Type");
 		modelReportLogs.addColumn("Line");
@@ -751,7 +758,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		// setup undo redo
 		editorPaneSourcode.getDocument().addUndoableEditListener(new UndoableEditListener() {
 			public void undoableEditHappened(UndoableEditEvent e) {
-				if (e.getEdit().getPresentationName().equals("Löschen") || e.getEdit().getPresentationName().equals("Hinzufügen")) {
+				if (e.getEdit().getPresentationName().equals("L��schen") || e.getEdit().getPresentationName().equals("Hinzuf��gen")) {
 					undoManager.addEdit(e.getEdit());
 				}
 			}
@@ -936,14 +943,8 @@ public class MainFrame extends JFrame implements ReportLog {
 			IntermediateCodeGenerator codegen = ModuleProvider.getCodeGeneratorInstance();
 			Backend backend = ModuleProvider.getBackendInstance();
 			
-			// set up report logs
-			modelReportLogs = new DefaultTableModel();
-			tableReportLogs = new JTable(modelReportLogs);
-			tabbedPaneLog.addTab("Report Logs", null, tableReportLogs, null);
-			modelReportLogs.addColumn("Type");
-			modelReportLogs.addColumn("Line");
-			modelReportLogs.addColumn("Column");
-			modelReportLogs.addColumn("Message");
+			for (int i=0; i<modelReportLogs.getRowCount(); i++) modelReportLogs.removeRow(i);
+			
 			parser.setReportLog(this);
 			
 			progressBar.setValue(10);
@@ -979,13 +980,18 @@ public class MainFrame extends JFrame implements ReportLog {
 			
 			toolBarLabel.setText("Compiling sourcecode.");
 			progressBar.setValue(30);
-			boolean errorReported = false;
+			errorReported = false;
 			lexer.setSourceStream(new FileInputStream(file));
 			toolBarLabel.setText("Building AST.");
 			textPaneLogs.setText(textPaneLogs.getText() + "\nStarting Lexer.");
 			textPaneLogs.setText(textPaneLogs.getText() + "\nStarting Parser.");
 			textPaneLogs.setText(textPaneLogs.getText() + "\nCreating AST.");
 			AST ast = parser.getParsedAST();
+			if (errorReported) {
+				textPaneLogs.setText(textPaneLogs.getText() + "\nSourcecode could not compile.");
+				toolBarLabel.setText("Sourcecode could not compile.");
+				return;
+			}
 			semanticAnalyser.analyse(ast);
 			if (errorReported) {
 				textPaneLogs.setText(textPaneLogs.getText() + "\nSourcecode could not compile.");
@@ -1028,11 +1034,13 @@ public class MainFrame extends JFrame implements ReportLog {
 	
 	@Override
 	public void reportWarning(ReportType type, List<Token> tokens, String message) {
+		errorReported=true;
 		modelReportLogs.addRow(new Object[] { type, tokens.get(0).getLine(), tokens.get(0).getColumn(), message });
 	}
 	
 	@Override
 	public void reportError(ReportType type, List<Token> tokens, String message) {
+		errorReported=true;
 		modelReportLogs.addRow(new Object[] { type, tokens.get(0).getLine(), tokens.get(0).getColumn(), message });
 	}
 	
