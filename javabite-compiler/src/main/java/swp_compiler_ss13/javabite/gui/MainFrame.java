@@ -557,6 +557,8 @@ public class MainFrame extends JFrame implements ReportLog {
 		menuVisualTac.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// TODO: show TAC
+				JFrame frame = new JFrame();
+				JOptionPane.showMessageDialog(frame, "TAC visualization should be placed here! (see AST code as example!)");
 				toolBarLabel.setText("Rendered TAC.");
 			}
 		});

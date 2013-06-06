@@ -2,10 +2,12 @@ package swp_compiler_ss13.javabite.gui;
 
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.text.Document;
 
 public class SourecodeDocumentListener implements DocumentListener {
 	
 	private MainFrame mf;
+	private Document oldDoc;
 	
 	protected SourecodeDocumentListener(MainFrame mf) {
 		this.mf = mf;
@@ -13,17 +15,23 @@ public class SourecodeDocumentListener implements DocumentListener {
 
 	@Override
 	public void insertUpdate(DocumentEvent e) {
+		oldDoc = e.getDocument();
 		remarkFileAsChanged();
 	}
 
 	@Override
 	public void removeUpdate(DocumentEvent e) {
+		oldDoc = e.getDocument();
 		remarkFileAsChanged();
 	}
 
 	@Override
 	public void changedUpdate(DocumentEvent e) {
-		remarkFileAsChanged();
+		// this event is also fired, when focus is changed
+		// thus check, if old editor content and current content are different
+		if (e.getDocument() != oldDoc) {
+			remarkFileAsChanged();
+		}
 	}
 	
 	private void remarkFileAsChanged() {
