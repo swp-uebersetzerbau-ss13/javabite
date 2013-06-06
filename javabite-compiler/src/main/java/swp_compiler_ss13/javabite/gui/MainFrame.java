@@ -262,7 +262,7 @@ public class MainFrame extends JFrame implements ReportLog {
 									saveEditorContentIntoFile(openedFile);
 									fileChanged = false;
 									
-									// open new file
+									// open file
 									chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
 									returnVal = chooser.showOpenDialog(null);
 									if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -320,13 +320,79 @@ public class MainFrame extends JFrame implements ReportLog {
 		mntmNew = new JMenuItem("New");
 		mntmNew.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// check, if file has changed
+				// file was changed, thus ask what to do
 				if(fileChanged) {
-					
+					JFrame frame = new JFrame("Save");
+					Object[] options = {"Cancel", "No", "Yes"};
+					String fileName = (openedFile == null) ? "New File.prog" : openedFile.getName();
+					int n = JOptionPane.showOptionDialog(frame,
+					    "Save file \"" + fileName + "\"?\n",
+					    "Save",
+					    JOptionPane.YES_NO_CANCEL_OPTION,
+					    JOptionPane.QUESTION_MESSAGE,
+					    null,
+					    options,
+					    options[2]);
+					// 'Yes' was selected
+					if(n == 2) {
+						if (openedFile == null) {
+							// create and open the file chooser
+							JFileChooser chooser = new JFileChooser();
+							chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+							chooser.setSelectedFile(new File("New File.prog"));
+							
+							// save unchanged file
+							int returnVal = chooser.showSaveDialog(null);
+							if (returnVal == JFileChooser.APPROVE_OPTION) {
+								openedFile = chooser.getSelectedFile();
+								setTitle("Javabite Compiler - " + openedFile.getName());
+								toolBarLabel.setText("Document saved.");
+								saveEditorContentIntoFile(openedFile);
+								fileChanged = false;
+								
+								// open new file
+								openedFile = null;
+								editorPaneSourcode.setText("");
+								toolBarLabel.setText("New document opened.");
+								setTitle("Javabite Compiler - New File.prog");
+							}
+						} 
+						else {
+							// firstly save file
+							saveEditorContentIntoFile(openedFile);
+							setTitle("Javabite Compiler - " + openedFile.getName());
+							toolBarLabel.setText("Document saved.");
+							
+							// now, open new file
+							openedFile = null;
+							fileChanged = false;
+							editorPaneSourcode.setText("");
+							toolBarLabel.setText("New document opened.");
+							setTitle("Javabite Compiler - New File.prog");
+						}
+					} 
+					// 'No' was selected
+					else if (n == 1) {
+						// open new file
+						openedFile = null;
+						fileChanged = false;
+						editorPaneSourcode.setText("");
+						toolBarLabel.setText("New document opened.");
+						setTitle("Javabite Compiler - New File.prog");
+					} 
+					// 'Cancel' was selected
+					else {
+						return;
+					}
 				}
-				editorPaneSourcode.setText("");
-				toolBarLabel.setText("New document opened.");
-				setTitle("Javabite Compiler - *New File.prog");
+				// file not changed, thus open new file
+				else {
+					openedFile = null;
+					fileChanged = false;
+					editorPaneSourcode.setText("");
+					toolBarLabel.setText("New document opened.");
+					setTitle("Javabite Compiler - New File.prog");
+				}
 			}
 		});
 		menuFile.add(mntmNew);
