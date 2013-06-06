@@ -670,6 +670,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		
 		modelReportLogs = new DefaultTableModel();
 		tableReportLogs = new JTable(modelReportLogs);
+		tableReportLogs.setEnabled(false);
 		tabbedPaneLog.addTab("Report Logs", null, tableReportLogs, null);
 		modelReportLogs.addColumn("Type");
 		modelReportLogs.addColumn("Line");
