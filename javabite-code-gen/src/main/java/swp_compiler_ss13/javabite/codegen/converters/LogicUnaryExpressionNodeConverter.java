@@ -14,12 +14,13 @@ public class LogicUnaryExpressionNodeConverter extends CastingAst2CodeConverter 
     public void convert(ASTNode node) throws IntermediateCodeGeneratorException {
         if (!(node instanceof LogicUnaryExpressionNode))
             throw new IntermediateCodeGeneratorException();
-        LogicUnaryExpressionNode logicunaryNode = (LogicUnaryExpressionNode) node;
+        LogicUnaryExpressionNode logicUnaryNode = (LogicUnaryExpressionNode) node;
         
-        icg.processNode(logicunaryNode.getRightValue());
+        icg.processNode(logicUnaryNode.getRightValue());
         IdentifierData oldData = icg.popIdentifierData();
+        
         IdentifierData newData = icg.generateTempIdentifier(oldData.getType());
-        icg.addQuadruple(QuadrupleFactoryJb.generateLogicUnary(logicunaryNode.getOperator(), newData, oldData));
+        icg.addQuadruple(QuadrupleFactoryJb.generateLogicUnary(logicUnaryNode.getOperator(), newData, oldData));
         icg.pushIdentifierData(newData);
     }
 

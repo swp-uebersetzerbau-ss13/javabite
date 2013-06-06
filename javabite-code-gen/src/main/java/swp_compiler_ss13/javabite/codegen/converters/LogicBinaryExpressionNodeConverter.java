@@ -14,17 +14,17 @@ public class LogicBinaryExpressionNodeConverter extends CastingAst2CodeConverter
     public void convert(ASTNode node) throws IntermediateCodeGeneratorException {
         if (!(node instanceof LogicBinaryExpressionNodeConverter))
             throw new IntermediateCodeGeneratorException();
-        LogicBinaryExpressionNode logicbinaryNode = (LogicBinaryExpressionNode) node;
+        LogicBinaryExpressionNode logicBinaryNode = (LogicBinaryExpressionNode) node;
         
-        icg.processNode(logicbinaryNode.getLeftValue());
+        icg.processNode(logicBinaryNode.getLeftValue());
         IdentifierData leftData = icg.popIdentifierData();
         
-        icg.processNode(logicbinaryNode.getRightValue());
+        icg.processNode(logicBinaryNode.getRightValue());
         IdentifierData rightData = icg.popIdentifierData();
         
         
         IdentifierData newData = icg.generateTempIdentifier(leftData.getType());
-        icg.addQuadruple(QuadrupleFactoryJb.generateLogicBinary(logicbinaryNode.getOperator(), leftData, rightData, newData));
+        icg.addQuadruple(QuadrupleFactoryJb.generateLogicBinary(logicBinaryNode.getOperator(), leftData, rightData, newData));
         icg.pushIdentifierData(newData);
     }
 

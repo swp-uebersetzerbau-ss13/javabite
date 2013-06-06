@@ -41,14 +41,17 @@ public class IntermediateCodeGeneratorJb implements
 			ArithmeticBinaryExpressionNodeConverter.class,
 			ArithmeticUnaryExpressionNodeConverter.class,
 			AssignmentNodeConverter.class, BasicIdentifierNodeConverter.class,
-			BlockNodeConverter.class, DeclarationNodeConverter.class,
-			LiteralNodeConverter.class, ReturnNodeConverter.class, 
-			BranchNodeConverter.class, RelationNodeConverter.class,
-			PrintNodeConverter.class, LogicBinaryExpressionNodeConverter.class,
-			LogicUnaryExpressionNodeConverter.class};
+			BlockNodeConverter.class, BranchNodeConverter.class,
+			DeclarationNodeConverter.class, LiteralNodeConverter.class,
+			LogicBinaryExpressionNodeConverter.class,
+			LogicUnaryExpressionNodeConverter.class, PrintNodeConverter.class,
+			RelationNodeConverter.class, ReturnNodeConverter.class };
 
 	private static final String IDENTIFIER_GENERATION_PREFIX = "TMP";
 	private long identifierGenerationCounter = 0;
+
+	private static final String LABEL_PREFIX = "LABEL";
+	private long labelCounter = 0;
 
 	final List<Quadruple> quadruples = new ArrayList<>(1000);
 
@@ -69,7 +72,12 @@ public class IntermediateCodeGeneratorJb implements
 	final Deque<IdentifierData> identifierDataStack = new ArrayDeque<>();
 
 	/**
-	 * All available converters for the AST
+	 * Contains break labels for loop scope
+	 */
+	final Deque<String> breakLabelStack = new ArrayDeque<>();
+
+	/**
+	 * s All available converters for the AST
 	 */
 	private final Map<ASTNode.ASTNodeType, Ast2CodeConverter> converters = new HashMap<>();
 
@@ -115,8 +123,9 @@ public class IntermediateCodeGeneratorJb implements
 	@Override
 	public IdentifierData generateTempIdentifier(Type type)
 			throws IntermediateCodeGeneratorException {
-		IdentifierData data = generateIdentifierMapping(generateTacIdentifier(null), type);
-		addQuadruple(QuadrupleFactoryJb.generateDeclaration(data));
+		IdentifierData data = generateIdentifierMapping(
+				generateTacIdentifier(null), type);
+		addQuadruple(QuadrupleFactoryJb.generateDeclaration(data).get(0));
 		return data;
 	}
 
@@ -196,5 +205,27 @@ public class IntermediateCodeGeneratorJb implements
 		blockScopes.clear();
 		identifierDataStack.clear();
 		identifierGenerationCounter = 0;
+		breakLabelStack.clear();
+		labelCounter = 0;
+	}
+
+	@Override
+	public String getNewLabel() {
+		return LABEL_PREFIX + labelCounter++;
+	}
+
+	@Override
+	public void enterLoop(String breakLabel) {
+		breakLabelStack.push(breakLabel);
+	}
+
+	@Override
+	public void leaveLoop() {
+		breakLabelStack.pop();
+	}
+
+	@Override
+	public String getCurrentBreakLabel() {
+		return breakLabelStack.peek();
 	}
 }
