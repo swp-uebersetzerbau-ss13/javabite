@@ -2,9 +2,19 @@ package swp_compiler_ss13.javabite.config;
 
 public class ConfigKey implements Comparable<ConfigKey> {
 	final String keyName;
+	String value;
 
-	public ConfigKey(String name) {
+	public String getValue() {
+		return value;
+	}
+
+	public void setValue(String value) {
+		this.value = value;
+	}
+
+	public ConfigKey(String name, String value) {
 		this.keyName = name;
+		this.value = value;
 	}
 
 	public String getName() {
@@ -27,6 +37,7 @@ public class ConfigKey implements Comparable<ConfigKey> {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + ((keyName == null) ? 0 : keyName.hashCode());
+		result = prime * result + ((value == null) ? 0 : value.hashCode());
 		return result;
 	}
 
@@ -43,6 +54,11 @@ public class ConfigKey implements Comparable<ConfigKey> {
 			if (other.keyName != null)
 				return false;
 		} else if (!keyName.equals(other.keyName))
+			return false;
+		if (value == null) {
+			if (other.value != null)
+				return false;
+		} else if (!value.equals(other.value))
 			return false;
 		return true;
 	}

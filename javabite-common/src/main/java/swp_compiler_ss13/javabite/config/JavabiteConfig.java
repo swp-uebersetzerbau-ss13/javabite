@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -26,7 +28,7 @@ public class JavabiteConfig extends Properties {
 	private final static Logger log = LoggerFactory
 			.getLogger(JavabiteConfig.class);
 
-	private final static String CONFIG_FILE_NAME = "/javabite.properties";
+	private final static String CONFIG_FILE_NAME = "javabite.properties";
 	private final static String DEFAULT_CONFIG_FILE_NAME = "default_javabite.properties";
 	public final static JavabiteConfig SINGLETON = new JavabiteConfig();
 
@@ -34,13 +36,23 @@ public class JavabiteConfig extends Properties {
 
 	public JavabiteConfig() {
 		File configFile = new File(CONFIG_FILE_NAME);
-		
+
 		try {
 			if (!configFile.exists()) {
-				ClassLoader cl = ClassLoader.getSystemClassLoader();//getClass().getClassLoader();
+				ClassLoader cl = ClassLoader.getSystemClassLoader();// getClass().getClassLoader();
 				URL url = cl.getResource(DEFAULT_CONFIG_FILE_NAME);
-				String filename = url.getFile();
-				configFile = new File(filename);
+				try {
+					URI uri = new URI(url.toString());
+					String filename = uri.getPath();
+					configFile = new File(filename);
+				} catch (URISyntaxException e) {
+					configFile = null;
+				}
+			}
+
+			if (configFile == null) {
+				log.error("Could not load configuration file.");
+				return;
 			}
 			
 			this.load(new FileReader(configFile));
@@ -109,11 +121,11 @@ public class JavabiteConfig extends Properties {
 
 		return categories;
 	}
-	
+
 	public Set<ConfigKey> getConfigKeys(ConfigCategory category) {
 		return getConfigKeys(category.getName());
 	}
-	
+
 	/**
 	 * @param categoryName
 	 * @return a set of key belonging to the defined category
@@ -124,13 +136,13 @@ public class JavabiteConfig extends Properties {
 		if (categoryName.isEmpty()) {
 			for (String key : this.stringPropertyNames()) {
 				if (!key.contains(".")) {
-					keys.add(new ConfigKey(key));
+					keys.add(new ConfigKey(key, getProperty(key)));
 				}
 			}
 		} else {
 			for (String key : this.stringPropertyNames()) {
 				if (key.startsWith(categoryName)) {
-					keys.add(new ConfigKey(key));
+					keys.add(new ConfigKey(key, getProperty(key)));
 				}
 			}
 		}
