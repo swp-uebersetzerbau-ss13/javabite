@@ -177,14 +177,279 @@ public class CastingAst2CodeConverterTest {
 											new DoubleType()) })));
 			converter.cast(new StructType(null, new Member[] { new Member("",
 					new LongType()) }), new IdentifierData("test",
-					new LongType()));
+					new DoubleType()));
 			fail();
 		} catch (IntermediateCodeGeneratorException e) {
 		}
 	}
 
-	// TODO: boolean to ...
-	// TODO: string to ...
-	// TODO: struct to ...
-	// TODO: array to ...
+	@Test
+	public void testCastBooleanToLongFails() {
+		try {
+			when(converter.icg.generateTempIdentifier(any(LongType.class)))
+					.thenReturn(new IdentifierData("tmp", new LongType()));
+			converter.cast(new LongType(), new IdentifierData("test",
+					new BooleanType()));
+			fail();
+		} catch (IntermediateCodeGeneratorException e) {
+
+		}
+	}
+
+	@Test
+	public void testBooleanToDoubleFails() {
+		try {
+			when(converter.icg.generateTempIdentifier(any(DoubleType.class)))
+					.thenReturn(new IdentifierData("tmp", new DoubleType()));
+			converter.cast(new DoubleType(), new IdentifierData("test",
+					new BooleanType()));
+			fail();
+		} catch (IntermediateCodeGeneratorException e) {
+
+		}
+	}
+
+	@Test
+	public void testBooleanToStringFails() {
+		try {
+			when(converter.icg.generateTempIdentifier(any(StringType.class)))
+					.thenReturn(new IdentifierData("tmp", new StringType(0l)));
+			converter.cast(new StringType(0l), new IdentifierData("test",
+					new BooleanType()));
+			fail();
+		} catch (IntermediateCodeGeneratorException e) {
+		}
+	}
+
+	@Test
+	public void testBooleanToStructFails() {
+		try {
+			when(converter.icg.generateTempIdentifier(any(StructType.class)))
+					.thenReturn(
+							new IdentifierData("tmp", new StructType(null,
+									new Member[] { new Member("",
+											new BooleanType()) })));
+			converter.cast(new StructType(null, new Member[] { new Member("",
+					new LongType()) }), new IdentifierData("test",
+					new BooleanType()));
+			fail();
+		} catch (IntermediateCodeGeneratorException e) {
+		}
+	}
+
+	@Test
+	public void testBooleanToArrayFails() {
+		try {
+			when(converter.icg.generateTempIdentifier(any(ArrayType.class)))
+					.thenReturn(
+							new IdentifierData("tmp", new ArrayType(
+									new LongType(), 0)));
+			converter.cast(new ArrayType(new LongType(), 0),
+					new IdentifierData("test", new BooleanType()));
+			fail();
+		} catch (IntermediateCodeGeneratorException e) {
+		}
+	}
+
+	@Test
+	public void testStringToLongFails(){
+		try{
+			when(converter.icg.generateTempIdentifier(any(LongType.class)))
+					.thenReturn(new IdentifierData("tmp", new LongType()));
+			converter.cast(new LongType(), new IdentifierData("test", new StringType(0l)));
+		}catch (IntermediateCodeGeneratorException e){
+			
+		}
+	}
+
+	@Test
+	 public void testStringToDoubleFails(){
+	  try {
+	   when(converter.icg.generateTempIdentifier(any(DoubleType.class)))
+	     .thenReturn(
+	       new IdentifierData("tmp", new DoubleType()));
+	   converter.cast(new DoubleType(), new IdentifierData("test",
+	     new StringType(0l)));
+	   fail();
+	  } catch (IntermediateCodeGeneratorException e) {
+	   
+	  }
+	 }
+	
+	 @Test
+	 public void testCastStringToBooleanFails() {
+	  try {
+	   when(converter.icg.generateTempIdentifier(any(BooleanType.class)))
+	     .thenReturn(new IdentifierData("tmp", new BooleanType()));
+	   converter.cast(new BooleanType(), new IdentifierData("test",
+	     new StringType(0l)));
+	   fail();
+	  } catch (IntermediateCodeGeneratorException e) {
+	  }
+	 }
+
+	@Test
+	 public void testStringToStructFails(){
+	  try {
+	   when(converter.icg.generateTempIdentifier(any(StructType.class)))
+	     .thenReturn(
+	       new IdentifierData("tmp", new StructType(null,
+	         new Member[] { new Member("",
+	           new StringType(0l)) })));
+	   converter.cast(new StructType(null, new Member[] { new Member("",
+	     new LongType()) }), new IdentifierData("test",
+	     new StringType(0l)));
+	   fail();
+	  } catch (IntermediateCodeGeneratorException e) {
+	  }
+	 }
+
+	@Test
+	 public void testStringToArrayFails(){
+	  try {
+	   when(converter.icg.generateTempIdentifier(any(ArrayType.class)))
+	     .thenReturn(
+	       new IdentifierData("tmp", new ArrayType(
+	         new LongType(), 0)));
+	   converter.cast(new ArrayType(new LongType(), 0),
+	     new IdentifierData("test", new StringType(0l)));
+	   fail();
+	  } catch (IntermediateCodeGeneratorException e) {
+	  }
+	 }
+
+	@Test
+	public void testStructToLongFails(){
+		try{
+			when(converter.icg.generateTempIdentifier(any(LongType.class)))
+					.thenReturn(new IdentifierData("tmp", new LongType()));
+			converter.cast(new LongType(), new IdentifierData("test", 
+					new StructType(null, new Member[] { new Member("",
+					new LongType()) })));
+		}catch (IntermediateCodeGeneratorException e){
+			
+		}
+	}
+	
+	@Test
+	public void testStructToDoubleFails(){
+		try{
+			when(converter.icg.generateTempIdentifier(any(DoubleType.class)))
+					.thenReturn(new IdentifierData("tmp", new DoubleType()));
+			converter.cast(new LongType(), new IdentifierData("test", 
+					new StructType(null, new Member[] { new Member("",
+					new LongType()) })));
+		}catch (IntermediateCodeGeneratorException e){
+			
+		}
+	}
+	
+	@Test
+	public void testStructToStringFails(){
+		try {
+			when(converter.icg.generateTempIdentifier(any(StringType.class)))
+					.thenReturn(new IdentifierData("tmp", new StringType(0l)));
+			converter.cast(new StringType(0l), new IdentifierData("test",
+					new StructType(null, new Member[] { new Member("",
+							new LongType()) })));
+			fail();
+		} catch (IntermediateCodeGeneratorException e) {
+		}
+	}
+	
+	@Test
+	public void testCastStructToBooleanFails(){
+		try {
+			when(converter.icg.generateTempIdentifier(any(BooleanType.class)))
+					.thenReturn(new IdentifierData("tmp", new BooleanType()));
+			converter.cast(new StringType(0l), new IdentifierData("test",
+					new StructType(null, new Member[] { new Member("",
+							new LongType()) })));
+			fail();
+		} catch (IntermediateCodeGeneratorException e) {
+		}
+	}
+	
+	@Test
+	public void testCastStructToArrayFails(){
+		try {
+			when(converter.icg.generateTempIdentifier(any(ArrayType.class)))
+					.thenReturn(new IdentifierData("tmp",
+							new ArrayType(new LongType(), 0)));
+			converter.cast(new StringType(0l), new IdentifierData("test",
+					new StructType(null, new Member[] { new Member("",
+							new LongType()) })));
+			fail();
+		} catch (IntermediateCodeGeneratorException e) {
+		}
+	}
+	
+	@Test
+	 public void testArrayToLongFails(){
+	  try{
+		   when(converter.icg.generateTempIdentifier(any(LongType.class)))
+		     .thenReturn(new IdentifierData("tmp", new LongType()));
+		   converter.cast(new LongType(), new IdentifierData("test", 
+				   new ArrayType(new LongType(), 0)));
+		   fail();
+	  }catch (IntermediateCodeGeneratorException e){
+	   
+	  }
+	 }
+	 
+	 
+	 @Test
+	 public void testArrayToDoubleFails(){
+	 try {
+		   when(converter.icg.generateTempIdentifier(any(DoubleType.class)))
+		     .thenReturn(
+		       new IdentifierData("tmp", new DoubleType()));
+		   converter.cast(new DoubleType(), new IdentifierData("test",
+		     new ArrayType(new LongType(), 0)));
+		   fail();
+	  } catch (IntermediateCodeGeneratorException e) {
+	   
+	  }
+	 }
+	 
+	 @Test
+	public void testArrayToBoolean(){
+	try {
+	   when(converter.icg.generateTempIdentifier(any(BooleanType.class)))
+	     .thenReturn(new IdentifierData("tmp", new BooleanType()));
+	   converter.cast(new BooleanType(), new IdentifierData("test",
+	     new ArrayType(new LongType(), 0)));
+	   fail();
+	  } catch (IntermediateCodeGeneratorException e) {
+	  }
+	 }
+	 
+	 
+	 @Test
+	 public void testArrayToString(){
+	   try {
+	   when(converter.icg.generateTempIdentifier(any(StringType.class)))
+	     .thenReturn(new IdentifierData("tmp", new StringType(0l)));
+	   converter.cast(new StringType(0l), new IdentifierData("test",
+	     new ArrayType(new LongType(), 0)));
+	   fail();
+	  } catch (IntermediateCodeGeneratorException e) {
+	  }
+	 }
+	 
+	 @Test
+	 public void testArrayToStruct(){
+	   try {
+		   when(converter.icg.generateTempIdentifier(any(StructType.class)))
+		     .thenReturn(
+		       new IdentifierData("tmp", new StructType(null,
+		         new Member[] { new Member("",
+		           new BooleanType()) })));
+		   converter.cast(new StructType(null, new Member[] { new Member("",
+		     new LongType()) }), new IdentifierData("test",
+		     new ArrayType(new LongType(), 0)));
+		   fail();
+	  } catch (IntermediateCodeGeneratorException e) {
+	  }
+	}
 }
