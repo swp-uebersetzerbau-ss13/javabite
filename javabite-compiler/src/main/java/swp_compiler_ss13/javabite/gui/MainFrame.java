@@ -76,6 +76,7 @@ import swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser;
 import swp_compiler_ss13.common.util.ModuleProvider;
 import swp_compiler_ss13.javabite.ast.ASTJb;
 import swp_compiler_ss13.javabite.gui.ast.ASTVisualizerJb;
+import swp_compiler_ss13.javabite.gui.ast.fitted.KhaledGraphFrame;
 import swp_compiler_ss13.javabite.lexer.LexerJb;
 import swp_compiler_ss13.javabite.parser.ParserJb;
 
@@ -557,7 +558,10 @@ public class MainFrame extends JFrame implements ReportLog {
 				JFrame frame = new JFrame();
 				JScrollPane ast_frame=visualizer.getFrame();
 				frame.setVisible(true);
-				frame.setSize(800, 600);
+				KhaledGraphFrame k= new KhaledGraphFrame();
+				
+				
+			    frame.setSize(167*k.levelsCounter(ast), 55*k.maximumOfNodesInLevels());
 				frame.getContentPane().add(ast_frame);
 				frame.setVisible(true);
 				toolBarLabel.setText("Rendered AST.");
@@ -753,7 +757,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		// setup undo redo
 		editorPaneSourcode.getDocument().addUndoableEditListener(new UndoableEditListener() {
 			public void undoableEditHappened(UndoableEditEvent e) {
-				if (e.getEdit().getPresentationName().equals("Löschen") || e.getEdit().getPresentationName().equals("Hinzufügen")) {
+				if (e.getEdit().getPresentationName().equals("L��schen") || e.getEdit().getPresentationName().equals("Hinzuf��gen")) {
 					undoManager.addEdit(e.getEdit());
 				}
 			}
