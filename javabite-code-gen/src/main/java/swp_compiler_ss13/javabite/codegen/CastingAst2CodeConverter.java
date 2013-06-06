@@ -1,4 +1,4 @@
-package swp_compiler_ss13.javabite.codegen.alternative;
+package swp_compiler_ss13.javabite.codegen;
 
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.types.Type;
