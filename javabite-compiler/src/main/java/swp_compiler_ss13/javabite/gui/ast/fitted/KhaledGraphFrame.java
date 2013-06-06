@@ -66,7 +66,7 @@ public class KhaledGraphFrame extends GraphFrame {
 	}
 	
 	public static void main(String[] args){
-		AST ast=ASTSource.getSecondAST();
+		AST ast=ASTSource.getFirstAST();
 		ASTVisualizerJb astViz=new ASTVisualizerJb();
 		astViz.visualizeAST(ast);
 		
