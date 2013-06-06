@@ -33,6 +33,18 @@ public class ByteUtils {
 	}
 
 	/**
+	 * splits an int value into a byte array. Array starts with higher bytes.
+	 * 
+	 * @param x
+	 *            int to split into array
+	 * @return byte array
+	 */
+	public static byte[] intToByteArray(final int x) {
+		return new byte[] { (byte) (x >> 24 & 0xff), (byte) (x >> 16 & 0xff),
+				(byte) (x >> 8 & 0xff), (byte) (x & 0xff) };
+	}
+
+	/**
 	 * splits a long value into a byte array. Array starts with higher bytes.
 	 * 
 	 * @param x
