@@ -567,7 +567,6 @@ public class MainFrame extends JFrame implements ReportLog {
 		buttonRunCompile = new JButton("\u25BA");
 		buttonRunCompile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// TODO: save sourcecode
 				try {
 					compile(openedFile);
 					progressBar.setValue(0);
@@ -693,6 +692,9 @@ public class MainFrame extends JFrame implements ReportLog {
 		});
 	}
 	
+	/**
+	 * Returns a list of tokens for a given string
+	 * */
 	private List<Token> getTokenList(String text) {
 		Token t;
 		List<Token> tokens = new ArrayList<Token>();
@@ -727,6 +729,9 @@ public class MainFrame extends JFrame implements ReportLog {
 		}
 	}
 	
+	/**
+	 * Underlines wrongly typed tokens
+	 * */
 	private void underlineToken(int start, int end) {
 		SimpleAttributeSet attributes = new SimpleAttributeSet();
 		attributes.addAttribute(CharacterConstants.Underline, Color.red);
@@ -757,6 +762,9 @@ public class MainFrame extends JFrame implements ReportLog {
 		}
 	}
 	
+	/**
+	 * Main entry point for the compile process
+	 * */
 	private void compile(File file) throws IntermediateCodeGeneratorException, IOException, BackendException, ClassNotFoundException, InstantiationException, IllegalAccessException {
 		boolean canCompiled = false;
 		if (fileChanged) {
