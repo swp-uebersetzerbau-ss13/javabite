@@ -133,7 +133,7 @@ public class Instruction {
 	 * @param offset
 	 *            the offset to set
 	 */
-	public void setOffset(int offset) {
+	public void setOffset(final int offset) {
 		this.offset = offset;
 	}
 
@@ -141,9 +141,9 @@ public class Instruction {
 	 * @param mnemonic
 	 *            the mnemonic to set
 	 */
-	public void setMnemonic(Mnemonic mnemonic) {
+	public void setMnemonic(final Mnemonic mnemonic) {
 		this.mnemonic = mnemonic;
-		this.byteCount = 1 + mnemonic.getArgsCount();
+		byteCount = 1 + mnemonic.getArgsCount();
 	}
 
 	/**

@@ -8,7 +8,6 @@ import java.util.ListIterator;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.Program;
-import swp_compiler_ss13.javabite.backend.Program.ProgramBuilder;
 import swp_compiler_ss13.javabite.backend.classfile.Classfile;
 import swp_compiler_ss13.javabite.backend.classfile.IClassfile;
 import swp_compiler_ss13.javabite.backend.classfile.IClassfile.InfoTag;
@@ -428,8 +427,7 @@ public class Translator {
 	private static void extractInstructionsFromOperations(
 			final IClassfile classfile, final String methodName,
 			final List<Quadruple> tac) {
-		final ProgramBuilder pb = ProgramBuilder.newBuilder(classfile,
-				methodName);
+		final Program.Builder pb = new Program.Builder(classfile, methodName);
 
 		boolean stopTranslation = false;
 		for (final Quadruple quad : tac) {
@@ -501,6 +499,7 @@ public class Translator {
 				break;
 			case OR_BOOLEAN:
 				pb.orBoolean(quad);
+				break;
 			case NOT_BOOLEAN:
 				pb.notBoolean(quad);
 				break;

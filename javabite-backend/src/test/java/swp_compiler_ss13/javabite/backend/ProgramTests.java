@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
-import swp_compiler_ss13.javabite.backend.Program.ProgramBuilder;
 import swp_compiler_ss13.javabite.backend.classfile.Classfile;
 import swp_compiler_ss13.javabite.backend.external.QuadrupleImpl;
 
@@ -20,7 +19,7 @@ public class ProgramTests {
 	static final Logger log = LoggerFactory.getLogger(ProgramTests.class);
 
 	Classfile classfile;
-	ProgramBuilder pb;
+	Program.Builder pb;
 
 	@Rule
 	public TestName name = new TestName();
@@ -33,11 +32,11 @@ public class ProgramTests {
 		classfile.addMethodToMethodArea(methodName, "([Ljava/lang/String;])V",
 				Classfile.MethodAccessFlag.ACC_PUBLIC,
 				Classfile.MethodAccessFlag.ACC_STATIC);
-		pb = ProgramBuilder.newBuilder(classfile, methodName);
+		pb = new Program.Builder(classfile, methodName);
 	}
 
 	@SuppressWarnings("unused")
-	private void buildAndLog(final ProgramBuilder pb) {
+	private void buildAndLog(final Program.Builder pb) {
 		final Program p = pb.build();
 		System.out.println(name.getMethodName());
 		final String bex = p.toHexString();
@@ -49,7 +48,7 @@ public class ProgramTests {
 				+ "\";\nmakeAssertions(pb, bExpected, sExpected);");
 	}
 
-	private void makeAssertions(final ProgramBuilder pb,
+	private void makeAssertions(final Program.Builder pb,
 			final byte[] bExpected, final String sExpected) {
 		final Program p = pb.build();
 		Assert.assertArrayEquals("byte array compare", bExpected,

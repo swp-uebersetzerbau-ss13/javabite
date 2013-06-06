@@ -20,84 +20,6 @@ import swp_compiler_ss13.common.backend.Quadruple.Operator;
  */
 public class Operation {
 
-	/**
-	 * <h1>OperationBuilder</h1>
-	 * <p>
-	 * This class provides the builder pattern to create new instances of the
-	 * Operation-class.
-	 * </p>
-	 * 
-	 * @author eike
-	 * @since 07.05.2013 00:41:08
-	 */
-	static class OperationBuilder {
-
-		private int size;
-		private final List<Instruction> instructions;
-
-		private OperationBuilder() {
-			instructions = new ArrayList<>();
-		}
-
-		/**
-		 * Creates a new instance of this builder class
-		 * 
-		 * @return new builder instance
-		 */
-		public static OperationBuilder newBuilder() {
-			return new OperationBuilder();
-		}
-
-		/**
-		 * Adds an instruction to this operation
-		 * 
-		 * @param instruction
-		 *            the instruction to add
-		 * @return this builders instance
-		 */
-		public OperationBuilder add(final Instruction instruction) {
-			instructions.add(instruction);
-			size += instruction.getByteCount();
-			return this;
-		}
-
-		/**
-		 * Add a new instruction to this builder instance.
-		 * 
-		 * @param mnemonic
-		 *            bytecode mnemonic
-		 * @param arguments
-		 *            arguments to be passed along the bytecode instruction
-		 * @return instance of this builder
-		 */
-		public OperationBuilder add(final Mnemonic mnemonic,
-				final byte... arguments) {
-			final Instruction instruction;
-			if (mnemonic.getArgsCount() > 0) {
-				assert arguments != null
-						&& arguments.length == mnemonic.getArgsCount();
-				// instruction = new Instruction(1 + argsSize, mnemonic,
-				// arguments);
-				instruction = new Instruction(mnemonic, arguments);
-			} else {
-				// instruction = new Instruction(1, mnemonic);
-				instruction = new Instruction(mnemonic);
-			}
-			return add(instruction);
-		}
-
-		/**
-		 * Assemble the object.
-		 * 
-		 * @return new object, created by this builder
-		 */
-		public Operation build() {
-			final Operation op = new Operation(instructions, size);
-			return op;
-		}
-
-	}
-
 	private final Instruction[] instructions;
 	private final int size;
 	private Operator operator;
@@ -222,6 +144,83 @@ public class Operation {
 		if (size != other.size)
 			return false;
 		return true;
+	}
+
+	/**
+	 * <h1>Builder</h1>
+	 * <p>
+	 * This class provides the builder pattern to create new instances of the
+	 * Operation-class.
+	 * </p>
+	 * 
+	 * @author eike
+	 * @since 07.05.2013 00:41:08
+	 */
+	public static class Builder {
+
+		private int size;
+		private final List<Instruction> instructions;
+
+		private Builder() {
+			instructions = new ArrayList<>();
+		}
+
+		/**
+		 * Creates a new instance of this builder class
+		 * 
+		 * @return new builder instance
+		 */
+		public static Builder newBuilder() {
+			return new Builder();
+		}
+
+		/**
+		 * Adds an instruction to this operation
+		 * 
+		 * @param instruction
+		 *            the instruction to add
+		 * @return this builders instance
+		 */
+		public Builder add(final Instruction instruction) {
+			instructions.add(instruction);
+			size += instruction.getByteCount();
+			return this;
+		}
+
+		/**
+		 * Add a new instruction to this builder instance.
+		 * 
+		 * @param mnemonic
+		 *            bytecode mnemonic
+		 * @param arguments
+		 *            arguments to be passed along the bytecode instruction
+		 * @return instance of this builder
+		 */
+		public Builder add(final Mnemonic mnemonic, final byte... arguments) {
+			final Instruction instruction;
+			if (mnemonic.getArgsCount() > 0) {
+				assert arguments != null
+						&& arguments.length == mnemonic.getArgsCount();
+				// instruction = new Instruction(1 + argsSize, mnemonic,
+				// arguments);
+				instruction = new Instruction(mnemonic, arguments);
+			} else {
+				// instruction = new Instruction(1, mnemonic);
+				instruction = new Instruction(mnemonic);
+			}
+			return add(instruction);
+		}
+
+		/**
+		 * Assemble the object.
+		 * 
+		 * @return new object, created by this builder
+		 */
+		public Operation build() {
+			final Operation op = new Operation(instructions, size);
+			return op;
+		}
+
 	}
 
 }
