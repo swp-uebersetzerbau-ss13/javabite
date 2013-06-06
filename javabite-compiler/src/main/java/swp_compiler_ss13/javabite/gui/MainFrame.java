@@ -401,34 +401,37 @@ public class MainFrame extends JFrame implements ReportLog {
 		menuFileSave = new JMenuItem("Save");
 		menuFileSave.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// file doesn't exist, thus save it
-				if (openedFile == null) {
-					// create and open the file chooser
-					JFileChooser jfc = new JFileChooser();
-					jfc.setCurrentDirectory(new File(System.getProperty("user.home")));
-					jfc.setSelectedFile(new File("New File.prog"));
-					
-					int returnVal = jfc.showSaveDialog(null);
-					if (returnVal == JFileChooser.APPROVE_OPTION) {
-						openedFile = jfc.getSelectedFile();
-						String fileName = openedFile.getName();
+				// file changed, thus save it
+				if (fileChanged) {
+					// file did not exist yet
+					if (openedFile == null) {
+						// open the file chooser
+						JFileChooser chooser = new JFileChooser();
+						chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+						chooser.setSelectedFile(new File("New File.prog"));
+						
+						// save unchanged file
+						int returnVal = chooser.showSaveDialog(null);
+						if (returnVal == JFileChooser.APPROVE_OPTION) {
+							openedFile = chooser.getSelectedFile();
+							setTitle("Javabite Compiler - " + openedFile.getName());
+							toolBarLabel.setText("Document saved.");
+							saveEditorContentIntoFile(openedFile);
+							fileChanged = false;
+						}
+					}
+					// file already exists, but was changed
+					else {
 						saveEditorContentIntoFile(openedFile);
-						setTitle("Javabite Compiler - " + fileName);
+						setTitle("Javabite Compiler - " + openedFile.getName());
 						toolBarLabel.setText("Document saved.");
 						fileChanged = false;
-					} else {
-						toolBarLabel.setText("Save command cancelled by user.");
 					}
-				} else if(openedFile != null && !fileChanged) {
-					// file exists, but was not changed
+				}
+				// file was not changed
+				else {
 					JFrame frame = new JFrame();
-					JOptionPane.showMessageDialog(frame, "File is already saved!");
-				} else {
-					// file exists, but was changed
-					saveEditorContentIntoFile(openedFile);
-					setTitle("Javabite Compiler - " + openedFile.getName());
-					toolBarLabel.setText("Document saved.");
-					fileChanged = false;
+					JOptionPane.showMessageDialog(frame, "There are no changes to save!");
 				}
 			}
 		});
