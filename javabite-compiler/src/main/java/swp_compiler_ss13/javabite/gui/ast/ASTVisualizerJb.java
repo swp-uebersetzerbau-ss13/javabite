@@ -12,6 +12,7 @@ import javax.swing.SwingConstants;
 
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.ASTNode;
+import swp_compiler_ss13.common.ast.ASTNode.ASTNodeType;
 import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
 import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode;
@@ -76,8 +77,9 @@ public class ASTVisualizerJb implements ASTVisualization {
 		stylesheet.putCellStyle("BOLD", style);
 
 		initTree(ast);
+		test(ast);
 		KhaledGraphFrame k= new KhaledGraphFrame();
-<<<<<<< HEAD
+
 
 		this.x=170*k.levelsCounter(ast);
 		this.y=50*k.maximumOfNodesInLevels();
@@ -85,10 +87,10 @@ public class ASTVisualizerJb implements ASTVisualization {
 		this.x=167*k.levelsCounter(ast);
 		this.y=47*k.maximumOfNodesInLevels();
 
-=======
+
 		this.x=167*k.levelsCounter(ast);
 		this.y=47*k.maximumOfNodesInLevels();
->>>>>>> cb1c160bda6a085f0ba03625c2f6e713ae5756b0
+
 		mxHierarchicalLayout layout = new mxHierarchicalLayout(graph);
 		layout.setOrientation(SwingConstants.WEST);
 		layout.setInterRankCellSpacing(80);
@@ -107,11 +109,7 @@ public class ASTVisualizerJb implements ASTVisualization {
 	/**
 	 * converts the ast to a tree representation of JGraphX, represented in the frame.
 	 * @param ast
-	 */
-	
-	
-	
-	
+	 */	
 	
 	
 	private void initTree(AST ast){
@@ -173,6 +171,20 @@ public class ASTVisualizerJb implements ASTVisualization {
 	
 	void treeNodes(){
 
+	}
+	
+	void test(AST ast){
+		Queue<ASTNode> queue= new ArrayDeque<>();
+		int i=0;
+		for (ASTNode k: ast.getRootNode().getChildren()){
+			queue.add(k);
+		}
+		for (ASTNode k:queue){
+			if (k.getNodeType().equals(ASTNodeType.ReturnNode)){
+				System.out.println(i);
+			}
+			else i++;
+		}
 	}
 	
 	/*private Object asCell(ArithmeticBinaryExpressionNode node){

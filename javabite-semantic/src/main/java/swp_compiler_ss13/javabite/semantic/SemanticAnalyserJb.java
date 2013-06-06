@@ -1,8 +1,10 @@
 package swp_compiler_ss13.javabite.semantic;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Queue;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -84,6 +86,19 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 			}
 		}
 	}
+		
+	void checkBreakDeclaration(){
+		Iterator<ASTNode> it = ast.getDFSLTRIterator();
+		while (it.hasNext()){
+			ASTNode node=it.next();
+			if(node.getNodeType()==ASTNodeType.BreakNode){
+				if (node.getParentNode().getNodeType()!=ASTNodeType.WhileNode
+						&& node.getParentNode().getNodeType()!= ASTNodeType.DoWhileNode ){
+					reportLog.reportError(ReportType.UNDEFINED, node.coverage(), "break is not in loop");
+					}
+				}
+			}		
+		}
 	
 	void checkDoubleDeclaration() {
 		Set<String> varSet = new HashSet<>();

@@ -8,6 +8,7 @@ import javax.swing.JLabel;
 
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.ASTNode;
+import swp_compiler_ss13.common.ast.ASTNode.ASTNodeType;
 import swp_compiler_ss13.javabite.ast.ASTSource;
 import swp_compiler_ss13.javabite.gui.ast.ASTVisualizerJb;
 
@@ -59,6 +60,20 @@ public class KhaledGraphFrame extends GraphFrame {
 			if (i<k) i=k;
 			}
 		return i;
+	}
+	
+	void test(AST ast){
+		Queue<ASTNode> queue= new ArrayDeque<>();
+		int i=0;
+		for (ASTNode k: ast.getRootNode().getChildren()){
+			queue.add(k);
+		}
+		for (ASTNode k:queue){
+			if (k.getNodeType().equals(ASTNodeType.ReturnNode)){
+				System.out.println(i);
+			}
+			else i++;
+		}
 	}
 	
 	public int getNumberOfNodes(AST ast){
