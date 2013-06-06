@@ -63,6 +63,7 @@ import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.parser.Parser;
 import swp_compiler_ss13.common.report.ReportLog;
 import swp_compiler_ss13.common.report.ReportType;
+import swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser;
 import swp_compiler_ss13.common.util.ModuleProvider;
 import swp_compiler_ss13.javabite.ast.ASTJb;
 import swp_compiler_ss13.javabite.gui.ast.ASTVisualizerJb;
@@ -848,6 +849,8 @@ public class MainFrame extends JFrame implements ReportLog {
 			Parser parser = ModuleProvider.getParserInstance();
 			parser.setLexer(lexer);
 			parser.setReportLog(this);
+			SemanticAnalyser semanticAnalyser=ModuleProvider.getSemanticAnalyserInstance();
+			semanticAnalyser.setReportLog(this);
 			IntermediateCodeGenerator codegen = ModuleProvider.getCodeGeneratorInstance();
 			Backend backend = ModuleProvider.getBackendInstance();
 			
@@ -901,6 +904,7 @@ public class MainFrame extends JFrame implements ReportLog {
 			textPaneLogs.setText(textPaneLogs.getText() + "\nStarting Parser.");
 			textPaneLogs.setText(textPaneLogs.getText() + "\nCreating AST.");
 			AST ast = parser.getParsedAST();
+			semanticAnalyser.analyse(ast);
 			if (errorReported) {
 				textPaneLogs.setText(textPaneLogs.getText() + "\nSourcecode could not compile.");
 				toolBarLabel.setText("Sourcecode could not compile.");
