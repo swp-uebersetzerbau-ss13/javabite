@@ -25,15 +25,15 @@ It compiles the file provided as first command line argument.
 After build like described in "How-To build the project" the examples can be executed 
 by these commands.
 
-´´´
-	java -jar javabite-compiler-0.1.jar ../common/examples/ms1/<progname>.prog 
-´´´
+ï¿½ï¿½ï¿½
+	java -jar javabite-compiler-0.1.jar ../common/examples/m1/<progname>.prog 
+ï¿½ï¿½ï¿½
 
 If build is successful the generated program can be started with
 
-´´´
+ï¿½ï¿½ï¿½
 	java <progname>
-´´´
+ï¿½ï¿½ï¿½
 
 The Javabite group expects for MS1 that all variables are implicitly initialized.
 Therefore the 'error_undef_return.prog'-example will be compilable. If the result of

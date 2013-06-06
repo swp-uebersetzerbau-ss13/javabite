@@ -8,5 +8,6 @@ public abstract class StatementNodeJb extends ASTNodeJb implements StatementNode
 	public StatementNodeJb(ASTNodeType myType) {
 		super(myType);
 	}
-
+	
+	
 }

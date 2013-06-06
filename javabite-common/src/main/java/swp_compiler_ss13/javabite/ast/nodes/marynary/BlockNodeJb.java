@@ -8,16 +8,13 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import swp_compiler_ss13.common.ast.ASTNode;
-import swp_compiler_ss13.common.ast.ASTNode.ASTNodeType;
 import swp_compiler_ss13.common.ast.nodes.StatementNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
+import swp_compiler_ss13.common.lexer.Token;
+import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.parser.SymbolTable;
-import swp_compiler_ss13.javabite.ast.SymbolTableJb;
 import swp_compiler_ss13.javabite.ast.nodes.StatementNodeJb;
-import swp_compiler_ss13.javabite.ast.nodes.binary.AssignmentNodeJb;
-import swp_compiler_ss13.javabite.ast.nodes.unary.DeclarationNodeJb;
 
 public class BlockNodeJb extends StatementNodeJb implements BlockNode {
 	public BlockNodeJb() {
@@ -107,6 +104,24 @@ public class BlockNodeJb extends StatementNodeJb implements BlockNode {
 		props.put("#decls", declarations.size());
 		props.put("#stmts", statements.size());
 	}
-	
+	@Override
+	public List<Token> coverage() {
+		List<Token> res=new LinkedList<>();
+		List<Token> left=getAssociatedTokenListFromType(TokenType.LEFT_BRACE);
+		List<Token> right=getAssociatedTokenListFromType(TokenType.RIGHT_BRACE);
+		if (left.size()==1){
+			res.add(left.get(0));
+		}
+		for (DeclarationNode de: declarations){
+			res.addAll(de.coverage());
+		}
+		for (StatementNode st: statements){
+			res.addAll(st.coverage());
+		}
+		if (right.size()==1){
+			res.add(right.get(0));
+		}
+		return res;
+	}
 	
 }
