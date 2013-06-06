@@ -440,6 +440,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		menuFileClose = new JMenuItem("Close");
 		menuFileClose.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				// file was changed, thus ask what to do
 				if(fileChanged) {
 					JFrame frame = new JFrame("Save");
 					Object[] options = {"Cancel", "No", "Yes"};
@@ -452,58 +453,49 @@ public class MainFrame extends JFrame implements ReportLog {
 					    null,
 					    options,
 					    options[2]);
-					if(n == 2) {	// save was selected
+					// 'Yes' was selected
+					if(n == 2) {
 						if (openedFile == null) {
 							// create and open the file chooser
-							JFileChooser jfc = new JFileChooser();
-							jfc.setCurrentDirectory(new File(System.getProperty("user.home")));
-							jfc.setSelectedFile(new File("New File.prog"));
+							JFileChooser chooser = new JFileChooser();
+							chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+							chooser.setSelectedFile(new File("New File.prog"));
 							
-							int returnVal = jfc.showSaveDialog(null);
+							// save unchanged file
+							int returnVal = chooser.showSaveDialog(null);
 							if (returnVal == JFileChooser.APPROVE_OPTION) {
-								openedFile = jfc.getSelectedFile();
-								fileName = openedFile.getName();
-								
-								saveEditorContentIntoFile(openedFile);
-								
-								setTitle("Javabite Compiler - " + fileName);
+								openedFile = chooser.getSelectedFile();
+								setTitle("Javabite Compiler - " + openedFile.getName());
 								toolBarLabel.setText("Document saved.");
-								
+								saveEditorContentIntoFile(openedFile);
 								fileChanged = false;
-							} else {
-								toolBarLabel.setText("Save command cancelled by user.");
+								
+								// close application
+								System.exit(0);
 							}
-						} else {
+						} 
+						else {
 							// firstly save file
 							saveEditorContentIntoFile(openedFile);
 							setTitle("Javabite Compiler - " + openedFile.getName());
 							toolBarLabel.setText("Document saved.");
 							
-							// now, display filechooser
-							JFileChooser chooser = new JFileChooser();
-							int returnVal = chooser.showOpenDialog(null);
-							if (returnVal == JFileChooser.APPROVE_OPTION) {
-								openedFile = chooser.getSelectedFile();
-								fileChanged = false;
-							}
-							
-							// set main frame header name to file name
-							fileName = openedFile.getName();
-							setTitle("Javabite Compiler - " + fileName);
-							
-							// insert file content into editor
-							saveFileContentIntoEditor(openedFile);
-							
-							toolBarLabel.setText("Document opened.");
+							// close application
+							System.exit(0);
 						}
+					} 
+					// 'No' was selected
+					else if (n == 1) {
+						// close application
 						System.exit(0);
-					} else if (n == 1) {
-						System.exit(0);
-					} else {
-						// cancel
+					} 
+					// 'Cancel' was selected
+					else {
 						return;
 					}
-				} else {
+				}
+				// file not changed, thus close application
+				else {
 					System.exit(0);
 				}
 			}
