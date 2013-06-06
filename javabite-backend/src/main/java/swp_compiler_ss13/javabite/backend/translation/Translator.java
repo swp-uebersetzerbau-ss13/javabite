@@ -46,7 +46,7 @@ public class Translator {
 	public static final String OBJECT_CLASSNAME_EIF = "java/lang/Object";
 
 	/**
-	 * <h1>generateNewFile</h1>
+	 * BOOLEAN <h1>generateNewFile</h1>
 	 * <p>
 	 * This method generates a new Classfile object using its parameter name and
 	 * appends it to the translator's classfile list.
@@ -419,8 +419,6 @@ public class Translator {
 	 * This method generates instructions from the passed tac.
 	 * </p>
 	 * 
-	 * TODO: EIKE - more detailed javadocs
-	 * 
 	 * @author Eike
 	 * @since 09.05.2013
 	 * 
@@ -498,9 +496,97 @@ public class Translator {
 			case SUB_LONG:
 				pb.subLong(quad);
 				break;
+			case AND_BOOLEAN:
+				pb.andBoolean(quad);
+				break;
+			case OR_BOOLEAN:
+				pb.orBoolean(quad);
+			case NOT_BOOLEAN:
+				pb.notBoolean(quad);
+				break;
+			case COMPARE_LONG_E:
+				pb.compareLongE(quad);
+				break;
+			case COMPARE_LONG_G:
+				pb.compareLongG(quad);
+				break;
+			case COMPARE_LONG_L:
+				pb.compareLongL(quad);
+				break;
+			case COMPARE_LONG_GE:
+				pb.compareLongGE(quad);
+				break;
+			case COMPARE_LONG_LE:
+				pb.compareLongLE(quad);
+				break;
+			case COMPARE_DOUBLE_E:
+				pb.compareDoubleE(quad);
+				break;
+			case COMPARE_DOUBLE_G:
+				pb.compareDoubleG(quad);
+				break;
+			case COMPARE_DOUBLE_L:
+				pb.compareDoubleL(quad);
+				break;
+			case COMPARE_DOUBLE_GE:
+				pb.compareDoubleGE(quad);
+				break;
+			case COMPARE_DOUBLE_LE:
+				pb.compareDoubleLE(quad);
+				break;
+			case LABEL:
+				pb.label(quad);
+				break;
+			case BRANCH:
+				pb.branch(quad);
+				break;
+			case PRINT_BOOLEAN:
+				pb.printBoolean(quad);
+				break;
+			case PRINT_DOUBLE:
+				pb.printDouble(quad);
+				break;
+			case PRINT_LONG:
+				pb.printLong(quad);
+				break;
+			case PRINT_STRING:
+				pb.printString(quad);
+				break;
+			case DECLARE_ARRAY:
+				pb.declareArray(quad);
+				break;
+			case ARRAY_GET_LONG:
+				pb.arrayGetLong(quad);
+				break;
+			case ARRAY_GET_DOUBLE:
+				pb.arrayGetDouble(quad);
+				break;
+			case ARRAY_GET_BOOLEAN:
+				pb.arrayGetBoolean(quad);
+				break;
+			case ARRAY_GET_STRING:
+				pb.arrayGetString(quad);
+				break;
+			case ARRAY_GET_REFERENCE:
+				pb.arrayGetReference(quad);
+				break;
+			case ARRAY_SET_LONG:
+				pb.arraySetLong(quad);
+				break;
+			case ARRAY_SET_DOUBLE:
+				pb.arraySetDouble(quad);
+				break;
+			case ARRAY_SET_BOOLEAN:
+				pb.arraySetBoolean(quad);
+				break;
+			case ARRAY_SET_STRING:
+				pb.arraySetString(quad);
+				break;
+			case ARRAY_SET_ARRAY:
+				pb.arraySetArray(quad);
+				break;
 			default:
 				break;
-
 			}
 		}
 
@@ -508,5 +594,4 @@ public class Translator {
 		classfile
 				.addInstructionsToMethodsCode("main", pr.toInstructionsArray());
 	}
-
 }

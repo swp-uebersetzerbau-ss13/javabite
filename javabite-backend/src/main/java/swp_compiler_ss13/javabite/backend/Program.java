@@ -2,6 +2,7 @@ package swp_compiler_ss13.javabite.backend;
 
 import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.byteArrayToHexString;
 import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToByteArray;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.intToByteArray;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -69,6 +70,8 @@ public class Program {
 		private final List<JumpInstruction> jumpInstructions;
 		// sizes of last array declaration, in reverse order on the stack
 		private final Stack<String> arraySizes;
+		// label name of last label
+		private Stack<String> labelNames;
 		// determines, whether the System exit method has already been added/
 		// a return statement is present in the tac
 		private boolean returnFlag;
@@ -80,8 +83,6 @@ public class Program {
 		private short systemOutIndex;
 		// index of methodref info of print method in constant pool
 		private short printIndex;
-		// label name of last label
-		private String labelName;
 		// name of last array seen
 		private String arrayName;
 
@@ -91,6 +92,7 @@ public class Program {
 			jumpTargets = new HashMap<>();
 			jumpInstructions = new ArrayList<>();
 			arraySizes = new Stack<>();
+			labelNames = new Stack<>();
 			this.classfile = classfile;
 			this.methodName = methodName;
 			returnFlag = false;
@@ -103,7 +105,9 @@ public class Program {
 			operations.add(operation);
 			if (labelFlag) {
 				labelFlag = false;
-				jumpTargets.put(labelName, operation.getInstruction(0));
+				for (final String labelName : labelNames) {
+					jumpTargets.put(labelName, operation.getInstruction(0));
+				}
 			}
 			return this;
 		}
@@ -121,7 +125,7 @@ public class Program {
 			}
 
 			// calculate offsets for jumping
-			long currentOffset = 0;
+			int currentOffset = 0;
 			for (final Operation op : operations) {
 				for (final Instruction in : op.getInstructions()) {
 					in.setOffset(currentOffset);
@@ -132,8 +136,13 @@ public class Program {
 			// caluclate jump offset for every jump, set as argument of jump
 			for (final JumpInstruction in : jumpInstructions) {
 				final Instruction target = getJumpTarget(in.getTargetLabel());
-				short offset = (short) (target.getOffset() - in.getOffset());
-				in.setArguments(shortToByteArray(offset));
+				int offset = target.getOffset();
+				if (offset > Short.MAX_VALUE) {
+					in.setMnemonic(Mnemonic.GOTO_W);
+					in.setArguments(intToByteArray(offset));
+				} else {
+					in.setArguments(shortToByteArray((short) offset));
+				}
 			}
 
 			return new Program(operations);
@@ -449,6 +458,15 @@ public class Program {
 			return add(op.build());
 		}
 
+		/**
+		 * TODO javadoc
+		 * 
+		 * @param q
+		 * @param constType
+		 * @param varLoadOp
+		 * @param storeOp
+		 * @return
+		 */
 		private ProgramBuilder arraySet(final Quadruple q,
 				final InfoTag constType, final Mnemonic varLoadOp,
 				final Mnemonic storeOp) {
@@ -1494,7 +1512,7 @@ public class Program {
 		 */
 		public ProgramBuilder label(final Quadruple q) {
 			labelFlag = true;
-			labelName = q.getArgument1();
+			labelNames.push(q.getArgument1());
 			return this;
 		}
 
@@ -1823,36 +1841,6 @@ public class Program {
 		 */
 		public ProgramBuilder arrayGetString(final Quadruple q) {
 			return arrayGet(q, Mnemonic.AALOAD, Mnemonic.ASTORE);
-		}
-
-		/**
-		 * <table>
-		 * <thead>
-		 * <tr>
-		 * <th>Operator</th>
-		 * <th>Argument 1</th>
-		 * <th>Argument 2</th>
-		 * <th>Result</th>
-		 * <th>Remarks</th>
-		 * </tr>
-		 * </thead> <tbody>
-		 * <tr>
-		 * <td>ARRAY_GET_ARRAY</td>
-		 * <td>array name or reference</td>
-		 * <td>element index</td>
-		 * <td>destination name</td>
-		 * <td>deep copy</td>
-		 * </tr>
-		 * </tbody>
-		 * </table>
-		 * 
-		 * @param q
-		 *            the operation quadruple
-		 * @return this program builders instance
-		 */
-		public ProgramBuilder arrayGetArray(final Quadruple q) {
-			// TODO implement
-			return this;
 		}
 
 		/**

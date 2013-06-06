@@ -32,7 +32,7 @@ public class BackendTest {
 	private Process cli1;
 
 	private static final Logger logger = LoggerFactory
-			.getLogger(BackendModule.class);
+			.getLogger(BackendJB.class);
 
 	static final List<Quadruple> tac1 = Arrays.asList(new Quadruple[] {
 			new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "l"),
@@ -65,7 +65,7 @@ public class BackendTest {
 
 	@Before
 	public void setup() {
-		backend = new BackendModule();
+		backend = new BackendJB();
 		rt = Runtime.getRuntime();
 	}
 

@@ -25,10 +25,10 @@ public class Instruction {
 	private static final Logger logger = LoggerFactory
 			.getLogger(Instruction.class);
 
-	private final Mnemonic mnemonic;
-	private final int size;
+	private int byteCount;
+	private Mnemonic mnemonic;
 	private byte[] arguments;
-	private long offset;
+	private int offset;
 
 	/**
 	 * Create a new instruction class instance
@@ -42,11 +42,10 @@ public class Instruction {
 		this.mnemonic = mnemonic;
 		if (mnemonic.getArgsCount() > 0) {
 			this.arguments = arguments;
-			size = 1 + mnemonic.getArgsCount();
 		} else {
 			this.arguments = null;
-			size = 1;
 		}
+		byteCount = 1 + mnemonic.getArgsCount();
 	}
 
 	/**
@@ -120,13 +119,13 @@ public class Instruction {
 	 * @return the byte count
 	 */
 	public int getByteCount() {
-		return size;
+		return byteCount;
 	}
 
 	/**
 	 * @return the offset
 	 */
-	public long getOffset() {
+	public int getOffset() {
 		return offset;
 	}
 
@@ -134,8 +133,17 @@ public class Instruction {
 	 * @param offset
 	 *            the offset to set
 	 */
-	public void setOffset(long offset) {
+	public void setOffset(int offset) {
 		this.offset = offset;
+	}
+
+	/**
+	 * @param mnemonic
+	 *            the mnemonic to set
+	 */
+	public void setMnemonic(Mnemonic mnemonic) {
+		this.mnemonic = mnemonic;
+		this.byteCount = 1 + mnemonic.getArgsCount();
 	}
 
 	/**
@@ -144,7 +152,7 @@ public class Instruction {
 	 * @return the byte array
 	 */
 	public byte[] toByteArray() {
-		final byte[] bytes = new byte[size];
+		final byte[] bytes = new byte[byteCount];
 		bytes[0] = mnemonic.getBytecode();
 		if (arguments != null) {
 			System.arraycopy(arguments, 0, bytes, 1, arguments.length);
@@ -184,7 +192,7 @@ public class Instruction {
 		int result = 1;
 		result = prime * result + Arrays.hashCode(arguments);
 		result = prime * result + (mnemonic == null ? 0 : mnemonic.hashCode());
-		result = prime * result + size;
+		result = prime * result + byteCount;
 		result = prime * result + mnemonic.getStackChange();
 		return result;
 	}
@@ -207,7 +215,7 @@ public class Instruction {
 			return false;
 		if (mnemonic != other.mnemonic)
 			return false;
-		if (size != other.size)
+		if (byteCount != other.byteCount)
 			return false;
 		return true;
 	}

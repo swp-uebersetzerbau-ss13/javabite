@@ -36,6 +36,7 @@ public class ProgramTests {
 		pb = ProgramBuilder.newBuilder(classfile, methodName);
 	}
 
+	@SuppressWarnings("unused")
 	private void buildAndLog(final ProgramBuilder pb) {
 		final Program p = pb.build();
 		System.out.println(name.getMethodName());
@@ -741,7 +742,10 @@ public class ProgramTests {
 		pb.branch(new QuadrupleImpl(Operator.BRANCH, "testLabel", "!", "!"));
 		pb.label(new QuadrupleImpl(Operator.LABEL, "testLabel", "!", "!"));
 		pb.nop();
-		buildAndLog(pb);
+		final byte[] bExpected = new byte[] { (byte) 0xa7, (byte) 0x00,
+				(byte) 0x03, (byte) 0x00, (byte) 0xb1 };
+		final String sExpected = "GOTO 00 03\nNOP\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
 	}
 
 	@Test
@@ -749,7 +753,10 @@ public class ProgramTests {
 		pb.label(new QuadrupleImpl(Operator.LABEL, "testLabel", "!", "!"));
 		pb.nop();
 		pb.branch(new QuadrupleImpl(Operator.BRANCH, "testLabel", "!", "!"));
-		buildAndLog(pb);
+		final byte[] bExpected = new byte[] { (byte) 0x00, (byte) 0xa7,
+				(byte) 0x00, (byte) 0x00, (byte) 0xb1 };
+		final String sExpected = "NOP\nGOTO 00 00\nRETURN\n";
+		makeAssertions(pb, bExpected, sExpected);
 	}
 
 }
