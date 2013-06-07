@@ -88,17 +88,39 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 	}
 		
 	void checkBreakDeclaration(){
-		Iterator<ASTNode> it = ast.getDFSLTRIterator();
-		while (it.hasNext()){
-			ASTNode node=it.next();
+		Queue<ASTNode> queue= new ArrayDeque<>();
+		for (ASTNode node:ast.getRootNode().getChildren()){
+			queue.add(node);
+		}
+		for (ASTNode node:queue){
 			if(node.getNodeType()==ASTNodeType.BreakNode){
-				if (node.getParentNode().getNodeType()!=ASTNodeType.WhileNode
-						&& node.getParentNode().getNodeType()!= ASTNodeType.DoWhileNode ){
-					reportLog.reportError(ReportType.UNDEFINED, node.coverage(), "break is not in loop");
+				reportLog.reportError(ReportType.UNDEFINED, node.coverage(),"break is not in loop");
+				}
+			else if(node.getNodeType()==ASTNodeType.BranchNode){
+				Iterator<ASTNode> it = node.getDFSLTRNodeIterator();
+				while(it.hasNext()){
+					ASTNode node1=it.next();
+					if(node1.getNodeType()==ASTNodeType.BreakNode){
+						reportLog.reportError(ReportType.UNDEFINED, node.coverage(),"break is not in loop");
 					}
 				}
-			}		
+			}
+			else if(node.getNodeType()==ASTNodeType.WhileNode||
+					node.getNodeType()==ASTNodeType.WhileNode){
+				Iterator<ASTNode> it = node.getDFSLTRNodeIterator();
+				while(it.hasNext()){
+					ASTNode node1=it.next();
+					if(node1.getNodeType()==ASTNodeType.BreakNode){
+						Iterator<ASTNode> it1 = node1.getDFSLTRNodeIterator();
+						if (it1.hasNext()){
+							reportLog.reportError(ReportType.UNDEFINED, node.coverage(),"After break there is something");
+							}
+						}
+					}
+				}
+			}
 		}
+	
 	
 	void checkDoubleDeclaration() {
 		Set<String> varSet = new HashSet<>();
