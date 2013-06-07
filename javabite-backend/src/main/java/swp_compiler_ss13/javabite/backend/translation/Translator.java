@@ -38,7 +38,7 @@ public class Translator {
 	public static final String DEF_BOOLEAN = CONST_FALSE;
 	public static final String DEF_STRING = "#\"\"";
 
-	public static final String FILEENDING_CLASS = ".class";
+	public static final String FILEEXT_CLASS = ".class";
 
 	public static final String METHODNAME_MAIN = "main";
 	public static final String METHODDESCRIPTOR_MAIN = "([Ljava/lang/String;)V";
@@ -99,7 +99,7 @@ public class Translator {
 			List<Quadruple> tac) {
 
 		// some initialization
-		final String classFileName = mainClassName + FILEENDING_CLASS;
+		final String classFileName = mainClassName + FILEEXT_CLASS;
 		final Collection<IClassfile> classfiles = new ArrayList<IClassfile>();
 		final String mainMethodName = METHODNAME_MAIN;
 

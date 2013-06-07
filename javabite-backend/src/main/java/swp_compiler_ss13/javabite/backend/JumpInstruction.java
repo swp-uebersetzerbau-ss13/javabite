@@ -40,7 +40,7 @@ public class JumpInstruction extends Instruction {
 	 * @param targetLabel
 	 *            the targetLabel to set
 	 */
-	public void setTargetLabel(String targetLabel) {
+	public void setTargetLabel(final String targetLabel) {
 		this.targetLabel = targetLabel;
 	}
 
@@ -55,7 +55,7 @@ public class JumpInstruction extends Instruction {
 	 * @param targetInstruction
 	 *            the targetInstruction to set
 	 */
-	public void setTargetInstruction(Instruction targetInstruction) {
+	public void setTargetInstruction(final Instruction targetInstruction) {
 		this.targetInstruction = targetInstruction;
 	}
 

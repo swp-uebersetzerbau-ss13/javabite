@@ -104,14 +104,15 @@ public class BackendTest {
 			Operator.OR_BOOLEAN, "#FALSE", "#TRUE", "b"));
 
 	static final List<Quadruple> tac8 = asList(new QuadrupleImpl(
-			Operator.DECLARE_LONG, "#5", "!", "l1"), new QuadrupleImpl(
-			Operator.DECLARE_LONG, "#2", "!", "l2"), new QuadrupleImpl(
 			Operator.DECLARE_BOOLEAN, "!", "!", "b"), new QuadrupleImpl(
-			Operator.COMPARE_LONG_E, "l1", "l2", "b"), new QuadrupleImpl(
-			Operator.COMPARE_LONG_G, "l1", "l2", "b"), new QuadrupleImpl(
-			Operator.COMPARE_LONG_L, "l1", "l2", "b"), new QuadrupleImpl(
-			Operator.COMPARE_LONG_GE, "l1", "l2", "b"), new QuadrupleImpl(
-			Operator.COMPARE_LONG_LE, "l1", "l2", "b"));
+			Operator.COMPARE_LONG_E, "#1", "#2", "b"), new QuadrupleImpl(
+			Operator.PRINT_BOOLEAN, "!", "!", "b"));
+
+	static final List<Quadruple> tac9 = asList(new QuadrupleImpl(
+			Operator.BRANCH, "lbl", "!", "!"), new QuadrupleImpl(
+			Operator.PRINT_STRING, "#\"error\"", "!", "!"), new QuadrupleImpl(
+			Operator.LABEL, "lbl", "!", "!"), new QuadrupleImpl(
+			Operator.PRINT_STRING, "#\"success\"", "!", "!"));
 
 	@Before
 	public void setup() {
@@ -176,11 +177,18 @@ public class BackendTest {
 	// 0 == testToReturnValueOfTac(tac7, 1));
 	// }
 	//
+	// @Test
+	// public void testTac8ReturnVal() throws BackendException {
+	// assertTrue(
+	// "Generated target code returns unexpected value while execution",
+	// 0 == testToReturnValueOfTac(tac8, 1));
+	// }
+
 	@Test
-	public void testTac8ReturnVal() throws BackendException {
+	public void testTac9ReturnVal() throws BackendException {
 		assertTrue(
 				"Generated target code returns unexpected value while execution",
-				0 == testToReturnValueOfTac(tac8, 1));
+				0 == testToReturnValueOfTac(tac9, 1));
 	}
 
 	public long testToReturnValueOfTac(final List<Quadruple> tac,
@@ -207,7 +215,8 @@ public class BackendTest {
 
 		try {
 			logger.debug("Starting command line interface process...");
-			cli1 = rt.exec(new String[] { "bash", "-c", "java Program ; $?" });
+			cli1 = rt.exec(new String[] { "bash", "-c",
+					"java -noverify Program ; $?" });
 			logger.debug("Waiting for execution of \"bash -c java Program ; $?\"");
 			cli1.waitFor();
 
