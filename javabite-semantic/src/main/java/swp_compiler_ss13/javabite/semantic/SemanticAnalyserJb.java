@@ -105,21 +105,14 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 					}
 				}
 			}
-			else if(node.getNodeType()==ASTNodeType.WhileNode||
+			/* unnecessary
+			 * 	else if(node.getNodeType()==ASTNodeType.WhileNode||
 					node.getNodeType()==ASTNodeType.WhileNode){
-				Iterator<ASTNode> it = node.getDFSLTRNodeIterator();
-				while(it.hasNext()){
-					ASTNode node1=it.next();
-					if(node1.getNodeType()==ASTNodeType.BreakNode){
-						Iterator<ASTNode> it1 = node1.getDFSLTRNodeIterator();
-						if (it1.hasNext()){
-							reportLog.reportError(ReportType.UNDEFINED, node.coverage(),"After break there is something");
-							}
-						}
-					}
-				}
+				*/
 			}
 		}
+			
+		
 	
 	
 	void checkDoubleDeclaration() {
