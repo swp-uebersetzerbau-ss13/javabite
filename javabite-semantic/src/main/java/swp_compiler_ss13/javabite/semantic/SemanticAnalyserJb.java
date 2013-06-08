@@ -121,7 +121,7 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 				ASTNode parentNode = node.getParentNode();
 				Iterator<ASTNode> itP = parentNode.getDFSLTRNodeIterator();
 				while(itP.hasNext()){
-					ASTNode node1= it.next();
+					ASTNode node1= itP.next();
 					if (node1.equals(node) && itP.hasNext()){
 						reportLog.reportError(ReportType.UNDEFINED, node.coverage(),"there is something after return");
 						}
