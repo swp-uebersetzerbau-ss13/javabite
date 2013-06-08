@@ -87,7 +87,7 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 		}
 	}
 		
-	void checkBreakDeclaration(){
+	public void checkBreakDeclaration(){
 		Queue<ASTNode> queue= new ArrayDeque<>();
 		for (ASTNode node:ast.getRootNode().getChildren()){
 			queue.add(node);
@@ -113,7 +113,7 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 		}
 
 	
-	void checkReturnDeclaration(){
+	public void checkReturnDeclaration(){
 		Iterator<ASTNode> it = ast.getDFSLTRIterator();
 		while (it.hasNext()){
 			ASTNode node=it.next();
@@ -149,6 +149,7 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 			}
 		}
 	}
+	
 	
 	void checkDivisionByZero() {
 		//TODO: change structure so that error-reporting contains the tokens.
