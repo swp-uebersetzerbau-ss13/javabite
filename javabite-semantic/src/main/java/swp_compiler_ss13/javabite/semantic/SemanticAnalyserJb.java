@@ -111,33 +111,19 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 				*/
 			}
 		}
+
+	
 	void checkReturnDeclaration(){
 		Iterator<ASTNode> it = ast.getDFSLTRIterator();
 		while (it.hasNext()){
 			ASTNode node=it.next();
 			if(node.getNodeType()==ASTNodeType.ReturnNode){
-				if(node.getParentNode().equals(ast.getRootNode()) && it.hasNext()){
-					reportLog.reportError(ReportType.UNDEFINED, node.coverage(),"there is something after return");
-				}
-				else if(node.getParentNode().getNodeType()==ASTNodeType.BranchNode){
-					ASTNode parentNode=  node.getParentNode();
-					Iterator<ASTNode> it1 = parentNode.getDFSLTRNodeIterator();
-					while(it1.hasNext()){
-						ASTNode node1=it1.next();
-						if (node1.equals(node) && it1.hasNext()){
-							reportLog.reportError(ReportType.UNDEFINED, node.coverage(),"there is something after return");
-							}
-						}
-					}
-				else if(node.getParentNode().getNodeType()==ASTNodeType.WhileNode
-						||node.getParentNode().getNodeType()==ASTNodeType.DoWhileNode){
-					ASTNode parentNode=  node.getParentNode();
-					Iterator<ASTNode> it1 = parentNode.getDFSLTRNodeIterator();
-					while(it1.hasNext()){
-						ASTNode node1=it1.next();
-						if (node1.equals(node) && it1.hasNext()){
-							reportLog.reportError(ReportType.UNDEFINED, node.coverage(),"there is something after return");
-							}
+				ASTNode parentNode = node.getParentNode();
+				Iterator<ASTNode> itP = parentNode.getDFSLTRNodeIterator();
+				while(itP.hasNext()){
+					ASTNode node1= it.next();
+					if (node1.equals(node) && itP.hasNext()){
+						reportLog.reportError(ReportType.UNDEFINED, node.coverage(),"there is something after return");
 						}
 					}
 				}
