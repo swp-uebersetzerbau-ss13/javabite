@@ -33,7 +33,7 @@ public class BackendTest {
 	private Process cli1;
 
 	private static final Logger logger = LoggerFactory
-			.getLogger(BackendJB.class);
+			.getLogger(BackendJb.class);
 
 	private static List<Quadruple> asList(final Quadruple... quadruples) {
 		return new ArrayList<>(Arrays.asList(quadruples));
@@ -115,7 +115,7 @@ public class BackendTest {
 
 	@Before
 	public void setup() {
-		backend = new BackendJB();
+		backend = new BackendJb();
 		rt = Runtime.getRuntime();
 	}
 

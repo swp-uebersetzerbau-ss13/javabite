@@ -8,7 +8,7 @@ import java.util.Map;
 import swp_compiler_ss13.common.backend.BackendException;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
-import swp_compiler_ss13.javabite.backend.BackendJB;
+import swp_compiler_ss13.javabite.backend.BackendJb;
 
 /**
  * ControllerTemp class. Implementation of a temporary controller to instantiate
@@ -163,7 +163,7 @@ public class ControllerTemp {
 
 		// System.out.println(sb.toString());
 
-		final BackendJB backend = new BackendJB();
+		final BackendJb backend = new BackendJb();
 		final Map<String, InputStream> test = backend.generateTargetCode(
 				"Program", tac);
 
