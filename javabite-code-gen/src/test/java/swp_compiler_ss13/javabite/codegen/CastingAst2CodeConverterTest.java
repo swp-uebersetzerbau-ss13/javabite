@@ -197,7 +197,7 @@ public class CastingAst2CodeConverterTest {
 	}
 
 	@Test
-	public void testBooleanToDoubleFails() {
+	public void testCastBooleanToDoubleFails() {
 		try {
 			when(converter.icg.generateTempIdentifier(any(DoubleType.class)))
 					.thenReturn(new IdentifierData("tmp", new DoubleType()));
@@ -210,7 +210,7 @@ public class CastingAst2CodeConverterTest {
 	}
 
 	@Test
-	public void testBooleanToStringFails() {
+	public void testCastBooleanToStringFails() {
 		try {
 			when(converter.icg.generateTempIdentifier(any(StringType.class)))
 					.thenReturn(new IdentifierData("tmp", new StringType(0l)));
@@ -222,7 +222,7 @@ public class CastingAst2CodeConverterTest {
 	}
 
 	@Test
-	public void testBooleanToStructFails() {
+	public void testCastBooleanToStructFails() {
 		try {
 			when(converter.icg.generateTempIdentifier(any(StructType.class)))
 					.thenReturn(
@@ -238,7 +238,7 @@ public class CastingAst2CodeConverterTest {
 	}
 
 	@Test
-	public void testBooleanToArrayFails() {
+	public void testCastBooleanToArrayFails() {
 		try {
 			when(converter.icg.generateTempIdentifier(any(ArrayType.class)))
 					.thenReturn(
@@ -252,7 +252,7 @@ public class CastingAst2CodeConverterTest {
 	}
 
 	@Test
-	public void testStringToLongFails(){
+	public void testCastStringToLongFails(){
 		try{
 			when(converter.icg.generateTempIdentifier(any(LongType.class)))
 					.thenReturn(new IdentifierData("tmp", new LongType()));
@@ -263,7 +263,7 @@ public class CastingAst2CodeConverterTest {
 	}
 
 	@Test
-	 public void testStringToDoubleFails(){
+	 public void testCastStringToDoubleFails(){
 	  try {
 	   when(converter.icg.generateTempIdentifier(any(DoubleType.class)))
 	     .thenReturn(
@@ -289,7 +289,7 @@ public class CastingAst2CodeConverterTest {
 	 }
 
 	@Test
-	 public void testStringToStructFails(){
+	 public void testCastStringToStructFails(){
 	  try {
 	   when(converter.icg.generateTempIdentifier(any(StructType.class)))
 	     .thenReturn(
@@ -305,7 +305,7 @@ public class CastingAst2CodeConverterTest {
 	 }
 
 	@Test
-	 public void testStringToArrayFails(){
+	 public void testCastStringToArrayFails(){
 	  try {
 	   when(converter.icg.generateTempIdentifier(any(ArrayType.class)))
 	     .thenReturn(
@@ -319,7 +319,7 @@ public class CastingAst2CodeConverterTest {
 	 }
 
 	@Test
-	public void testStructToLongFails(){
+	public void testCastStructToLongFails(){
 		try{
 			when(converter.icg.generateTempIdentifier(any(LongType.class)))
 					.thenReturn(new IdentifierData("tmp", new LongType()));
@@ -332,7 +332,7 @@ public class CastingAst2CodeConverterTest {
 	}
 	
 	@Test
-	public void testStructToDoubleFails(){
+	public void testCastStructToDoubleFails(){
 		try{
 			when(converter.icg.generateTempIdentifier(any(DoubleType.class)))
 					.thenReturn(new IdentifierData("tmp", new DoubleType()));
@@ -345,7 +345,7 @@ public class CastingAst2CodeConverterTest {
 	}
 	
 	@Test
-	public void testStructToStringFails(){
+	public void testCastStructToStringFails(){
 		try {
 			when(converter.icg.generateTempIdentifier(any(StringType.class)))
 					.thenReturn(new IdentifierData("tmp", new StringType(0l)));
@@ -358,7 +358,7 @@ public class CastingAst2CodeConverterTest {
 	}
 	
 	@Test
-	public void testCastStructToBooleanFails(){
+	public void testCastCastStructToBooleanFails(){
 		try {
 			when(converter.icg.generateTempIdentifier(any(BooleanType.class)))
 					.thenReturn(new IdentifierData("tmp", new BooleanType()));
@@ -371,7 +371,7 @@ public class CastingAst2CodeConverterTest {
 	}
 	
 	@Test
-	public void testCastStructToArrayFails(){
+	public void testCastCastStructToArrayFails(){
 		try {
 			when(converter.icg.generateTempIdentifier(any(ArrayType.class)))
 					.thenReturn(new IdentifierData("tmp",
@@ -385,7 +385,7 @@ public class CastingAst2CodeConverterTest {
 	}
 	
 	@Test
-	 public void testArrayToLongFails(){
+	 public void testCastArrayToLongFails(){
 	  try{
 		   when(converter.icg.generateTempIdentifier(any(LongType.class)))
 		     .thenReturn(new IdentifierData("tmp", new LongType()));
@@ -399,7 +399,7 @@ public class CastingAst2CodeConverterTest {
 	 
 	 
 	 @Test
-	 public void testArrayToDoubleFails(){
+	 public void testCastArrayToDoubleFails(){
 	 try {
 		   when(converter.icg.generateTempIdentifier(any(DoubleType.class)))
 		     .thenReturn(
@@ -413,7 +413,7 @@ public class CastingAst2CodeConverterTest {
 	 }
 	 
 	 @Test
-	public void testArrayToBoolean(){
+	public void testCastArrayToBoolean(){
 	try {
 	   when(converter.icg.generateTempIdentifier(any(BooleanType.class)))
 	     .thenReturn(new IdentifierData("tmp", new BooleanType()));
@@ -426,7 +426,7 @@ public class CastingAst2CodeConverterTest {
 	 
 	 
 	 @Test
-	 public void testArrayToString(){
+	 public void testCastArrayToString(){
 	   try {
 	   when(converter.icg.generateTempIdentifier(any(StringType.class)))
 	     .thenReturn(new IdentifierData("tmp", new StringType(0l)));
@@ -438,7 +438,7 @@ public class CastingAst2CodeConverterTest {
 	 }
 	 
 	 @Test
-	 public void testArrayToStruct(){
+	 public void testCastArrayToStruct(){
 	   try {
 		   when(converter.icg.generateTempIdentifier(any(StructType.class)))
 		     .thenReturn(

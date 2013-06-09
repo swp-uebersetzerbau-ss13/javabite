@@ -43,6 +43,7 @@ public class SemanticAnalyserJbTest {
 	public void testIfCompiles() {
 		assertTrue("works", true);
 	}
+	
 	/*
 	@Test
 	public void testNoDivisionByZero() {
@@ -131,7 +132,6 @@ public class SemanticAnalyserJbTest {
 	*/
 	
 	
-	
 	@Test
 	public void testCorrect(){
 		instance.setReportLog(new ReportTest());
@@ -211,6 +211,8 @@ public class SemanticAnalyserJbTest {
 		instance = new SemanticAnalyserJb();
 		instance.setReportLog(reportLog);
 		instance.analyse(ast,false);
+		
+	
 		
 		verify(reportLog, never()).reportError(
 				any(ReportType.class), anyListOf(Token.class),
@@ -302,10 +304,10 @@ public class SemanticAnalyserJbTest {
 		instance = new SemanticAnalyserJb();
 		instance.setReportLog(reportLog);
 		instance.analyse(ast,false);
+		
 		verify(reportLog, only()).reportError(
 				eq(ReportType.TYPE_MISMATCH), anyListOf(Token.class),
 				anyString());
-		
 	}
 	
 	private class ReportTest implements ReportLog{

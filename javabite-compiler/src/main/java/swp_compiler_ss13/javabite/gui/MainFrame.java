@@ -583,12 +583,8 @@ public class MainFrame extends JFrame implements ReportLog {
 		buttonRunCompile = new JButton("\u25BA");
 		buttonRunCompile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				try {
-					compile(openedFile);
-					progressBar.setValue(0);
-				} catch (IntermediateCodeGeneratorException | IOException | BackendException | ClassNotFoundException | InstantiationException | IllegalAccessException ex) {
-					ex.printStackTrace();
-				}
+				compile(openedFile);
+				progressBar.setValue(0);
 			}
 		});
 		menuBar.add(buttonRunCompile);
@@ -670,12 +666,12 @@ public class MainFrame extends JFrame implements ReportLog {
 		
 		textPaneLogs = new JTextPane();
 		textPaneLogs.setText("");
-		tabbedPaneLog.addTab("Log", null, textPaneLogs, null);
+		tabbedPaneLog.addTab("Compiler Log", null, textPaneLogs, null);
 		
 		modelReportLogs = new DefaultTableModel();
 		tableReportLogs = new JTable(modelReportLogs);
 		tableReportLogs.setEnabled(false);
-		tabbedPaneLog.addTab("Report Logs", null, tableReportLogs, null);
+		tabbedPaneLog.addTab("Report Log", null, tableReportLogs, null);
 		modelReportLogs.addColumn("Type");
 		modelReportLogs.addColumn("Line");
 		modelReportLogs.addColumn("Column");
@@ -691,25 +687,24 @@ public class MainFrame extends JFrame implements ReportLog {
 		sourceCodeListener = new SourecodeDocumentListener(this);
 		editorPaneSourcode.getDocument().addDocumentListener(sourceCodeListener);
 		
-		//tooltip
+		// tooltip
 		editorPaneSourcode.addMouseMotionListener(new MouseAdapter() {
-
 			  public void mouseMoved(MouseEvent e) {
 				  Point loc = e.getPoint();
 				  int pos = editorPaneSourcode.viewToModel(loc);
 				  String text = editorPaneSourcode.getText();
 				  
 				  //dont do anything if the cursor is not hover an element
-				  if(pos < text.length()) {
+				  if (pos < text.length()) {
 					  char cursor = 'x';
 					  
 					  //search as long we find a whitespace in our pos
 					  int searchPos = 0;
 					  int delimiterPos = -1;
-					  while(searchPos < pos) {
-						  
-						  if(text.charAt(searchPos) == ' ')
+					  while (searchPos < pos) {
+						  if (text.charAt(searchPos) == ' ') {
 							  delimiterPos = searchPos;
+						  }
 						  
 						  searchPos++;
 					  }
@@ -729,10 +724,9 @@ public class MainFrame extends JFrame implements ReportLog {
 					  List<Token> tokens = getTokenList(mouseOverWord);
 					  
 					  //check if there is just 1 token type, if not there is no space between tokens and we have to identify what tokens is the target
-					  if(tokens.size() == 1)
-						   editorPaneSourcode.setToolTipText(tokens.get(0).getTokenType().name());
-					  else
-					  {
+					  if(tokens.size() == 1) {
+						  editorPaneSourcode.setToolTipText(tokens.get(0).getTokenType().name());
+					  } else {
 						  int newPos = pos-delimiterPos;
 						  int posCount = 0;
 						  int tokenId = 0;
@@ -747,14 +741,13 @@ public class MainFrame extends JFrame implements ReportLog {
 							  }
 						  }
 						  editorPaneSourcode.setToolTipText(tokens.get(tokenId).getTokenType().name());
-							 
 					  }
 				  } else {
 					  editorPaneSourcode.setToolTipText("");
 				  }
 			  }
-
 		});
+		
 		// setup undo redo
 		editorPaneSourcode.getDocument().addUndoableEditListener(new UndoableEditListener() {
 			public void undoableEditHappened(UndoableEditEvent e) {
@@ -855,164 +848,155 @@ public class MainFrame extends JFrame implements ReportLog {
 	/**
 	 * Main entry point for the compile process
 	 * */
-	private void compile(File file) throws IntermediateCodeGeneratorException, IOException, BackendException, ClassNotFoundException, InstantiationException, IllegalAccessException {
-		boolean canCompiled = false;
-		if (fileChanged) {
-			JFrame frame = new JFrame("Save");
-			Object[] options = {"Cancel", "No", "Yes"};
-			String fileName = (file == null) ? "New File.prog" : file.getName();
-			int n = JOptionPane.showOptionDialog(frame,
-			    "Sourcecode cannot be compiled, until it is saved.\nSave file \"" + fileName + "\"?\n",
-			    "Save",
-			    JOptionPane.YES_NO_CANCEL_OPTION,
-			    JOptionPane.QUESTION_MESSAGE,
-			    null,
-			    options,
-			    options[2]);
-			// 'Yes' was selected
-			if(n == 2) {
-				if (file == null) {
-					// create and open the file chooser
-					JFileChooser chooser = new JFileChooser();
-					chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
-					chooser.setFileFilter(filter);
-					chooser.setSelectedFile(new File("New File.prog"));
-					
-					// save unchanged file
-					int returnVal = chooser.showSaveDialog(null);
-					if (returnVal == JFileChooser.APPROVE_OPTION) {
-						openedFile = chooser.getSelectedFile();
-						file = openedFile;
+	private void compile(File file) {
+		try {
+			boolean canCompiled = false;
+			if (fileChanged) {
+				JFrame frame = new JFrame("Save");
+				Object[] options = {"Cancel", "No", "Yes"};
+				String fileName = (file == null) ? "New File.prog" : file.getName();
+				int n = JOptionPane.showOptionDialog(frame,
+				    "Sourcecode cannot be compiled, until it is saved.\nSave file \"" + fileName + "\"?\n",
+				    "Save",
+				    JOptionPane.YES_NO_CANCEL_OPTION,
+				    JOptionPane.QUESTION_MESSAGE,
+				    null,
+				    options,
+				    options[2]);
+				if (n == 2) {			// 'Yes' was selected
+					if (file == null) {
+						// create and open the file chooser
+						JFileChooser chooser = new JFileChooser();
+						chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+						chooser.setFileFilter(filter);
+						chooser.setSelectedFile(new File("New File.prog"));
+						
+						// save unchanged file
+						int returnVal = chooser.showSaveDialog(null);
+						if (returnVal == JFileChooser.APPROVE_OPTION) {
+							openedFile = chooser.getSelectedFile();
+							file = openedFile;
+							setTitle("Javabite Compiler - " + file.getName());
+							toolBarLabel.setText("Document saved.");
+							saveEditorContentIntoFile(openedFile);
+							fileChanged = false;
+							
+							// sourcecode can now be compiled
+							canCompiled = true;
+						}
+					} else {			// firstly save file
+						saveEditorContentIntoFile(openedFile);
 						setTitle("Javabite Compiler - " + file.getName());
 						toolBarLabel.setText("Document saved.");
-						saveEditorContentIntoFile(openedFile);
-						fileChanged = false;
 						
 						// sourcecode can now be compiled
 						canCompiled = true;
 					}
-				} 
-				else {
-					// firstly save file
-					saveEditorContentIntoFile(openedFile);
-					setTitle("Javabite Compiler - " + file.getName());
-					toolBarLabel.setText("Document saved.");
-					
-					// sourcecode can now be compiled
-					canCompiled = true;
-				}
-			} 
-			// 'No' was selected
-			else if (n == 1) {
-				if (file == null) {
+				} else if (n == 1) {	// 'No' was selected
+					if (file == null) {
+						canCompiled = false;
+						frame = new JFrame();
+						JOptionPane.showMessageDialog(frame, "Sourcecode not saved into a file. Cannot compile!");
+					} else {
+						canCompiled = true;
+					}
+				} else {				// 'Cancel' was selected
 					canCompiled = false;
-					frame = new JFrame();
-					JOptionPane.showMessageDialog(frame, "Sourcecode not saved into a file. Cannot compile!");
 				}
-				else {
-					canCompiled = true;
-				}
-			} 
-			// 'Cancel' was selected
-			else {
-				canCompiled = false;
-			}
-		} else {
-			// file not changed, but doesn't exist
-			if (file == null) {
-				canCompiled = false;
-				JFrame frame = new JFrame();
-				JOptionPane.showMessageDialog(frame, "Sourcecode not saved into a file. Cannot compile!");
-			}
-			// file not changed, but it exists
-			else {
-				canCompiled = true;
-			}
-		}
-		
-		if (canCompiled) {
-			textPaneLogs.setText("Compiler started.");
-			progressBar.setValue(0);
-			progressBar.setEnabled(true);
-			Lexer lexer = ModuleProvider.getLexerInstance();
-			Parser parser = ModuleProvider.getParserInstance();
-			parser.setLexer(lexer);
-			parser.setReportLog(this);
-			SemanticAnalyser semanticAnalyser=ModuleProvider.getSemanticAnalyserInstance();
-			semanticAnalyser.setReportLog(this);
-			IntermediateCodeGenerator codegen = ModuleProvider.getCodeGeneratorInstance();
-			Backend backend = ModuleProvider.getBackendInstance();
-			
-			for (int i=0; i<modelReportLogs.getRowCount(); i++) modelReportLogs.removeRow(i);
-			
-			parser.setReportLog(this);
-			
-			progressBar.setValue(10);
-			boolean setupOk = true;
-			if (lexer == null) {
-				setupOk = false;
-			}
-			if (parser == null) {
-				setupOk = false;
-			}
-			if (codegen == null) {
-				setupOk = false;
-			}
-			if (backend == null) {
-				setupOk = false;
-			}
-
-			if (setupOk) {
-				System.out.println("Compiler is ready to start");
 			} else {
-				System.out.println("Compiler could not load all need modules");
-				return;
+				if (file == null) {		// file not changed, but doesn't exist
+					canCompiled = false;
+					JFrame frame = new JFrame();
+					JOptionPane.showMessageDialog(frame, "Sourcecode not saved into a file. Cannot compile!");
+				} else {
+					canCompiled = true;	// file not changed, but it exists
+				}
 			}
 			
-			// get the name of file without extension
-			progressBar.setValue(20);
-			textPaneLogs.setText(textPaneLogs.getText() + "\nGetting file.");
-			toolBarLabel.setText("Getting file content.");
-			String sourceBaseName = file.getName();
-			int lastDot = sourceBaseName.lastIndexOf(".");
-			lastDot = lastDot > -1 ? lastDot : sourceBaseName.length();
-			sourceBaseName = sourceBaseName.substring(0,lastDot);
-			
-			toolBarLabel.setText("Compiling sourcecode.");
-			progressBar.setValue(30);
-			errorReported = false;
-			lexer.setSourceStream(new FileInputStream(file));
-			toolBarLabel.setText("Building AST.");
-			textPaneLogs.setText(textPaneLogs.getText() + "\nStarting Lexer.");
-			textPaneLogs.setText(textPaneLogs.getText() + "\nStarting Parser.");
-			textPaneLogs.setText(textPaneLogs.getText() + "\nCreating AST.");
-			AST ast = parser.getParsedAST();
-			if (errorReported) {
-				textPaneLogs.setText(textPaneLogs.getText() + "\nSourcecode could not compile.");
-				toolBarLabel.setText("Sourcecode could not compile.");
-				return;
-			}
-			semanticAnalyser.analyse(ast);
-			if (errorReported) {
-				textPaneLogs.setText(textPaneLogs.getText() + "\nSourcecode could not compile.");
-				toolBarLabel.setText("Sourcecode could not compile.");
-				return;
-			}
-			
-			textPaneLogs.setText(textPaneLogs.getText() + "\nCreating quadruples.");
-			progressBar.setValue(60);
-			List<Quadruple> quadruples = codegen.generateIntermediateCode(ast);
-			progressBar.setValue(70);
-			Map<String, InputStream> results = backend.generateTargetCode(sourceBaseName, quadruples);
-			progressBar.setValue(80);
-			textPaneLogs.setText(textPaneLogs.getText() + "\nGenerate target code finished.");
-			for (Entry<String,InputStream> e:results.entrySet()) {
-				textPaneLogs.setText(textPaneLogs.getText() + "\nWrite output file: " + e.getKey());
-				File outFile = new File(e.getKey());
-				FileOutputStream fos = new FileOutputStream(outFile);
-				IOUtils.copy(e.getValue(), fos);
-				fos.close();
-				try {
+			if (canCompiled) {
+				textPaneLogs.setText("Compiler started.");
+				progressBar.setValue(0);
+				progressBar.setEnabled(true);
+				Lexer lexer = ModuleProvider.getLexerInstance();
+				Parser parser = ModuleProvider.getParserInstance();
+				parser.setLexer(lexer);
+				parser.setReportLog(this);
+				SemanticAnalyser semanticAnalyser=ModuleProvider.getSemanticAnalyserInstance();
+				semanticAnalyser.setReportLog(this);
+				IntermediateCodeGenerator codegen = ModuleProvider.getCodeGeneratorInstance();
+				Backend backend = ModuleProvider.getBackendInstance();
+				
+				for (int i = 0; i < modelReportLogs.getRowCount(); i++) {
+					modelReportLogs.removeRow(i);
+				}
+				
+				parser.setReportLog(this);
+				
+				progressBar.setValue(10);
+				boolean setupOk = true;
+				if (lexer == null) {
+					setupOk = false;
+				}
+				if (parser == null) {
+					setupOk = false;
+				}
+				if (codegen == null) {
+					setupOk = false;
+				}
+				if (backend == null) {
+					setupOk = false;
+				}
+				
+				if (setupOk) {
+					System.out.println("Compiler is ready to start");
+				} else {
+					System.out.println("Compiler could not load all need modules");
+					return;
+				}
+				
+				// get the name of file without extension
+				progressBar.setValue(20);
+				textPaneLogs.setText(textPaneLogs.getText() + "\nGetting file.");
+				toolBarLabel.setText("Getting file content.");
+				String sourceBaseName = file.getName();
+				int lastDot = sourceBaseName.lastIndexOf(".");
+				lastDot = lastDot > -1 ? lastDot : sourceBaseName.length();
+				sourceBaseName = sourceBaseName.substring(0,lastDot);
+				
+				toolBarLabel.setText("Compiling sourcecode.");
+				progressBar.setValue(30);
+				errorReported = false;
+				lexer.setSourceStream(new FileInputStream(file));
+				toolBarLabel.setText("Building AST.");
+				textPaneLogs.setText(textPaneLogs.getText() + "\nStarting Lexer.");
+				textPaneLogs.setText(textPaneLogs.getText() + "\nStarting Parser.");
+				textPaneLogs.setText(textPaneLogs.getText() + "\nCreating AST.");
+				AST ast = parser.getParsedAST();
+				if (errorReported) {
+					textPaneLogs.setText(textPaneLogs.getText() + "\nSourcecode could not compile.");
+					toolBarLabel.setText("Sourcecode could not compile.");
+					return;
+				}
+				semanticAnalyser.analyse(ast);
+				if (errorReported) {
+					textPaneLogs.setText(textPaneLogs.getText() + "\nSourcecode could not compile.");
+					toolBarLabel.setText("Sourcecode could not compile.");
+					return;
+				}
+				
+				textPaneLogs.setText(textPaneLogs.getText() + "\nCreating quadruples.");
+				progressBar.setValue(60);
+				List<Quadruple> quadruples = codegen.generateIntermediateCode(ast);
+				progressBar.setValue(70);
+				Map<String, InputStream> results = backend.generateTargetCode(sourceBaseName, quadruples);
+				progressBar.setValue(80);
+				textPaneLogs.setText(textPaneLogs.getText() + "\nGenerate target code finished.");
+				for (Entry<String,InputStream> e:results.entrySet()) {
+					textPaneLogs.setText(textPaneLogs.getText() + "\nWrite output file: " + e.getKey());
+					File outFile = new File(e.getKey());
+					FileOutputStream fos = new FileOutputStream(outFile);
+					IOUtils.copy(e.getValue(), fos);
+					fos.close();
 					String line;
 					textPaneLogs.setText(textPaneLogs.getText() + "\nRunning application.");
 					Process p = Runtime.getRuntime().exec("java " + outFile.getAbsolutePath());
@@ -1021,13 +1005,18 @@ public class MainFrame extends JFrame implements ReportLog {
 						textPaneConsole.setText(textPaneConsole.getText() + "\n" + line + ".");
 					}
 					input.close();
-				} catch (java.io.IOException ex) {
-					System.err.println("Problems invoking class " + outFile.getAbsolutePath() + ": " + ex);
 				}
+				
+				toolBarLabel.setText("File compiled.");
+				progressBar.setValue(100);
+				progressBar.setEnabled(false);
 			}
+		} catch (Exception e) {
+			e.printStackTrace();
 			
-			toolBarLabel.setText("File compiled.");
-			progressBar.setValue(100);
+			textPaneLogs.setText(textPaneLogs.getText() + "\nCompilation failed.");
+			toolBarLabel.setText("Compilation failed.");
+			progressBar.setValue(0);
 			progressBar.setEnabled(false);
 		}
 	}

@@ -21,7 +21,7 @@ import swp_compiler_ss13.javabite.backend.translation.Translator;
  * @since 27.04.2013
  * 
  */
-public class BackendJB implements Backend {
+public class BackendJb implements Backend {
 
 	@SuppressWarnings("unused")
 	private final TACOptimizer tacOptimizer;
@@ -29,7 +29,7 @@ public class BackendJB implements Backend {
 	@SuppressWarnings("unused")
 	private final TargetCodeOptimizer targetCodeOptimizer;
 
-	public BackendJB() {
+	public BackendJb() {
 		tacOptimizer = new TACOptimizer();
 		translator = new Translator();
 		targetCodeOptimizer = new TargetCodeOptimizer();
