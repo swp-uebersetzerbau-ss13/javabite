@@ -37,11 +37,35 @@ public class BackendJb implements Backend {
 
 	/**
 	 * TODO javadoc
+	 * 
+	 * @param s
+	 * @return
+	 */
+	public static String rectifyJavaIdentifier(final String s) {
+		final StringBuilder sb = new StringBuilder();
+
+		final char[] c = s.toCharArray();
+		if (Character.isJavaIdentifierStart(c[0])) {
+			sb.append(Character.toUpperCase(c[0]));
+		}
+
+		for (int i = 1; i < c.length; i++) {
+			if (Character.isJavaIdentifierPart(c[i])) {
+				sb.append(c[i]);
+			}
+		}
+
+		return sb.toString();
+	}
+
+	/**
+	 * TODO javadoc
 	 */
 	@Override
-	public Map<String, InputStream> generateTargetCode(
-			final String baseFileName, final List<Quadruple> tac)
-			throws BackendException {
+	public Map<String, InputStream> generateTargetCode(String baseFileName,
+			final List<Quadruple> tac) throws BackendException {
+
+		baseFileName = rectifyJavaIdentifier(baseFileName);
 
 		// TAC Optimizer
 		// ### currently empty ###

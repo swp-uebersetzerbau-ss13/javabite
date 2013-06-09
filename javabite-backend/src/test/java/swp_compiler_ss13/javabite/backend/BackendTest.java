@@ -114,6 +114,10 @@ public class BackendTest {
 			Operator.LABEL, "lbl", "!", "!"), new QuadrupleImpl(
 			Operator.PRINT_STRING, "#\"success\"", "!", "!"));
 
+	static final List<Quadruple> tac10 = asList(new QuadrupleImpl(
+			Operator.PRINT_STRING, "#\\\"hello, world!\na new line\\\"", "!",
+			"!"));
+
 	@Before
 	public void setup() {
 		backend = new BackendJb();
@@ -183,12 +187,19 @@ public class BackendTest {
 	// "Generated target code returns unexpected value while execution",
 	// 0 == testToReturnValueOfTac(tac8, 1));
 	// }
+	//
+	// @Test
+	// public void testTac9ReturnVal() throws BackendException {
+	// assertTrue(
+	// "Generated target code returns unexpected value while execution",
+	// 0 == testToReturnValueOfTac(tac9, 1));
+	// }
 
 	@Test
-	public void testTac9ReturnVal() throws BackendException {
+	public void testTac10ReturnVal() throws BackendException {
 		assertTrue(
 				"Generated target code returns unexpected value while execution",
-				0 == testToReturnValueOfTac(tac9, 1));
+				0 == testToReturnValueOfTac(tac10, 1));
 	}
 
 	public long testToReturnValueOfTac(final List<Quadruple> tac,

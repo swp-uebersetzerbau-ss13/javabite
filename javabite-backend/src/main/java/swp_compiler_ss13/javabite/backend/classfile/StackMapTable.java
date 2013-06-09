@@ -14,7 +14,7 @@ class StackMapTable {
 
 	public StackMapTable(final short attributeNameIndex) {
 		this.attributeNameIndex = attributeNameIndex;
-		this.attributeLength = 0;
+		attributeLength = 0;
 	}
 
 	/**
@@ -28,7 +28,7 @@ class StackMapTable {
 	 * @param attributeNameIndex
 	 *            the attributeNameIndex to set
 	 */
-	public void setAttributeNameIndex(short attributeNameIndex) {
+	public void setAttributeNameIndex(final short attributeNameIndex) {
 		this.attributeNameIndex = attributeNameIndex;
 	}
 
@@ -43,12 +43,12 @@ class StackMapTable {
 	 * @param attributeLength
 	 *            the attributeLength to set
 	 */
-	public void setAttributeLength(int attributeLength) {
+	public void setAttributeLength(final int attributeLength) {
 		this.attributeLength = attributeLength;
 	}
 
 	public short getNumberOfEntries() {
-		return (short) this.entries.size();
+		return (short) entries.size();
 	}
 
 	static abstract class StackMapFrame {
@@ -58,7 +58,7 @@ class StackMapTable {
 
 		private StackMapFrame(final FrameType frameType, final byte tag) {
 			this.frameType = frameType;
-			this.frameTypeTag = tag;
+			frameTypeTag = tag;
 			assert tag >= frameType.tagRangeFrom && tag <= frameType.tagRangeTo;
 		}
 

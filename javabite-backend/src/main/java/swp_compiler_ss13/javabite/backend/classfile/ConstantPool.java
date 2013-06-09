@@ -190,7 +190,7 @@ class ConstantPool {
 	 * @return short index of a STRING info entry in the constant pool of this
 	 *         classfile meeting the parameters.
 	 */
-	short generateConstantStringInfo(final String value) {
+	short generateConstantStringInfo(String value) {
 		checkConstantPoolSize();
 		final String key = InfoTag.STRING.name() + value;
 
@@ -198,6 +198,8 @@ class ConstantPool {
 		if (getCPMapEntry(key) > 0) {
 			return getCPMapEntry(key);
 		}
+
+		value = new String(value.substring(2, value.length() - 2));
 
 		// generate UTF8-entry
 		final short nameIndex = generateConstantUTF8Info(value);

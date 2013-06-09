@@ -6,22 +6,23 @@ import org.junit.Test;
 
 public class DescriptorTest {
 
-	static void describe(Class<?> clazz, String pad, String leadin) {
+	static void describe(final Class<?> clazz, final String pad,
+			final String leadin) {
 		if (clazz == null)
 			return;
-		String type = clazz.isInterface() ? "interface"
+		final String type = clazz.isInterface() ? "interface"
 				: clazz.isArray() ? "array" : clazz.isPrimitive() ? "primitive"
 						: clazz.isEnum() ? "enum" : "class";
 		System.out.printf("%s%s%s %s ( %s )%n", pad, leadin, type,
 				clazz.getSimpleName(), clazz.getName());
-		for (Class<?> interfaze : clazz.getInterfaces()) {
+		for (final Class<?> interfaze : clazz.getInterfaces()) {
 			describe(interfaze, pad + "   ", "implements ");
 		}
 		describe(clazz.getComponentType(), pad + "   ", "elements are ");
 		describe(clazz.getSuperclass(), pad + "   ", "extends ");
 	}
 
-	static void describe(Class<?> clazz) {
+	static void describe(final Class<?> clazz) {
 		describe(clazz, "", "");
 		System.out.println();
 	}

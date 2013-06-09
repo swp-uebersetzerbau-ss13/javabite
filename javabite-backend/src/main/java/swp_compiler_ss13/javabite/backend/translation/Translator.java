@@ -101,7 +101,6 @@ public class Translator {
 		// some initialization
 		final String classFileName = mainClassName + FILEEXT_CLASS;
 		final Collection<IClassfile> classfiles = new ArrayList<IClassfile>();
-		final String mainMethodName = METHODNAME_MAIN;
 
 		// create a new (main)classfile/ classfile with main method
 		final IClassfile classfile = generateClassfile(classFileName,
@@ -110,7 +109,7 @@ public class Translator {
 				Classfile.ClassfileAccessFlag.ACC_SUPER);
 
 		// add main method to this (main)classfile
-		classfile.addMethodToMethodArea(mainMethodName, METHODDESCRIPTOR_MAIN,
+		classfile.addMethodToMethodArea(METHODNAME_MAIN, METHODDESCRIPTOR_MAIN,
 				Classfile.MethodAccessFlag.ACC_PUBLIC,
 				Classfile.MethodAccessFlag.ACC_STATIC);
 
@@ -119,10 +118,10 @@ public class Translator {
 
 		// translate tac/program into the main method's code
 		if (tac != null) {
-			tac = addVariablesToLocalVariableSpace(classfile, mainMethodName,
+			tac = addVariablesToLocalVariableSpace(classfile, METHODNAME_MAIN,
 					tac);
 			addConstantsToConstantPool(classfile, tac);
-			extractInstructionsFromOperations(classfile, mainMethodName, tac);
+			extractInstructionsFromOperations(classfile, METHODNAME_MAIN, tac);
 		}
 
 		// add final (main)classfile to the translator's classfile list
@@ -140,6 +139,14 @@ public class Translator {
 			final List<Quadruple> tac) {
 		final Collection<IClassfile> classfiles = new ArrayList<>();
 		return classfiles;
+	}
+
+	private static String removeConstantSign(final String s) {
+		return s.startsWith(SYM_CONST) ? s.substring(1) : s;
+	}
+
+	private static boolean isConstant(final String s) {
+		return s.startsWith(SYM_CONST);
 	}
 
 	/**
@@ -173,22 +180,28 @@ public class Translator {
 			 */
 			if (operator.name().startsWith("ARRAY_SET")) {
 				// argument 2 is a long constant
-				if (arg2.startsWith(SYM_CONST)) {
+				if (isConstant(arg2)) {
 					// TODO remove substring, replace by method!
-					classFile.addLongConstantToConstantPool(Long.parseLong(arg2
-							.substring(1)));
+					classFile.addLongConstantToConstantPool(Long
+							.parseLong(removeConstantSign(arg2)));
 				}
 				// result can be a cnstant of different types
-				if (result.startsWith(SYM_CONST)) {
-					if (operator == Operator.ARRAY_SET_LONG) {
+				if (isConstant(result)) {
+					switch (operator) {
+					case ARRAY_SET_LONG:
 						classFile.addLongConstantToConstantPool(Long
-								.parseLong(result.substring(1)));
-					} else if (operator == Operator.ARRAY_SET_DOUBLE) {
+								.parseLong(removeConstantSign(result)));
+						break;
+					case ARRAY_SET_DOUBLE:
 						classFile.addDoubleConstantToConstantPool(Double
-								.parseDouble(result.substring(1)));
-					} else if (operator == Operator.ARRAY_SET_STRING) {
-						classFile.addStringConstantToConstantPool(result
-								.substring(1));
+								.parseDouble(removeConstantSign(result)));
+						break;
+					case ARRAY_SET_STRING:
+						classFile
+								.addStringConstantToConstantPool(removeConstantSign(result));
+						break;
+					default:
+						break;
 					}
 				}
 				continue;
@@ -212,37 +225,40 @@ public class Translator {
 
 			switch (type) {
 			case LONG:
-				if (arg1.startsWith(SYM_CONST)) {
-					classFile.addLongConstantToConstantPool(Long.parseLong(arg1
-							.substring(1)));
+				if (isConstant(arg1)) {
+					classFile.addLongConstantToConstantPool(Long
+							.parseLong(removeConstantSign(arg1)));
 				}
-				if (arg2.startsWith(SYM_CONST)) {
-					classFile.addLongConstantToConstantPool(Long.parseLong(arg2
-							.substring(1)));
+				if (isConstant(arg2)) {
+					classFile.addLongConstantToConstantPool(Long
+							.parseLong(removeConstantSign(arg2)));
 				}
 				break;
 
 			case DOUBLE:
-				if (arg1.startsWith(SYM_CONST)) {
+				if (isConstant(arg1)) {
 					classFile.addDoubleConstantToConstantPool(Double
-							.parseDouble(arg1.substring(1)));
+							.parseDouble(removeConstantSign(arg1)));
 				}
-				if (arg2.startsWith(SYM_CONST)) {
+				if (isConstant(arg2)) {
 					classFile.addDoubleConstantToConstantPool(Double
-							.parseDouble(arg2.substring(1)));
+							.parseDouble(removeConstantSign(arg2)));
 				}
 				break;
 
 			case STRING:
+				if (type == InfoTag.STRING && isConstant(arg1)) {
+					classFile
+							.addStringConstantToConstantPool(removeConstantSign(arg1));
+				}
+				if (type == InfoTag.STRING && isConstant(arg2)) {
+					classFile
+							.addStringConstantToConstantPool(removeConstantSign(arg2));
+				}
+				break;
+
 			default:
-				if (type == InfoTag.STRING && arg1.startsWith(SYM_CONST)) {
-					classFile
-							.addStringConstantToConstantPool(arg1.substring(1));
-				}
-				if (type == InfoTag.STRING && arg2.startsWith(SYM_CONST)) {
-					classFile
-							.addStringConstantToConstantPool(arg2.substring(1));
-				}
+				break;
 			}
 		}
 	}
