@@ -76,11 +76,11 @@ public class ASTGenerator {
 	// reduction list meeting the appropriate format
 	List<TargetGrammar.Reduction> reductions;
 	// stack holding blocknodes, top: current block
-	Stack<BlockNode> currentBlocks;
+	Stack<BlockNodeJb> currentBlocks;
 
 	public ASTGenerator(List<TargetGrammar.Reduction> reductions) {
 		this.reductions = reductions;
-		this.currentBlocks = new Stack<BlockNode>();
+		this.currentBlocks = new Stack<>();
 	}
 
 	public ASTJb generateAST() {
@@ -91,20 +91,20 @@ public class ASTGenerator {
 		if (reductions != null) {
 			// if this is null there was a earlier error in parser 
 			// TODO secure call to ASTGenerator against empty input
-			BlockNode rootNode = this.useProgramProduction();
+			BlockNode rootNode = this.useBlockProduction();
 			ast.setRootNode(rootNode);
 		}
 		
 		return ast;
 	}
 
-	private BlockNode useProgramProduction() {
+	private BlockNodeJb useBlockProduction() {
 		if (debug){
 			logger.info("process \"programm\" \treduction on reductions {}",reductions);
 		}
 		
 		// Generate new Block
-		BlockNode root = new BlockNodeJb();
+		BlockNodeJb root = new BlockNodeJb();
 		currentBlocks.push(root);
 		root.setSymbolTable(new SymbolTableJb());
 		// delete next reductions' list production from it
@@ -130,7 +130,7 @@ public class ASTGenerator {
 		case "decls -> decls decl":
 			this.useDeclsProduction();
 			DeclarationNode decl = this.useDeclProduction();
-			BlockNode currentBlock = this.currentBlocks.pop();
+			BlockNodeJb currentBlock = this.currentBlocks.pop();
 			currentBlock.addDeclaration(decl);
 			this.currentBlocks.add(currentBlock);
 			break;
@@ -217,7 +217,7 @@ public class ASTGenerator {
 		case "stmts -> stmts stmt":
 			this.useStmtsProduction();
 			StatementNode stmt = this.useStmtProduction();
-			BlockNode currentBlock = this.currentBlocks.pop();
+			BlockNodeJb currentBlock = this.currentBlocks.pop();
 			currentBlock.addStatement(stmt);
 			this.currentBlocks.add(currentBlock);
 			break;
@@ -280,6 +280,10 @@ public class ASTGenerator {
 		case "stmt -> BREAK SEMICOLON":
 			BreakNodeJb breakNode=new BreakNodeJb();
 			stmt=breakNode;
+			break;
+		case "stmt -> block":
+			BlockNodeJb blockNode=useBlockProduction();
+			stmt=blockNode;
 			break;
 		default:
 			logger.error("thisReduction : {} , matches no case",thisReduction);
