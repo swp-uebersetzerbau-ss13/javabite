@@ -23,9 +23,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Map.Entry;
 
 import javax.swing.JButton;
@@ -42,11 +42,6 @@ import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTextPane;
 import javax.swing.JToolBar;
-import javax.swing.JToolTip;
-import javax.swing.event.CaretEvent;
-import javax.swing.event.CaretListener;
-import javax.swing.event.UndoableEditEvent;
-import javax.swing.event.UndoableEditListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.BadLocationException;
@@ -58,7 +53,6 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleConstants.CharacterConstants;
 import javax.swing.text.StyledDocument;
 import javax.swing.text.Utilities;
-import javax.swing.undo.UndoManager;
 
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.backend.Backend;
@@ -75,6 +69,7 @@ import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser;
 import swp_compiler_ss13.common.util.ModuleProvider;
 import swp_compiler_ss13.javabite.ast.ASTJb;
+import swp_compiler_ss13.javabite.config.JavabiteConfig;
 import swp_compiler_ss13.javabite.gui.ast.ASTVisualizerJb;
 import swp_compiler_ss13.javabite.gui.ast.fitted.KhaledGraphFrame;
 import swp_compiler_ss13.javabite.lexer.LexerJb;
@@ -127,10 +122,11 @@ public class MainFrame extends JFrame implements ReportLog {
 	JTable tableReportLogs;
 	DefaultTableModel modelReportLogs;
 	JTabbedPane tabbedPaneLog;
-	private static JTextPane editorPaneSourcode;
+	private static JTextPane editorPaneSourcecode;
 	
-	// Files and file information
-	Properties properties = new Properties();
+	// get properties for syntax highlighting
+	JavabiteConfig properties = JavabiteConfig.getDefaultConfig();
+			
 	File openedFile = null;
 	boolean fileChanged = false;
 	SourecodeDocumentListener sourceCodeListener;
@@ -138,7 +134,7 @@ public class MainFrame extends JFrame implements ReportLog {
 	
 	// undo and redo
 	private Document editorPaneDocument;
-	protected UndoManager undoManager = new UndoManager();
+	protected UndoCostumManager undoManager;
 	private JButton undoButton;
 	private JButton redoButton;
 	private JScrollPane scrollPane;
@@ -173,7 +169,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		BufferedWriter bw;
 		try {
 			bw = new BufferedWriter(new FileWriter(file));
-			bw.write(editorPaneSourcode.getText());
+			bw.write(editorPaneSourcecode.getText());
 			bw.flush();
 		} catch (IOException ex) {
 			ex.printStackTrace();
@@ -195,7 +191,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		}
 		
 		// insert lines into source code editor
-		Document doc = editorPaneSourcode.getDocument();
+		Document doc = editorPaneSourcecode.getDocument();
 		try {
 			doc.remove(0, doc.getLength()); // remove old content
 			while (line != null) {
@@ -228,7 +224,7 @@ public class MainFrame extends JFrame implements ReportLog {
 			public void actionPerformed(ActionEvent e) {
 				
 				// unregister source code change listener
-				editorPaneSourcode.getDocument().removeDocumentListener(sourceCodeListener);
+				editorPaneSourcecode.getDocument().removeDocumentListener(sourceCodeListener);
 				
 				// file was not changed, thus just open new file
 				if (!fileChanged) {
@@ -332,7 +328,7 @@ public class MainFrame extends JFrame implements ReportLog {
 						}
 					}
 				}
-				editorPaneSourcode.getDocument().addDocumentListener(sourceCodeListener);
+				editorPaneSourcecode.getDocument().addDocumentListener(sourceCodeListener);
 			}
 		});
 		
@@ -372,7 +368,7 @@ public class MainFrame extends JFrame implements ReportLog {
 								
 								// open new file
 								openedFile = null;
-								editorPaneSourcode.setText("");
+								editorPaneSourcecode.setText("");
 								toolBarLabel.setText("New document opened.");
 								setTitle("Javabite Compiler - New File.prog");
 							}
@@ -386,7 +382,7 @@ public class MainFrame extends JFrame implements ReportLog {
 							// now, open new file
 							openedFile = null;
 							fileChanged = false;
-							editorPaneSourcode.setText("");
+							editorPaneSourcecode.setText("");
 							toolBarLabel.setText("New document opened.");
 							setTitle("Javabite Compiler - New File.prog");
 						}
@@ -396,7 +392,7 @@ public class MainFrame extends JFrame implements ReportLog {
 						// open new file
 						openedFile = null;
 						fileChanged = false;
-						editorPaneSourcode.setText("");
+						editorPaneSourcecode.setText("");
 						toolBarLabel.setText("New document opened.");
 						setTitle("Javabite Compiler - New File.prog");
 					} 
@@ -409,7 +405,7 @@ public class MainFrame extends JFrame implements ReportLog {
 				else {
 					openedFile = null;
 					fileChanged = false;
-					editorPaneSourcode.setText("");
+					editorPaneSourcecode.setText("");
 					toolBarLabel.setText("New document opened.");
 					setTitle("Javabite Compiler - New File.prog");
 				}
@@ -544,7 +540,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		parser = new ParserJb();
 		menuVisualAst.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String text = editorPaneSourcode.getText();
+				String text = editorPaneSourcecode.getText();
 				try {
 					lexer.setSourceStream(new ByteArrayInputStream(text.getBytes("UTF-8")));
 				} catch (UnsupportedEncodingException ex) {
@@ -642,20 +638,6 @@ public class MainFrame extends JFrame implements ReportLog {
 		
 		lexer = new LexerJb();
 		
-		// get properties for syntax highlighting
-		try {
-			// get the file path os-independent 
-			// path is src\\main\\java\\swp_compiler_ss13\\javabite\\gui\\highlighting.properties
-			// or src/main/java/swp_compiler_ss13/javabite/gui/highlighting.properties
-			// respectively...   
-			String sep=File.separator;
-			String propPath="."+sep+"src"+sep+"main"+sep+"java"+sep+"swp_compiler_ss13"+sep+"javabite"+sep+"gui"+sep+"highlighting.properties";
-			BufferedInputStream stream = new BufferedInputStream(new FileInputStream(propPath));
-			properties.load(stream);
-			stream.close();
-		} catch (IOException ex) {
-			ex.printStackTrace();
-		}
 		
 		tabbedPaneLog = new JTabbedPane(JTabbedPane.TOP);
 		splitPane.setRightComponent(tabbedPaneLog);
@@ -681,18 +663,21 @@ public class MainFrame extends JFrame implements ReportLog {
 		splitPane.setLeftComponent(scrollPane);
 		
 		// sourcecode with syntax highlighting
-		editorPaneSourcode = new JTextPane(doc);
-		scrollPane.setViewportView(editorPaneSourcode);
-		editorPaneSourcode.setText("enter your sourcecode here");
+		editorPaneSourcecode = new JTextPane(doc);
+		scrollPane.setViewportView(editorPaneSourcecode);
+		editorPaneSourcecode.setText("enter your sourcecode here");
 		sourceCodeListener = new SourecodeDocumentListener(this);
-		editorPaneSourcode.getDocument().addDocumentListener(sourceCodeListener);
+		editorPaneSourcecode.getDocument().addDocumentListener(sourceCodeListener);
+		
+		//undo redo manager
+		undoManager = new UndoCostumManager(editorPaneSourcecode);
 		
 		// tooltip
-		editorPaneSourcode.addMouseMotionListener(new MouseAdapter() {
+		editorPaneSourcecode.addMouseMotionListener(new MouseAdapter() {
 			  public void mouseMoved(MouseEvent e) {
 				  Point loc = e.getPoint();
-				  int pos = editorPaneSourcode.viewToModel(loc);
-				  String text = editorPaneSourcode.getText();
+				  int pos = editorPaneSourcecode.viewToModel(loc);
+				  String text = editorPaneSourcecode.getText();
 				  
 				  //dont do anything if the cursor is not hover an element
 				  if (pos < text.length()) {
@@ -725,7 +710,7 @@ public class MainFrame extends JFrame implements ReportLog {
 					  
 					  //check if there is just 1 token type, if not there is no space between tokens and we have to identify what tokens is the target
 					  if(tokens.size() == 1) {
-						  editorPaneSourcode.setToolTipText(tokens.get(0).getTokenType().name());
+						  editorPaneSourcecode.setToolTipText(tokens.get(0).getTokenType().name());
 					  } else {
 						  int newPos = pos-delimiterPos;
 						  int posCount = 0;
@@ -740,25 +725,17 @@ public class MainFrame extends JFrame implements ReportLog {
 								  break;
 							  }
 						  }
-						  editorPaneSourcode.setToolTipText(tokens.get(tokenId).getTokenType().name());
+						  editorPaneSourcecode.setToolTipText(tokens.get(tokenId).getTokenType().name());
 					  }
 				  } else {
-					  editorPaneSourcode.setToolTipText("");
+					  editorPaneSourcecode.setToolTipText("");
 				  }
 			  }
 		});
 		
-		// setup undo redo
-		editorPaneSourcode.getDocument().addUndoableEditListener(new UndoableEditListener() {
-			public void undoableEditHappened(UndoableEditEvent e) {
-				if (e.getEdit().getPresentationName().equals("L��schen") || e.getEdit().getPresentationName().equals("Hinzuf��gen")) {
-					undoManager.addEdit(e.getEdit());
-				}
-			}
-		});
 		
 		// add listener for sourcecode colorization 
-		editorPaneSourcode.addKeyListener(new KeyAdapter() {
+		editorPaneSourcecode.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent arg0) {
 				styleEditorText();
@@ -792,14 +769,15 @@ public class MainFrame extends JFrame implements ReportLog {
 	private void styleToken(TokenType tokenType, int start, int end) {
 		//check properties file for tokentype key, if exist set defined color
 		String color;
-		if ((color = properties.getProperty(tokenType.toString())) != null) {
-			javax.swing.text.Style style = editorPaneSourcode.addStyle(tokenType.toString(), null);
+		if ((color = properties.getProperty("syntaxHighlighting."+tokenType.toString().toLowerCase())) != null) {
+			color = color.substring(1);
+			javax.swing.text.Style style = editorPaneSourcecode.addStyle(tokenType.toString(), null);
 			StyleConstants.setForeground(style, new Color(Integer.parseInt(color, 16)+0xFF000000));
-			doc.setCharacterAttributes(start, end, editorPaneSourcode.getStyle(tokenType.toString()), true);
+			doc.setCharacterAttributes(start, end, editorPaneSourcecode.getStyle(tokenType.toString()), true);
 		} else {
-			javax.swing.text.Style style = editorPaneSourcode.addStyle("Black", null);
+			javax.swing.text.Style style = editorPaneSourcecode.addStyle("Black", null);
 			StyleConstants.setForeground(style, Color.BLACK);
-			doc.setCharacterAttributes(start, end, editorPaneSourcode.getStyle("Black"), true);
+			doc.setCharacterAttributes(start, end, editorPaneSourcecode.getStyle("Black"), true);
 		}
 	}
 	
@@ -810,7 +788,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		SimpleAttributeSet attributes = new SimpleAttributeSet();
 		attributes.addAttribute(CharacterConstants.Underline, Color.red);
 		StyleConstants.setUnderline(attributes, true);
-		StyledDocument doc = editorPaneSourcode.getStyledDocument();
+		StyledDocument doc = editorPaneSourcecode.getStyledDocument();
 		doc.setCharacterAttributes(start, end, attributes, true);
 	}
 	
@@ -818,17 +796,17 @@ public class MainFrame extends JFrame implements ReportLog {
 	 * Styles the whole sourcode jtextpane
 	 */
 	private void styleEditorText() {
-		String text = editorPaneSourcode.getText();
+		String text = editorPaneSourcecode.getText();
 		
 		//reset editor value to prevent some highlighting bugs
-		int cursorPos = editorPaneSourcode.getCaretPosition();
-		editorPaneSourcode.setText("");
-		javax.swing.text.Style style = editorPaneSourcode.addStyle("Black", null);
+		int cursorPos = editorPaneSourcecode.getCaretPosition();
+		editorPaneSourcecode.setText("");
+		javax.swing.text.Style style = editorPaneSourcecode.addStyle("Black", null);
 		StyleConstants.setForeground(style, Color.BLACK);
-		doc.setCharacterAttributes(0, 1, editorPaneSourcode.getStyle("Black"), true);
+		doc.setCharacterAttributes(0, 1, editorPaneSourcecode.getStyle("Black"), true);
 	
-		editorPaneSourcode.setText(text);
-		editorPaneSourcode.setCaretPosition(cursorPos);
+		editorPaneSourcecode.setText(text);
+		editorPaneSourcecode.setCaretPosition(cursorPos);
 		int index = 0;
 		List<Token> tokens = getTokenList(text);
 		
@@ -991,6 +969,9 @@ public class MainFrame extends JFrame implements ReportLog {
 				Map<String, InputStream> results = backend.generateTargetCode(sourceBaseName, quadruples);
 				progressBar.setValue(80);
 				textPaneLogs.setText(textPaneLogs.getText() + "\nGenerate target code finished.");
+				String retVal = "";
+				long execTime = -1;
+				int exitCode = -1;
 				for (Entry<String,InputStream> e:results.entrySet()) {
 					textPaneLogs.setText(textPaneLogs.getText() + "\nWrite output file: " + e.getKey());
 					File outFile = new File(e.getKey());
@@ -998,14 +979,33 @@ public class MainFrame extends JFrame implements ReportLog {
 					IOUtils.copy(e.getValue(), fos);
 					fos.close();
 					String line;
-					textPaneLogs.setText(textPaneLogs.getText() + "\nRunning application.");
-					Process p = Runtime.getRuntime().exec("java " + outFile.getAbsolutePath());
+					String absPath = outFile.getAbsolutePath();
+					String[] splitClass = absPath.split("class");
+					String cmd = "java " + splitClass[0].substring(0,splitClass[0].length()-1);
+					System.out.println("cmd: " + cmd);
+					String folder = cmd.substring(5,cmd.lastIndexOf('\\'));
+					String classname = cmd.substring(cmd.lastIndexOf('\\')+1);
+					long startTime = new Date().getTime();
+					
+					Process p = Runtime.getRuntime().exec("java -cp \""+folder+"\" \""+classname+"\"");
+					
+					long endTime = new Date().getTime();
+					//calculate execute time in ms
+					execTime = endTime - startTime;
 					BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
 					while ((line = input.readLine()) != null) {
 						textPaneConsole.setText(textPaneConsole.getText() + "\n" + line + ".");
 					}
+					
+					final BufferedReader reader = new BufferedReader(
+							new InputStreamReader(p.getErrorStream()));
+					
+					String read = reader.readLine();
+					exitCode = p.exitValue();
 					input.close();
 				}
+				
+				textPaneConsole.setText(textPaneConsole.getText() + "\nReturn value: "+exitCode + "\nExecution time: " + execTime + "ms");
 				
 				toolBarLabel.setText("File compiled.");
 				progressBar.setValue(100);
@@ -1055,5 +1055,4 @@ public class MainFrame extends JFrame implements ReportLog {
         }
         return -1;
     }
-    
  }
