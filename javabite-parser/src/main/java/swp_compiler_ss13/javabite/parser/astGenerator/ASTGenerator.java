@@ -31,6 +31,7 @@ import swp_compiler_ss13.javabite.ast.nodes.binary.ArithmeticBinaryExpressionNod
 import swp_compiler_ss13.javabite.ast.nodes.binary.AssignmentNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.binary.LogicBinaryExpressionNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.leaf.BasicIdentifierNodeJb;
+import swp_compiler_ss13.javabite.ast.nodes.leaf.BreakNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.leaf.LiteralNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.marynary.BlockNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.ternary.BranchNodeJb;
@@ -275,6 +276,10 @@ public class ASTGenerator {
 			branchNode2.setStatementNodeOnTrue(stmtNodeTrue);
 			branchNode2.setStatementNodeOnFalse(stmtNodeFalse);
 			stmt= branchNode2;
+			break;
+		case "stmt -> BREAK SEMICOLON":
+			BreakNodeJb breakNode=new BreakNodeJb();
+			stmt=breakNode;
 			break;
 		default:
 			logger.error("thisReduction : {} , matches no case",thisReduction);
