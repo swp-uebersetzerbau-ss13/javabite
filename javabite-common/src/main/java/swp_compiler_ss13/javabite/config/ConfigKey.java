@@ -3,7 +3,14 @@ package swp_compiler_ss13.javabite.config;
 public class ConfigKey implements Comparable<ConfigKey> {
 	final String keyName;
 	String value;
+	ConfigEntry entryDescription;
 
+	public ConfigKey(String name, String value, ConfigEntry configEntry) {
+		this.keyName = name;
+		this.value = value;
+		this.entryDescription = configEntry;
+	}
+	
 	public String getValue() {
 		return value;
 	}
@@ -11,14 +18,13 @@ public class ConfigKey implements Comparable<ConfigKey> {
 	public void setValue(String value) {
 		this.value = value;
 	}
-
-	public ConfigKey(String name, String value) {
-		this.keyName = name;
-		this.value = value;
-	}
-
+	
 	public String getName() {
 		return keyName;
+	}
+	
+	public ConfigEntry getEntryDescription() {
+		return entryDescription;
 	}
 
 	@Override

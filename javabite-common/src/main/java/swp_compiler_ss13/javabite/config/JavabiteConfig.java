@@ -8,6 +8,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -15,6 +16,10 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import swp_compiler_ss13.javabite.config.entry.ColorConfigEntry;
+import swp_compiler_ss13.javabite.config.entry.DropdownConfigEntry;
+import swp_compiler_ss13.javabite.config.entry.TextConfigEntry;
 
 /**
  * The JavabiteConfig extends java.util.Properties and load/write the config
@@ -33,6 +38,7 @@ public class JavabiteConfig extends Properties {
 	public final static JavabiteConfig SINGLETON = new JavabiteConfig();
 
 	private final List<Configurable> configurables = new ArrayList<>();
+	private final HashMap<String, ConfigEntry> configEntryMap = new HashMap<>();
 
 	public JavabiteConfig() {
 		File configFile = new File(CONFIG_FILE_NAME);
@@ -88,8 +94,38 @@ public class JavabiteConfig extends Properties {
 	@Override
 	public String getProperty(String key, String defaultValue) {
 		String result = super.getProperty(key, defaultValue);
-		if (this.containsKey(key))
+		if (!this.containsKey(key))
 			this.setProperty(key, result);
+		return result;
+	}
+	
+	/**
+	 * properties accessed like this will be interpreted as colors
+	 * @param key
+	 * @param defaultValue
+	 * @return
+	 */
+	public String getProperty(String key, Integer color) {
+		configEntryMap.put(key, new ColorConfigEntry());
+		String hex = Integer.toHexString(color);
+		hex = hex.substring(2,hex.length());
+		String result = super.getProperty(key, hex);
+		if (!this.containsKey(key))
+			this.setProperty(key, hex);
+		return result;
+	}
+	
+	/**
+	 * properties accessed like this will be interpreted as limited
+	 * @param key
+	 * @param defaultValue
+	 * @return
+	 */
+	public String getProperty(String key, List<String> validValues) {
+		configEntryMap.put(key, new DropdownConfigEntry(validValues));
+		String result = super.getProperty(key, validValues.get(0));
+		if (!this.containsKey(key))
+			this.setProperty(key, validValues.get(0));
 		return result;
 	}
 
@@ -136,13 +172,17 @@ public class JavabiteConfig extends Properties {
 		if (categoryName.isEmpty()) {
 			for (String key : this.stringPropertyNames()) {
 				if (!key.contains(".")) {
-					keys.add(new ConfigKey(key, getProperty(key)));
+					ConfigEntry ce = configEntryMap.get(key);
+					ce = ce != null ? ce : new TextConfigEntry();
+					keys.add(new ConfigKey(key, getProperty(key), ce));
 				}
 			}
 		} else {
 			for (String key : this.stringPropertyNames()) {
 				if (key.startsWith(categoryName)) {
-					keys.add(new ConfigKey(key, getProperty(key)));
+					ConfigEntry ce = configEntryMap.get(key);
+					ce = ce != null ? ce : new TextConfigEntry();
+					keys.add(new ConfigKey(key, getProperty(key), ce));
 				}
 			}
 		}
