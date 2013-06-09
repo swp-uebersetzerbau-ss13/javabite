@@ -12,7 +12,7 @@ public class PrintNodeConverter extends CastingAst2CodeConverter {
 
 	@Override
 	public void convert(ASTNode node) throws IntermediateCodeGeneratorException {
-		if (!(node instanceof PrintNodeConverter))
+		if (!(node instanceof PrintNode))
 			throw new IntermediateCodeGeneratorException();
 		PrintNode printNode = (PrintNode) node;
 
