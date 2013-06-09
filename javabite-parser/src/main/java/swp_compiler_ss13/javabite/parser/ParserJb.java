@@ -1,5 +1,6 @@
 package swp_compiler_ss13.javabite.parser;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -10,14 +11,15 @@ import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.parser.Parser;
-import swp_compiler_ss13.common.parser.ReportLog;
+import swp_compiler_ss13.common.report.ReportLog;
+import swp_compiler_ss13.common.report.ReportType;
+import swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser;
 import swp_compiler_ss13.javabite.ast.ASTJb;
 import swp_compiler_ss13.javabite.parser.astGenerator.ASTGenerator;
 import swp_compiler_ss13.javabite.parser.grammar.exceptions.AmbiguityInDerivationGrammarException;
 import swp_compiler_ss13.javabite.parser.grammar.exceptions.WordNotInLanguageGrammarException;
 import swp_compiler_ss13.javabite.parser.targetgrammar.TargetGrammar;
 import swp_compiler_ss13.javabite.parser.targetgrammar.TargetGrammar.Reduction;
-import swp_compiler_ss13.javabite.parser.targetgrammar.semantic_check.ASTAnalyzer;
 
 /**
  * Responsible to convert the token stream to an AST.
@@ -63,15 +65,15 @@ public class ParserJb implements Parser {
 			// generate the necessary AST
 			ASTJb astJb=astGen.generateAST();
 			
-			ASTAnalyzer analyzer = new ASTAnalyzer(reportLog);
-			analyzer.analyse(astJb);
 			return astJb;
 		} catch(WordNotInLanguageGrammarException | AmbiguityInDerivationGrammarException e){
 			log.warn("Grammer throws exeception {}", e.getClass());
 			Token prob=e.getRelatedToken();
-			reportLog.reportError(prob.getValue(), prob.getLine(), prob.getColumn(), "Can not proceed AST build with Token '" + prob.getValue() + "' at this position.");
+			List<Token> tokenList = new ArrayList<>(1);
+			tokenList.add(prob);
+			reportLog.reportError(ReportType.WORD_NOT_IN_GRAMMAR, tokenList, "Can not proceed AST built with Token '" + prob.getValue() + "' at this position.");
 		}
-		return new ASTJb();
+		return null;
 	}
 
 	/**

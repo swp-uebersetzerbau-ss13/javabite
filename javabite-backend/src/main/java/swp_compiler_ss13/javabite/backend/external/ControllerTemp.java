@@ -8,7 +8,7 @@ import java.util.Map;
 import swp_compiler_ss13.common.backend.BackendException;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
-import swp_compiler_ss13.javabite.backend.BackendJB;
+import swp_compiler_ss13.javabite.backend.BackendJb;
 
 /**
  * ControllerTemp class. Implementation of a temporary controller to instantiate
@@ -32,6 +32,11 @@ public class ControllerTemp {
 			// add(new QuadrupleImpl(Operator.ADD_LONG, "l", "t1", "l"));
 			// add(new QuadrupleImpl(Operator.RETURN, "l", "!", "!"));
 
+			// Print prog
+			add(new QuadrupleImpl(Operator.DECLARE_STRING, "#\"hello world\"",
+					"!", "l"));
+			add(new QuadrupleImpl(Operator.PRINT_STRING, "l", "!", "!"));
+
 			// add.prog
 			// add(new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "l"));
 			// add(new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "t1"));
@@ -49,11 +54,11 @@ public class ControllerTemp {
 
 			// simple_add.prog
 
-			add(new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "l"));
-			add(new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "t1"));
-			add(new QuadrupleImpl(Operator.ADD_LONG, "#3", "#3", "t1"));
-			add(new QuadrupleImpl(Operator.ASSIGN_LONG, "t1", "!", "l"));
-			add(new QuadrupleImpl(Operator.RETURN, "l", "!", "!"));
+			// add(new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "l"));
+			// add(new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "t1"));
+			// add(new QuadrupleImpl(Operator.ADD_LONG, "#3", "#3", "t1"));
+			// add(new QuadrupleImpl(Operator.ASSIGN_LONG, "t1", "!", "l"));
+			// add(new QuadrupleImpl(Operator.RETURN, "l", "!", "!"));
 
 			// simple_mul.prog
 			// add(new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "l"));
@@ -158,7 +163,7 @@ public class ControllerTemp {
 
 		// System.out.println(sb.toString());
 
-		final BackendJB backend = new BackendJB();
+		final BackendJb backend = new BackendJb();
 		final Map<String, InputStream> test = backend.generateTargetCode(
 				"Program", tac);
 

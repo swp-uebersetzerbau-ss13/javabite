@@ -1,25 +1,65 @@
 package swp_compiler_ss13.javabite.gui.ast;
 
 import java.util.ArrayDeque;
+import java.util.Hashtable;
+import java.util.List;
 import java.util.Queue;
+import java.util.Set;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
+import javax.swing.SwingConstants;
 
-import sun.org.mozilla.javascript.internal.ast.AstNode;
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.ASTNode;
+import swp_compiler_ss13.common.ast.ASTNode.ASTNodeType;
+import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
+import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
+import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode;
+import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
+import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
+import swp_compiler_ss13.common.ast.nodes.unary.ArithmeticUnaryExpressionNode;
+import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.visualization.ASTVisualization;
 import swp_compiler_ss13.javabite.ast.ASTSource;
+import swp_compiler_ss13.javabite.ast.nodes.binary.LoopNodeJb;
+import swp_compiler_ss13.javabite.ast.nodes.marynary.BlockNodeJb;
+import swp_compiler_ss13.javabite.ast.nodes.ternary.BranchNodeJb;
+import swp_compiler_ss13.javabite.ast.nodes.unary.ArrayIdentifierNodeJb;
+import swp_compiler_ss13.javabite.ast.nodes.unary.DeclarationNodeJb;
+import swp_compiler_ss13.javabite.ast.nodes.unary.ReturnNodeJb;
+import swp_compiler_ss13.javabite.ast.nodes.unary.StructIdentifierNodeJb;
+import swp_compiler_ss13.javabite.gui.ast.fitted.KhaledGraphFrame;
+
 
 import com.mxgraph.layout.mxGraphLayout;
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
+import com.mxgraph.model.mxCell;
 import com.mxgraph.swing.mxGraphComponent;
+import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxGraph;
+import com.mxgraph.view.mxLayoutManager;
+import com.mxgraph.view.mxStylesheet;
+
+import com.mxgraph.swing.mxGraphComponent;
+import com.mxgraph.util.mxConstants;
+import com.mxgraph.view.mxStylesheet;
+
+;
 
 public class ASTVisualizerJb implements ASTVisualization {
-	mxGraph graph;
+	public mxGraph graph;
 	JScrollPane frame;
+	Queue<Object> toVisit_celledCopy;
+	int x,y;
+	
+	
+	String[] operation={"ADDITION","SUBSTRACTION","MULTIPLICATION",
+			"DIVISION","LESSTHAN","LESSTHANEQUAL","GREATERTHAN",
+			"GREATERTHANEQUAL","EQUAL","INEQUAL","LOGICAL_AND","LOGICAL_OR"};
+	String[] operationS={"+","-","*","/","<","<=",">",">=","=","=!","UND","ODER"};
+	
+	
 
 	/**
 	 * visualizes the ast
@@ -27,29 +67,72 @@ public class ASTVisualizerJb implements ASTVisualization {
 	@Override
 	public void visualizeAST(AST ast) {
 		graph = new mxGraph();
+		graph.getStylesheet();
+		mxStylesheet stylesheet = graph.getStylesheet();
+		Hashtable<String, Object> style = new Hashtable<String, Object>();
+		stylesheet.putCellStyle("ROUNDED", style);
+		style.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_RECTANGLE);
+		style.put(mxConstants.STYLE_OPACITY, 50);
+		style.put(mxConstants.STYLE_FONTCOLOR, "#000000");
+		style.put(mxConstants.STYLE_FONTSTYLE, mxConstants.FONT_BOLD);
+		stylesheet.putCellStyle("BOLD", style);
+
 		initTree(ast);
-		mxGraphLayout layout = new mxHierarchicalLayout(graph);
+		KhaledGraphFrame k= new KhaledGraphFrame();
+
+
+		this.x=170*k.levelsCounter(ast);
+		this.y=50*k.maximumOfNodesInLevels();
+
+		this.x=167*k.levelsCounter(ast);
+		this.y=47*k.maximumOfNodesInLevels();
+
+
+		this.x=167*k.levelsCounter(ast);
+		this.y=47*k.maximumOfNodesInLevels();
+
+		mxHierarchicalLayout layout = new mxHierarchicalLayout(graph);
+		layout.setOrientation(SwingConstants.WEST);
+		layout.setInterRankCellSpacing(80);
+		layout.setInterHierarchySpacing(20);
+		layout.setIntraCellSpacing(5);
 		layout.execute(graph.getDefaultParent());
 		frame = new mxGraphComponent(graph);
+		
+
+	}
+	
+	public JScrollPane getFrame() {
+		return frame;
 	}
 	
 	/**
 	 * converts the ast to a tree representation of JGraphX, represented in the frame.
 	 * @param ast
-	 */
+	 */	
+	
+	
 	private void initTree(AST ast){
 		// necessary for the model, not important for us
 		Object parent=graph.getDefaultParent();
 		
+		
 		// double-valued BFS. We have to do so since we have two different data structures
 		// this queue holds the ASTNodes we need to visit
 		Queue<ASTNode> toVisit_original=new ArrayDeque<>();
+		
 		// this queue holds the Objects we get from the graph, called cell
 		Queue<Object> toVisit_celled=new ArrayDeque<>();
 		
 		// add the root node
 		toVisit_original.add(ast.getRootNode());
+		
+		
 		toVisit_celled.add(asCell(ast.getRootNode()));
+		
+		
+
+		
 		
 		// do while there are nodes we want to visit
 		while (!toVisit_original.isEmpty()){
@@ -57,12 +140,15 @@ public class ASTVisualizerJb implements ASTVisualization {
 			// get the current Node
 			ASTNode current_ast=toVisit_original.poll();
 			Object current_cell=toVisit_celled.poll();
+			
+			
 			// visit node
 			// nothing to do here, functional part follows
 			
 			// add all children 
 			for (ASTNode child : current_ast.getChildren()){
 				// get the children, one as ASTNode, one as cell
+				//System.out.println("type: "+child.getClass());
 				Object child_as_cell=asCell(child);
 				
 				// add them to the queue to visit them
@@ -72,9 +158,39 @@ public class ASTVisualizerJb implements ASTVisualization {
 				// this is the line which do the necessary stuff.
 				// inserts a edge to every children
 				graph.insertEdge(parent, null,"",current_cell,child_as_cell);
+			
+				
+				
 			}
+			
+		}
+		this.toVisit_celledCopy=toVisit_celled;
+		
+		
+	}
+	
+	void treeNodes(){
+
+	}
+	
+	void test(AST ast){
+		Queue<ASTNode> queue= new ArrayDeque<>();
+		int i=0;
+		for (ASTNode k: ast.getRootNode().getChildren()){
+			queue.add(k);
+		}
+		for (ASTNode k:queue){
+			if (k.getNodeType().equals(ASTNodeType.ReturnNode)){
+				System.out.println(i);
+			}
+			else i++;
 		}
 	}
+	
+	/*private Object asCell(ArithmeticBinaryExpressionNode node){
+		return graph.insertVertex(graph.getDefaultParent(), null, node.getOperator(), 20, 40, 00, 70);
+	}*/
+	
 	
 	/**
 	 * creates a cell representation of the ast
@@ -82,9 +198,84 @@ public class ASTVisualizerJb implements ASTVisualization {
 	 * @return the cell-object, which correspondents to the given node
 	 */
 	private Object asCell(ASTNode ast){
-		return graph.insertVertex(graph.getDefaultParent(), null, ast, 20, 30, 200, 30);
+		
+		Object returnVal=null;
+		int i=0;
+		String value=null;
+		String color=null;
+		if (ast instanceof BasicIdentifierNode){
+			value="Id= "+ ((BasicIdentifierNode) ast).getIdentifier();
+			color="0000ff";
+			}
+		else if (ast instanceof ArithmeticBinaryExpressionNode){
+			while(!(((ArithmeticBinaryExpressionNode) ast).getOperator()).toString().equals(operation[i])){
+				i++;
+			}
+			value=operationS[i];
+			color="cyan";
+		}
+		else if (ast instanceof ArithmeticUnaryExpressionNode){
+			while(!(((ArithmeticUnaryExpressionNode) ast).getOperator()).toString().equals(operation[i])){
+				i++;
+			}
+			value=operationS[i];
+			color="blue";
+		}
+		else if (ast instanceof LiteralNode){
+			value="Type= "+ ((LiteralNode) ast).getLiteralType() + "\nLiteral= "+((LiteralNode) ast).getLiteral();
+			color="yellow";
+		}
+		else if (ast instanceof AssignmentNode){
+			value="Assignment";
+			color="white";
+			
+		}
+		else if (ast instanceof ReturnNode ){
+			value="Return";
+			color="orange";
+		}
+		else if (ast instanceof DeclarationNodeJb){
+			value= "Type= "+ ((DeclarationNodeJb) ast).getType() + "\nId= "+((DeclarationNodeJb) ast).getIdentifier();
+		    color="magenta";
+		}
+		else if (ast instanceof BlockNodeJb){
+			value="Statements= "+ ((BlockNodeJb) ast).getNumberOfStatements() + "\nDeclarations= "+((BlockNodeJb) ast).getNumberOfDeclarations();
+		    color="pink";
+		}
+		else if (ast instanceof ArrayIdentifierNodeJb){
+			value= "Index= "+ ((ArrayIdentifierNodeJb) ast).getIdentifierNode();
+		    color="black";
+		}
+		else if (ast instanceof StructIdentifierNodeJb){
+			value= "Index= "+ ((StructIdentifierNodeJb) ast).getIdentifierNode();
+		    color="red";
+		}
+
+		else if (ast instanceof LoopNodeJb){
+			value= "Condition= "+ ((LoopNodeJb) ast).getCondition() + "\nBody"+ ((LoopNodeJb) ast).getLoopBody();
+		    color="violet";
+		}
+		else if (ast instanceof ReturnNodeJb){
+			value= ""+ ((ReturnNodeJb) ast).getRightValue();
+		    color="navy";
+		}
+		else if (ast instanceof BranchNodeJb){
+			value= "Condition ="+ ((BranchNodeJb) ast).getCondition();
+		    color="ffafaf";
+		}
+		
+		else{
+			value=ast.toString();
+			color="white";
+		}
+
+		returnVal=graph.insertVertex(graph.getDefaultParent(), null, value, 20, 40, 100, 35,"ROUNDED;strokeWidth=2.0;strokeColor=white;shadow=false;autosize=0;foldable=0;editable=0;bendable=0;movable=0;resizable=0;cloneable=0;deletable=0;rounded=true;autosize=1;separatorColor=white;gradientColor=white;fillColor="+color);
+		return returnVal;
+		
+		
 	}
 
+	
 	public static void main(String[] args){
 		AST ast=ASTSource.getSecondAST();
 		ASTVisualizerJb visualizer=new ASTVisualizerJb();
@@ -92,8 +283,9 @@ public class ASTVisualizerJb implements ASTVisualization {
 		JFrame frame=new JFrame();
 		JScrollPane ast_frame=visualizer.frame;
 		frame.setVisible(true);
-		frame.setSize(800, 600);
+		frame.setSize(visualizer.x, visualizer.y);
 		frame.add(ast_frame);
 		frame.setVisible(true);
+		
 	}
 }

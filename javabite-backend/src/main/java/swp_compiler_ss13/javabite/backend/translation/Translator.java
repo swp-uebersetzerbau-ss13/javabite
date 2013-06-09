@@ -8,7 +8,6 @@ import java.util.ListIterator;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.Program;
-import swp_compiler_ss13.javabite.backend.Program.ProgramBuilder;
 import swp_compiler_ss13.javabite.backend.classfile.Classfile;
 import swp_compiler_ss13.javabite.backend.classfile.IClassfile;
 import swp_compiler_ss13.javabite.backend.classfile.IClassfile.InfoTag;
@@ -39,7 +38,7 @@ public class Translator {
 	public static final String DEF_BOOLEAN = CONST_FALSE;
 	public static final String DEF_STRING = "#\"\"";
 
-	public static final String FILEENDING_CLASS = ".class";
+	public static final String FILEEXT_CLASS = ".class";
 
 	public static final String METHODNAME_MAIN = "main";
 	public static final String METHODDESCRIPTOR_MAIN = "([Ljava/lang/String;)V";
@@ -100,7 +99,7 @@ public class Translator {
 			List<Quadruple> tac) {
 
 		// some initialization
-		final String classFileName = mainClassName + FILEENDING_CLASS;
+		final String classFileName = mainClassName + FILEEXT_CLASS;
 		final Collection<IClassfile> classfiles = new ArrayList<IClassfile>();
 		final String mainMethodName = METHODNAME_MAIN;
 
@@ -428,8 +427,7 @@ public class Translator {
 	private static void extractInstructionsFromOperations(
 			final IClassfile classfile, final String methodName,
 			final List<Quadruple> tac) {
-		final ProgramBuilder pb = ProgramBuilder.newBuilder(classfile,
-				methodName);
+		final Program.Builder pb = new Program.Builder(classfile, methodName);
 
 		boolean stopTranslation = false;
 		for (final Quadruple quad : tac) {
@@ -501,6 +499,7 @@ public class Translator {
 				break;
 			case OR_BOOLEAN:
 				pb.orBoolean(quad);
+				break;
 			case NOT_BOOLEAN:
 				pb.notBoolean(quad);
 				break;

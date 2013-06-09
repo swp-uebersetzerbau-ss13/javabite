@@ -10,6 +10,7 @@ package swp_compiler_ss13.javabite.backend;
  */
 public class JumpInstruction extends Instruction {
 
+	private Instruction targetInstruction;
 	private String targetLabel;
 
 	public JumpInstruction(final Mnemonic mnemonic) {
@@ -17,17 +18,45 @@ public class JumpInstruction extends Instruction {
 	}
 
 	public JumpInstruction(final Mnemonic mnemonic,
-			final String targetInstruction) {
+			final Instruction targetInstruction) {
 		super(mnemonic);
-		this.targetLabel = targetInstruction;
+		this.targetInstruction = targetInstruction;
 	}
 
+	public JumpInstruction(final Mnemonic mnemonic,
+			final String targetInstruction) {
+		super(mnemonic);
+		targetLabel = targetInstruction;
+	}
+
+	/**
+	 * @return the targetLabel
+	 */
 	public String getTargetLabel() {
 		return targetLabel;
 	}
 
+	/**
+	 * @param targetLabel
+	 *            the targetLabel to set
+	 */
 	public void setTargetLabel(final String targetLabel) {
 		this.targetLabel = targetLabel;
+	}
+
+	/**
+	 * @return the targetInstruction
+	 */
+	public Instruction getTargetInstruction() {
+		return targetInstruction;
+	}
+
+	/**
+	 * @param targetInstruction
+	 *            the targetInstruction to set
+	 */
+	public void setTargetInstruction(final Instruction targetInstruction) {
+		this.targetInstruction = targetInstruction;
 	}
 
 	/*

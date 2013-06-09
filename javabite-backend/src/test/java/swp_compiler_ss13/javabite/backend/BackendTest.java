@@ -8,6 +8,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -32,70 +33,162 @@ public class BackendTest {
 	private Process cli1;
 
 	private static final Logger logger = LoggerFactory
-			.getLogger(BackendJB.class);
+			.getLogger(BackendJb.class);
 
-	static final List<Quadruple> tac1 = Arrays.asList(new Quadruple[] {
-			new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "l"),
-			new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "t1"),
-			new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "t2"),
-			new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "t3"),
-			new QuadrupleImpl(Operator.ADD_LONG, "#10", "#23", "t1"),
-			new QuadrupleImpl(Operator.SUB_LONG, "t1", "#23", "t1"),
-			new QuadrupleImpl(Operator.DIV_LONG, "#100", "#2", "t2"),
-			new QuadrupleImpl(Operator.ADD_LONG, "t1", "t2", "t1"),
-			new QuadrupleImpl(Operator.SUB_LONG, "t1", "#30", "t1"),
-			new QuadrupleImpl(Operator.DIV_LONG, "#-9", "#3", "t3"),
-			new QuadrupleImpl(Operator.ADD_LONG, "t1", "t3", "t1"),
-			new QuadrupleImpl(Operator.ASSIGN_LONG, "t1", "!", "l"),
-			new QuadrupleImpl(Operator.RETURN, "l", "!", "!") });
+	private static List<Quadruple> asList(final Quadruple... quadruples) {
+		return new ArrayList<>(Arrays.asList(quadruples));
+	}
 
-	static final List<Quadruple> tac2 = Arrays.asList(new Quadruple[] {
-			new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "l"),
-			new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "t1"),
-			new QuadrupleImpl(Operator.ADD_LONG, "#3", "#3", "t1"),
-			new QuadrupleImpl(Operator.ASSIGN_LONG, "t1", "!", "l"),
-			new QuadrupleImpl(Operator.RETURN, "l", "!", "!") });
+	static final List<Quadruple> tac1 = asList(new QuadrupleImpl(
+			Operator.DECLARE_LONG, "!", "!", "l"), new QuadrupleImpl(
+			Operator.DECLARE_LONG, "!", "!", "t1"), new QuadrupleImpl(
+			Operator.DECLARE_LONG, "!", "!", "t2"), new QuadrupleImpl(
+			Operator.DECLARE_LONG, "!", "!", "t3"), new QuadrupleImpl(
+			Operator.ADD_LONG, "#10", "#23", "t1"), new QuadrupleImpl(
+			Operator.SUB_LONG, "t1", "#23", "t1"), new QuadrupleImpl(
+			Operator.DIV_LONG, "#100", "#2", "t2"), new QuadrupleImpl(
+			Operator.ADD_LONG, "t1", "t2", "t1"), new QuadrupleImpl(
+			Operator.SUB_LONG, "t1", "#30", "t1"), new QuadrupleImpl(
+			Operator.DIV_LONG, "#-9", "#3", "t3"), new QuadrupleImpl(
+			Operator.ADD_LONG, "t1", "t3", "t1"), new QuadrupleImpl(
+			Operator.ASSIGN_LONG, "t1", "!", "l"), new QuadrupleImpl(
+			Operator.RETURN, "l", "!", "!"));
 
-	static final List<Quadruple> tac3 = Arrays.asList(new Quadruple[] {
+	static final List<Quadruple> tac2 = asList(new QuadrupleImpl(
+			Operator.DECLARE_LONG, "!", "!", "l"), new QuadrupleImpl(
+			Operator.DECLARE_LONG, "!", "!", "t1"), new QuadrupleImpl(
+			Operator.ADD_LONG, "#3", "#3", "t1"), new QuadrupleImpl(
+			Operator.ASSIGN_LONG, "t1", "!", "l"), new QuadrupleImpl(
+			Operator.RETURN, "l", "!", "!"));
+
+	static final List<Quadruple> tac3 = asList(new QuadrupleImpl(
+			Operator.DECLARE_LONG, "!", "!", "l"), new QuadrupleImpl(
+			Operator.DECLARE_LONG, "!", "!", "t1"), new QuadrupleImpl(
+			Operator.MUL_LONG, "#3", "#3", "t1"), new QuadrupleImpl(
+			Operator.ASSIGN_LONG, "t1", "!", "l"), new QuadrupleImpl(
+			Operator.RETURN, "l", "!", "!"));
+
+	static final List<Quadruple> tac4 = asList(new QuadrupleImpl(
+			Operator.DECLARE_BOOLEAN, "#false", "!", "b"), new QuadrupleImpl(
+			Operator.PRINT_BOOLEAN, "b", "!", "!"), new QuadrupleImpl(
+			Operator.DECLARE_STRING, "#\"hello world\"", "!", "s"),
+			new QuadrupleImpl(Operator.PRINT_STRING, "s", "!", "!"),
+			new QuadrupleImpl(Operator.DECLARE_LONG, "#123456", "!", "l"),
+			new QuadrupleImpl(Operator.PRINT_LONG, "l", "!", "!"),
+			new QuadrupleImpl(Operator.DECLARE_DOUBLE, "#123.456", "!", "d"),
+			new QuadrupleImpl(Operator.PRINT_DOUBLE, "d", "!", "!"));
+
+	static final List<Quadruple> tac5 = asList(new QuadrupleImpl(
+			Operator.DECLARE_ARRAY, "#3", "!", "anArray"), new QuadrupleImpl(
+			Operator.DECLARE_LONG, "!", "!", "!"), new QuadrupleImpl(
+			Operator.ARRAY_SET_LONG, "anArray", "#0", "#1234"),
 			new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "l"),
-			new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "t1"),
-			new QuadrupleImpl(Operator.MUL_LONG, "#3", "#3", "t1"),
-			new QuadrupleImpl(Operator.ASSIGN_LONG, "t1", "!", "l"),
-			new QuadrupleImpl(Operator.RETURN, "l", "!", "!") });
+			new QuadrupleImpl(Operator.ARRAY_GET_LONG, "anArray", "#0", "l"),
+			new QuadrupleImpl(Operator.PRINT_LONG, "l", "!", "!"));
+
+	static final List<Quadruple> tac6 = asList(new QuadrupleImpl(
+			Operator.DECLARE_ARRAY, "#3", "!", "anArray"), new QuadrupleImpl(
+			Operator.DECLARE_ARRAY, "#2", "!", "!"), new QuadrupleImpl(
+			Operator.DECLARE_LONG, "!", "!", "!"), new QuadrupleImpl(
+			Operator.DECLARE_REFERENCE, "!", "!", "r"), new QuadrupleImpl(
+			Operator.ARRAY_GET_REFERENCE, "anArray", "#0", "r"),
+			new QuadrupleImpl(Operator.ARRAY_SET_LONG, "r", "#0", "#1234"),
+			new QuadrupleImpl(Operator.DECLARE_LONG, "!", "!", "l"),
+			new QuadrupleImpl(Operator.ARRAY_GET_LONG, "r", "#0", "l"),
+			new QuadrupleImpl(Operator.PRINT_LONG, "l", "!", "!"));
+
+	static final List<Quadruple> tac7 = asList(new QuadrupleImpl(
+			Operator.DECLARE_BOOLEAN, "!", "!", "b"), new QuadrupleImpl(
+			Operator.NOT_BOOLEAN, "#FALSE", "!", "b"), new QuadrupleImpl(
+			Operator.AND_BOOLEAN, "#TRUE", "#TRUE", "b"), new QuadrupleImpl(
+			Operator.OR_BOOLEAN, "#FALSE", "#TRUE", "b"));
+
+	static final List<Quadruple> tac8 = asList(new QuadrupleImpl(
+			Operator.DECLARE_BOOLEAN, "!", "!", "b"), new QuadrupleImpl(
+			Operator.COMPARE_LONG_E, "#1", "#2", "b"), new QuadrupleImpl(
+			Operator.PRINT_BOOLEAN, "!", "!", "b"));
+
+	static final List<Quadruple> tac9 = asList(new QuadrupleImpl(
+			Operator.BRANCH, "lbl", "!", "!"), new QuadrupleImpl(
+			Operator.PRINT_STRING, "#\"error\"", "!", "!"), new QuadrupleImpl(
+			Operator.LABEL, "lbl", "!", "!"), new QuadrupleImpl(
+			Operator.PRINT_STRING, "#\"success\"", "!", "!"));
 
 	@Before
 	public void setup() {
-		backend = new BackendJB();
+		backend = new BackendJb();
 		rt = Runtime.getRuntime();
 	}
 
 	public void cleanup() {
 		System.out.println(System.getProperty("os.name"));
-		
+
 		logger.debug("Killing command line interface process...");
 		cli1.destroy();
 		logger.debug("Command line interface process killed.");
 	}
 
-	@Test
-	public void testTac1ReturnVal() throws BackendException {
-		assertTrue(
-				"Generated target code returns unexpected value while execution",
-				27 == testToReturnValueOfTac(tac1, 1));
-	}
+	// @Test
+	// public void testTac1ReturnVal() throws BackendException {
+	// assertTrue(
+	// "Generated target code returns unexpected value while execution",
+	// 27 == testToReturnValueOfTac(tac1, 1));
+	// }
+	//
+	// @Test
+	// public void testSimpleAddTacTranslation() throws BackendException {
+	// assertTrue(
+	// "Generated target code returns unexpected value while execution",
+	// 6 == testToReturnValueOfTac(tac2, 1));
+	// }
+	//
+	// @Test
+	// public void testSimpleMulTacTranslation() throws BackendException {
+	// assertTrue(
+	// "Generated target code returns unexpected value while execution",
+	// 9 == testToReturnValueOfTac(tac3, 1));
+	// }
+	//
+	// @Test
+	// public void testTac4ReturnVal() throws BackendException {
+	// assertTrue(
+	// "Generated target code returns unexpected value while execution",
+	// 0 == testToReturnValueOfTac(tac4, 1));
+	// }
+	//
+	// @Test
+	// public void testTac5ReturnVal() throws BackendException {
+	// assertTrue(
+	// "Generated target code returns unexpected value while execution",
+	// 0 == testToReturnValueOfTac(tac5, 1));
+	// }
+	//
+	// @Test
+	// public void testTac6ReturnVal() throws BackendException {
+	// assertTrue(
+	// "Generated target code returns unexpected value while execution",
+	// 0 == testToReturnValueOfTac(tac6, 1));
+	// }
+	//
+	// @Test
+	// public void testTac7ReturnVal() throws BackendException {
+	// assertTrue(
+	// "Generated target code returns unexpected value while execution",
+	// 0 == testToReturnValueOfTac(tac7, 1));
+	// }
+	//
+	// @Test
+	// public void testTac8ReturnVal() throws BackendException {
+	// assertTrue(
+	// "Generated target code returns unexpected value while execution",
+	// 0 == testToReturnValueOfTac(tac8, 1));
+	// }
 
 	@Test
-	public void testSimpleAddTacTranslation() throws BackendException {
+	public void testTac9ReturnVal() throws BackendException {
 		assertTrue(
 				"Generated target code returns unexpected value while execution",
-				6 == testToReturnValueOfTac(tac2, 1));
-	}
-
-	@Test
-	public void testSimpleMulTacTranslation() throws BackendException {
-		assertTrue(
-				"Generated target code returns unexpected value while execution",
-				9 == testToReturnValueOfTac(tac3, 1));
+				0 == testToReturnValueOfTac(tac9, 1));
 	}
 
 	public long testToReturnValueOfTac(final List<Quadruple> tac,
@@ -122,7 +215,8 @@ public class BackendTest {
 
 		try {
 			logger.debug("Starting command line interface process...");
-			cli1 = rt.exec(new String[] { "bash", "-c", "java Program ; $?" });
+			cli1 = rt.exec(new String[] { "bash", "-c",
+					"java -noverify Program ; $?" });
 			logger.debug("Waiting for execution of \"bash -c java Program ; $?\"");
 			cli1.waitFor();
 

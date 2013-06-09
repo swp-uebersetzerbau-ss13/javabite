@@ -7,5 +7,13 @@
 			<arg line="buildCompiler" />
 		</exec>
 	</target>
+	<target name="buildAll" description="Build Javabite-Compiler by utilizing gradle">
+		<condition property="gradlescript" value="./gradlew.bat" else="./gradlew">
+			<os family="windows"/>
+		</condition>
+		<exec executable="${gradlescript}">
+			<arg line="buildAll" />
+		</exec>
+	</target>
 </project>
 	

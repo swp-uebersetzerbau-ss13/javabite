@@ -115,24 +115,39 @@ public interface IClassfile {
 	}
 
 	/**
-	 * ArrayType enum. This enum holds possible values for array types. It is
-	 * used to create arrays, because the opcode NEWARRAY requires a type
+	 * PrimitiveArrayType enum. This enum holds possible values for array types.
+	 * It is used to create arrays, because the opcode NEWARRAY requires a type
 	 * argument.
 	 * 
 	 * @author eike
 	 * @since Jun 3, 2013 8:29:55 PM
 	 */
 	public enum ArrayType {
-		BOOLEAN(0x04), DOUBLE(0x07), LONG(0x0b);
+		BOOLEAN(0x04, "Z"), DOUBLE(0x07, "D"), LONG(0x0b, "J"), STRING(
+				"java/lang/String");
 
 		private final byte value;
+		private final String className;
 
-		ArrayType(final int value) {
+		ArrayType(final int value, final String className) {
 			this.value = (byte) value;
+			this.className = className;
+		}
+
+		ArrayType(final String className) {
+			this(0, className);
 		}
 
 		public byte getValue() {
 			return value;
+		}
+
+		public String getClassName() {
+			return className;
+		}
+
+		public boolean isPrimitive() {
+			return value != 0;
 		}
 	}
 
