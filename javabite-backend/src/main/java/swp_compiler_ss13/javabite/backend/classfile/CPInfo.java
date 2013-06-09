@@ -23,7 +23,7 @@ import swp_compiler_ss13.javabite.backend.classfile.IClassfile.InfoTag;
  * @author Marco
  * @since 27.04.2013
  */
-class CPInfo {
+public class CPInfo {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -72,5 +72,13 @@ class CPInfo {
 				e.printStackTrace();
 			}
 		}
+	}
+	
+	public InfoTag getTag() {
+		return tag;
+	}
+
+	public byte[] getInfo() {
+		return info;
 	}
 }

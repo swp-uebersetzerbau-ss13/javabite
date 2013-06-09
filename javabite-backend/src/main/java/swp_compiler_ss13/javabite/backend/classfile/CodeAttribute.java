@@ -29,7 +29,7 @@ import swp_compiler_ss13.javabite.backend.classfile.IClassfile.VariableType;
  * @author Marco
  * @since 28.04.2013
  */
-class CodeAttribute {
+public class CodeAttribute {
 
 	Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -181,7 +181,7 @@ class CodeAttribute {
 	 * <p>
 	 * This method adds a new variable to the local variable space considering
 	 * the variable's name and type. If it's already existent, nothing will
-	 * happen.
+	 * happen.maxLocals
 	 * </p>
 	 * 
 	 * @author Marco
@@ -241,7 +241,6 @@ class CodeAttribute {
 	 * @see Instruction
 	 */
 	void addInstruction(final Instruction instruction) {
-
 		codeArea.add(instruction);
 	}
 }
