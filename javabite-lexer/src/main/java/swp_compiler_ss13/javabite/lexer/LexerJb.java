@@ -39,7 +39,7 @@ public class LexerJb implements Lexer {
 	@Override
 	public void setSourceStream(InputStream stream) {
 		if (stream == null)
-			return;
+			throw new NullPointerException();
 		
 		//convert to string for java pattern/matcher class
 		StringWriter writer = new StringWriter();
@@ -79,6 +79,11 @@ public class LexerJb implements Lexer {
 				Token token = null;
 				
 				if (type == JavabiteTokenType.LINEBREAK) {
+					// add a NOT_A_TOKEN-token if necessary
+					if (notAToken.length() != 0) {
+						tokenQueue.add(new TokenJb(TokenType.NOT_A_TOKEN,notAToken.toString(),notATokenLine,notATokenStart));
+						notAToken = new StringBuilder();
+					}
 					line++;	column = 1; continue;
 				} else if (type == JavabiteTokenType.NOTATOKEN) {
 					if (notAToken.length() == 0) {
@@ -87,6 +92,11 @@ public class LexerJb implements Lexer {
 					
 					notAToken.append(lexem); column++; continue;
 				} else if (type == JavabiteTokenType.WHITESPACE) {
+					// add a NOT_A_TOKEN-token if necessary
+					if (notAToken.length() != 0) {
+						tokenQueue.add(new TokenJb(TokenType.NOT_A_TOKEN,notAToken.toString(),notATokenLine,notATokenStart));
+						notAToken = new StringBuilder();
+					}
 				} else if (type == JavabiteTokenType.NUM) {
 					token = new NumTokenJb(tt, lexem, line, column);
 				} else if (type == JavabiteTokenType.REAL) {
