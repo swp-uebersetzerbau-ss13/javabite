@@ -852,11 +852,45 @@ public class MainFrame extends JFrame implements ReportLog {
 				}
 			} else {
 				if (file == null) {		// file not changed, but doesn't exist
-					canCompiled = false;
-					JFrame frame = new JFrame();
-					JOptionPane.showMessageDialog(frame, "Sourcecode not saved into a file. Cannot compile!");
+					JFrame frame = new JFrame("Save");
+					Object[] options = {"Cancel", "No", "Yes"};
+					String fileName = (file == null) ? "New File.prog" : file.getName();
+					int n = JOptionPane.showOptionDialog (
+						frame,
+						"Sourcecode cannot be compiled, until it is saved.\nSave file \"" + fileName + "\"?\n",
+						"Save",
+						JOptionPane.YES_NO_CANCEL_OPTION,
+						JOptionPane.QUESTION_MESSAGE,
+						null,
+						options,
+						options[2]
+					);
+					
+					if (n == 2) { // "Yes" was selected
+						if (file == null) {
+							// create and open the file chooser
+							JFileChooser chooser = new JFileChooser();
+							chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+							chooser.setFileFilter(filter);
+							chooser.setSelectedFile(new File("New File.prog"));
+							
+							// save unchanged file
+							int returnVal = chooser.showSaveDialog(null);
+							if (returnVal == JFileChooser.APPROVE_OPTION) {
+								openedFile = chooser.getSelectedFile();
+								file = openedFile;
+								setTitle("Javabite Compiler - " + file.getName());
+								toolBarLabel.setText("Document saved.");
+								saveEditorContentIntoFile(openedFile);
+								fileChanged = false;
+								
+								// sourcecode can now be compiled
+								canCompiled = true;
+							}
+						}
+					}
 				} else {
-					canCompiled = true;	// file not changed, but it exists
+					canCompiled = true; // file not changed, but it exists
 				}
 			}
 			
