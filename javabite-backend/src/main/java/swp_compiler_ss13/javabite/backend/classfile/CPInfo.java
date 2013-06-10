@@ -73,7 +73,7 @@ public class CPInfo {
 			}
 		}
 	}
-	
+
 	public InfoTag getTag() {
 		return tag;
 	}

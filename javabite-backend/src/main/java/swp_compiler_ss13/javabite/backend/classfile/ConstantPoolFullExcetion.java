@@ -7,8 +7,8 @@ public class ConstantPoolFullExcetion extends RuntimeException {
 	public ConstantPoolFullExcetion() {
 		super();
 	}
-	
-	public ConstantPoolFullExcetion(String message) {
+
+	public ConstantPoolFullExcetion(final String message) {
 		super(message);
 	}
 }

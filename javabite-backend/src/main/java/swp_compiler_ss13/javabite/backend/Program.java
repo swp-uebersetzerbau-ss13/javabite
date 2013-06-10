@@ -490,9 +490,7 @@ public class Program {
 		private Builder booleanOp(final Quadruple q, final Mnemonic mnemonic) {
 			final Operation.Builder op = Operation.Builder.newBuilder();
 			op.add(loadOp(q.getArgument1(), null, Mnemonic.ILOAD));
-			if (!"!".equals(q.getArgument2())) {
-				op.add(loadOp(q.getArgument2(), null, Mnemonic.ILOAD));
-			}
+			op.add(loadOp(q.getArgument2(), null, Mnemonic.ILOAD));
 			op.add(mnemonic);
 			op.add(storeOp(q.getResult(), Mnemonic.ISTORE));
 			return add(op.build());
@@ -1247,7 +1245,24 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder notBoolean(final Quadruple q) {
-			return booleanOp(q, Mnemonic.INEG);
+			final Operation.Builder op = Operation.Builder.newBuilder();
+
+			final Instruction falseOp = new Instruction(Mnemonic.ICONST_0);
+			final Instruction storeOp = storeOp(q.getResult(), Mnemonic.ISTORE);
+			final JumpInstruction jumpFalse = new JumpInstruction(
+					Mnemonic.IFNE, falseOp);
+			final JumpInstruction jumpTrue = new JumpInstruction(Mnemonic.GOTO,
+					storeOp);
+
+			op.add(loadOp(q.getArgument1(), null, Mnemonic.ILOAD));
+			op.add(jumpFalse);
+			jumpInstructions.add(jumpFalse);
+			op.add(Mnemonic.ICONST_1);
+			op.add(jumpTrue);
+			jumpInstructions.add(jumpTrue);
+			op.add(falseOp);
+			op.add(storeOp);
+			return add(op.build());
 		}
 
 		/**

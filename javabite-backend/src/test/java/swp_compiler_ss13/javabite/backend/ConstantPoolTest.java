@@ -1,15 +1,17 @@
 package swp_compiler_ss13.javabite.backend;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.doubleToByteArray;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.longToByteArray;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.*;
-
 import junitx.util.PrivateAccessor;
 
+import org.junit.Before;
+import org.junit.Test;
 import org.mockito.internal.util.reflection.Whitebox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -83,13 +85,13 @@ public class ConstantPoolTest {
 	public void testThatLongConstantAddedToCP() {
 
 		try {
-			short index1 = ((Short) PrivateAccessor.invoke(cp,
+			final short index1 = ((Short) PrivateAccessor.invoke(cp,
 					"generateConstantLongInfo", new Class<?>[] { long.class },
 					new Object[] { Long.MIN_VALUE })).shortValue();
-			short index2 = ((Short) PrivateAccessor.invoke(cp,
+			final short index2 = ((Short) PrivateAccessor.invoke(cp,
 					"generateConstantLongInfo", new Class<?>[] { long.class },
 					new Object[] { Long.MAX_VALUE })).shortValue();
-			short index3 = ((Short) PrivateAccessor.invoke(cp,
+			final short index3 = ((Short) PrivateAccessor.invoke(cp,
 					"generateConstantLongInfo", new Class<?>[] { long.class },
 					new Object[] { Long.MAX_VALUE })).shortValue();
 
@@ -107,7 +109,7 @@ public class ConstantPoolTest {
 					(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 							new Class<?>[] { String.class }, new Object[] { ""
 									+ InfoTag.LONG + Long.MAX_VALUE }));
-		} catch (Throwable e) {
+		} catch (final Throwable e) {
 			e.printStackTrace();
 		}
 	}
@@ -127,19 +129,18 @@ public class ConstantPoolTest {
 		try {
 			for (long i = 1; i <= 128; i++) {
 
-				short index = ((Short) PrivateAccessor.invoke(cp,
+				final short index = ((Short) PrivateAccessor.invoke(cp,
 						"generateConstantLongInfo",
 						new Class<?>[] { long.class }, new Object[] { i }))
 						.shortValue();
-				short entry_amount = (short) ((ArrayList<?>) Whitebox
+				final short entry_amount = (short) ((ArrayList<?>) Whitebox
 						.getInternalState(cp, "entryList")).size();
 
 				assertTrue("The constant should stored normal at index "
 						+ index + ". There is enough space in constant pool",
-						(index > 0) && (index <= 255)
-								&& (index < entry_amount + 1));
+						index > 0 && index <= 255 && index < entry_amount + 1);
 			}
-		} catch (Throwable e) {
+		} catch (final Throwable e) {
 			e.printStackTrace();
 		}
 
@@ -178,7 +179,7 @@ public class ConstantPoolTest {
 							.invoke(cp, "generateConstantLongInfo",
 									new Class<?>[] { long.class },
 									new Object[] { 1000 })).shortValue());
-		} catch (Throwable e) {
+		} catch (final Throwable e) {
 			e.printStackTrace();
 		}
 	}
@@ -192,14 +193,14 @@ public class ConstantPoolTest {
 	@Test
 	public void testThatCPLOngInfoHoldRightValues() {
 
-		long value = 1000;
+		final long value = 1000;
 
 		try {
-			short index = ((Short) PrivateAccessor.invoke(cp,
+			final short index = ((Short) PrivateAccessor.invoke(cp,
 					"generateConstantLongInfo", new Class<?>[] { long.class },
 					new Object[] { value })).shortValue();
 			@SuppressWarnings("unchecked")
-			CPInfo constantPoolLongInfo = ((ArrayList<CPInfo>) Whitebox
+			final CPInfo constantPoolLongInfo = ((ArrayList<CPInfo>) Whitebox
 					.getInternalState(cp, "entryList")).get(index - 1);
 
 			final byte[] expected_info = longToByteArray(value);
@@ -208,7 +209,7 @@ public class ConstantPoolTest {
 			assertTrue("The CONSTANT_LONG info isn't stored right",
 					Arrays.equals(expected_info, stored_info));
 
-		} catch (Throwable e) {
+		} catch (final Throwable e) {
 			e.printStackTrace();
 		}
 	}
@@ -223,15 +224,15 @@ public class ConstantPoolTest {
 	public void testThatDoubleConstantAddedToCP() {
 
 		try {
-			short index1 = ((Short) PrivateAccessor.invoke(cp,
+			final short index1 = ((Short) PrivateAccessor.invoke(cp,
 					"generateConstantDoubleInfo",
 					new Class<?>[] { double.class },
 					new Object[] { Double.MIN_VALUE })).shortValue();
-			short index2 = ((Short) PrivateAccessor.invoke(cp,
+			final short index2 = ((Short) PrivateAccessor.invoke(cp,
 					"generateConstantDoubleInfo",
 					new Class<?>[] { double.class },
 					new Object[] { Double.MAX_VALUE })).shortValue();
-			short index3 = ((Short) PrivateAccessor.invoke(cp,
+			final short index3 = ((Short) PrivateAccessor.invoke(cp,
 					"generateConstantDoubleInfo",
 					new Class<?>[] { double.class },
 					new Object[] { Double.MAX_VALUE })).shortValue();
@@ -250,7 +251,7 @@ public class ConstantPoolTest {
 					(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 							new Class<?>[] { String.class }, new Object[] { ""
 									+ InfoTag.DOUBLE + Double.MAX_VALUE }));
-		} catch (Throwable e) {
+		} catch (final Throwable e) {
 			e.printStackTrace();
 		}
 	}
@@ -264,15 +265,15 @@ public class ConstantPoolTest {
 	@Test
 	public void testThatCPDoubleInfoHoldRightValues() {
 
-		double value = 1000;
+		final double value = 1000;
 
 		try {
-			short index = ((Short) PrivateAccessor.invoke(cp,
+			final short index = ((Short) PrivateAccessor.invoke(cp,
 					"generateConstantDoubleInfo",
 					new Class<?>[] { double.class }, new Object[] { value }))
 					.shortValue();
 			@SuppressWarnings("unchecked")
-			CPInfo constantPoolDoubleInfo = ((ArrayList<CPInfo>) Whitebox
+			final CPInfo constantPoolDoubleInfo = ((ArrayList<CPInfo>) Whitebox
 					.getInternalState(cp, "entryList")).get(index - 1);
 
 			final byte[] expected_info = doubleToByteArray(value);
@@ -280,7 +281,7 @@ public class ConstantPoolTest {
 
 			assertTrue("The CONSTANT_LONG info isn't stored right",
 					Arrays.equals(expected_info, stored_info));
-		} catch (Throwable e) {
+		} catch (final Throwable e) {
 			e.printStackTrace();
 		}
 
@@ -296,15 +297,15 @@ public class ConstantPoolTest {
 	public void testThatUTF8ConstantAddedToCP() {
 
 		try {
-			short index1 = ((Short) PrivateAccessor.invoke(cp,
+			final short index1 = ((Short) PrivateAccessor.invoke(cp,
 					"generateConstantUTF8Info",
 					new Class<?>[] { String.class }, new Object[] { "test1" }))
 					.shortValue();
-			short index2 = ((Short) PrivateAccessor.invoke(cp,
+			final short index2 = ((Short) PrivateAccessor.invoke(cp,
 					"generateConstantUTF8Info",
 					new Class<?>[] { String.class }, new Object[] { "test2" }))
 					.shortValue();
-			short index3 = ((Short) PrivateAccessor.invoke(cp,
+			final short index3 = ((Short) PrivateAccessor.invoke(cp,
 					"generateConstantUTF8Info",
 					new Class<?>[] { String.class }, new Object[] { "test2" }))
 					.shortValue();
@@ -323,7 +324,7 @@ public class ConstantPoolTest {
 					(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 							new Class<?>[] { String.class }, new Object[] { ""
 									+ InfoTag.UTF8 + "test2" }));
-		} catch (Throwable e) {
+		} catch (final Throwable e) {
 			e.printStackTrace();
 		}
 
@@ -340,16 +341,16 @@ public class ConstantPoolTest {
 	@Test
 	public void testThatCPUTF8InfoHoldRightValues() {
 
-		String value = "test";
+		final String value = "test";
 
 		try {
-			short index = ((Short) PrivateAccessor.invoke(cp,
+			final short index = ((Short) PrivateAccessor.invoke(cp,
 					"generateConstantUTF8Info",
 					new Class<?>[] { String.class }, new Object[] { value }))
 					.shortValue();
 
 			@SuppressWarnings("unchecked")
-			CPInfo constantPoolUTF8Info = ((ArrayList<CPInfo>) Whitebox
+			final CPInfo constantPoolUTF8Info = ((ArrayList<CPInfo>) Whitebox
 					.getInternalState(cp, "entryList")).get(index - 1);
 
 			final byte[] expected_info = value.getBytes();
@@ -362,7 +363,7 @@ public class ConstantPoolTest {
 
 			assertTrue("The CONSTANT_UTF8 info isn't stored right",
 					Arrays.equals(expected_info, stored_info));
-		} catch (Throwable e) {
+		} catch (final Throwable e) {
 			e.printStackTrace();
 		}
 	}
@@ -388,36 +389,36 @@ public class ConstantPoolTest {
 	public void testThatNameAndTypeConstantsAddedToCP() {
 
 		try {
-			short long_index1 = ((Short) PrivateAccessor.invoke(cp,
+			final short long_index1 = ((Short) PrivateAccessor.invoke(cp,
 					"generateConstantNameAndTypeInfo", new Class<?>[] {
 							String.class, String.class }, new Object[] {
 							"testLong1", "J" })).shortValue();
-			short long_index2 = ((Short) PrivateAccessor.invoke(cp,
+			final short long_index2 = ((Short) PrivateAccessor.invoke(cp,
 					"generateConstantNameAndTypeInfo", new Class<?>[] {
 							String.class, String.class }, new Object[] {
 							"testLong2", "J" })).shortValue();
 
-			short double_index1 = ((Short) PrivateAccessor.invoke(cp,
+			final short double_index1 = ((Short) PrivateAccessor.invoke(cp,
 					"generateConstantNameAndTypeInfo", new Class<?>[] {
 							String.class, String.class }, new Object[] {
 							"testDouble1", "D" })).shortValue();
 
-			short double_index2 = ((Short) PrivateAccessor.invoke(cp,
+			final short double_index2 = ((Short) PrivateAccessor.invoke(cp,
 					"generateConstantNameAndTypeInfo", new Class<?>[] {
 							String.class, String.class }, new Object[] {
 							"testDouble2", "D" })).shortValue();
 
-			short object_index1 = ((Short) PrivateAccessor.invoke(cp,
+			final short object_index1 = ((Short) PrivateAccessor.invoke(cp,
 					"generateConstantNameAndTypeInfo", new Class<?>[] {
 							String.class, String.class }, new Object[] {
 							"testObject1", "Ljava/lang/String" })).shortValue();
 
-			short object_index2 = ((Short) PrivateAccessor.invoke(cp,
+			final short object_index2 = ((Short) PrivateAccessor.invoke(cp,
 					"generateConstantNameAndTypeInfo", new Class<?>[] {
 							String.class, String.class }, new Object[] {
 							"testObject2", "Ljava/lang/String" })).shortValue();
 
-			short object_index3 = ((Short) PrivateAccessor.invoke(cp,
+			final short object_index3 = ((Short) PrivateAccessor.invoke(cp,
 					"generateConstantNameAndTypeInfo", new Class<?>[] {
 							String.class, String.class }, new Object[] {
 							"testObject2", "Ljava/lang/String" })).shortValue();
@@ -456,87 +457,87 @@ public class ConstantPoolTest {
 			 */
 			assertTrue(
 					"CONSTANT_NAMEANDTYPE does not exists in constant pool map after adding",
-					((boolean) PrivateAccessor
+					(boolean) PrivateAccessor
 							.invoke(cp, "cpMapEntryExists",
 									new Class<?>[] { String.class },
 									new Object[] { "" + InfoTag.NAMEANDTYPE
-											+ "testLong1" + "J" })));
+											+ "testLong1" + "J" }));
 
 			assertTrue(
 					"CONSTANT_NAMEANDTYPE does not exists in constant pool map after adding",
-					((boolean) PrivateAccessor
+					(boolean) PrivateAccessor
 							.invoke(cp, "cpMapEntryExists",
 									new Class<?>[] { String.class },
 									new Object[] { "" + InfoTag.NAMEANDTYPE
-											+ "testLong2" + "J" })));
+											+ "testLong2" + "J" }));
 
 			assertTrue(
 					"CONSTANT_NAMEANDTYPE does not exists in constant pool map after adding",
-					((boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
+					(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 							new Class<?>[] { String.class },
 							new Object[] { "" + InfoTag.NAMEANDTYPE
-									+ "testDouble1" + "D" })));
+									+ "testDouble1" + "D" }));
 
 			assertTrue(
 					"CONSTANT_NAMEANDTYPE does not exists in constant pool map after adding",
-					((boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
+					(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 							new Class<?>[] { String.class },
 							new Object[] { "" + InfoTag.NAMEANDTYPE
-									+ "testDouble2" + "D" })));
+									+ "testDouble2" + "D" }));
 
 			assertTrue(
 					"CONSTANT_NAMEANDTYPE does not exists in constant pool map after adding",
-					((boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
+					(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 							new Class<?>[] { String.class }, new Object[] { ""
 									+ InfoTag.NAMEANDTYPE + "testObject1"
-									+ "Ljava/lang/String" })));
+									+ "Ljava/lang/String" }));
 
 			assertTrue(
 					"CONSTANT_NAMEANDTYPE does not exists in constant pool map after adding",
-					((boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
+					(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 							new Class<?>[] { String.class }, new Object[] { ""
 									+ InfoTag.NAMEANDTYPE + "testObject2"
-									+ "Ljava/lang/String" })));
+									+ "Ljava/lang/String" }));
 
 			/**
 			 * generateConstantStringInfo check that all CONSTANT_UTF8 exist
 			 */
 			assertTrue(
 					"CONSTANT_NAMEANDTYPE does not exists in constant pool map after adding",
-					((boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
+					(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 							new Class<?>[] { String.class }, new Object[] { ""
-									+ InfoTag.UTF8 + "testLong1" })));
+									+ InfoTag.UTF8 + "testLong1" }));
 
 			assertTrue(
 					"CONSTANT_NAMEANDTYPE does not exists in constant pool map after adding",
-					((boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
+					(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 							new Class<?>[] { String.class }, new Object[] { ""
-									+ InfoTag.UTF8 + "testLong2" })));
+									+ InfoTag.UTF8 + "testLong2" }));
 
 			assertTrue(
 					"CONSTANT_NAMEANDTYPE does not exists in constant pool map after adding",
-					((boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
+					(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 							new Class<?>[] { String.class }, new Object[] { ""
-									+ InfoTag.UTF8 + "testDouble1" })));
+									+ InfoTag.UTF8 + "testDouble1" }));
 
 			assertTrue(
 					"CONSTANT_NAMEANDTYPE does not exists in constant pool map after adding",
-					((boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
+					(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 							new Class<?>[] { String.class }, new Object[] { ""
-									+ InfoTag.UTF8 + "testDouble2" })));
+									+ InfoTag.UTF8 + "testDouble2" }));
 
 			assertTrue(
 					"CONSTANT_NAMEANDTYPE does not exists in constant pool map after adding",
-					((boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
+					(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 							new Class<?>[] { String.class }, new Object[] { ""
-									+ InfoTag.UTF8 + "testObject1" })));
+									+ InfoTag.UTF8 + "testObject1" }));
 
 			assertTrue(
 					"CONSTANT_NAMEANDTYPE does not exists in constant pool map after adding",
-					((boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
+					(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 							new Class<?>[] { String.class }, new Object[] { ""
-									+ InfoTag.UTF8 + "testObject2" })));
-		} catch (Throwable e) {
+									+ InfoTag.UTF8 + "testObject2" }));
+		} catch (final Throwable e) {
 			e.printStackTrace();
 		}
 
@@ -554,15 +555,15 @@ public class ConstantPoolTest {
 	public void testThatStringConstantsAddedToCP() {
 
 		try {
-			short string_index1 = ((Short) PrivateAccessor.invoke(cp,
+			final short string_index1 = ((Short) PrivateAccessor.invoke(cp,
 					"generateConstantStringInfo",
 					new Class<?>[] { String.class },
 					new Object[] { "test1111" })).shortValue();
-			short string_index2 = ((Short) PrivateAccessor.invoke(cp,
+			final short string_index2 = ((Short) PrivateAccessor.invoke(cp,
 					"generateConstantStringInfo",
 					new Class<?>[] { String.class },
 					new Object[] { "test2222" })).shortValue();
-			short string_index3 = ((Short) PrivateAccessor.invoke(cp,
+			final short string_index3 = ((Short) PrivateAccessor.invoke(cp,
 					"generateConstantStringInfo",
 					new Class<?>[] { String.class },
 					new Object[] { "test2222" })).shortValue();
@@ -582,28 +583,28 @@ public class ConstantPoolTest {
 
 			assertTrue(
 					"CONSTANT_UTF8 does not exists in constant pool map after adding",
-					((boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
+					(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 							new Class<?>[] { String.class }, new Object[] { ""
-									+ InfoTag.UTF8 + "test1111" })));
+									+ InfoTag.UTF8 + "test1111" }));
 
 			assertTrue(
 					"CONSTANT_STRING does not exists in constant pool map after adding",
-					((boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
+					(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 							new Class<?>[] { String.class }, new Object[] { ""
-									+ InfoTag.STRING + "test1111" })));
+									+ InfoTag.STRING + "test1111" }));
 
 			assertTrue(
 					"CONSTANT_UTF8 does not exists in constant pool map after adding",
-					((boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
+					(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 							new Class<?>[] { String.class }, new Object[] { ""
-									+ InfoTag.UTF8 + "test2222" })));
+									+ InfoTag.UTF8 + "test2222" }));
 
 			assertTrue(
 					"CONSTANT_STRING does not exists in constant pool map after adding",
-					((boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
+					(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 							new Class<?>[] { String.class }, new Object[] { ""
-									+ InfoTag.STRING + "test2222" })));
-		} catch (Throwable e) {
+									+ InfoTag.STRING + "test2222" }));
+		} catch (final Throwable e) {
 			e.printStackTrace();
 		}
 	}
@@ -620,15 +621,15 @@ public class ConstantPoolTest {
 	public void testThatClassConstantsAddedToCP() {
 
 		try {
-			short class_index1 = ((Short) PrivateAccessor.invoke(cp,
+			final short class_index1 = ((Short) PrivateAccessor.invoke(cp,
 					"generateConstantClassInfo",
 					new Class<?>[] { String.class },
 					new Object[] { "java/lang/String" })).shortValue();
-			short class_index2 = ((Short) PrivateAccessor.invoke(cp,
+			final short class_index2 = ((Short) PrivateAccessor.invoke(cp,
 					"generateConstantClassInfo",
 					new Class<?>[] { String.class },
 					new Object[] { "java/io/PrintStream" })).shortValue();
-			short class_index3 = ((Short) PrivateAccessor.invoke(cp,
+			final short class_index3 = ((Short) PrivateAccessor.invoke(cp,
 					"generateConstantClassInfo",
 					new Class<?>[] { String.class },
 					new Object[] { "java/io/PrintStream" })).shortValue();
@@ -648,28 +649,28 @@ public class ConstantPoolTest {
 
 			assertTrue(
 					"CONSTANT_UTF8 does not exists in constant pool map after adding",
-					((boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
+					(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 							new Class<?>[] { String.class }, new Object[] { ""
-									+ InfoTag.UTF8 + "java/lang/String" })));
+									+ InfoTag.UTF8 + "java/lang/String" }));
 
 			assertTrue(
 					"CONSTANT_CLASS does not exists in constant pool map after adding",
-					((boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
+					(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 							new Class<?>[] { String.class }, new Object[] { ""
-									+ InfoTag.CLASS + "java/lang/String" })));
+									+ InfoTag.CLASS + "java/lang/String" }));
 
 			assertTrue(
 					"CONSTANT_UTF8 does not exists in constant pool map after adding",
-					((boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
+					(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 							new Class<?>[] { String.class }, new Object[] { ""
-									+ InfoTag.UTF8 + "java/io/PrintStream" })));
+									+ InfoTag.UTF8 + "java/io/PrintStream" }));
 
 			assertTrue(
 					"CONSTANT_CLASS does not exists in constant pool map after adding",
-					((boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
+					(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 							new Class<?>[] { String.class }, new Object[] { ""
-									+ InfoTag.CLASS + "java/io/PrintStream" })));
-		} catch (Throwable e) {
+									+ InfoTag.CLASS + "java/io/PrintStream" }));
+		} catch (final Throwable e) {
 			e.printStackTrace();
 		}
 	}
@@ -680,36 +681,36 @@ public class ConstantPoolTest {
 		try {
 			// "out", "Ljava/io/PrintStream;", "java/lang/System");
 			// "in" "Ljava/io/InputStream" "java/lang/System"
-			short class_index1 = ((Short) PrivateAccessor.invoke(cp,
+			final short class_index1 = ((Short) PrivateAccessor.invoke(cp,
 					"generateConstantClassInfo",
 					new Class<?>[] { String.class },
 					new Object[] { "java/lang/String" })).shortValue();
-			short class_index2 = ((Short) PrivateAccessor.invoke(cp,
+			final short class_index2 = ((Short) PrivateAccessor.invoke(cp,
 					"generateConstantClassInfo",
 					new Class<?>[] { String.class },
 					new Object[] { "java/lang/String" })).shortValue();
 
-			short nat_index1 = ((Short) PrivateAccessor.invoke(cp,
+			final short nat_index1 = ((Short) PrivateAccessor.invoke(cp,
 					"generateConstantNameAndTypeInfo", new Class<?>[] {
 							String.class, String.class }, new Object[] { "out",
 							"Ljava/io/PrintStream" })).shortValue();
 
-			short nat_index2 = ((Short) PrivateAccessor.invoke(cp,
+			final short nat_index2 = ((Short) PrivateAccessor.invoke(cp,
 					"generateConstantNameAndTypeInfo", new Class<?>[] {
 							String.class, String.class }, new Object[] { "in",
 							"Ljava/io/InputStream" })).shortValue();
 
-			short fieldref_index1 = ((Short) PrivateAccessor.invoke(cp,
+			final short fieldref_index1 = ((Short) PrivateAccessor.invoke(cp,
 					"generateConstantFieldrefInfo", new Class<?>[] {
 							short.class, short.class }, new Object[] {
 							class_index1, nat_index1 })).shortValue();
 
-			short fieldref_index2 = ((Short) PrivateAccessor.invoke(cp,
+			final short fieldref_index2 = ((Short) PrivateAccessor.invoke(cp,
 					"generateConstantFieldrefInfo", new Class<?>[] {
 							short.class, short.class }, new Object[] {
 							class_index2, nat_index2 })).shortValue();
 
-			short fieldref_index3 = ((Short) PrivateAccessor.invoke(cp,
+			final short fieldref_index3 = ((Short) PrivateAccessor.invoke(cp,
 					"generateConstantFieldrefInfo", new Class<?>[] {
 							short.class, short.class }, new Object[] {
 							class_index2, nat_index2 })).shortValue();
@@ -740,7 +741,7 @@ public class ConstantPoolTest {
 			assertTrue("Invalid index", fieldref_index1 == 9);
 			assertTrue("Invalid index", fieldref_index2 == 10);
 			assertTrue("Invalid index", fieldref_index3 == 10);
-		} catch (Throwable e) {
+		} catch (final Throwable e) {
 			e.printStackTrace();
 		}
 	}
@@ -751,36 +752,36 @@ public class ConstantPoolTest {
 		try {
 			// "out", "Ljava/io/PrintStream;", "java/lang/System");
 			// "in" "Ljava/io/InputStream" "java/lang/System"
-			short class_index1 = ((Short) PrivateAccessor.invoke(cp,
+			final short class_index1 = ((Short) PrivateAccessor.invoke(cp,
 					"generateConstantClassInfo",
 					new Class<?>[] { String.class },
 					new Object[] { "java/io/PrintStream" })).shortValue();
-			short class_index2 = ((Short) PrivateAccessor.invoke(cp,
+			final short class_index2 = ((Short) PrivateAccessor.invoke(cp,
 					"generateConstantClassInfo",
 					new Class<?>[] { String.class },
 					new Object[] { "java/lang/System" })).shortValue();
 
-			short nat_index1 = ((Short) PrivateAccessor.invoke(cp,
+			final short nat_index1 = ((Short) PrivateAccessor.invoke(cp,
 					"generateConstantNameAndTypeInfo", new Class<?>[] {
 							String.class, String.class }, new Object[] {
 							"print", "(Ljava/lang/String;)V" })).shortValue();
 
-			short nat_index2 = ((Short) PrivateAccessor.invoke(cp,
+			final short nat_index2 = ((Short) PrivateAccessor.invoke(cp,
 					"generateConstantNameAndTypeInfo", new Class<?>[] {
 							String.class, String.class }, new Object[] {
 							"exit", "(I)V" })).shortValue();
 
-			short methodref_index1 = ((Short) PrivateAccessor.invoke(cp,
+			final short methodref_index1 = ((Short) PrivateAccessor.invoke(cp,
 					"generateConstantFieldrefInfo", new Class<?>[] {
 							short.class, short.class }, new Object[] {
 							class_index1, nat_index1 })).shortValue();
 
-			short methodref_index2 = ((Short) PrivateAccessor.invoke(cp,
+			final short methodref_index2 = ((Short) PrivateAccessor.invoke(cp,
 					"generateConstantFieldrefInfo", new Class<?>[] {
 							short.class, short.class }, new Object[] {
 							class_index2, nat_index2 })).shortValue();
 
-			short methodref_index3 = ((Short) PrivateAccessor.invoke(cp,
+			final short methodref_index3 = ((Short) PrivateAccessor.invoke(cp,
 					"generateConstantFieldrefInfo", new Class<?>[] {
 							short.class, short.class }, new Object[] {
 							class_index2, nat_index2 })).shortValue();
@@ -816,7 +817,7 @@ public class ConstantPoolTest {
 			assertTrue("Invalid index", methodref_index2 == 12);
 			assertTrue("Invalid index", methodref_index3 == 12);
 
-		} catch (Throwable e) {
+		} catch (final Throwable e) {
 			e.printStackTrace();
 		}
 

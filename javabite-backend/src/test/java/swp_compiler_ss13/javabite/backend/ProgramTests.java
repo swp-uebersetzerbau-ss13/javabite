@@ -88,7 +88,7 @@ public class ProgramTests {
 
 	private void addDoubleConstant(final double... vals) {
 		for (final double v : vals) {
-			classfile.addDoubleConstantToConstantPool(v);
+			classfile.addDoubleConstantToConstantPool(v, Double.toString(v));
 		}
 	}
 
