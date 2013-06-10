@@ -11,6 +11,20 @@ import org.mockito.internal.util.reflection.Whitebox;
 import swp_compiler_ss13.javabite.backend.classfile.Classfile;
 import swp_compiler_ss13.javabite.backend.classfile.IClassfile;
 
+/**
+ * <h1>ClassfileTest</h1>
+ * <p>
+ * Main test-file for testing the Classfile functionality.
+ * </p>
+ * <p>
+ * NOTICE: Most of the methods of the Classfile forward the control to the
+ * ConstantPool or MethodArea class. For theese 'forwarding methods' the tests
+ * are part of ConstantPoolTest or MethodAreaTest.
+ * 
+ *  	
+ * @see ConstantPoolTest 
+ * @see MethodAreaTest
+ */
 public class ClassfileTest {
 
 	IClassfile classfile;
@@ -28,7 +42,7 @@ public class ClassfileTest {
 	}
 
 	@Test
-	public void initializeClassfile() {
+	public void testThatInitializeClassfileWorksCorrectly() {
 		assertEquals("The classname is set incorrect while initiation",
 				classfile.getName(),
 				Whitebox.getInternalState(classfile, "name"));
@@ -48,13 +62,16 @@ public class ClassfileTest {
 
 	}
 
+	//TODO: 
 	@Test
 	public void testWriteTo() {
 
 	}
 
-	@Test
-	public void testTranslation() {
-
-	}
+	// TODO:
+	// addLongVariableToMethodsCode
+	// addDoubleVariableToMethodsCode
+	// addStringVariableToMethodsCode
+	// addBooleanVariableToMethodsCode
+	//
 }

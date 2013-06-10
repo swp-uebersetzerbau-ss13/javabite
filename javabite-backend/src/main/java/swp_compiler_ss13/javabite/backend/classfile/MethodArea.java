@@ -23,7 +23,7 @@ import swp_compiler_ss13.javabite.backend.classfile.IClassfile.VariableType;
  * @author Marco
  * @since 28.04.2013
  */
-class MethodArea {
+public class MethodArea {
 
 	Logger logger = LoggerFactory.getLogger(this.getClass());
 
