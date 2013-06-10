@@ -103,21 +103,8 @@ public class ASTTypeChecker {
 			break;
 		case LogicBinaryExpressionNode:
 			LogicBinaryExpressionNode lbno=(LogicBinaryExpressionNode)node;
-			BinaryOperator op=lbno.getOperator();
-			if (
-					op==BinaryOperator.LOGICAL_AND
-					||
-					op==BinaryOperator.LOGICAL_OR)
-			{
-				ensure(lbno.getLeftValue(), AlgebraType.BOOLEAN);
-				ensure(lbno.getRightValue(),AlgebraType.BOOLEAN);
-			}
-			else
-			{
-				// is comparison operator
-				ensure(lbno.getLeftValue(), AlgebraType.ARITHMETIC);
-				ensure(lbno.getRightValue(),AlgebraType.ARITHMETIC);
-			}
+			ensure(lbno.getLeftValue(), AlgebraType.BOOLEAN);
+			ensure(lbno.getRightValue(),AlgebraType.BOOLEAN);
 			break;
 		case LogicUnaryExpressionNode:
 			LogicUnaryExpressionNode luno=(LogicUnaryExpressionNode)node;
@@ -129,14 +116,17 @@ public class ASTTypeChecker {
 			RelationExpressionNode ren=(RelationExpressionNode) node;
 			ensure(ren.getLeftValue(),AlgebraType.ARITHMETIC);
 			ensure(ren.getRightValue(),AlgebraType.ARITHMETIC);
+			break;
 		case ReturnNode:
 			ReturnNode rn=(ReturnNode)node;
 			if (rn.getRightValue()!=null) ensure(rn.getRightValue(),AlgebraType.ARITHMETIC);
+			break;
 		case StructIdentifierNode:
 			break;
 		case WhileNode:
 			WhileNode wn=(WhileNode)node;
 			ensure(wn.getCondition(), AlgebraType.ARITHMETIC);
+			break;
 		}
 	}
 	

@@ -7,16 +7,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import swp_compiler_ss13.common.ast.nodes.ExpressionNode;
-import swp_compiler_ss13.common.ast.nodes.IdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.StatementNode;
-import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
-import swp_compiler_ss13.common.ast.nodes.unary.PrintNode;
 import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode;
 import swp_compiler_ss13.common.lexer.Token;
+import swp_compiler_ss13.common.parser.SymbolTable;
 import swp_compiler_ss13.common.types.Type;
 import swp_compiler_ss13.common.types.primitive.BooleanType;
 import swp_compiler_ss13.common.types.primitive.DoubleType;
@@ -30,6 +28,7 @@ import swp_compiler_ss13.javabite.ast.nodes.StatementNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.binary.ArithmeticBinaryExpressionNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.binary.AssignmentNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.binary.LogicBinaryExpressionNodeJb;
+import swp_compiler_ss13.javabite.ast.nodes.binary.RelationExpressionNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.leaf.BasicIdentifierNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.leaf.BreakNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.leaf.LiteralNodeJb;
@@ -103,10 +102,17 @@ public class ASTGenerator {
 			logger.info("process \"programm\" \treduction on reductions {}",reductions);
 		}
 		
+		// get parent-scope
+		SymbolTableJb newSymbolTable=new SymbolTableJb();
+		if (currentBlocks.size()>=1){
+			SymbolTable parentSymbolTable=currentBlocks.peek().getSymbolTable();
+			newSymbolTable.setParentSymbolTable(parentSymbolTable);
+		}
+		
 		// Generate new Block
 		BlockNodeJb root = new BlockNodeJb();
 		currentBlocks.push(root);
-		root.setSymbolTable(new SymbolTableJb());
+		root.setSymbolTable(newSymbolTable);
 		// delete next reductions' list production from it
 		this.reductions.remove(0);
 
@@ -459,28 +465,28 @@ public class ASTGenerator {
 			rel = this.useExprProduction();
 			break;
 		case "rel -> expr LESS expr":
-			LogicBinaryExpressionNodeJb lben1=new LogicBinaryExpressionNodeJb();
+			RelationExpressionNodeJb lben1=new RelationExpressionNodeJb();
 			lben1.setLeftValue(useExprProduction());
 			lben1.setRightValue(useExprProduction());
 			lben1.setOperator(BinaryOperator.LESSTHAN);
 			rel=lben1;
 			break;
 		case "rel -> expr LESS_OR_EQUAL expr":
-			LogicBinaryExpressionNodeJb lben2=new LogicBinaryExpressionNodeJb();
+			RelationExpressionNodeJb lben2=new RelationExpressionNodeJb();
 			lben2.setLeftValue(useExprProduction());
 			lben2.setRightValue(useExprProduction());
 			lben2.setOperator(BinaryOperator.LESSTHANEQUAL);
 			rel=lben2;
 			break;
 		case "rel -> expr GREATER expr":
-			LogicBinaryExpressionNodeJb lben3=new LogicBinaryExpressionNodeJb();
+			RelationExpressionNodeJb lben3=new RelationExpressionNodeJb();
 			lben3.setLeftValue(useExprProduction());
 			lben3.setRightValue(useExprProduction());
 			lben3.setOperator(BinaryOperator.GREATERTHAN);
 			rel=lben3;
 			break;
 		case "rel -> expr GREATER_EQUAL expr":
-			LogicBinaryExpressionNodeJb lben4=new LogicBinaryExpressionNodeJb();
+			RelationExpressionNodeJb lben4=new RelationExpressionNodeJb();
 			lben4.setLeftValue(useExprProduction());
 			lben4.setRightValue(useExprProduction());
 			lben4.setOperator(BinaryOperator.GREATERTHANEQUAL);
