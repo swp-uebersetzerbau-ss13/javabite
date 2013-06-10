@@ -1025,6 +1025,8 @@ public class MainFrame extends JFrame implements ReportLog {
 			
 			textPaneLogs.setText(textPaneLogs.getText() + "\nCompilation failed.");
 			toolBarLabel.setText("Compilation failed.");
+			Icon icon = new ImageIcon(loader.getResource("images" + System.getProperty("file.separator") + "unsuccess-icon.png"));
+			toolBarLabel.setIcon(icon);
 			progressBar.setValue(0);
 			progressBar.setEnabled(false);
 		}
