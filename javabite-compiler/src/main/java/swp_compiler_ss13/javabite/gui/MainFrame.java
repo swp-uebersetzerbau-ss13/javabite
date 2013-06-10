@@ -791,17 +791,6 @@ public class MainFrame extends JFrame implements ReportLog {
 	}
 	
 	/**
-	 * Underlines wrongly typed tokens
-	 * */
-	private void underlineToken(int start, int end) {
-		SimpleAttributeSet attributes = new SimpleAttributeSet();
-		attributes.addAttribute(CharacterConstants.Underline, Color.red);
-		StyleConstants.setUnderline(attributes, true);
-		StyledDocument doc = editorPaneSourcecode.getStyledDocument();
-		doc.setCharacterAttributes(start, end, attributes, true);
-	}
-	
-	/**
 	 * Styles the whole sourcode jtextpane
 	 */
 	private void styleEditorText() {
@@ -826,9 +815,6 @@ public class MainFrame extends JFrame implements ReportLog {
 			index = text.indexOf(current_token.getValue(), lastIndex);
 			lastIndex = index + current_token.getValue().length();
 			styleToken(current_token.getTokenType(), index , current_token.getValue().length());
-			if (current_token.getTokenType() == TokenType.NOT_A_TOKEN) {
-				underlineToken(index , current_token.getValue().length());
-			}
 		}
 	}
 	
@@ -962,6 +948,7 @@ public class MainFrame extends JFrame implements ReportLog {
 				if (errorReported) {
 					textPaneLogs.setText(textPaneLogs.getText() + "\nSourcecode could not compile.");
 					toolBarLabel.setText("Sourcecode could not compile.");
+					tabbedPaneLog.setSelectedIndex(2);
 					return;
 				}
 				semanticAnalyser.analyse(ast);
@@ -1035,14 +1022,18 @@ public class MainFrame extends JFrame implements ReportLog {
 	
 	@Override
 	public void reportWarning(ReportType type, List<Token> tokens, String message) {
-		errorReported=true;
+		errorReported = true;
 		modelReportLogs.addRow(new Object[] { type, tokens.get(0).getLine(), tokens.get(0).getColumn(), message });
+		underlineToken(tokens.get(0).getLine(), tokens.get(0).getColumn());
+		// TODO: underline in yellow
 	}
 	
 	@Override
 	public void reportError(ReportType type, List<Token> tokens, String message) {
-		errorReported=true;
+		errorReported = true;
 		modelReportLogs.addRow(new Object[] { type, tokens.get(0).getLine(), tokens.get(0).getColumn(), message });
+		underlineToken(tokens.get(0).getLine(), tokens.get(0).getColumn());
+		// TODO: underline in red
 	}
 	
 	 public static int getRow(int pos, JTextComponent editor) {
@@ -1067,4 +1058,30 @@ public class MainFrame extends JFrame implements ReportLog {
         }
         return -1;
     }
+    
+	/**
+	 * Underlines wrongly typed tokens
+	 * */
+	private void underlineToken(int line, int column) {
+		line = line - 1;
+		String code = editorPaneSourcecode.getText();
+		String[] lines = code.split(System.getProperty("line.separator"));
+		int lineNr = 0;
+		int offset = 0;
+		for (String codeLine : lines) {
+			if (lineNr == line - 1) {
+				SimpleAttributeSet attributes = new SimpleAttributeSet();
+				StyleConstants.setUnderline(attributes, true);
+				StyledDocument doc = editorPaneSourcecode.getStyledDocument();
+				doc.setCharacterAttributes(code.indexOf(codeLine), codeLine.length(), attributes, true);
+				break;
+			} else {
+				System.out.println(codeLine);
+				System.out.println(codeLine.length());
+				offset += codeLine.length();
+				System.out.println(offset);
+				lineNr++;
+			}
+		}
+	}
  }
