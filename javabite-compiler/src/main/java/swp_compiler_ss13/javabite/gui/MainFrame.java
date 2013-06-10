@@ -1015,7 +1015,8 @@ public class MainFrame extends JFrame implements ReportLog {
 				}
 				
 				textPaneConsole.setText(textPaneConsole.getText() + "\nReturn value: "+exitCode + "\nExecution time: " + execTime + "ms");
-				
+				Icon icon = new ImageIcon(loader.getResource("images" + System.getProperty("file.separator") + "success-icon.png"));
+				toolBarLabel.setIcon(icon);
 				toolBarLabel.setText("File compiled.");
 				progressBar.setValue(100);
 				progressBar.setEnabled(false);
