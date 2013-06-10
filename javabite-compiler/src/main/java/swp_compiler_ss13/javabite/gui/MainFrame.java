@@ -3,6 +3,7 @@ package swp_compiler_ss13.javabite.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.EventQueue;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
@@ -24,6 +25,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -120,13 +123,15 @@ public class MainFrame extends JFrame implements ReportLog {
 	
 	// get properties for syntax highlighting
 	JavabiteConfig properties = JavabiteConfig.getDefaultConfig();
-			
+	
+	// File for opened sourcecode and changes listener
 	File openedFile = null;
 	boolean fileChanged = false;
 	SourecodeDocumentListener sourceCodeListener;
 	FileNameExtensionFilter filter = new FileNameExtensionFilter("Sourcecode (.prog)", "prog");
 	
 	// undo and redo
+	final ClassLoader loader = MainFrame.class.getClassLoader();
 	private Document editorPaneDocument;
 	protected UndoCostumManager undoManager;
 	private JButton undoButton;
@@ -192,6 +197,7 @@ public class MainFrame extends JFrame implements ReportLog {
 				doc.insertString(doc.getLength(), line + "\n", null);
 				line = in.readLine();
 			}
+			// remove wrongly inserted last newline
 			if (doc.getText(0, doc.getLength()).endsWith("\n")) {
 			    doc.remove(doc.getLength() - 1, 1);
 			}
@@ -583,7 +589,10 @@ public class MainFrame extends JFrame implements ReportLog {
 		menuBar.add(buttonRunCompile);
 		
 		// undo button
-		undoButton = new JButton("<-");
+		Icon icon = new ImageIcon(loader.getResource("images" + System.getProperty("file.separator") + "undo-icon.png"));
+		undoButton = new JButton("", icon);
+		undoButton.setMargin(new Insets(0, 0, 0, 0));
+		undoButton.setBorder(null);
 		undoButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
@@ -596,7 +605,10 @@ public class MainFrame extends JFrame implements ReportLog {
 		menuBar.add(undoButton);
 		
 		// redo button
-		redoButton = new JButton("->");
+		icon = new ImageIcon(loader.getResource("images" + System.getProperty("file.separator") + "redo-icon.png"));
+		redoButton = new JButton("", icon);
+		redoButton.setMargin(new Insets(0, 0, 0, 0));
+		redoButton.setBorder(null);
 		redoButton.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
