@@ -946,6 +946,8 @@ public class MainFrame extends JFrame implements ReportLog {
 				AST ast = parser.getParsedAST();
 				if (errorReported) {
 					textPaneLogs.setText(textPaneLogs.getText() + "\nSourcecode could not compile.");
+					Icon icon = new ImageIcon(loader.getResource("images" + System.getProperty("file.separator") + "unsuccess-icon.png"));
+					toolBarLabel.setIcon(icon);
 					toolBarLabel.setText("Sourcecode could not compile.");
 					tabbedPaneLog.setSelectedIndex(2);
 					return;
@@ -953,6 +955,8 @@ public class MainFrame extends JFrame implements ReportLog {
 				semanticAnalyser.analyse(ast);
 				if (errorReported) {
 					textPaneLogs.setText(textPaneLogs.getText() + "\nSourcecode could not compile.");
+					Icon icon = new ImageIcon(loader.getResource("images" + System.getProperty("file.separator") + "unsuccess-icon.png"));
+					toolBarLabel.setIcon(icon);
 					toolBarLabel.setText("Sourcecode could not compile.");
 					return;
 				}
