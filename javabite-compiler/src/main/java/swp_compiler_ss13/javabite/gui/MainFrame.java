@@ -114,7 +114,7 @@ public class MainFrame extends JFrame implements ReportLog {
 	JTextPane textPaneConsole;
 	JTextPane textPaneLogs;
 	JTable tableReportLogs;
-	ReportLogsTableModel modelReportLogs;
+	DefaultTableModel modelReportLogs;
 	JTabbedPane tabbedPaneLog;
 	private static JTextPane editorPaneSourcecode;
 	
@@ -632,7 +632,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		textPaneLogs.setText("");
 		tabbedPaneLog.addTab("Compiler Log", null, textPaneLogs, null);
 		
-		modelReportLogs = new ReportLogsTableModel();
+		modelReportLogs = new DefaultTableModel();
 		tableReportLogs = new JTable(modelReportLogs);
 		tableReportLogs.setEnabled(false);
 		tabbedPaneLog.addTab("Report Log", null, tableReportLogs, null);
@@ -986,7 +986,6 @@ public class MainFrame extends JFrame implements ReportLog {
 	public void reportWarning(ReportType type, List<Token> tokens, String message) {
 		errorReported = true;
 		modelReportLogs.addRow(new Object[] { "Warning", type, tokens.get(0).getLine(), tokens.get(0).getColumn(), message });
-		modelReportLogs.setRowColor(1, Color.YELLOW);
 		underlineToken(tokens.get(0).getLine(), tokens.get(0).getColumn(), Color.YELLOW);
 	}
 	
@@ -994,7 +993,6 @@ public class MainFrame extends JFrame implements ReportLog {
 	public void reportError(ReportType type, List<Token> tokens, String message) {
 		errorReported = true;
 		modelReportLogs.addRow(new Object[] { "Error", type, tokens.get(0).getLine(), tokens.get(0).getColumn(), message });
-		modelReportLogs.setRowColor(1, Color.RED);
 		underlineToken(tokens.get(0).getLine(), tokens.get(0).getColumn(), Color.RED);
 	}
 	
