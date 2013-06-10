@@ -44,15 +44,11 @@ import javax.swing.JToolBar;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultHighlighter;
-import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
-import javax.swing.text.StyleConstants.CharacterConstants;
 import javax.swing.text.StyledDocument;
 import javax.swing.text.Utilities;
 
@@ -90,8 +86,6 @@ import javax.swing.JSeparator;
 public class MainFrame extends JFrame implements ReportLog {
 	
 	private static final long serialVersionUID = 1673088367851101738L;
-	
-	private JPanel contentPane;
 	
 	// class to setup styles for our sourcecode
 	StyledDocument doc = (StyledDocument) new DefaultStyledDocument();
@@ -135,14 +129,12 @@ public class MainFrame extends JFrame implements ReportLog {
 	
 	// undo and redo
 	final ClassLoader loader = MainFrame.class.getClassLoader();
-	private Document editorPaneDocument;
 	protected UndoCostumManager undoManager;
 	private JButton undoButton;
 	private JButton redoButton;
 	private JScrollPane scrollPane;
 	private JMenuItem mntmProperties;
 	private JMenuItem mntmNew;
-	private JScrollPane scrollPaneReportLogs;
 	private JSeparator separator;
 	private JSeparator separator_1;
 
@@ -202,7 +194,7 @@ public class MainFrame extends JFrame implements ReportLog {
 			}
 			// remove wrongly inserted last newline
 			if (doc.getText(0, doc.getLength()).endsWith("\n")) {
-			    doc.remove(doc.getLength() - 1, 1);
+				doc.remove(doc.getLength() - 1, 1);
 			}
 		} catch (BadLocationException | IOException ex) {
 			ex.printStackTrace();
@@ -254,16 +246,18 @@ public class MainFrame extends JFrame implements ReportLog {
 						JFrame frame = new JFrame("Save");
 						Object[] options = {"Cancel", "No", "Yes"};
 						String fileName = (openedFile == null) ? "New File.prog" : openedFile.getName();
-						int n = JOptionPane.showOptionDialog(frame,
-						    "Save file \"" + fileName + "\"?\n",
-						    "Save",
-						    JOptionPane.YES_NO_CANCEL_OPTION,
-						    JOptionPane.QUESTION_MESSAGE,
-						    null,
-						    options,
-						    options[2]);
-						// 'Yes' was selected
-						if(n == 2) {
+						int n = JOptionPane.showOptionDialog (
+							frame,
+							"Save file \"" + fileName + "\"?\n",
+							"Save",
+							JOptionPane.YES_NO_CANCEL_OPTION,
+							JOptionPane.QUESTION_MESSAGE,
+							null,
+							options,
+							options[2]
+						);
+						
+						if (n == 2) { // "Yes" was selected
 							if (openedFile == null) {
 								// create and open the file chooser
 								JFileChooser chooser = new JFileChooser();
@@ -292,8 +286,7 @@ public class MainFrame extends JFrame implements ReportLog {
 										fileChanged = false;
 									}
 								}
-							} 
-							else {
+							} else {
 								// firstly save file
 								saveEditorContentIntoFile(openedFile);
 								setTitle("Javabite Compiler - " + openedFile.getName());
@@ -312,9 +305,7 @@ public class MainFrame extends JFrame implements ReportLog {
 									fileChanged = false;
 								}
 							}
-						} 
-						// 'No' was selected
-						else if (n == 1) {
+						} else if (n == 1) { // "No" was selected
 							// display file chooser
 							JFileChooser chooser = new JFileChooser();
 							chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
@@ -327,9 +318,7 @@ public class MainFrame extends JFrame implements ReportLog {
 								toolBarLabel.setText("Document opened.");
 								fileChanged = false;
 							}
-						} 
-						// 'Cancel' was selected
-						else {
+						} else { // "Cancel" was selected
 							return;
 						}
 					}
@@ -342,20 +331,22 @@ public class MainFrame extends JFrame implements ReportLog {
 		mntmNew.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// file was changed, thus ask what to do
-				if(fileChanged) {
+				if (fileChanged) {
 					JFrame frame = new JFrame("Save");
 					Object[] options = {"Cancel", "No", "Yes"};
 					String fileName = (openedFile == null) ? "New File.prog" : openedFile.getName();
-					int n = JOptionPane.showOptionDialog(frame,
-					    "Save file \"" + fileName + "\"?\n",
-					    "Save",
-					    JOptionPane.YES_NO_CANCEL_OPTION,
-					    JOptionPane.QUESTION_MESSAGE,
-					    null,
-					    options,
-					    options[2]);
-					// 'Yes' was selected
-					if(n == 2) {
+					int n = JOptionPane.showOptionDialog (
+						frame,
+						"Save file \"" + fileName + "\"?\n",
+						"Save",
+						JOptionPane.YES_NO_CANCEL_OPTION,
+						JOptionPane.QUESTION_MESSAGE,
+						null,
+						options,
+						options[2]
+					);
+					
+					if (n == 2) { // "Yes" was selected
 						if (openedFile == null) {
 							// create and open the file chooser
 							JFileChooser chooser = new JFileChooser();
@@ -378,8 +369,7 @@ public class MainFrame extends JFrame implements ReportLog {
 								toolBarLabel.setText("New document opened.");
 								setTitle("Javabite Compiler - New File.prog");
 							}
-						} 
-						else {
+						} else {
 							// firstly save file
 							saveEditorContentIntoFile(openedFile);
 							setTitle("Javabite Compiler - " + openedFile.getName());
@@ -392,23 +382,17 @@ public class MainFrame extends JFrame implements ReportLog {
 							toolBarLabel.setText("New document opened.");
 							setTitle("Javabite Compiler - New File.prog");
 						}
-					} 
-					// 'No' was selected
-					else if (n == 1) {
+					} else if (n == 1) { // "No" was selected
 						// open new file
 						openedFile = null;
 						fileChanged = false;
 						editorPaneSourcecode.setText("");
 						toolBarLabel.setText("New document opened.");
 						setTitle("Javabite Compiler - New File.prog");
-					} 
-					// 'Cancel' was selected
-					else {
+					} else { // "Cancel" was selected
 						return;
 					}
-				}
-				// file not changed, thus open new file
-				else {
+				} else { // file not changed, thus open new file
 					openedFile = null;
 					fileChanged = false;
 					editorPaneSourcecode.setText("");
@@ -419,7 +403,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		});
 		menuFile.add(mntmNew);
 		menuFile.add(menuFileOpen);
-
+		
 		menuFileSave = new JMenuItem("Save");
 		menuFileSave.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -442,17 +426,13 @@ public class MainFrame extends JFrame implements ReportLog {
 							saveEditorContentIntoFile(openedFile);
 							fileChanged = false;
 						}
-					}
-					// file already exists, but was changed
-					else {
+					} else { // file already exists, but was changed
 						saveEditorContentIntoFile(openedFile);
 						setTitle("Javabite Compiler - " + openedFile.getName());
 						toolBarLabel.setText("Document saved.");
 						fileChanged = false;
 					}
-				}
-				// file was not changed
-				else {
+				} else { // file was not changed
 					JFrame frame = new JFrame();
 					JOptionPane.showMessageDialog(frame, "There are no changes to save!");
 				}
@@ -464,20 +444,22 @@ public class MainFrame extends JFrame implements ReportLog {
 		menuFileClose.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// file was changed, thus ask what to do
-				if(fileChanged) {
+				if (fileChanged) {
 					JFrame frame = new JFrame("Save");
 					Object[] options = {"Cancel", "No", "Yes"};
 					String fileName = (openedFile == null) ? "New File.prog" : openedFile.getName();
-					int n = JOptionPane.showOptionDialog(frame,
-					    "Save file \"" + fileName + "\"?\n",
-					    "Save",
-					    JOptionPane.YES_NO_CANCEL_OPTION,
-					    JOptionPane.QUESTION_MESSAGE,
-					    null,
-					    options,
-					    options[2]);
-					// 'Yes' was selected
-					if(n == 2) {
+					int n = JOptionPane.showOptionDialog (
+						frame,
+						"Save file \"" + fileName + "\"?\n",
+						"Save",
+						JOptionPane.YES_NO_CANCEL_OPTION,
+						JOptionPane.QUESTION_MESSAGE,
+						null,
+						options,
+						options[2]
+					);
+					
+					if (n == 2) { // "Yes" was selected
 						if (openedFile == null) {
 							// create and open the file chooser
 							JFileChooser chooser = new JFileChooser();
@@ -497,29 +479,19 @@ public class MainFrame extends JFrame implements ReportLog {
 								// close application
 								System.exit(0);
 							}
-						} 
-						else {
+						} else {
 							// firstly save file
 							saveEditorContentIntoFile(openedFile);
 							setTitle("Javabite Compiler - " + openedFile.getName());
 							toolBarLabel.setText("Document saved.");
-							
-							// close application
 							System.exit(0);
 						}
-					} 
-					// 'No' was selected
-					else if (n == 1) {
-						// close application
+					} else if (n == 1) { // "No" was selected
 						System.exit(0);
-					} 
-					// 'Cancel' was selected
-					else {
+					} else { // "Cancel" was selected
 						return;
 					}
-				}
-				// file not changed, thus close application
-				else {
+				} else { // file not changed, thus close application
 					System.exit(0);
 				}
 			}
@@ -562,8 +534,7 @@ public class MainFrame extends JFrame implements ReportLog {
 				frame.setVisible(true);
 				KhaledGraphFrame k= new KhaledGraphFrame();
 				
-				
-			    frame.setSize(167*k.levelsCounter(ast), 55*k.maximumOfNodesInLevels());
+				frame.setSize(167*k.levelsCounter(ast), 55*k.maximumOfNodesInLevels());
 				frame.getContentPane().add(ast_frame);
 				frame.setVisible(true);
 				toolBarLabel.setText("Rendered AST.");
@@ -650,7 +621,6 @@ public class MainFrame extends JFrame implements ReportLog {
 		
 		lexer = new LexerJb();
 		
-		
 		tabbedPaneLog = new JTabbedPane(JTabbedPane.TOP);
 		splitPane.setRightComponent(tabbedPaneLog);
 		
@@ -686,65 +656,62 @@ public class MainFrame extends JFrame implements ReportLog {
 		
 		// tooltip
 		editorPaneSourcecode.addMouseMotionListener(new MouseAdapter() {
-			  public void mouseMoved(MouseEvent e) {
-				  Point loc = e.getPoint();
-				  int pos = editorPaneSourcecode.viewToModel(loc);
-				  String text = editorPaneSourcecode.getText();
-				  
-				  //dont do anything if the cursor is not hover an element
-				  if (pos < text.length()) {
-					  char cursor = 'x';
-					  
-					  //search as long we find a whitespace in our pos
-					  int searchPos = 0;
-					  int delimiterPos = -1;
-					  while (searchPos < pos) {
-						  if (text.charAt(searchPos) == ' ') {
-							  delimiterPos = searchPos;
-						  }
-						  
-						  searchPos++;
-					  }
-					  
-					  //search next whitespace location 
-					  while(searchPos < text.length()) {
-						  if(text.charAt(searchPos) == ' ' || text.charAt(searchPos) == '\n' || text.charAt(searchPos) == '\0')
-							  break;
-						  
-						  searchPos++;
-					  }
-					  
-					  String mouseOverWord = text.substring(delimiterPos+1, searchPos);
-					  
-					  //get attribute of word, this is the token type
-					  //we dont like to search for all tokens again
-					  List<Token> tokens = getTokenList(mouseOverWord);
-					  
-					  //check if there is just 1 token type, if not there is no space between tokens and we have to identify what tokens is the target
-					  if(tokens.size() == 1) {
-						  editorPaneSourcecode.setToolTipText(tokens.get(0).getTokenType().name());
-					  } else {
-						  int newPos = pos-delimiterPos;
-						  int posCount = 0;
-						  int tokenId = 0;
-						  String val;
-						  for(int i = 0; i < tokens.size(); i++) {
-							  val = tokens.get(i).getValue();
-							  posCount += val.length();
-							  if(posCount >= newPos)
-							  {
-								  tokenId = i;
-								  break;
-							  }
-						  }
-						  editorPaneSourcecode.setToolTipText(tokens.get(tokenId).getTokenType().name());
-					  }
-				  } else {
-					  editorPaneSourcecode.setToolTipText("");
-				  }
-			  }
+			public void mouseMoved(MouseEvent e) {
+				Point loc = e.getPoint();
+				int pos = editorPaneSourcecode.viewToModel(loc);
+				String text = editorPaneSourcecode.getText();
+				
+				//dont do anything if the cursor is not hover an element
+				if (pos < text.length()) {
+					//search as long we find a whitespace in our pos
+					int searchPos = 0;
+					int delimiterPos = -1;
+					while (searchPos < pos) {
+						if (text.charAt(searchPos) == ' ') {
+							delimiterPos = searchPos;
+						}
+						
+						searchPos++;
+					}
+					
+					//search next whitespace location 
+					while (searchPos < text.length()) {
+						if (text.charAt(searchPos) == ' ' || text.charAt(searchPos) == '\n' || text.charAt(searchPos) == '\0') {
+							break;
+						}
+						
+						searchPos++;
+					}
+					
+					String mouseOverWord = text.substring(delimiterPos+1, searchPos);
+					
+					//get attribute of word, this is the token type
+					//we dont like to search for all tokens again
+					List<Token> tokens = getTokenList(mouseOverWord);
+					
+					//check if there is just 1 token type, if not there is no space between tokens and we have to identify what tokens is the target
+					if (tokens.size() == 1) {
+						editorPaneSourcecode.setToolTipText(tokens.get(0).getTokenType().name());
+					} else {
+						int newPos = pos-delimiterPos;
+						int posCount = 0;
+						int tokenId = 0;
+						String val;
+						for (int i = 0; i < tokens.size(); i++) {
+							val = tokens.get(i).getValue();
+							posCount += val.length();
+							if (posCount >= newPos) {
+								tokenId = i;
+								break;
+							}
+						}
+						editorPaneSourcecode.setToolTipText(tokens.get(tokenId).getTokenType().name());
+					}
+				} else {
+					editorPaneSourcecode.setToolTipText("");
+				}
+			}
 		});
-		
 		
 		// add listener for sourcecode colorization 
 		editorPaneSourcecode.addKeyListener(new KeyAdapter() {
@@ -831,15 +798,18 @@ public class MainFrame extends JFrame implements ReportLog {
 				JFrame frame = new JFrame("Save");
 				Object[] options = {"Cancel", "No", "Yes"};
 				String fileName = (file == null) ? "New File.prog" : file.getName();
-				int n = JOptionPane.showOptionDialog(frame,
-				    "Sourcecode cannot be compiled, until it is saved.\nSave file \"" + fileName + "\"?\n",
-				    "Save",
-				    JOptionPane.YES_NO_CANCEL_OPTION,
-				    JOptionPane.QUESTION_MESSAGE,
-				    null,
-				    options,
-				    options[2]);
-				if (n == 2) {			// 'Yes' was selected
+				int n = JOptionPane.showOptionDialog (
+					frame,
+					"Sourcecode cannot be compiled, until it is saved.\nSave file \"" + fileName + "\"?\n",
+					"Save",
+					JOptionPane.YES_NO_CANCEL_OPTION,
+					JOptionPane.QUESTION_MESSAGE,
+					null,
+					options,
+					options[2]
+				);
+				
+				if (n == 2) { // "Yes" was selected
 					if (file == null) {
 						// create and open the file chooser
 						JFileChooser chooser = new JFileChooser();
@@ -860,7 +830,7 @@ public class MainFrame extends JFrame implements ReportLog {
 							// sourcecode can now be compiled
 							canCompiled = true;
 						}
-					} else {			// firstly save file
+					} else { // firstly save file
 						saveEditorContentIntoFile(openedFile);
 						setTitle("Javabite Compiler - " + file.getName());
 						toolBarLabel.setText("Document saved.");
@@ -868,7 +838,7 @@ public class MainFrame extends JFrame implements ReportLog {
 						// sourcecode can now be compiled
 						canCompiled = true;
 					}
-				} else if (n == 1) {	// 'No' was selected
+				} else if (n == 1) { // "No" was selected
 					if (file == null) {
 						canCompiled = false;
 						frame = new JFrame();
@@ -876,7 +846,7 @@ public class MainFrame extends JFrame implements ReportLog {
 					} else {
 						canCompiled = true;
 					}
-				} else {				// 'Cancel' was selected
+				} else { // "Cancel" was selected
 					canCompiled = false;
 				}
 			} else {
@@ -910,16 +880,7 @@ public class MainFrame extends JFrame implements ReportLog {
 				
 				progressBar.setValue(10);
 				boolean setupOk = true;
-				if (lexer == null) {
-					setupOk = false;
-				}
-				if (parser == null) {
-					setupOk = false;
-				}
-				if (codegen == null) {
-					setupOk = false;
-				}
-				if (backend == null) {
+				if (lexer == null || parser == null || codegen == null || backend == null) {
 					setupOk = false;
 				}
 				
@@ -968,7 +929,6 @@ public class MainFrame extends JFrame implements ReportLog {
 				Map<String, InputStream> results = backend.generateTargetCode(sourceBaseName, quadruples);
 				progressBar.setValue(80);
 				textPaneLogs.setText(textPaneLogs.getText() + "\nGenerate target code finished.");
-				String retVal = "";
 				long execTime = -1;
 				int exitCode = -1;
 				for (Entry<String,InputStream> e:results.entrySet()) {
@@ -989,6 +949,7 @@ public class MainFrame extends JFrame implements ReportLog {
 					Process p = Runtime.getRuntime().exec("java -cp \""+folder+"\" \""+classname+"\"");
 					
 					long endTime = new Date().getTime();
+					
 					//calculate execute time in ms
 					execTime = endTime - startTime;
 					BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
@@ -999,7 +960,6 @@ public class MainFrame extends JFrame implements ReportLog {
 					final BufferedReader reader = new BufferedReader(
 							new InputStreamReader(p.getErrorStream()));
 					
-					String read = reader.readLine();
 					exitCode = p.exitValue();
 					input.close();
 				}
@@ -1038,29 +998,30 @@ public class MainFrame extends JFrame implements ReportLog {
 		underlineToken(tokens.get(0).getLine(), tokens.get(0).getColumn(), Color.RED);
 	}
 	
-	 public static int getRow(int pos, JTextComponent editor) {
-	        int rn = (pos==0) ? 1 : 0;
-	        try {
-	            int offs=pos;
-	            while( offs>0) {
-	                offs=Utilities.getRowStart(editor, offs)-1;
-	                rn++;
-	            }
-	        } catch (BadLocationException e) {
-	            e.printStackTrace();
-	        }
-	        return rn;
-	    }
-
-    public static int getColumn(int pos, JTextComponent editor) {
-        try {
-            return pos-Utilities.getRowStart(editor, pos)+1;
-        } catch (BadLocationException e) {
-            e.printStackTrace();
-        }
-        return -1;
-    }
-    
+	public static int getRow(int pos, JTextComponent editor) {
+		int rn = (pos == 0) ? 1 : 0;
+		try {
+			int offs = pos;
+			while (offs > 0) {
+				offs=Utilities.getRowStart(editor, offs) - 1;
+				rn++;
+			}
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+		}
+		
+		return rn;
+	}
+	
+	public static int getColumn(int pos, JTextComponent editor) {
+		try {
+			return pos-Utilities.getRowStart(editor, pos) + 1;
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+		}
+		return -1;
+	}
+	
 	/**
 	 * Underlines wrongly typed tokens
 	 * */
@@ -1072,7 +1033,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		for (String codeLine : lines) {
 			if (lineNr == line - 1) {
 				SimpleAttributeSet attributes = new SimpleAttributeSet();
-			    StyleConstants.setForeground(attributes, color);
+				StyleConstants.setForeground(attributes, color);
 				StyleConstants.setUnderline(attributes, true);
 				StyledDocument doc = editorPaneSourcecode.getStyledDocument();
 				doc.setCharacterAttributes(code.indexOf(codeLine), codeLine.length(), attributes, true);
