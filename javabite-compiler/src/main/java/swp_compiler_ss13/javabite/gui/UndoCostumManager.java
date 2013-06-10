@@ -5,7 +5,6 @@ import java.awt.event.KeyEvent;
 import java.util.Stack;
 
 import javax.swing.JTextPane;
-import javax.swing.text.StyledDocument;
 
 public class UndoCostumManager {
 
