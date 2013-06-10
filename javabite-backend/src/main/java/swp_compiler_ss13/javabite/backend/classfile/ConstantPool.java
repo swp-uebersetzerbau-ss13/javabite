@@ -78,7 +78,7 @@ public class ConstantPool {
 				logger.debug("{}", intToHexString(entryList.size() + 1));
 			}
 
-			// specification determines size as size of cp plus 1
+			 /*
 			 * write constant_pool_count specification determines size as size
 			 * of cp plus 1
 			 */
@@ -206,7 +206,7 @@ public class ConstantPool {
 	 * @return short index of a STRING info entry in the constant pool of this
 	 *         classfile meeting the parameters.
 	 */
-	short generateConstantStringInfo(final String value) {
+	short generateConstantStringInfo(String value) {
 		checkConstantPoolSize(1);
 		final String key = InfoTag.STRING.name() + value;
 
