@@ -114,14 +114,14 @@ public class MainFrame extends JFrame implements ReportLog {
 	JTextPane textPaneConsole;
 	JTextPane textPaneLogs;
 	JTable tableReportLogs;
-	DefaultTableModel modelReportLogs;
+	ReportLogsTableModel modelReportLogs;
 	JTabbedPane tabbedPaneLog;
 	private static JTextPane editorPaneSourcecode;
 	
 	// get properties for syntax highlighting
 	JavabiteConfig properties = JavabiteConfig.getDefaultConfig();
 	
-	// File for opened sourcecode and changes listener
+	// file for opened sourcecode and changes listener
 	File openedFile = null;
 	boolean fileChanged = false;
 	SourecodeDocumentListener sourceCodeListener;
@@ -632,10 +632,11 @@ public class MainFrame extends JFrame implements ReportLog {
 		textPaneLogs.setText("");
 		tabbedPaneLog.addTab("Compiler Log", null, textPaneLogs, null);
 		
-		modelReportLogs = new DefaultTableModel();
+		modelReportLogs = new ReportLogsTableModel();
 		tableReportLogs = new JTable(modelReportLogs);
 		tableReportLogs.setEnabled(false);
 		tabbedPaneLog.addTab("Report Log", null, tableReportLogs, null);
+		modelReportLogs.addColumn("");
 		modelReportLogs.addColumn("Type");
 		modelReportLogs.addColumn("Line");
 		modelReportLogs.addColumn("Column");
@@ -651,7 +652,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		sourceCodeListener = new SourecodeDocumentListener(this);
 		editorPaneSourcecode.getDocument().addDocumentListener(sourceCodeListener);
 		
-		//undo redo manager
+		// undo redo manager
 		undoManager = new UndoCostumManager(editorPaneSourcecode);
 		
 		// tooltip
@@ -661,7 +662,7 @@ public class MainFrame extends JFrame implements ReportLog {
 				int pos = editorPaneSourcecode.viewToModel(loc);
 				String text = editorPaneSourcecode.getText();
 				
-				//dont do anything if the cursor is not hover an element
+				// dont do anything if the cursor is not hover an element
 				if (pos < text.length()) {
 					//search as long we find a whitespace in our pos
 					int searchPos = 0;
@@ -674,7 +675,7 @@ public class MainFrame extends JFrame implements ReportLog {
 						searchPos++;
 					}
 					
-					//search next whitespace location 
+					// search next whitespace location 
 					while (searchPos < text.length()) {
 						if (text.charAt(searchPos) == ' ' || text.charAt(searchPos) == '\n' || text.charAt(searchPos) == '\0') {
 							break;
@@ -685,11 +686,11 @@ public class MainFrame extends JFrame implements ReportLog {
 					
 					String mouseOverWord = text.substring(delimiterPos+1, searchPos);
 					
-					//get attribute of word, this is the token type
-					//we dont like to search for all tokens again
+					// get attribute of word, this is the token type
+					// we dont like to search for all tokens again
 					List<Token> tokens = getTokenList(mouseOverWord);
 					
-					//check if there is just 1 token type, if not there is no space between tokens and we have to identify what tokens is the target
+					// check if there is just 1 token type, if not there is no space between tokens and we have to identify what tokens is the target
 					if (tokens.size() == 1) {
 						editorPaneSourcecode.setToolTipText(tokens.get(0).getTokenType().name());
 					} else {
@@ -746,7 +747,7 @@ public class MainFrame extends JFrame implements ReportLog {
 	 * Styles a special part of the sourcecode
 	 */
 	private void styleToken(TokenType tokenType, int start, int end) {
-		//check properties file for tokentype key, if exist set defined color
+		// check properties file for tokentype key, if exist set defined color
 		String color;
 		if ((color = properties.getProperty("syntaxHighlighting."+tokenType.toString().toLowerCase())) != null) {
 			color = color.substring(1);
@@ -766,7 +767,7 @@ public class MainFrame extends JFrame implements ReportLog {
 	private void styleEditorText() {
 		String text = editorPaneSourcecode.getText();
 		
-		//reset editor value to prevent some highlighting bugs
+		// reset editor value to prevent some highlighting bugs
 		int cursorPos = editorPaneSourcecode.getCaretPosition();
 		editorPaneSourcecode.setText("");
 		javax.swing.text.Style style = editorPaneSourcecode.addStyle("Black", null);
@@ -950,15 +951,12 @@ public class MainFrame extends JFrame implements ReportLog {
 					
 					long endTime = new Date().getTime();
 					
-					//calculate execute time in ms
+					// calculate execute time in ms
 					execTime = endTime - startTime;
 					BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
 					while ((line = input.readLine()) != null) {
 						textPaneConsole.setText(textPaneConsole.getText() + "\n" + line + ".");
 					}
-					
-					final BufferedReader reader = new BufferedReader(
-							new InputStreamReader(p.getErrorStream()));
 					
 					exitCode = p.exitValue();
 					input.close();
@@ -987,14 +985,16 @@ public class MainFrame extends JFrame implements ReportLog {
 	@Override
 	public void reportWarning(ReportType type, List<Token> tokens, String message) {
 		errorReported = true;
-		modelReportLogs.addRow(new Object[] { type, tokens.get(0).getLine(), tokens.get(0).getColumn(), message });
+		modelReportLogs.addRow(new Object[] { "Warning", type, tokens.get(0).getLine(), tokens.get(0).getColumn(), message });
+		modelReportLogs.setRowColor(1, Color.YELLOW);
 		underlineToken(tokens.get(0).getLine(), tokens.get(0).getColumn(), Color.YELLOW);
 	}
 	
 	@Override
 	public void reportError(ReportType type, List<Token> tokens, String message) {
 		errorReported = true;
-		modelReportLogs.addRow(new Object[] { type, tokens.get(0).getLine(), tokens.get(0).getColumn(), message });
+		modelReportLogs.addRow(new Object[] { "Error", type, tokens.get(0).getLine(), tokens.get(0).getColumn(), message });
+		modelReportLogs.setRowColor(1, Color.RED);
 		underlineToken(tokens.get(0).getLine(), tokens.get(0).getColumn(), Color.RED);
 	}
 	
@@ -1019,6 +1019,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		} catch (BadLocationException e) {
 			e.printStackTrace();
 		}
+		
 		return -1;
 	}
 	
@@ -1043,4 +1044,4 @@ public class MainFrame extends JFrame implements ReportLog {
 			}
 		}
 	}
- }
+}
