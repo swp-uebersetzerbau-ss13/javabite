@@ -192,6 +192,9 @@ public class MainFrame extends JFrame implements ReportLog {
 				doc.insertString(doc.getLength(), line + "\n", null);
 				line = in.readLine();
 			}
+			if (doc.getText(0, doc.getLength()).endsWith("\n")) {
+			    doc.remove(doc.getLength() - 1, 1);
+			}
 		} catch (BadLocationException | IOException ex) {
 			ex.printStackTrace();
 		}
