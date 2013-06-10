@@ -992,8 +992,8 @@ public class MainFrame extends JFrame implements ReportLog {
 					String[] splitClass = absPath.split("class");
 					String cmd = "java " + splitClass[0].substring(0,splitClass[0].length()-1);
 					System.out.println("cmd: " + cmd);
-					String folder = cmd.substring(5,cmd.lastIndexOf('\\'));
-					String classname = cmd.substring(cmd.lastIndexOf('\\')+1);
+					String folder = cmd.substring(5,cmd.lastIndexOf(System.getProperty("file.separator")));
+					String classname = cmd.substring(cmd.lastIndexOf(System.getProperty("file.separator"))+1);
 					long startTime = new Date().getTime();
 					
 					Process p = Runtime.getRuntime().exec("java -cp \""+folder+"\" \""+classname+"\"");
