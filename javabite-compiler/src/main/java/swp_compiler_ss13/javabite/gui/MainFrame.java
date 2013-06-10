@@ -44,10 +44,13 @@ import javax.swing.JToolBar;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.DefaultHighlighter;
+import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.SimpleAttributeSet;
+import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleConstants.CharacterConstants;
 import javax.swing.text.StyledDocument;
@@ -1005,6 +1008,7 @@ public class MainFrame extends JFrame implements ReportLog {
 				Icon icon = new ImageIcon(loader.getResource("images" + System.getProperty("file.separator") + "success-icon.png"));
 				toolBarLabel.setIcon(icon);
 				toolBarLabel.setText("File compiled.");
+				tabbedPaneLog.setSelectedIndex(0);
 				progressBar.setValue(100);
 				progressBar.setEnabled(false);
 			}
@@ -1024,16 +1028,14 @@ public class MainFrame extends JFrame implements ReportLog {
 	public void reportWarning(ReportType type, List<Token> tokens, String message) {
 		errorReported = true;
 		modelReportLogs.addRow(new Object[] { type, tokens.get(0).getLine(), tokens.get(0).getColumn(), message });
-		underlineToken(tokens.get(0).getLine(), tokens.get(0).getColumn());
-		// TODO: underline in yellow
+		underlineToken(tokens.get(0).getLine(), tokens.get(0).getColumn(), Color.YELLOW);
 	}
 	
 	@Override
 	public void reportError(ReportType type, List<Token> tokens, String message) {
 		errorReported = true;
 		modelReportLogs.addRow(new Object[] { type, tokens.get(0).getLine(), tokens.get(0).getColumn(), message });
-		underlineToken(tokens.get(0).getLine(), tokens.get(0).getColumn());
-		// TODO: underline in red
+		underlineToken(tokens.get(0).getLine(), tokens.get(0).getColumn(), Color.RED);
 	}
 	
 	 public static int getRow(int pos, JTextComponent editor) {
@@ -1062,24 +1064,20 @@ public class MainFrame extends JFrame implements ReportLog {
 	/**
 	 * Underlines wrongly typed tokens
 	 * */
-	private void underlineToken(int line, int column) {
+	private void underlineToken(int line, int column, Color color) {
 		line = line - 1;
 		String code = editorPaneSourcecode.getText();
 		String[] lines = code.split(System.getProperty("line.separator"));
 		int lineNr = 0;
-		int offset = 0;
 		for (String codeLine : lines) {
 			if (lineNr == line - 1) {
 				SimpleAttributeSet attributes = new SimpleAttributeSet();
+			    StyleConstants.setForeground(attributes, color);
 				StyleConstants.setUnderline(attributes, true);
 				StyledDocument doc = editorPaneSourcecode.getStyledDocument();
 				doc.setCharacterAttributes(code.indexOf(codeLine), codeLine.length(), attributes, true);
 				break;
 			} else {
-				System.out.println(codeLine);
-				System.out.println(codeLine.length());
-				offset += codeLine.length();
-				System.out.println(offset);
 				lineNr++;
 			}
 		}
