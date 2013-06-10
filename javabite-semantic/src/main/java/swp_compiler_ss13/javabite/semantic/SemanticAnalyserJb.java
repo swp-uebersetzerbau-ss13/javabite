@@ -1,10 +1,10 @@
 package swp_compiler_ss13.javabite.semantic;
 
-import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Queue;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -17,8 +17,10 @@ import swp_compiler_ss13.common.ast.nodes.StatementNode;
 import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
+import swp_compiler_ss13.common.ast.nodes.leaf.BreakNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
+import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.parser.SymbolTable;
 import swp_compiler_ss13.common.report.ReportLog;
@@ -48,6 +50,8 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 		checkDoubleDeclaration();
 		checkDivisionByZero();
 		checkNonDeclaredVariableUsedQ();
+		checkBreakDeclaration();
+		checkReturnDeclaration();
 		ASTTypeChecker checker=new ASTTypeChecker(ast, ast.getRootNode(),reportLog);
 		if (!use_coverage) checker.disableCoverageUse();
 		checker.run();
@@ -88,47 +92,38 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 	}
 		
 	public void checkBreakDeclaration(){
-		Queue<ASTNode> queue= new ArrayDeque<>();
-		for (ASTNode node:ast.getRootNode().getChildren()){
-			queue.add(node);
-		}
-		for (ASTNode node:queue){
-			if(node.getNodeType()==ASTNodeType.BreakNode){
-				reportLog.reportError(ReportType.UNDEFINED, node.coverage(),"break is not in loop");
-				}
-			else if(node.getNodeType()==ASTNodeType.BranchNode){
-				Iterator<ASTNode> it = node.getDFSLTRNodeIterator();
-				while(it.hasNext()){
-					ASTNode node1=it.next();
-					if(node1.getNodeType()==ASTNodeType.BreakNode){
-						reportLog.reportError(ReportType.UNDEFINED, node.coverage(),"break is not in loop");
-					}
-				}
-			}
-			/* unnecessary
-			 * 	else if(node.getNodeType()==ASTNodeType.WhileNode||
-					node.getNodeType()==ASTNodeType.WhileNode){
-				*/
+		//get all break statements
+		Set<ASTNode> breakNodes=getAllOfType(ASTNodeType.BreakNode);
+		// check condition for every breakNode
+		for (ASTNode rawNode : breakNodes){
+			// cast is valid by token-convection
+			BreakNode breakNode=(BreakNode)rawNode;
+			ASTNode breakNodeParent=breakNode;
+			do{
+				breakNodeParent=breakNodeParent.getParentNode();
+			}while (breakNodeParent!=null && breakNodeParent.getNodeType()!=ASTNodeType.WhileNode && breakNodeParent.getNodeType()!=ASTNodeType.DoWhileNode);
+			// breakNodeParent is null, a whileNode or a doWhileNode
+			// invalid position, if it's null
+			if (breakNodeParent==null){
+				reportLog.reportError(ReportType.UNDEFINED, breakNode.coverage(), "BreakNode is not in valid position");
 			}
 		}
-
+	}
 	
 	public void checkReturnDeclaration(){
-		Iterator<ASTNode> it = ast.getDFSLTRIterator();
-		while (it.hasNext()){
-			ASTNode node=it.next();
-			if(node.getNodeType()==ASTNodeType.ReturnNode){
-				ASTNode parentNode = node.getParentNode();
-				Iterator<ASTNode> itP = parentNode.getDFSLTRNodeIterator();
-				while(itP.hasNext()){
-					ASTNode node1= itP.next();
-					if (node1==node && itP.hasNext()){
-						reportLog.reportError(ReportType.UNDEFINED, node.coverage(),"there is something after return");
-						}
-					}
-				}
-			}
+		//get all return statements
+		Set<ASTNode> returnNodes=getAllOfType(ASTNodeType.ReturnNode);
+		// check condition for every breakNode
+		for (ASTNode rawNode : returnNodes){
+			// cast is valid by token-convection
+			ReturnNode returnNode=(ReturnNode)rawNode;
+			ASTNode returnNodeParent=returnNode;
+			boolean conditional=false;
+			// TODO: implement:)
 		}
+	}
+
+	
 	
 	void checkDoubleDeclaration() {
 		Set<String> varSet = new HashSet<>();
@@ -207,6 +202,21 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 				&&
 				Double.parseDouble(candidate.getLiteral())==0
 				);
+	}
+	
+	/**
+	 * filters all the nodes to the given criteria
+	 * @param t the type of the nodes you want to receive
+	 * @return all nodes of the ast with the given ASTNodeType
+	 */
+	private Set<ASTNode> getAllOfType(ASTNode.ASTNodeType t){
+		Set<ASTNode> res=new HashSet<>();
+		Iterator<ASTNode> nodes =ast.getDFSLTRIterator();
+		while (nodes.hasNext()){
+			ASTNode candidate=nodes.next();
+			if (candidate.getNodeType()==t) res.add(candidate);
+		}
+		return res;
 	}
 	
 }

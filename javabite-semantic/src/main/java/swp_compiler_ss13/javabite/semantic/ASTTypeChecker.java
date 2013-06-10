@@ -10,6 +10,7 @@ import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.ASTNode.ASTNodeType;
 import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
+import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
 import swp_compiler_ss13.common.ast.nodes.binary.DoWhileNode;
 import swp_compiler_ss13.common.ast.nodes.binary.LogicBinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.RelationExpressionNode;
@@ -102,8 +103,21 @@ public class ASTTypeChecker {
 			break;
 		case LogicBinaryExpressionNode:
 			LogicBinaryExpressionNode lbno=(LogicBinaryExpressionNode)node;
-			ensure(lbno.getLeftValue(), AlgebraType.BOOLEAN);
-			ensure(lbno.getRightValue(),AlgebraType.BOOLEAN);
+			BinaryOperator op=lbno.getOperator();
+			if (
+					op==BinaryOperator.LOGICAL_AND
+					||
+					op==BinaryOperator.LOGICAL_OR)
+			{
+				ensure(lbno.getLeftValue(), AlgebraType.BOOLEAN);
+				ensure(lbno.getRightValue(),AlgebraType.BOOLEAN);
+			}
+			else
+			{
+				// is comparison operator
+				ensure(lbno.getLeftValue(), AlgebraType.ARITHMETIC);
+				ensure(lbno.getRightValue(),AlgebraType.ARITHMETIC);
+			}
 			break;
 		case LogicUnaryExpressionNode:
 			LogicUnaryExpressionNode luno=(LogicUnaryExpressionNode)node;

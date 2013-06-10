@@ -419,6 +419,24 @@ public class ASTGenerator {
 		case "equality -> rel":
 			equality = this.useRelProduction();
 			break;
+		case "equality -> equality EQUALS rel":
+			LogicBinaryExpressionNodeJb equalNode=new LogicBinaryExpressionNodeJb();
+			equalNode.setOperator(BinaryOperator.EQUAL);
+			ExpressionNodeJb exp1=useEqualityProduction();
+			ExpressionNodeJb rel1=useRelProduction();
+			equalNode.setLeftValue(exp1);
+			equalNode.setRightValue(rel1);
+			equality=equalNode;
+			break;
+		case "equality -> equality NOT_EQUALS rel":
+			LogicBinaryExpressionNodeJb equalNode1=new LogicBinaryExpressionNodeJb();
+			equalNode1.setOperator(BinaryOperator.INEQUAL);
+			ExpressionNodeJb exp2=useEqualityProduction();
+			ExpressionNodeJb rel2=useRelProduction();
+			equalNode1.setLeftValue(exp2);
+			equalNode1.setRightValue(rel2);
+			equality=equalNode1;
+			break;
 		default:
 			logger.error("thisReduction : {} , matches no case",thisReduction);
 		}
@@ -439,6 +457,34 @@ public class ASTGenerator {
 		switch (thisReduction.toString()) {
 		case "rel -> expr":
 			rel = this.useExprProduction();
+			break;
+		case "rel -> expr LESS expr":
+			LogicBinaryExpressionNodeJb lben1=new LogicBinaryExpressionNodeJb();
+			lben1.setLeftValue(useExprProduction());
+			lben1.setRightValue(useExprProduction());
+			lben1.setOperator(BinaryOperator.LESSTHAN);
+			rel=lben1;
+			break;
+		case "rel -> expr LESS_OR_EQUAL expr":
+			LogicBinaryExpressionNodeJb lben2=new LogicBinaryExpressionNodeJb();
+			lben2.setLeftValue(useExprProduction());
+			lben2.setRightValue(useExprProduction());
+			lben2.setOperator(BinaryOperator.LESSTHANEQUAL);
+			rel=lben2;
+			break;
+		case "rel -> expr GREATER expr":
+			LogicBinaryExpressionNodeJb lben3=new LogicBinaryExpressionNodeJb();
+			lben3.setLeftValue(useExprProduction());
+			lben3.setRightValue(useExprProduction());
+			lben3.setOperator(BinaryOperator.GREATERTHAN);
+			rel=lben3;
+			break;
+		case "rel -> expr GREATER_EQUAL expr":
+			LogicBinaryExpressionNodeJb lben4=new LogicBinaryExpressionNodeJb();
+			lben4.setLeftValue(useExprProduction());
+			lben4.setRightValue(useExprProduction());
+			lben4.setOperator(BinaryOperator.GREATERTHANEQUAL);
+			rel=lben4;
 			break;
 		default:
 			logger.error("thisReduction : {} , matches no case",thisReduction);
