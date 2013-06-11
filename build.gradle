@@ -23,7 +23,6 @@ allprojects {
 		testCompile 'junit:junit:4.11'
 		testCompile 'junit-addons:junit-addons:1.4'
 		testCompile 'org.mockito:mockito-all:1.8.4'
-		testCompile 'junit-addons:junit-addons:1.4'
 	}
 
 	test { systemProperties 'org.slf4j.simpleLogger.defaultLogLevel': 'debug' }
