@@ -5,15 +5,16 @@ import swp_compiler_ss13.common.ast.ASTNode.ASTNodeType;
 import swp_compiler_ss13.common.ast.nodes.binary.RelationExpressionNode;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.types.Type.Kind;
+import swp_compiler_ss13.common.types.primitive.BooleanType;
 import swp_compiler_ss13.javabite.codegen.CastingAst2CodeConverter;
 import swp_compiler_ss13.javabite.codegen.IdentifierData;
 import swp_compiler_ss13.javabite.codegen.QuadrupleFactoryJb;
 
-public class RelationNodeConverter extends CastingAst2CodeConverter {
+public class RelationExpressionNodeConverter extends CastingAst2CodeConverter {
 
     @Override
     public void convert(ASTNode node) throws IntermediateCodeGeneratorException {
-        if (!(node instanceof RelationNodeConverter))
+        if (!(node instanceof RelationExpressionNode))
             throw new IntermediateCodeGeneratorException();
         RelationExpressionNode relationNode = (RelationExpressionNode) node;
     
@@ -34,7 +35,7 @@ public class RelationNodeConverter extends CastingAst2CodeConverter {
  			}
  		}
         
-        IdentifierData newData = icg.generateTempIdentifier(leftData.getType());
+        IdentifierData newData = icg.generateTempIdentifier(new BooleanType());
         icg.addQuadruple(QuadrupleFactoryJb.generateRelation(relationNode.getOperator(), leftData, rightData, newData));
         icg.pushIdentifierData(newData);
     }

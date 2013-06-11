@@ -18,16 +18,16 @@ import swp_compiler_ss13.common.types.primitive.BooleanType;
 import swp_compiler_ss13.common.types.primitive.DoubleType;
 import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.common.types.primitive.StringType;
-import swp_compiler_ss13.javabite.codegen.converters.RelationNodeConverter;
+import swp_compiler_ss13.javabite.codegen.converters.RelationExpressionNodeConverter;
 import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
 
-public class RelationNodeConverterTest {
+public class RelationExpressionNodeConverterTest {
 	
-RelationNodeConverter converter;
+RelationExpressionNodeConverter converter;
 	
 	@Before
 	public void setUp() throws Exception {
-		converter = new RelationNodeConverter();
+		converter = new RelationExpressionNodeConverter();
 
 		converter.icg = Mockito
 				.mock(IntermediateCodeGeneratorJb.class);

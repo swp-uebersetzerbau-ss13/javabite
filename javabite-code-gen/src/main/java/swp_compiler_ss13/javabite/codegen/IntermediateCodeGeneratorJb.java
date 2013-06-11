@@ -29,7 +29,7 @@ import swp_compiler_ss13.javabite.codegen.converters.LiteralNodeConverter;
 import swp_compiler_ss13.javabite.codegen.converters.LogicBinaryExpressionNodeConverter;
 import swp_compiler_ss13.javabite.codegen.converters.LogicUnaryExpressionNodeConverter;
 import swp_compiler_ss13.javabite.codegen.converters.PrintNodeConverter;
-import swp_compiler_ss13.javabite.codegen.converters.RelationNodeConverter;
+import swp_compiler_ss13.javabite.codegen.converters.RelationExpressionNodeConverter;
 import swp_compiler_ss13.javabite.codegen.converters.ReturnNodeConverter;
 
 public class IntermediateCodeGeneratorJb implements
@@ -45,7 +45,7 @@ public class IntermediateCodeGeneratorJb implements
 			DeclarationNodeConverter.class, LiteralNodeConverter.class,
 			LogicBinaryExpressionNodeConverter.class,
 			LogicUnaryExpressionNodeConverter.class, PrintNodeConverter.class,
-			RelationNodeConverter.class, ReturnNodeConverter.class };
+			RelationExpressionNodeConverter.class, ReturnNodeConverter.class };
 
 	private static final String IDENTIFIER_GENERATION_PREFIX = "TMP";
 	private long identifierGenerationCounter = 0;
@@ -201,6 +201,7 @@ public class IntermediateCodeGeneratorJb implements
 	 * reset the generator for a new run
 	 */
 	private void reset() {
+		quadruples.clear();
 		usedIds.clear();
 		blockScopes.clear();
 		identifierDataStack.clear();

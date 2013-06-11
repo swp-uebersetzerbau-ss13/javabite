@@ -12,7 +12,7 @@ public class LogicBinaryExpressionNodeConverter extends CastingAst2CodeConverter
 
     @Override
     public void convert(ASTNode node) throws IntermediateCodeGeneratorException {
-        if (!(node instanceof LogicBinaryExpressionNodeConverter))
+        if (!(node instanceof LogicBinaryExpressionNode))
             throw new IntermediateCodeGeneratorException();
         LogicBinaryExpressionNode logicBinaryNode = (LogicBinaryExpressionNode) node;
         
