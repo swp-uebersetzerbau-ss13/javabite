@@ -94,7 +94,7 @@ public class Operation {
 
 	@Override
 	public String toString() {
-		final String nl = System.getProperty("line.separator");
+		final String nl = "\n";//System.getProperty("line.separator");
 		final StringBuilder sb = new StringBuilder();
 		if (instructions != null) {
 			for (final Instruction instruction : instructions) {

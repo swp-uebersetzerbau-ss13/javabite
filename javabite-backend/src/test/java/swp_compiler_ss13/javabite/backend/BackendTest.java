@@ -1,13 +1,13 @@
 package swp_compiler_ss13.javabite.backend;
 
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,12 +25,11 @@ import swp_compiler_ss13.common.backend.BackendException;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.external.QuadrupleImpl;
+import swp_compiler_ss13.javabite.runtime.JavaClassProcess;
 
 public class BackendTest {
 
 	private Backend backend;
-	private Runtime rt;
-	private Process cli1;
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(BackendJb.class);
@@ -180,111 +179,102 @@ public class BackendTest {
 	@Before
 	public void setup() {
 		backend = new BackendJb();
-		rt = Runtime.getRuntime();
-	}
-
-	public void cleanup() {
-		System.out.println(System.getProperty("os.name"));
-
-		logger.debug("Killing command line interface process...");
-		cli1.destroy();
-		logger.debug("Command line interface process killed.");
 	}
 
 	@Test
 	public void testTac1ReturnVal() throws BackendException {
-		assertTrue(
+		assertEquals(
 				"Generated target code returns unexpected value while execution",
-				27 == testToReturnValueOfTac(tac1, 1));
+				27, testToReturnValueOfTac(tac1, 1));
 	}
 
 	@Test
 	public void testSimpleAddTacTranslation() throws BackendException {
-		assertTrue(
+		assertEquals(
 				"Generated target code returns unexpected value while execution",
-				6 == testToReturnValueOfTac(tac2, 1));
+				6, testToReturnValueOfTac(tac2, 1));
 	}
 
 	@Test
 	public void testSimpleMulTacTranslation() throws BackendException {
-		assertTrue(
+		assertEquals(
 				"Generated target code returns unexpected value while execution",
-				9 == testToReturnValueOfTac(tac3, 1));
+				9, testToReturnValueOfTac(tac3, 1));
 	}
 
 	@Test
 	public void testTac4ReturnVal() throws BackendException {
-		assertTrue(
+		assertEquals(
 				"Generated target code returns unexpected value while execution",
-				0 == testToReturnValueOfTac(tac4, 1));
+				0, testToReturnValueOfTac(tac4, 1));
 	}
 
 	@Test
 	public void testTac5ReturnVal() throws BackendException {
-		assertTrue(
+		assertEquals(
 				"Generated target code returns unexpected value while execution",
-				0 == testToReturnValueOfTac(tac5, 1));
+				0, testToReturnValueOfTac(tac5, 1));
 	}
 
 	@Test
 	public void testTac6ReturnVal() throws BackendException {
-		assertTrue(
+		assertEquals(
 				"Generated target code returns unexpected value while execution",
-				0 == testToReturnValueOfTac(tac6, 1));
+				0, testToReturnValueOfTac(tac6, 1));
 	}
 
 	@Test
 	public void testTac7ReturnVal() throws BackendException {
-		assertTrue(
+		assertEquals(
 				"Generated target code returns unexpected value while execution",
-				0 == testToReturnValueOfTac(tac7, 1));
+				0, testToReturnValueOfTac(tac7, 1));
 	}
 
 	@Test
 	public void testTac8ReturnVal() throws BackendException {
-		assertTrue(
+		assertEquals(
 				"Generated target code returns unexpected value while execution",
-				0 == testToReturnValueOfTac(tac8, 1));
+				0, testToReturnValueOfTac(tac8, 1));
 	}
 
 	@Test
 	public void testTac9ReturnVal() throws BackendException {
-		assertTrue(
+		assertEquals(
 				"Generated target code returns unexpected value while execution",
-				0 == testToReturnValueOfTac(tac9, 1));
+				0, testToReturnValueOfTac(tac9, 1));
 	}
 
 	@Test
 	public void testTac10ReturnVal() throws BackendException {
-		assertTrue(
+		assertEquals(
 				"Generated target code returns unexpected value while execution",
-				0 == testToReturnValueOfTac(tac10, 1));
+				0, testToReturnValueOfTac(tac10, 1));
 	}
 
 	@Test
 	public void testTac11ReturnVal() throws BackendException {
-		assertTrue(
+		assertEquals(
 				"Generated target code returns unexpected value while execution",
-				10 == testToReturnValueOfTac(tac11, 1));
+				10, testToReturnValueOfTac(tac11, 1));
 	}
 
 	@Test
 	public void testTac12ReturnVal() throws BackendException {
-		assertTrue(
+		assertEquals(
 				"Generated target code returns unexpected value while execution",
-				5 == testToReturnValueOfTac(tac12, 1));
+				5, testToReturnValueOfTac(tac12, 1));
 	}
 
 	@Test
 	public void testTac13ReturnVal() throws BackendException {
-		assertTrue(
+		assertEquals(
 				"Generated target code returns unexpected value while execution",
-				0 == testToReturnValueOfTac(tac13, 1));
+				0, testToReturnValueOfTac(tac13, 1));
 	}
 
 	public long testToReturnValueOfTac(final List<Quadruple> tac,
 			final int fileamount) throws BackendException {
-		String retVal = null;
+		Integer retVal = null;
 
 		final Map<String, InputStream> results = backend.generateTargetCode(
 				"Program", tac);
@@ -292,8 +282,14 @@ public class BackendTest {
 		assertTrue("Invalid amount of files generated",
 				fileamount == results.size());
 
+		File mainFile = null;
 		for (final Entry<String, InputStream> e : results.entrySet()) {
-			final File outFile = new File(e.getKey());
+			final File outFile = new File("build" + File.separator + e.getKey());
+			
+			if (mainFile == null) {
+				mainFile = outFile;
+			}
+			
 			FileOutputStream fos;
 			try {
 				fos = new FileOutputStream(outFile);
@@ -301,36 +297,13 @@ public class BackendTest {
 				fos.close();
 			} catch (final IOException e1) {
 				e1.printStackTrace();
+				fail();
 			}
 		}
 
-		try {
-			logger.debug("Starting command line interface process...");
-			cli1 = rt.exec(new String[] { "bash", "-c",
-					"java -noverify Program ; $?" });
-			logger.debug("Waiting for execution of \"bash -c java Program ; $?\"");
-			cli1.waitFor();
+		retVal = new JavaClassProcess(mainFile).getReturnValue();
 
-			final BufferedReader reader = new BufferedReader(
-					new InputStreamReader(cli1.getErrorStream()));
-
-			retVal = extractReturnValue(reader.readLine());
-
-			logger.debug("value: {}, length: {}", retVal, retVal.length());
-
-		} catch (IOException | InterruptedException e) {
-			e.printStackTrace();
-		}
-
-		cleanup();
-		final long l = Long.valueOf(retVal);
-
-		logger.debug("return value: {}", l);
-		return l;
-	}
-
-	private static String extractReturnValue(final String line) {
-		final String s = line.substring(line.indexOf(':') + 2);
-		return s.subSequence(0, s.indexOf(':')).toString();
+		logger.debug("return value: {}", retVal);
+		return retVal;
 	}
 }
