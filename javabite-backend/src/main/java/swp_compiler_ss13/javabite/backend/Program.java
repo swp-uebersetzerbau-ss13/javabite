@@ -256,9 +256,12 @@ public class Program {
 			for (final JumpInstruction in : jumpInstructions) {
 				Instruction target = in.getTargetInstruction();
 				if (target == null) {
+					// target instruction is null -> target label is set
+					// get instruction by label name
 					target = getJumpTarget(in.getTargetLabel());
 				}
 				assert target != null;
+				// calculate offset delta from jump instruction to target
 				final int offset = target.getOffset() - in.getOffset();
 				if (offset > Short.MAX_VALUE) {
 					in.setMnemonic(Mnemonic.GOTO_W);
@@ -272,7 +275,7 @@ public class Program {
 		}
 
 		private boolean isBoolean(String s) {
-			s = s.trim();
+			s = s.trim().toUpperCase();
 			return s.equals(Translator.CONST_TRUE)
 					|| s.equals(Translator.CONST_FALSE);
 		}
@@ -288,6 +291,10 @@ public class Program {
 
 		private Instruction getJumpTarget(final String s) {
 			return jumpTargets.get(s);
+		}
+
+		private short convertBoolean(final String arg) {
+			return Translator.CONST_TRUE.equals(arg) ? (short) 1 : 0;
 		}
 
 		// INSTRUCTION CREATORS ------------------------------------------------
@@ -308,8 +315,7 @@ public class Program {
 				final Mnemonic varLoadOp) {
 			if (isBoolean(arg1)) {
 				if (isConstant(arg1)) {
-					final short value = (short) (Translator.CONST_TRUE
-							.equals(arg1.toUpperCase()) ? 1 : 0);
+					final short value = convertBoolean(arg1);
 					return new Instruction(Mnemonic.ICONST(value),
 							ByteUtils.shortToByteArray(value));
 				} else {
@@ -317,7 +323,8 @@ public class Program {
 							methodName, arg1);
 					return new Instruction(Mnemonic.ILOAD(index), index);
 				}
-			} else if (isConstant(arg1) && constType != null) {
+			} else if (isConstant(arg1)) {
+				assert constType != null;
 				final short index = classfile.getIndexOfConstantInConstantPool(
 						constType, removeConstantSign(arg1));
 				assert index > 0;
