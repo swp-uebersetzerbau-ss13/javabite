@@ -56,6 +56,7 @@ import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.backend.Backend;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
+import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
@@ -65,9 +66,11 @@ import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser;
 import swp_compiler_ss13.common.util.ModuleProvider;
 import swp_compiler_ss13.javabite.ast.ASTJb;
+import swp_compiler_ss13.javabite.codegen.IntermediateCodeGeneratorJb;
 import swp_compiler_ss13.javabite.config.JavabiteConfig;
 import swp_compiler_ss13.javabite.gui.ast.ASTVisualizerJb;
 import swp_compiler_ss13.javabite.gui.ast.fitted.KhaledGraphFrame;
+import swp_compiler_ss13.javabite.gui.tac.TacVisualizerJb;
 import swp_compiler_ss13.javabite.lexer.LexerJb;
 import swp_compiler_ss13.javabite.parser.ParserJb;
 
@@ -93,6 +96,7 @@ public class MainFrame extends JFrame implements ReportLog {
 	// we need to communicate with the lexer to colorize tokens
 	private LexerJb lexer = new LexerJb();
 	private ParserJb parser;
+	private IntermediateCodeGeneratorJb icg;
 	private ASTJb ast;
 	
 	// components
@@ -542,12 +546,29 @@ public class MainFrame extends JFrame implements ReportLog {
 		});
 		menuVisual.add(menuVisualAst);
 		
+		icg = new IntermediateCodeGeneratorJb();
 		menuVisualTac = new JMenuItem("TAC");
 		menuVisualTac.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// TODO: show TAC
-				JFrame frame = new JFrame();
-				JOptionPane.showMessageDialog(frame, "TAC visualization should be placed here! (see AST code as example!)");
+				//JFrame frame = new JFrame();
+				//JOptionPane.showMessageDialog(frame, "TAC visualization should be placed here! (see AST code as example!)");
+
+				String text = editorPaneSourcecode.getText();
+				try {
+					lexer.setSourceStream(new ByteArrayInputStream(text.getBytes("UTF-8")));
+				} catch (UnsupportedEncodingException ex) {
+					ex.printStackTrace();
+				}
+				
+				parser.setLexer(lexer);
+				ast = parser.getParsedAST();
+				
+				try {
+					new TacVisualizerJb().visualizeTAC(icg.generateIntermediateCode(ast));
+				} catch (IntermediateCodeGeneratorException e1) {
+					e1.printStackTrace();
+				}
 				toolBarLabel.setText("Rendered TAC.");
 			}
 		});
