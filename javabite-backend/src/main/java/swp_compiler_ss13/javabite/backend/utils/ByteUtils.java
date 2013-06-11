@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 public class ByteUtils {
 
-	private static final Pattern HEX_BYTES = Pattern.compile("(.{2})");
+	private static final Pattern P_HEX_BYTES = Pattern.compile("(.{2})");
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(ByteUtils.class);
@@ -80,7 +80,7 @@ public class ByteUtils {
 	 * @return hexadecimal string with bytes splitted into columns of 2
 	 */
 	private static String splitHexBytes(final String hex) {
-		return HEX_BYTES.matcher(hex).replaceAll("$1 ");
+		return P_HEX_BYTES.matcher(hex).replaceAll("$1 ");
 	}
 
 	/**
