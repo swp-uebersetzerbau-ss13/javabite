@@ -25,9 +25,40 @@ public class LiteralNodeConverterTest {
 				.mock(IntermediateCodeGeneratorJb.class);
 	}
 	
+	
+	//noch überarbeiten
+	
 	@Test
 	public void testDeclarationNodeConverter_Long(){
 		ASTNode node = Mockito.mock(DeclarationNode.class);
 		verify(converter.icg).pushIdentifierData(new IdentifierData("test", new LongType()));
+	}
+	
+	
+	@Test
+	public void testDeclarationNodeConverter_Double(){
+		ASTNode node = Mockito.mock(DeclarationNode.class);
+		verify(converter.icg).pushIdentifierData(new IdentifierData("test", new LongType()));
+	}
+	
+	
+	@Test
+	public void testDeclarationNodeConverter_Boolean(){
+		ASTNode node = Mockito.mock(DeclarationNode.class);
+		fail();
+	}
+	
+	
+	@Test
+	public void testDeclarationNodeConverter_String(){
+		ASTNode node = Mockito.mock(DeclarationNode.class);
+		fail();
+	}
+	
+	
+	@Test
+	public void testDeclarationNodeConverter_Array(){
+		ASTNode node = Mockito.mock(DeclarationNode.class);
+		fail();
 	}
 }

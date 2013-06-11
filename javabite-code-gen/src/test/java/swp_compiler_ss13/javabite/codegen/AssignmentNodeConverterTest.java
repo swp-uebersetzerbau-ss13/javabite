@@ -53,4 +53,108 @@ public class AssignmentNodeConverterTest {
 	}
 	
 	
+	
+	@Test
+	public void testAssignmentNodeConverter_Double(){
+		try {
+			ASTNode node = Mockito.mock(AssignmentNode.class);
+	
+			verify(converter.icg).processNode(any(AssignmentNode.class));
+			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test1", new ArrayType(new LongType(), 0)));
+			
+			verify(converter.icg).processNode(any(ArithmeticBinaryExpressionNode.class));
+			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test2", new ArrayType(new LongType(), 0)));
+			
+			verify(converter).convert(node);
+			verify(converter.icg).addQuadruple(new QuadrupleJb(Operator.ASSIGN_DOUBLE,
+					"test2", Quadruple.EmptyArgument,
+					"test1"));
+			verify(converter.icg).pushIdentifierData(new IdentifierData("test1", new LongType()));
+		}catch(IntermediateCodeGeneratorException e) {
+			fail();
+		}
+	}
+	
+	
+	@Test
+	public void testAssignmentNodeConverter_Boolean(){
+		try {
+			ASTNode node = Mockito.mock(AssignmentNode.class);
+	
+			verify(converter.icg).processNode(any(AssignmentNode.class));
+			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test1", new ArrayType(new LongType(), 0)));
+			
+			verify(converter.icg).processNode(any(ArithmeticBinaryExpressionNode.class));
+			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test2", new ArrayType(new LongType(), 0)));
+			
+			verify(converter).convert(node);
+			verify(converter.icg).addQuadruple(new QuadrupleJb(Operator.ASSIGN_BOOLEAN,
+					"test2", Quadruple.EmptyArgument,
+					"test1"));
+			verify(converter.icg).pushIdentifierData(new IdentifierData("test1", new LongType()));
+		}catch(IntermediateCodeGeneratorException e) {
+			fail();
+		}
+	}
+	
+	
+	
+	@Test
+	public void testAssignmentNodeConverter_String(){
+		try {
+			ASTNode node = Mockito.mock(AssignmentNode.class);
+	
+			verify(converter.icg).processNode(any(AssignmentNode.class));
+			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test1", new ArrayType(new LongType(), 0)));
+			
+			verify(converter.icg).processNode(any(ArithmeticBinaryExpressionNode.class));
+			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test2", new ArrayType(new LongType(), 0)));
+			
+			verify(converter).convert(node);
+			verify(converter.icg).addQuadruple(new QuadrupleJb(Operator.ASSIGN_STRING,
+					"test2", Quadruple.EmptyArgument,
+					"test1"));
+			verify(converter.icg).pushIdentifierData(new IdentifierData("test1", new LongType()));
+		}catch(IntermediateCodeGeneratorException e) {
+			fail();
+		}
+	}
+	
+	
+	@Test
+	public void testAssignmentNodeConverter_Array(){
+		try {
+			ASTNode node = Mockito.mock(AssignmentNode.class);
+	
+			verify(converter.icg).processNode(any(AssignmentNode.class));
+			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test1", new ArrayType(new LongType(), 0)));
+			
+			verify(converter.icg).processNode(any(ArithmeticBinaryExpressionNode.class));
+			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test2", new ArrayType(new LongType(), 0)));
+			
+			verify(converter).convert(node);
+			fail();
+		}catch(IntermediateCodeGeneratorException e) {
+			
+		}
+	}
+	
+	
+	@Test
+	public void testAssignmentNodeConverter_Struct(){
+		try {
+			ASTNode node = Mockito.mock(AssignmentNode.class);
+	
+			verify(converter.icg).processNode(any(AssignmentNode.class));
+			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test1", new ArrayType(new LongType(), 0)));
+			
+			verify(converter.icg).processNode(any(ArithmeticBinaryExpressionNode.class));
+			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test2", new ArrayType(new LongType(), 0)));
+			
+			verify(converter).convert(node);
+			fail();
+		}catch(IntermediateCodeGeneratorException e) {
+			
+		}
+	}
 }
