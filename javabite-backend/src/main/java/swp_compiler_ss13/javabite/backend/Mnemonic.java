@@ -283,7 +283,7 @@ public enum Mnemonic {
 		return byteCode;
 	}
 
-	public static Mnemonic getMnemonic(final String prefix, int value) {
+	public static Mnemonic getMnemonic(final String prefix, final int value) {
 		try {
 			final String name = prefix + "_" + (value < 0 ? "M" : "")
 					+ Integer.toString(Math.abs(value));

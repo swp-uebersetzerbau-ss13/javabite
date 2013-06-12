@@ -32,7 +32,7 @@ public class JavaClassProcess {
 		String javaExecutablePath = System.getProperty("java.home")
 				+ File.separator + "bin" + File.separator + "java";
 		ProcessBuilder processBuilder = new ProcessBuilder(javaExecutablePath,
-				"-cp", classPath, className);
+				"-cp", classPath, "-noverify", className);
 		try {
 			p = processBuilder.start();
 			p.waitFor();
@@ -40,15 +40,16 @@ public class JavaClassProcess {
 			throw new JavaClassProcessRuntimeException(e.getMessage(), e);
 		}
 	}
-	
+
 	public Integer getReturnValue() {
 		return p.exitValue();
 	}
-	
+
 	public String getProcessOutput() {
 		StringBuilder sb = new StringBuilder();
 		String line;
-		BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
+		BufferedReader input = new BufferedReader(new InputStreamReader(
+				p.getInputStream()));
 		try {
 			while ((line = input.readLine()) != null) {
 				sb.append(line);
@@ -58,7 +59,7 @@ public class JavaClassProcess {
 		}
 		return sb.toString();
 	}
-	
+
 	public InputStream getInputstream() {
 		return p.getInputStream();
 	}

@@ -262,12 +262,12 @@ public class ProgramTests {
 	public void testCCSubLong() {
 		addLongConstant(1000, 234);
 		addLongVariable("longTest");
-		pb.addLong(new QuadrupleImpl(Operator.SUB_LONG, "#1000", "#234",
+		pb.subLong(new QuadrupleImpl(Operator.SUB_LONG, "#1000", "#234",
 				"longTest"));
 		final byte[] bExpected = new byte[] { (byte) 0x14, (byte) 0x00,
 				(byte) 0x0c, (byte) 0x14, (byte) 0x00, (byte) 0x0e,
-				(byte) 0x61, (byte) 0x40, (byte) 0xb1 };
-		final String sExpected = "LDC2_W 00 0C\nLDC2_W 00 0E\nLADD\nLSTORE_1\nRETURN\n";
+				(byte) 0x65, (byte) 0x40, (byte) 0xb1 };
+		final String sExpected = "LDC2_W 00 0C\nLDC2_W 00 0E\nLSUB\nLSTORE_1\nRETURN\n";
 		makeAssertions(pb, bExpected, sExpected);
 	}
 

@@ -1,7 +1,7 @@
 package swp_compiler_ss13.javabite.backend;
 
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
@@ -105,7 +105,7 @@ public class BackendTest {
 	static final List<Quadruple> tac8 = asList(new QuadrupleImpl(
 			Operator.DECLARE_BOOLEAN, "!", "!", "b"), new QuadrupleImpl(
 			Operator.COMPARE_LONG_E, "#1", "#2", "b"), new QuadrupleImpl(
-			Operator.PRINT_BOOLEAN, "!", "!", "b"));
+			Operator.PRINT_BOOLEAN, "b", "!", "!"));
 
 	static final List<Quadruple> tac9 = asList(new QuadrupleImpl(
 			Operator.BRANCH, "lbl", "!", "!"), new QuadrupleImpl(
@@ -285,11 +285,11 @@ public class BackendTest {
 		File mainFile = null;
 		for (final Entry<String, InputStream> e : results.entrySet()) {
 			final File outFile = new File("build" + File.separator + e.getKey());
-			
+
 			if (mainFile == null) {
 				mainFile = outFile;
 			}
-			
+
 			FileOutputStream fos;
 			try {
 				fos = new FileOutputStream(outFile);
