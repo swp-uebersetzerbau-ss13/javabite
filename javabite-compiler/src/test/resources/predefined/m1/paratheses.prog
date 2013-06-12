@@ -1,0 +1,4 @@
+# returns 8 or does it?
+long l;
+l = ( 3 + 3 ) * 2 - ( l = ( 2 + ( 16 / 8 ) ) );
+return l;

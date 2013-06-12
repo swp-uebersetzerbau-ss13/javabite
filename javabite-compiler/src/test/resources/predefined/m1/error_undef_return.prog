@@ -1,0 +1,3 @@
+# error: id spam is not initialized and returned
+long spam;
+return spam;
