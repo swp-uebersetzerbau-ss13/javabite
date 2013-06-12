@@ -8,5 +8,8 @@ build
 .project
 .settings
 
-#Java
+# Java
 *.class
+
+# Project-Specific
+javabite.properties
