@@ -32,7 +32,10 @@ public class RelationExpressionNodeConverterTest {
 		converter.icg = Mockito.mock(IntermediateCodeGeneratorJb.class);
 	}
 
-	// LONG
+	
+	/**
+	 * Test for two RelationExpressions, which have both the type Long and the Operator EQUAL in between.
+	 */
 	@Test
 	public void testRelationLong_EQUAL() {
 		try {
@@ -61,6 +64,10 @@ public class RelationExpressionNodeConverterTest {
 		}
 	}
 
+	
+	/**
+	 * Test for two RelationExpressions, which have both the type Long and the Operator GREATERTHAN in between.
+	 */
 	@Test
 	public void testRelationLong_GREATERTHAN() {
 		try {
@@ -89,6 +96,10 @@ public class RelationExpressionNodeConverterTest {
 		}
 	}
 
+	
+	/**
+	 * Test for two RelationExpressions, which have both the type Long and the Operator LESSTHAN in between.
+	 */
 	@Test
 	public void testRelationLong_LESSTHAN() {
 		try {
@@ -117,6 +128,10 @@ public class RelationExpressionNodeConverterTest {
 		}
 	}
 
+	
+	/**
+	 * Test for two RelationExpressions, which have both the type Long and the Operator GREATERTHANEQUAL in between.
+	 */
 	@Test
 	public void testRelationLong_GREATERTHANEQUAL() {
 		try {
@@ -145,6 +160,10 @@ public class RelationExpressionNodeConverterTest {
 		}
 	}
 
+	
+	/**
+	 * Test for two RelationExpressions, which have both the type Long and the Operator LESSTHANEQUAL in between.
+	 */
 	@Test
 	public void testRelationLong_LESSTHANEQUAL() {
 		try {
@@ -173,7 +192,11 @@ public class RelationExpressionNodeConverterTest {
 		}
 	}
 
-	// DOUBLE
+	
+	
+	/**
+	 * Test for two RelationExpressions, which have both the type Double and the Operator EQUAL in between.
+	 */
 	@Test
 	public void testRelationDouble_EQUAL() {
 		try {
@@ -202,6 +225,10 @@ public class RelationExpressionNodeConverterTest {
 		}
 	}
 
+	
+	/**
+	 * Test for two RelationExpressions, which have both the type Double and the Operator GREATERTHAN in between.
+	 */
 	@Test
 	public void testRelationDouble_GREATERTHAN() {
 		try {
@@ -230,6 +257,10 @@ public class RelationExpressionNodeConverterTest {
 		}
 	}
 
+	
+	/**
+	 * Test for two RelationExpressions, which have both the type Double and the Operator LESSTHAN in between.
+	 */
 	@Test
 	public void testRelationDouble_LESSTHAN() {
 		try {
@@ -258,6 +289,10 @@ public class RelationExpressionNodeConverterTest {
 		}
 	}
 
+	
+	/**
+	 * Test for two RelationExpressions, which have both the type Double and the Operator GREATERTHANEQUAL in between.
+	 */
 	@Test
 	public void testRelationDouble_GREATERTHANEQUAL() {
 		try {
@@ -286,6 +321,10 @@ public class RelationExpressionNodeConverterTest {
 		}
 	}
 
+	
+	/**
+	 * Test for two RelationExpressions, which have both the type Double and the Operator LESSTHANEQUAL in between.
+	 */
 	@Test
 	public void testRelationDouble_LESSTHANEQUAL() {
 		try {
@@ -314,7 +353,11 @@ public class RelationExpressionNodeConverterTest {
 		}
 	}
 
-	// BOOLEAN
+	
+	
+	/**
+	 * Test for two RelationExpressions, which have both the type Boolean and the Operator EQUAL in between.
+	 */
 	@Test
 	public void testRelationBoolean_EQUAL() {
 		try {
@@ -339,6 +382,10 @@ public class RelationExpressionNodeConverterTest {
 		}
 	}
 
+	
+	/**
+	 * Test for two RelationExpressions, which have both the type Boolean and the Operator GREATERTHAN in between.
+	 */
 	@Test
 	public void testRelationBoolean_GREATERTHAN() {
 		try {
@@ -363,6 +410,10 @@ public class RelationExpressionNodeConverterTest {
 		}
 	}
 
+	
+	/**
+	 * Test for two RelationExpressions, which have both the type Boolean and the Operator LESSTHAN in between.
+	 */
 	@Test
 	public void testRelationBoolean_LESSTHAN() {
 		try {
@@ -387,6 +438,10 @@ public class RelationExpressionNodeConverterTest {
 		}
 	}
 
+	
+	/**
+	 * Test for two RelationExpressions, which have both the type Boolean and the Operator GREATERTHANEQUAL in between.
+	 */
 	@Test
 	public void testRelationBoolean_GREATERTHANEQUAL() {
 		try {
@@ -411,6 +466,10 @@ public class RelationExpressionNodeConverterTest {
 		}
 	}
 
+	
+	/**
+	 * Test for two RelationExpressions, which have both the type Boolean and the Operator LESSTHANEQUAL in between.
+	 */
 	@Test
 	public void testRelationBoolean_LESSTHANEQUAL() {
 		try {
@@ -435,7 +494,11 @@ public class RelationExpressionNodeConverterTest {
 		}
 	}
 
-	// STRING
+	
+	
+	/**
+	 * Test for two RelationExpressions, which have both the type String and the Operator EQUAL in between.
+	 */
 	@Test
 	public void testRelationString_EQUAL() {
 		try {
@@ -460,6 +523,10 @@ public class RelationExpressionNodeConverterTest {
 		}
 	}
 
+	
+	/**
+	 * Test for two RelationExpressions, which have both the type String and the Operator GREATERTHAN in between.
+	 */
 	@Test
 	public void testRelationString_GREATERTHAN() {
 		try {
@@ -484,6 +551,10 @@ public class RelationExpressionNodeConverterTest {
 		}
 	}
 
+	
+	/**
+	 * Test for two RelationExpressions, which have both the type String and the Operator LESSTHAN in between.
+	 */
 	@Test
 	public void testRelationString_LESSTHAN() {
 		try {
@@ -508,6 +579,10 @@ public class RelationExpressionNodeConverterTest {
 		}
 	}
 
+	
+	/**
+	 * Test for two RelationExpressions, which have both the type String and the Operator GREATERTHANEQUAL in between.
+	 */
 	@Test
 	public void testRelationString_GREATERTHANEQUAL() {
 		try {
@@ -532,6 +607,10 @@ public class RelationExpressionNodeConverterTest {
 		}
 	}
 
+	
+	/**
+	 * Test for two RelationExpressions, which have both the type String and the Operator LESSTHANEQUAL in between.
+	 */
 	@Test
 	public void testRelationString_LESSTHANEQUAL() {
 		try {
@@ -556,7 +635,11 @@ public class RelationExpressionNodeConverterTest {
 		}
 	}
 
-	// ARRAY (noch zu verbessern)
+	
+	
+	/**
+	 * Test for two RelationExpressions, which have both the type Array and the Operator EQUAL in between.
+	 */
 	@Test
 	public void testRelationArray_EQUAL() {
 		try {
@@ -581,6 +664,10 @@ public class RelationExpressionNodeConverterTest {
 		}
 	}
 
+	
+	/**
+	 * Test for two RelationExpressions, which have both the type Array and the Operator GREATERTHAN in between.
+	 */
 	@Test
 	public void testRelationArray_GREATERTHAN() {
 		try {
@@ -605,6 +692,10 @@ public class RelationExpressionNodeConverterTest {
 		}
 	}
 
+	
+	/**
+	 * Test for two RelationExpressions, which have both the type Array and the Operator LESSTHAN in between.
+	 */
 	@Test
 	public void testRelationArray_LESSTHAN() {
 		try {
@@ -629,6 +720,10 @@ public class RelationExpressionNodeConverterTest {
 		}
 	}
 
+	
+	/**
+	 * Test for two RelationExpressions, which have both the type Array and the Operator GREATERTHANEQUAL in between.
+	 */
 	@Test
 	public void testRelationArray_GREATERTHANEQUAL() {
 		try {
@@ -653,6 +748,11 @@ public class RelationExpressionNodeConverterTest {
 		}
 	}
 
+	
+	
+	/**
+	 * Test for two RelationExpressions, which have both the type Array and the Operator LESSTHANEQUAL in between.
+	 */
 	@Test
 	public void testRelationArray_LESSTHANEQUAL() {
 		try {

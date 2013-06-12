@@ -23,6 +23,7 @@ import swp_compiler_ss13.common.types.primitive.StringType;
 import swp_compiler_ss13.javabite.codegen.converters.ArithmeticBinaryExpressionNodeConverter;
 import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
 
+
 public class ArithmeticBinaryExpressionNodeConverterTest {
 	
 ArithmeticBinaryExpressionNodeConverter converter;
@@ -36,7 +37,9 @@ ArithmeticBinaryExpressionNodeConverter converter;
 	}
 
 	
-	//SUB
+	/**
+	 * Test an Arithmetic Binary Expression, where both sides have the type Long with the Operator Minus in between.
+	 */
 	@Test
 	public void testArithmeticBinaryExpressionLong_SUB(){
 		try {
@@ -60,6 +63,9 @@ ArithmeticBinaryExpressionNodeConverter converter;
 	}
 	
 	
+	/**
+	 * Test an Arithmetic Binary Expression, where both sides have the type Double with the Operator Minus in between.
+	 */
 	@Test
 	public void testArithmeticBinaryExpressionDouble_SUB(){
 		try {
@@ -83,7 +89,9 @@ ArithmeticBinaryExpressionNodeConverter converter;
 	}
 	
 	
-	
+	/**
+	 * Test an Arithmetic Binary Expression, where both sides have the type Boolean with the Operator Minus in between.
+	 */
 	@Test
 	public void testArithmeticBinaryExpressionBoolean_SUB(){
 		try {
@@ -105,8 +113,11 @@ ArithmeticBinaryExpressionNodeConverter converter;
 	}
 	
 	
+	/**
+	 * Test an Arithmetic Binary Expression, where both sides have the type String with the Operator Minus in between.
+	 */
 	@Test
-	public void testArithmeticBinaryExpressionString(){
+	public void testArithmeticBinaryExpressionString_SUB(){
 		try {
 			ASTNode node = Mockito.mock(ArithmeticBinaryExpressionNode.class);
 	
@@ -126,6 +137,10 @@ ArithmeticBinaryExpressionNodeConverter converter;
 	}
 	
 	
+	
+	/**
+	 * Test an Arithmetic Binary Expression, where both sides have the type Struct with the Operator Minus in between.
+	 */
 	@Test
 	public void testArithmeticBinaryExpressionStruct_SUB(){
 		try {
@@ -155,6 +170,11 @@ ArithmeticBinaryExpressionNodeConverter converter;
 		}
 	}
 	
+	
+	
+	/**
+	 * Test an Arithmetic Binary Expression, where both sides have the type Array with the Operator Minus in between.
+	 */
 	@Test
 	public void testArithmeticBinaryExpressionArray_SUB(){
 		try {
@@ -177,7 +197,9 @@ ArithmeticBinaryExpressionNodeConverter converter;
 	
 	
 	
-	//ADD
+	/**
+	 * Test an Arithmetic Binary Expression, where both sides have the type Long with the Operator Plus in between.
+	 */
 	@Test
 	public void testArithmeticBinaryExpressionLong_ADD(){
 		try {
@@ -200,7 +222,12 @@ ArithmeticBinaryExpressionNodeConverter converter;
 		}
 	}
 
-
+	
+	
+	
+	/**
+	 * Test an Arithmetic Binary Expression, where both sides have the type Double with the Operator Plus in between.
+	 */
 	@Test
 	public void testArithmeticBinaryExpressionDouble_ADD(){
 		try {
@@ -224,7 +251,10 @@ ArithmeticBinaryExpressionNodeConverter converter;
 	}
 
 
-
+	
+	/**
+	 * Test an Arithmetic Binary Expression, where both sides have the type Boolean with the Operator Plus in between.
+	 */
 	@Test
 	public void testArithmeticBinaryExpressionBoolean_ADD(){
 		try {
@@ -245,7 +275,11 @@ ArithmeticBinaryExpressionNodeConverter converter;
 		}
 	}
 
-
+	
+	
+	/**
+	 * Test an Arithmetic Binary Expression, where both sides have the type String with the Operator Plus in between.
+	 */
 	@Test
 	public void testArithmeticBinaryExpressionString_ADD(){
 		try {
@@ -267,6 +301,10 @@ ArithmeticBinaryExpressionNodeConverter converter;
 	}
 
 
+	
+	/**
+	 * Test an Arithmetic Binary Expression, where both sides have the type Struct with the Operator Plus in between.
+	 */
 	@Test
 	public void testArithmeticBinaryExpressionStruct_ADD(){
 		try {
@@ -296,6 +334,10 @@ ArithmeticBinaryExpressionNodeConverter converter;
 		}
 	}
 
+	
+	/**
+	 * Test an Arithmetic Binary Expression, where both sides have the type Array with the Operator Plus in between.
+	 */
 	@Test
 	public void testArithmeticBinaryExpressionArray_ADD(){
 		try {
@@ -318,7 +360,9 @@ ArithmeticBinaryExpressionNodeConverter converter;
 
 
 
-//MUL
+		/**
+		 * Test an Arithmetic Binary Expression, where both sides have the type Long with the Operator multiply (times) in between.
+		 */
 		@Test
 		public void testArithmeticBinaryExpressionLong_MUL(){
 			try {
@@ -342,6 +386,9 @@ ArithmeticBinaryExpressionNodeConverter converter;
 		}
 		
 		
+		/**
+		 * Test an Arithmetic Binary Expression, where both sides have the type Double with the Operator multiply (times) in between.
+		 */
 		@Test
 		public void testArithmeticBinaryExpressionDouble_MUL(){
 			try {
@@ -365,7 +412,9 @@ ArithmeticBinaryExpressionNodeConverter converter;
 		}
 		
 		
-		
+		/**
+		 * Test an Arithmetic Binary Expression, where both sides have the type Boolean with the Operator multiply (times) in between.
+		 */
 		@Test
 		public void testArithmeticBinaryExpressionBoolean_MUL(){
 			try {
@@ -387,6 +436,10 @@ ArithmeticBinaryExpressionNodeConverter converter;
 		}
 		
 		
+		
+		/**
+		 * Test an Arithmetic Binary Expression, where both sides have the type String with the Operator multiply (times) in between.
+		 */
 		@Test
 		public void testArithmeticBinaryExpressionString_MUL(){
 			try {
@@ -408,6 +461,9 @@ ArithmeticBinaryExpressionNodeConverter converter;
 		}
 		
 		
+		/**
+		 * Test an Arithmetic Binary Expression, where both sides have the type Struct with the Operator multiply (times) in between.
+		 */
 		@Test
 		public void testArithmeticBinaryExpressionStruct_MUL(){
 			try {
@@ -437,6 +493,10 @@ ArithmeticBinaryExpressionNodeConverter converter;
 			}
 		}
 		
+		
+		/**
+		 * Test an Arithmetic Binary Expression, where both sides have the type Array with the Operator multiply (times) in between.
+		 */
 		@Test
 		public void testArithmeticBinaryExpressionArray_MUL(){
 			try {
@@ -458,7 +518,10 @@ ArithmeticBinaryExpressionNodeConverter converter;
 		}
 		
 		
-		//DIV
+		
+		/**
+		 * Test an Arithmetic Binary Expression, where both sides have the type Long with the Operator divide in between.
+		 */
 		@Test
 		public void testArithmeticBinaryExpressionLong_DIV(){
 			try {
@@ -482,6 +545,9 @@ ArithmeticBinaryExpressionNodeConverter converter;
 		}
 		
 		
+		/**
+		 * Test an Arithmetic Binary Expression, where both sides have the type Double with the Operator divide in between.
+		 */
 		@Test
 		public void testArithmeticBinaryExpressionDouble_DIV(){
 			try {
@@ -505,7 +571,9 @@ ArithmeticBinaryExpressionNodeConverter converter;
 		}
 		
 		
-		
+		/**
+		 * Test an Arithmetic Binary Expression, where both sides have the type Boolean with the Operator divide in between.
+		 */
 		@Test
 		public void testArithmeticBinaryExpressionBoolean_DIV(){
 			try {
@@ -527,6 +595,9 @@ ArithmeticBinaryExpressionNodeConverter converter;
 		}
 		
 		
+		/**
+		 * Test an Arithmetic Binary Expression, where both sides have the type String with the Operator divide in between.
+		 */
 		@Test
 		public void testArithmeticBinaryExpressionString_DIV(){
 			try {
@@ -548,6 +619,9 @@ ArithmeticBinaryExpressionNodeConverter converter;
 		}
 		
 		
+		/**
+		 * Test an Arithmetic Binary Expression, where both sides have the type Struct with the Operator divide in between.
+		 */
 		@Test
 		public void testArithmeticBinaryExpressionStruct_DIV(){
 			try {
@@ -578,6 +652,10 @@ ArithmeticBinaryExpressionNodeConverter converter;
 			}
 		}
 		
+		
+		/**
+		 * Test an Arithmetic Binary Expression, where both sides have the type Array with the Operator divide in between.
+		 */
 		@Test
 		public void testArithmeticBinaryExpressionArray_DIV(){
 			try {

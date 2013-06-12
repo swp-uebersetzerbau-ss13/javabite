@@ -36,7 +36,9 @@ LogicBinaryExpressionNodeConverter converter;
 	}
 
 	
-	//AND
+	/**
+	 * Test for two Logic Binary Expressions, which both have the type Long and the Operator AND in between.
+	 */
 	@Test
 	public void testLogicBinaryExpressionLong_AND(){
 		try {
@@ -58,6 +60,9 @@ LogicBinaryExpressionNodeConverter converter;
 	}
 	
 	
+	/**
+	 * Test for two Logic Binary Expressions, which both have the type Double and the Operator AND in between.
+	 */
 	@Test
 	public void testLogicBinaryExpressionDouble_AND(){
 		try {
@@ -79,7 +84,9 @@ LogicBinaryExpressionNodeConverter converter;
 	}
 	
 	
-	
+	/**
+	 * Test for two Logic Binary Expressions, which both have the type Boolean and the Operator AND in between.
+	 */
 	@Test
 	public void testLogicBinaryExpressionBoolean_AND(){
 		try {
@@ -103,6 +110,9 @@ LogicBinaryExpressionNodeConverter converter;
 	}
 	
 	
+	/**
+	 * Test for two Logic Binary Expressions, which both have the type String and the Operator AND in between.
+	 */
 	@Test
 	public void testLogicBinaryExpressionString(){
 		try {
@@ -124,6 +134,9 @@ LogicBinaryExpressionNodeConverter converter;
 	}
 	
 	
+	/**
+	 * Test for two Logic Binary Expressions, which both have the type Struct and the Operator AND in between.
+	 */
 	@Test
 	public void testLogicBinaryExpressionStruct_AND(){
 		try {
@@ -153,6 +166,10 @@ LogicBinaryExpressionNodeConverter converter;
 		}
 	}
 	
+	
+	/**
+	 * Test for two Logic Binary Expressions, which both have the type Array and the Operator AND in between.
+	 */
 	@Test
 	public void testLogicBinaryExpressionArray_AND(){
 		try {
@@ -175,7 +192,9 @@ LogicBinaryExpressionNodeConverter converter;
 	
 	
 	
-	//OR
+	/**
+	 * Test for two Logic Binary Expressions, which both have the type Long and the Operator OR in between.
+	 */
 	@Test
 	public void testLogicBinaryExpressionLong_OR(){
 		try {
@@ -196,7 +215,10 @@ LogicBinaryExpressionNodeConverter converter;
 		}
 	}
 
-
+	
+	/**
+	 * Test for two Logic Binary Expressions, which both have the type Double and the Operator OR in between.
+	 */
 	@Test
 	public void testLogicBinaryExpressionDouble_OR(){
 		try {
@@ -218,7 +240,9 @@ LogicBinaryExpressionNodeConverter converter;
 	}
 
 
-
+	/**
+	 * Test for two Logic Binary Expressions, which both have the type Boolean and the Operator OR in between.
+	 */
 	@Test
 	public void testLogicBinaryExpressionBoolean_OR(){
 		try {
@@ -242,6 +266,10 @@ LogicBinaryExpressionNodeConverter converter;
 	}
 
 
+	
+	/**
+	 * Test for two Logic Binary Expressions, which both have the type String and the Operator OR in between.
+	 */
 	@Test
 	public void testLogicBinaryExpressionString_OR(){
 		try {
@@ -263,6 +291,9 @@ LogicBinaryExpressionNodeConverter converter;
 	}
 
 
+	/**
+	 * Test for two Logic Binary Expressions, which both have the type Struct and the Operator OR in between.
+	 */
 	@Test
 	public void testLogicBinaryExpressionStruct_OR(){
 		try {
@@ -292,6 +323,11 @@ LogicBinaryExpressionNodeConverter converter;
 		}
 	}
 
+	
+	
+	/**
+	 * Test for two Logic Binary Expressions, which both have the type Array and the Operator OR in between.
+	 */
 	@Test
 	public void testLogicBinaryExpressionArray_OR(){
 		try {

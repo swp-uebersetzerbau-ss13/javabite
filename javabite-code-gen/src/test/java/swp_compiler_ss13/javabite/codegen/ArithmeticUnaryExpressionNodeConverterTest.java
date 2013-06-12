@@ -35,6 +35,10 @@ public class ArithmeticUnaryExpressionNodeConverterTest {
 				.mock(IntermediateCodeGeneratorJb.class);
 	}
 
+	
+	/**
+	 * Test to put a "Minus"(Subtraction) in front of an Arithmetic Unary Expression of the type Long.
+	 */
 	@Test
 	public void testArithmeticUnaryExpressionLong(){
 		try {
@@ -52,6 +56,9 @@ public class ArithmeticUnaryExpressionNodeConverterTest {
 	}
 	
 	
+	/**
+	 * Test to put a "Minus"(Subtraction) in front of an Arithmetic Unary Expression of the type Double.
+	 */
 	@Test
 	public void testArithmeticUnaryExpressionDouble(){
 		try {
@@ -70,6 +77,9 @@ public class ArithmeticUnaryExpressionNodeConverterTest {
 	}
 	
 	
+	/**
+	 * Test to put a "Minus"(Subtraction) in front of an Arithmetic Unary Expression of the type Boolean (not allowed).
+	 */
 	@Test
 	public void testArithmeticUnaryExpressionBoolean(){
 		try {
@@ -87,6 +97,9 @@ public class ArithmeticUnaryExpressionNodeConverterTest {
 	}
 	
 	
+	/**
+	 * Test to put a "Minus"(Subtraction) in front of an Arithmetic Unary Expression of the type Struct (not allowed).
+	 */
 	@Test
 	public void testArithmeticUnaryExpressionStruct(){
 		try {
@@ -108,6 +121,9 @@ public class ArithmeticUnaryExpressionNodeConverterTest {
 	}
 	
 	
+	/**
+	 * Test to put a "Minus"(Subtraction) in front of an Arithmetic Unary Expression of the type Array (not allowed).
+	 */
 	@Test
 	public void testArithmeticUnaryExpressionArray(){
 		try {

@@ -22,6 +22,10 @@ public class DeclarationNodeConverterTest {
 				.mock(IntermediateCodeGeneratorJb.class);
 	}
 	
+	
+	/**
+	 * Test for a DeclarationNode, which has the type Long.
+	 */
 	@Test
 	public void testDeclarationNodeConverter_Long(){
 		try{
@@ -34,6 +38,9 @@ public class DeclarationNodeConverterTest {
 	}
 	
 	
+	/**
+	 * Test for a DeclarationNode, which has the type Double.
+	 */
 	@Test
 	public void testDeclarationNodeConverter_Double(){
 		try{
@@ -46,6 +53,10 @@ public class DeclarationNodeConverterTest {
 	}
 	
 	
+	
+	/**
+	 * Test for a DeclarationNode, which has the type Boolean.
+	 */
 	@Test
 	public void testDeclarationNodeConverter_Boolean(){
 		try{
@@ -58,6 +69,9 @@ public class DeclarationNodeConverterTest {
 	}
 	
 	
+	/**
+	 * Test for a DeclarationNode, which has the type String.
+	 */
 	@Test
 	public void testDeclarationNodeConverter_String(){
 		try{
@@ -70,6 +84,9 @@ public class DeclarationNodeConverterTest {
 	}
 	
 	
+	/**
+	 * Test for a DeclarationNode, which has the type Array.
+	 */
 	@Test
 	public void testDeclarationNodeConverter_Array(){
 		try{
