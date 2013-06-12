@@ -47,99 +47,13 @@ public class AssignmentNodeConverterTest {
 		try {
 			AssignmentNode node = Mockito.mock(AssignmentNode.class);
 			
-			when(node.getRightValue()).thenReturn(new ExpressionNode() {
-				
-				@Override
-				public void setParentNode(ASTNode node) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public ASTNode getParentNode() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-				
-				@Override
-				public Integer getNumberOfNodes() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-				
-				@Override
-				public ASTNodeType getNodeType() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-				
-				@Override
-				public Iterator<ASTNode> getDFSLTRNodeIterator() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-				
-				@Override
-				public List<ASTNode> getChildren() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-				
-				@Override
-				public List<Token> coverage() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-			});
+			when(node.getRightValue()).thenReturn(any(ExpressionNode.class));
 			
 	
 			verify(converter.icg).processNode(any(AssignmentNode.class));
 			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test1", new ArrayType(new LongType(), 0)));
 			
-			when(node.getLeftValue()).thenReturn(new IdentifierNode() {
-				
-				@Override
-				public void setParentNode(ASTNode node) {
-					// TODO Auto-generated method stub
-		
-				}
-	
-				@Override
-				public ASTNode getParentNode() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-	
-				@Override
-				public Integer getNumberOfNodes() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-	
-				@Override
-				public ASTNodeType getNodeType() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-	
-				@Override
-				public Iterator<ASTNode> getDFSLTRNodeIterator() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-	
-				@Override
-				public List<ASTNode> getChildren() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-	
-				@Override
-				public List<Token> coverage() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-			});
+			when(node.getLeftValue()).thenReturn(any(IdentifierNode.class));
 			
 			verify(converter.icg).processNode(any(ArithmeticBinaryExpressionNode.class));
 			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test2", new ArrayType(new LongType(), 0)));
@@ -163,99 +77,12 @@ public class AssignmentNodeConverterTest {
 		try {
 			AssignmentNode node = Mockito.mock(AssignmentNode.class);
 	
-			when(node.getRightValue()).thenReturn(new ExpressionNode() {
-				
-				@Override
-				public void setParentNode(ASTNode node) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public ASTNode getParentNode() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-				
-				@Override
-				public Integer getNumberOfNodes() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-				
-				@Override
-				public ASTNodeType getNodeType() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-				
-				@Override
-				public Iterator<ASTNode> getDFSLTRNodeIterator() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-				
-				@Override
-				public List<ASTNode> getChildren() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-				
-				@Override
-				public List<Token> coverage() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-			});
+			when(node.getRightValue()).thenReturn(any(ExpressionNode.class));
 			
 			verify(converter.icg).processNode(any(ASTNode.class));
 			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test1", new ArrayType(new LongType(), 0)));
 			
-			when(node.getLeftValue()).thenReturn(new IdentifierNode() {
-	
-				@Override
-				public void setParentNode(ASTNode node) {
-					// TODO Auto-generated method stub
-		
-				}
-	
-				@Override
-				public ASTNode getParentNode() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-	
-				@Override
-				public Integer getNumberOfNodes() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-	
-				@Override
-				public ASTNodeType getNodeType() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-	
-				@Override
-				public Iterator<ASTNode> getDFSLTRNodeIterator() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-	
-				@Override
-				public List<ASTNode> getChildren() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-	
-				@Override
-				public List<Token> coverage() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-			});
-			
+			when(node.getLeftValue()).thenReturn(any(IdentifierNode.class));			
 			verify(converter.icg).processNode(any(ASTNode.class));
 			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test2", new ArrayType(new LongType(), 0)));
 			
@@ -279,99 +106,13 @@ public class AssignmentNodeConverterTest {
 		try {
 			AssignmentNode node = Mockito.mock(AssignmentNode.class);
 	
-			when(node.getRightValue()).thenReturn(new ExpressionNode() {
-				
-				@Override
-				public void setParentNode(ASTNode node) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public ASTNode getParentNode() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-				
-				@Override
-				public Integer getNumberOfNodes() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-				
-				@Override
-				public ASTNodeType getNodeType() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-				
-				@Override
-				public Iterator<ASTNode> getDFSLTRNodeIterator() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-				
-				@Override
-				public List<ASTNode> getChildren() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-				
-				@Override
-				public List<Token> coverage() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-			});
+			when(node.getRightValue()).thenReturn(any(ExpressionNode.class));
 			
 			
 			verify(converter.icg).processNode(any(AssignmentNode.class));
 			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test1", new ArrayType(new LongType(), 0)));
 			
-			when(node.getLeftValue()).thenReturn(new IdentifierNode() {
-				
-				@Override
-				public void setParentNode(ASTNode node) {
-					// TODO Auto-generated method stub
-		
-				}
-	
-				@Override
-				public ASTNode getParentNode() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-	
-				@Override
-				public Integer getNumberOfNodes() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-	
-				@Override
-				public ASTNodeType getNodeType() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-	
-				@Override
-				public Iterator<ASTNode> getDFSLTRNodeIterator() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-	
-				@Override
-				public List<ASTNode> getChildren() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-	
-				@Override
-				public List<Token> coverage() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-			});
+			when(node.getLeftValue()).thenReturn(any(IdentifierNode.class));
 			
 			verify(converter.icg).processNode(any(ArithmeticBinaryExpressionNode.class));
 			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test2", new ArrayType(new LongType(), 0)));
@@ -395,100 +136,13 @@ public class AssignmentNodeConverterTest {
 		try {
 			AssignmentNode node = Mockito.mock(AssignmentNode.class);
 	
-			when(node.getRightValue()).thenReturn(new ExpressionNode() {
-				
-				@Override
-				public void setParentNode(ASTNode node) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public ASTNode getParentNode() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-				
-				@Override
-				public Integer getNumberOfNodes() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-				
-				@Override
-				public ASTNodeType getNodeType() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-				
-				@Override
-				public Iterator<ASTNode> getDFSLTRNodeIterator() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-				
-				@Override
-				public List<ASTNode> getChildren() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-				
-				@Override
-				public List<Token> coverage() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-			});
+			when(node.getRightValue()).thenReturn(any(ExpressionNode.class));
 			
 			
 			verify(converter.icg).processNode(any(AssignmentNode.class));
 			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test1", new ArrayType(new LongType(), 0)));
 			
-			when(node.getLeftValue()).thenReturn(new IdentifierNode() {
-				
-				@Override
-				public void setParentNode(ASTNode node) {
-					// TODO Auto-generated method stub
-		
-				}
-	
-				@Override
-				public ASTNode getParentNode() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-	
-				@Override
-				public Integer getNumberOfNodes() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-	
-				@Override
-				public ASTNodeType getNodeType() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-	
-				@Override
-				public Iterator<ASTNode> getDFSLTRNodeIterator() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-	
-				@Override
-				public List<ASTNode> getChildren() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-	
-				@Override
-				public List<Token> coverage() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-			});
-			
+			when(node.getLeftValue()).thenReturn(any(IdentifierNode.class));			
 			verify(converter.icg).processNode(any(ArithmeticBinaryExpressionNode.class));
 			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test2", new ArrayType(new LongType(), 0)));
 			
@@ -510,100 +164,13 @@ public class AssignmentNodeConverterTest {
 		try {
 			AssignmentNode node = Mockito.mock(AssignmentNode.class);
 	
-			when(node.getRightValue()).thenReturn(new ExpressionNode() {
-				
-				@Override
-				public void setParentNode(ASTNode node) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public ASTNode getParentNode() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-				
-				@Override
-				public Integer getNumberOfNodes() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-				
-				@Override
-				public ASTNodeType getNodeType() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-				
-				@Override
-				public Iterator<ASTNode> getDFSLTRNodeIterator() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-				
-				@Override
-				public List<ASTNode> getChildren() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-				
-				@Override
-				public List<Token> coverage() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-			});
+			when(node.getRightValue()).thenReturn(any(ExpressionNode.class));
 			
 			
 			verify(converter.icg).processNode(any(AssignmentNode.class));
 			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test1", new ArrayType(new LongType(), 0)));
 			
-			when(node.getLeftValue()).thenReturn(new IdentifierNode() {
-				
-				@Override
-				public void setParentNode(ASTNode node) {
-					// TODO Auto-generated method stub
-		
-				}
-	
-				@Override
-				public ASTNode getParentNode() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-	
-				@Override
-				public Integer getNumberOfNodes() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-	
-				@Override
-				public ASTNodeType getNodeType() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-	
-				@Override
-				public Iterator<ASTNode> getDFSLTRNodeIterator() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-	
-				@Override
-				public List<ASTNode> getChildren() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-	
-				@Override
-				public List<Token> coverage() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-			});
-			
+			when(node.getLeftValue()).thenReturn(any(IdentifierNode.class));
 			verify(converter.icg).processNode(any(ArithmeticBinaryExpressionNode.class));
 			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test2", new ArrayType(new LongType(), 0)));
 			
@@ -622,100 +189,13 @@ public class AssignmentNodeConverterTest {
 		try {
 			AssignmentNode node = Mockito.mock(AssignmentNode.class);
 	
-			when(node.getRightValue()).thenReturn(new ExpressionNode() {
-				
-				@Override
-				public void setParentNode(ASTNode node) {
-					// TODO Auto-generated method stub
-					
-				}
-				
-				@Override
-				public ASTNode getParentNode() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-				
-				@Override
-				public Integer getNumberOfNodes() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-				
-				@Override
-				public ASTNodeType getNodeType() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-				
-				@Override
-				public Iterator<ASTNode> getDFSLTRNodeIterator() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-				
-				@Override
-				public List<ASTNode> getChildren() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-				
-				@Override
-				public List<Token> coverage() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-			});
+			when(node.getRightValue()).thenReturn(any(ExpressionNode.class));
 			
 			
 			verify(converter.icg).processNode(any(AssignmentNode.class));
 			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test1", new ArrayType(new LongType(), 0)));
 			
-			when(node.getLeftValue()).thenReturn(new IdentifierNode() {
-				
-				@Override
-				public void setParentNode(ASTNode node) {
-					// TODO Auto-generated method stub
-		
-				}
-	
-				@Override
-				public ASTNode getParentNode() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-	
-				@Override
-				public Integer getNumberOfNodes() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-	
-				@Override
-				public ASTNodeType getNodeType() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-	
-				@Override
-				public Iterator<ASTNode> getDFSLTRNodeIterator() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-	
-				@Override
-				public List<ASTNode> getChildren() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-	
-				@Override
-				public List<Token> coverage() {
-					// TODO Auto-generated method stub
-					return null;
-				}
-			});
-			
+			when(node.getLeftValue()).thenReturn(any(IdentifierNode.class));
 			verify(converter.icg).processNode(any(ArithmeticBinaryExpressionNode.class));
 			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test2", new ArrayType(new LongType(), 0)));
 			
