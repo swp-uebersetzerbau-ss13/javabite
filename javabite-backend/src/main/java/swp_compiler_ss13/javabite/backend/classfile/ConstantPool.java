@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -220,7 +221,7 @@ public class ConstantPool {
 
 		assert value.length() >= 2;
 		value = new String(value.substring(1, value.length() - 1));
-
+		value = StringEscapeUtils.unescapeJava(value);
 		// generate UTF8-entry
 		final short nameIndex = generateConstantUTF8Info(value);
 		// generate String entry

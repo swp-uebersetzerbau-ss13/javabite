@@ -1,10 +1,11 @@
 package swp_compiler_ss13.javabite.runtime;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.StringWriter;
+
+import org.apache.commons.io.IOUtils;
 
 public class JavaClassProcess {
 	private final static boolean NO_VERIFY_NEEDED = true;
@@ -49,18 +50,13 @@ public class JavaClassProcess {
 	}
 
 	public String getProcessOutput() {
-		StringBuilder sb = new StringBuilder();
-		String line;
-		BufferedReader input = new BufferedReader(new InputStreamReader(
-				p.getInputStream()));
+		StringWriter writer = new StringWriter();
 		try {
-			while ((line = input.readLine()) != null) {
-				sb.append(line);
-			}
+			IOUtils.copy(p.getInputStream(), writer, "UTF-8");
 		} catch (IOException e) {
-			throw new JavaClassProcessRuntimeException(e.getMessage(), e);
+			e.printStackTrace();
 		}
-		return sb.toString();
+		return writer.toString();
 	}
 
 	public InputStream getInputstream() {

@@ -1,0 +1,4 @@
+# return 0
+bool b;
+b = true;
+print b;

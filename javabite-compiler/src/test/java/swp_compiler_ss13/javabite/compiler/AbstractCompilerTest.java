@@ -33,8 +33,8 @@ public abstract class AbstractCompilerTest {
 				fail("Unexpected compilation error for " + getProgFile());	
 			}
 			JavaClassProcess process = testCompiler.execute(main);
-			assertEquals(getResultValue(), process.getReturnValue());
 			assertEquals(getOutput(), process.getProcessOutput());
+			assertEquals(getResultValue(), process.getReturnValue());
 		}
 	}
 
