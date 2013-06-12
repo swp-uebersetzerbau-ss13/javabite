@@ -2,9 +2,7 @@ package swp_compiler_ss13.javabite.gui.ast;
 
 import java.util.ArrayDeque;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Queue;
-import java.util.Set;
 
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
@@ -15,7 +13,6 @@ import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.ASTNode.ASTNodeType;
 import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
-import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ArithmeticUnaryExpressionNode;
@@ -31,18 +28,10 @@ import swp_compiler_ss13.javabite.ast.nodes.unary.ReturnNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.unary.StructIdentifierNodeJb;
 import swp_compiler_ss13.javabite.gui.ast.fitted.KhaledGraphFrame;
 
-
-import com.mxgraph.layout.mxGraphLayout;
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
-import com.mxgraph.model.mxCell;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxGraph;
-import com.mxgraph.view.mxLayoutManager;
-import com.mxgraph.view.mxStylesheet;
-
-import com.mxgraph.swing.mxGraphComponent;
-import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxStylesheet;
 
 ;

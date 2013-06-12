@@ -3,6 +3,8 @@ package swp_compiler_ss13.javabite.gui.config;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,8 +21,6 @@ import javax.swing.event.ListSelectionListener;
 import swp_compiler_ss13.javabite.config.ConfigCategory;
 import swp_compiler_ss13.javabite.config.ConfigKey;
 import swp_compiler_ss13.javabite.config.JavabiteConfig;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 
 public class SettingsPanel extends JFrame {
 	final JavabiteConfig config = JavabiteConfig.getDefaultConfig();

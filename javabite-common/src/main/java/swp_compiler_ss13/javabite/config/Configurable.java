@@ -7,6 +7,7 @@ package swp_compiler_ss13.javabite.config;
  * @see swp_compiler_ss13.javabite.config.JavabiteConfig
  */
 public interface Configurable {
+	
 	/**
 	 * This method will be called directly after registerConfigurable was called
 	 * and each time if the configuration is changed.

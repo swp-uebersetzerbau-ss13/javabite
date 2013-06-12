@@ -2,34 +2,33 @@ package swp_compiler_ss13.javabite.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.EventQueue;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Insets;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -37,8 +36,10 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.JToolBar;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -53,38 +54,22 @@ import javax.swing.text.StyledDocument;
 import javax.swing.text.Utilities;
 
 import swp_compiler_ss13.common.ast.AST;
-import swp_compiler_ss13.common.backend.Backend;
 import swp_compiler_ss13.common.backend.Quadruple;
-import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
-import swp_compiler_ss13.common.lexer.Lexer;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
-import swp_compiler_ss13.common.parser.Parser;
 import swp_compiler_ss13.common.report.ReportLog;
 import swp_compiler_ss13.common.report.ReportType;
-import swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser;
-import swp_compiler_ss13.common.util.ModuleProvider;
 import swp_compiler_ss13.javabite.ast.ASTJb;
 import swp_compiler_ss13.javabite.codegen.IntermediateCodeGeneratorJb;
+import swp_compiler_ss13.javabite.compiler.AbstractJavabiteCompiler;
 import swp_compiler_ss13.javabite.config.JavabiteConfig;
 import swp_compiler_ss13.javabite.gui.ast.ASTVisualizerJb;
 import swp_compiler_ss13.javabite.gui.ast.fitted.KhaledGraphFrame;
 import swp_compiler_ss13.javabite.gui.tac.TacVisualizerJb;
 import swp_compiler_ss13.javabite.lexer.LexerJb;
 import swp_compiler_ss13.javabite.parser.ParserJb;
-
-import java.awt.FlowLayout;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import javax.swing.JLabel;
-
-import org.apache.commons.io.IOUtils;
-
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import javax.swing.JTable;
-import javax.swing.JSeparator;
+import swp_compiler_ss13.javabite.runtime.JavaClassProcess;
 
 public class MainFrame extends JFrame implements ReportLog {
 	
@@ -120,7 +105,7 @@ public class MainFrame extends JFrame implements ReportLog {
 	JTable tableReportLogs;
 	DefaultTableModel modelReportLogs;
 	JTabbedPane tabbedPaneLog;
-	private static JTextPane editorPaneSourcecode;
+	private JTextPane editorPaneSourcecode;
 	
 	// get properties for syntax highlighting
 	JavabiteConfig properties = JavabiteConfig.getDefaultConfig();
@@ -143,22 +128,7 @@ public class MainFrame extends JFrame implements ReportLog {
 	private JSeparator separator_1;
 
 	private boolean errorReported;
-	
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					MainFrame frame = new MainFrame();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+	private GuiCompiler guiCompiler;
 	
 	/**
 	 * Reads current editor code and writes it into given file
@@ -203,6 +173,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		} catch (BadLocationException | IOException ex) {
 			ex.printStackTrace();
 		}
+		styleEditorText();
 	}
 	
 	/**
@@ -742,8 +713,65 @@ public class MainFrame extends JFrame implements ReportLog {
 				styleEditorText();
 			}
 		});
+		
+		guiCompiler = new GuiCompiler(this);
+
+		properties.getProperty("syntaxHighlighting.num", "#000000");
+		properties.getProperty("syntaxHighlighting.real", "#000000");
+		properties.getProperty("syntaxHighlighting.true", "#7F0055");
+		properties.getProperty("syntaxHighlighting.false", "#7F0055");
+		properties.getProperty("syntaxHighlighting.string", "#2A00FF");
+		properties.getProperty("syntaxHighlighting.id", "#2A00FF");
+		properties.getProperty("syntaxHighlighting.if", "#7F0055");
+		properties.getProperty("syntaxHighlighting.else", "#7F0055");
+		properties.getProperty("syntaxHighlighting.while", "#7F0055");
+		properties.getProperty("syntaxHighlighting.do", "#7F0055");
+		properties.getProperty("syntaxHighlighting.break", "#7F0055");
+		properties.getProperty("syntaxHighlighting.return", "#7F0055");
+		properties.getProperty("syntaxHighlighting.print", "#7F0055");
+		properties.getProperty("syntaxHighlighting.long_symbol", "#7F0055");
+		properties.getProperty("syntaxHighlighting.double_symbol", "#7F0055");
+		properties.getProperty("syntaxHighlighting.bool_symbol", "#7F0055");
+		properties.getProperty("syntaxHighlighting.record_symbol", "#7F0055");
+		properties.getProperty("syntaxHighlighting.assignop", "#000000");
+		properties.getProperty("syntaxHighlighting.and", "#000000");
+		properties.getProperty("syntaxHighlighting.or", "#000000");
+		properties.getProperty("syntaxHighlighting.equals", "#000000");
+		properties.getProperty("syntaxHighlighting.not_equals", "#000000");
+		properties.getProperty("syntaxHighlighting.less", "#000000");
+		properties.getProperty("syntaxHighlighting.less_or_equal", "#000000");
+		properties.getProperty("syntaxHighlighting.greater", "#000000");
+		properties.getProperty("syntaxHighlighting.greater_equal", "#000000");
+		properties.getProperty("syntaxHighlighting.plus", "#000000");
+		properties.getProperty("syntaxHighlighting.minus", "#000000");
+		properties.getProperty("syntaxHighlighting.times", "#000000");
+		properties.getProperty("syntaxHighlighting.divide", "#000000");
+		properties.getProperty("syntaxHighlighting.not", "#000000");
+		properties.getProperty("syntaxHighlighting.left_paran", "#2A00FF");
+		properties.getProperty("syntaxHighlighting.right_paran", "#2A00FF");
+		properties.getProperty("syntaxHighlighting.left_bracket", "#2A00FF");
+		properties.getProperty("syntaxHighlighting.right_bracket", "#2A00FF");
+		properties.getProperty("syntaxHighlighting.left_brace", "#2A00FF");
+		properties.getProperty("syntaxHighlighting.right_brace", "#2A00FF");
+		properties.getProperty("syntaxHighlighting.dot", "#000000");
+		properties.getProperty("syntaxHighlighting.semicolon", "#000000");
+		properties.getProperty("syntaxHighlighting.comment", "#3F7F5F");
+		properties.getProperty("syntaxHighlighting.not_a_token", "#FF0000");
+		
+		Integer fontSize = Integer.parseInt(properties.getProperty("font.size","18"));
+		editorPaneSourcecode.setFont(new Font(Font.MONOSPACED, 0, fontSize));
 	}
 	
+	public MainFrame(File file) {
+		this();
+		openedFile = file;
+		String fileName = openedFile.getName();
+		saveFileContentIntoEditor(openedFile);
+		setTitle("Javabite Compiler - " + fileName);
+		fileChanged = false;
+		toolBarLabel.setText("Document opened.");
+	}
+
 	/**
 	 * Returns a list of tokens for a given string
 	 * */
@@ -771,9 +799,8 @@ public class MainFrame extends JFrame implements ReportLog {
 		// check properties file for tokentype key, if exist set defined color
 		String color;
 		if ((color = properties.getProperty("syntaxHighlighting."+tokenType.toString().toLowerCase())) != null) {
-			color = color.substring(1);
 			javax.swing.text.Style style = editorPaneSourcecode.addStyle(tokenType.toString(), null);
-			StyleConstants.setForeground(style, new Color(Integer.parseInt(color, 16)+0xFF000000));
+			StyleConstants.setForeground(style, Color.decode(color));
 			doc.setCharacterAttributes(start, end, editorPaneSourcecode.getStyle(tokenType.toString()), true);
 		} else {
 			javax.swing.text.Style style = editorPaneSourcecode.addStyle("Black", null);
@@ -919,113 +946,32 @@ public class MainFrame extends JFrame implements ReportLog {
 				textPaneLogs.setText("Compiler started.");
 				progressBar.setValue(0);
 				progressBar.setEnabled(true);
-				Lexer lexer = ModuleProvider.getLexerInstance();
-				Parser parser = ModuleProvider.getParserInstance();
-				parser.setLexer(lexer);
-				parser.setReportLog(this);
-				SemanticAnalyser semanticAnalyser=ModuleProvider.getSemanticAnalyserInstance();
-				semanticAnalyser.setReportLog(this);
-				IntermediateCodeGenerator codegen = ModuleProvider.getCodeGeneratorInstance();
-				Backend backend = ModuleProvider.getBackendInstance();
-				
+				errorReported = false;
 				for (int i = 0; i < modelReportLogs.getRowCount(); i++) {
 					modelReportLogs.removeRow(i);
 				}
-				
-				parser.setReportLog(this);
-				
-				progressBar.setValue(10);
-				boolean setupOk = true;
-				if (lexer == null || parser == null || codegen == null || backend == null) {
-					setupOk = false;
-				}
-				
-				if (setupOk) {
-					System.out.println("Compiler is ready to start");
-				} else {
-					System.out.println("Compiler could not load all need modules");
+				File mainFile = guiCompiler.compile(openedFile);
+				if (mainFile == null) {
+					progressBar.setValue(100);
+					progressBar.setEnabled(false);
 					return;
 				}
-				
-				// get the name of file without extension
-				progressBar.setValue(20);
-				textPaneLogs.setText(textPaneLogs.getText() + "\nGetting file.");
-				toolBarLabel.setText("Getting file content.");
-				String sourceBaseName = file.getName();
-				int lastDot = sourceBaseName.lastIndexOf(".");
-				lastDot = lastDot > -1 ? lastDot : sourceBaseName.length();
-				sourceBaseName = sourceBaseName.substring(0,lastDot);
-				
-				toolBarLabel.setText("Compiling sourcecode.");
-				progressBar.setValue(30);
-				errorReported = false;
-				lexer.setSourceStream(new FileInputStream(file));
-				toolBarLabel.setText("Building AST.");
-				textPaneLogs.setText(textPaneLogs.getText() + "\nStarting Lexer.");
-				textPaneLogs.setText(textPaneLogs.getText() + "\nStarting Parser.");
-				textPaneLogs.setText(textPaneLogs.getText() + "\nCreating AST.");
-				AST ast = parser.getParsedAST();
-				if (errorReported) {
-					textPaneLogs.setText(textPaneLogs.getText() + "\nSourcecode could not compile.");
-					Icon icon = new ImageIcon(loader.getResource("images" + System.getProperty("file.separator") + "unsuccess-icon.png"));
-					toolBarLabel.setIcon(icon);
-					toolBarLabel.setText("Sourcecode could not compile.");
-					tabbedPaneLog.setSelectedIndex(2);
+				if (!guiCompiler.isJavaBackend()) {
+					reportWarning(ReportType.UNDEFINED, null, "Class execution is only supported for Java-Backends");
+					progressBar.setValue(100);
+					progressBar.setEnabled(false);
 					return;
 				}
-				semanticAnalyser.analyse(ast);
-				if (errorReported) {
-					textPaneLogs.setText(textPaneLogs.getText() + "\nSourcecode could not compile.");
-					Icon icon = new ImageIcon(loader.getResource("images" + System.getProperty("file.separator") + "unsuccess-icon.png"));
-					toolBarLabel.setIcon(icon);
-					toolBarLabel.setText("Sourcecode could not compile.");
-					return;
-				}
+
+				textPaneLogs.setText(textPaneLogs.getText() + "\nExecute program...");
+				toolBarLabel.setText("Execute program...");
+				Long startTime = System.currentTimeMillis();
+				JavaClassProcess p = guiCompiler.execute(mainFile);
+				Long stopTime = System.currentTimeMillis();
+				textPaneConsole.setText(p.getProcessOutput());
+				textPaneConsole.setText(textPaneConsole.getText() + "\nReturn value: " + p.getReturnValue() + "\nExecution time: " + (stopTime - startTime) + "ms");
 				
-				textPaneLogs.setText(textPaneLogs.getText() + "\nCreating quadruples.");
-				progressBar.setValue(60);
-				List<Quadruple> quadruples = codegen.generateIntermediateCode(ast);
-				progressBar.setValue(70);
-				Map<String, InputStream> results = backend.generateTargetCode(sourceBaseName, quadruples);
-				progressBar.setValue(80);
-				textPaneLogs.setText(textPaneLogs.getText() + "\nGenerate target code finished.");
-				long execTime = -1;
-				int exitCode = -1;
-				for (Entry<String,InputStream> e:results.entrySet()) {
-					textPaneLogs.setText(textPaneLogs.getText() + "\nWrite output file: " + e.getKey());
-					File outFile = new File(e.getKey());
-					FileOutputStream fos = new FileOutputStream(outFile);
-					IOUtils.copy(e.getValue(), fos);
-					fos.close();
-					String line;
-					String absPath = outFile.getAbsolutePath();
-					String[] splitClass = absPath.split("class");
-					String cmd = "java " + splitClass[0].substring(0,splitClass[0].length()-1);
-					System.out.println("cmd: " + cmd);
-					String folder = cmd.substring(5,cmd.lastIndexOf(System.getProperty("file.separator")));
-					String classname = cmd.substring(cmd.lastIndexOf(System.getProperty("file.separator"))+1);
-					long startTime = new Date().getTime();
-					
-					Process p = Runtime.getRuntime().exec("java -cp \""+folder+"\" \""+classname+"\"");
-					
-					long endTime = new Date().getTime();
-					
-					// calculate execute time in ms
-					execTime = endTime - startTime;
-					BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
-					while ((line = input.readLine()) != null) {
-						textPaneConsole.setText(textPaneConsole.getText() + "\n" + line + ".");
-					}
-					
-					exitCode = p.exitValue();
-					input.close();
-				}
-				
-				textPaneConsole.setText(textPaneConsole.getText() + "\nReturn value: "+exitCode + "\nExecution time: " + execTime + "ms");
-				Icon icon = new ImageIcon(loader.getResource("images" + System.getProperty("file.separator") + "success-icon.png"));
-				toolBarLabel.setIcon(icon);
-				toolBarLabel.setText("File compiled.");
-				tabbedPaneLog.setSelectedIndex(0);
+				toolBarLabel.setText("Execute program finished.");
 				progressBar.setValue(100);
 				progressBar.setEnabled(false);
 			}
@@ -1044,15 +990,26 @@ public class MainFrame extends JFrame implements ReportLog {
 	@Override
 	public void reportWarning(ReportType type, List<Token> tokens, String message) {
 		errorReported = true;
-		modelReportLogs.addRow(new Object[] { "Warning", type, tokens.get(0).getLine(), tokens.get(0).getColumn(), message });
-		underlineToken(tokens.get(0).getLine(), tokens.get(0).getColumn(), Color.YELLOW);
+		int line = 0;
+		int column = 0;
+		if (tokens != null && !tokens.isEmpty()) {
+			line = tokens.get(0).getLine();
+			column = tokens.get(0).getColumn();
+		}
+		modelReportLogs.addRow(new Object[] { "Warning", type, line, column, message });
+		underlineToken(line, column, Color.YELLOW);
 	}
 	
 	@Override
 	public void reportError(ReportType type, List<Token> tokens, String message) {
-		errorReported = true;
-		modelReportLogs.addRow(new Object[] { "Error", type, tokens.get(0).getLine(), tokens.get(0).getColumn(), message });
-		underlineToken(tokens.get(0).getLine(), tokens.get(0).getColumn(), Color.RED);
+		int line = 0;
+		int column = 0;
+		if (tokens != null && !tokens.isEmpty()) {
+			line = tokens.get(0).getLine();
+			column = tokens.get(0).getColumn();
+		}
+		modelReportLogs.addRow(new Object[] { "Error", type, line, column, message });
+		underlineToken(line, column, Color.RED);
 	}
 	
 	public static int getRow(int pos, JTextComponent editor) {
@@ -1099,6 +1056,85 @@ public class MainFrame extends JFrame implements ReportLog {
 			} else {
 				lineNr++;
 			}
+		}
+	}
+	
+	class GuiCompiler extends AbstractJavabiteCompiler {
+		MainFrame mainFrame;
+		
+		public GuiCompiler(MainFrame mainFrame) {
+			super();
+			this.mainFrame = mainFrame;
+			wire();
+		}
+		
+		@Override
+		public ReportLog getReportLog() {
+			return mainFrame;
+		}
+
+		@Override
+		protected boolean afterPreprocessing(String targetClassName) {
+			progressBar.setValue(20);
+			textPaneLogs.setText(textPaneLogs.getText() + "\nCompile File: " + targetClassName + ".prog");
+			textPaneLogs.setText(textPaneLogs.getText() + "\nGenerating AST for source file...");
+			toolBarLabel.setText("Compiling...");
+			return true;
+		}
+
+		@Override
+		protected boolean afterAstGeneration(AST ast) {
+			if (errorReported) {
+				reportFailure();
+			}
+
+			progressBar.setValue(40);
+			textPaneLogs.setText(textPaneLogs.getText() + "\nExecute semantical checks on AST...");
+			return true;
+		}
+
+		@Override
+		protected boolean afterSemanticalAnalysis(AST ast) {
+			if (errorReported) {
+				reportFailure();
+			}
+
+			progressBar.setValue(60);
+			textPaneLogs.setText(textPaneLogs.getText() + "\nGenerate TAC...");
+			return true;
+		}
+
+		@Override
+		protected boolean afterTacGeneration(List<Quadruple> quadruples) {
+			if (errorReported) {
+				reportFailure();
+			}
+
+			progressBar.setValue(80);
+			textPaneLogs.setText(textPaneLogs.getText() + "\nGenerate target code...");
+			return true;
+		}
+
+		@Override
+		protected boolean afterTargetCodeGeneration(File mainClassFile) {
+			if (errorReported) {
+				reportFailure();
+			}
+
+			progressBar.setValue(90);
+			textPaneLogs.setText(textPaneLogs.getText() + "\nCompilation successful. Main-file written to: " + mainClassFile.getAbsolutePath());
+			toolBarLabel.setText("Compilation successful.");
+			Icon icon = new ImageIcon(loader.getResource("images" + System.getProperty("file.separator") + "success-icon.png"));
+			toolBarLabel.setIcon(icon);
+			return true;
+		}
+		
+		private boolean reportFailure() {
+			textPaneLogs.setText(textPaneLogs.getText() + "\nCompilation failed. See error log!");
+			toolBarLabel.setText("Compilation failed.");
+			Icon icon = new ImageIcon(loader.getResource("images" + System.getProperty("file.separator") + "unsuccess-icon.png"));
+			toolBarLabel.setIcon(icon);
+			return false;
 		}
 	}
 }

@@ -1,7 +1,6 @@
 package swp_compiler_ss13.javabite.gui.ast.fitted;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Rectangle;
@@ -10,7 +9,6 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import swp_compiler_ss13.common.ast.AST;

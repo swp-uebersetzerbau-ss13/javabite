@@ -1,16 +1,16 @@
 package swp_compiler_ss13.javabite.gui.tac;
 
+import java.awt.BorderLayout;
 import java.util.List;
 
 import javax.swing.JFrame;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.visualization.TACVisualization;
-import javax.swing.JTable;
-import java.awt.BorderLayout;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
-import javax.swing.JScrollPane;
 
 public class TacVisualizerJb extends JFrame implements TACVisualization {
 	
