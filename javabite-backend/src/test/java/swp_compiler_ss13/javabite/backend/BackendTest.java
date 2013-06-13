@@ -285,7 +285,8 @@ public class BackendTest {
 		File mainFile = null;
 		for (final Entry<String, InputStream> e : results.entrySet()) {
 			final File outFile = new File("build" + File.separator + e.getKey());
-
+			outFile.getParentFile().mkdirs();
+			
 			if (mainFile == null) {
 				mainFile = outFile;
 			}
