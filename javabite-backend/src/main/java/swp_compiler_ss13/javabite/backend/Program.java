@@ -10,9 +10,9 @@ import java.util.regex.Pattern;
 
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
-import swp_compiler_ss13.javabite.backend.classfile.IClassfile;
-import swp_compiler_ss13.javabite.backend.classfile.IClassfile.ArrayType;
-import swp_compiler_ss13.javabite.backend.classfile.IClassfile.InfoTag;
+import swp_compiler_ss13.javabite.backend.classfile.Classfile;
+import swp_compiler_ss13.javabite.backend.classfile.Classfile.ArrayType;
+import swp_compiler_ss13.javabite.backend.classfile.Classfile.InfoTag;
 import swp_compiler_ss13.javabite.backend.translation.Translator;
 import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
 
@@ -179,7 +179,7 @@ public class Program {
 		// the list of operations of this program
 		private final List<Operation> operations;
 		// the classfile instance of this program
-		private final IClassfile classfile;
+		private final Classfile classfile;
 		// the method name of this program
 		private final String methodName;
 		// saves all jump targets (labels) for jump instruction creation
@@ -202,7 +202,7 @@ public class Program {
 		// name of last array seen
 		private String arrayName;
 
-		public Builder(final IClassfile classfile, final String methodName) {
+		public Builder(final Classfile classfile, final String methodName) {
 			operations = new ArrayList<>();
 			jumpTargets = new HashMap<>();
 			jumpInstructions = new ArrayList<>();

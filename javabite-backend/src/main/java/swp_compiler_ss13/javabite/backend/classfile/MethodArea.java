@@ -10,8 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import swp_compiler_ss13.javabite.backend.Instruction;
-import swp_compiler_ss13.javabite.backend.classfile.IClassfile.MethodAccessFlag;
-import swp_compiler_ss13.javabite.backend.classfile.IClassfile.VariableType;
+import swp_compiler_ss13.javabite.backend.classfile.Classfile.MethodAccessFlag;
+import swp_compiler_ss13.javabite.backend.classfile.Classfile.VariableType;
 
 /**
  * <h1>MethodArea</h1>
@@ -93,11 +93,13 @@ public class MethodArea {
 	// TODO: UPDATE JAVADOC
 	void addMethod(final String methodName, final short nameIndex,
 			final short descriptorIndex, final short codeIndex,
-			final String methodDescriptor,
+			final short stackMapTableIndex,
+			final short localVariableTableIndex, final String methodDescriptor,
 			final MethodAccessFlag... accessFlags) {
 
 		final Method newMethod = new Method(nameIndex, descriptorIndex,
-				codeIndex, accessFlags);
+				codeIndex, stackMapTableIndex, localVariableTableIndex,
+				accessFlags);
 
 		methodMap.put(methodName, newMethod);
 	}

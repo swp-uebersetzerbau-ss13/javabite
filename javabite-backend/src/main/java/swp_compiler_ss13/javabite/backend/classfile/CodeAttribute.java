@@ -14,7 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import swp_compiler_ss13.javabite.backend.Instruction;
-import swp_compiler_ss13.javabite.backend.classfile.IClassfile.VariableType;
+import swp_compiler_ss13.javabite.backend.classfile.Classfile.VariableType;
 
 /**
  * <h1>CodeAttribute</h1>
@@ -55,7 +55,10 @@ public class CodeAttribute {
 	 */
 	private final ArrayList<Instruction> codeArea;
 	private final short exceptionTableLength;
-	private final short attributesCount;
+
+	private short attributesCount;
+	private StackMapTableAttribute stackMapTable;
+	private LocalVariableTableAttribute localVariableTable;
 
 	/**
 	 * <h1>CodeAttribute</h1>
@@ -74,8 +77,15 @@ public class CodeAttribute {
 	 * @param codeIndex
 	 *            short index into this classfile's constant pool of string
 	 *            "Code".
+	 * @param stackMapTableIndex
+	 *            short index into this classfile's constant pool of string
+	 *            "StackMapTable".
+	 * @param localVariableTableIndex
+	 *            short index into this classfile's constant pool of string
+	 *            "LocalVariableTable".
 	 */
-	public CodeAttribute(final short codeIndex) {
+	public CodeAttribute(final short codeIndex, final short stackMapTableIndex,
+			final short localVariableTableIndex) {
 		this.codeIndex = codeIndex;
 		variableMap = new HashMap<String, Byte>();
 		codeArea = new ArrayList<Instruction>();
@@ -83,7 +93,11 @@ public class CodeAttribute {
 		maxStack = 1;
 		maxLocals = 1;
 		exceptionTableLength = 0;
-		attributesCount = 0;
+
+		attributesCount = 2;
+		stackMapTable = new StackMapTableAttribute(stackMapTableIndex);
+		localVariableTable = new LocalVariableTableAttribute(
+				localVariableTableIndex);
 	};
 
 	/**
@@ -101,6 +115,7 @@ public class CodeAttribute {
 	 */
 	void writeTo(final DataOutputStream classfileDOS) {
 
+		// TODO use bytebuffer or classfileDOS directly?
 		final ByteArrayOutputStream attributesBAOS = new ByteArrayOutputStream();
 		final DataOutputStream attributesDOS = new DataOutputStream(
 				attributesBAOS);
@@ -111,20 +126,33 @@ public class CodeAttribute {
 		maxStack = calculateMaxStack();
 
 		try {
-			attributesDOS.writeShort(maxStack);
 			logger.debug("MAX_STACK: " + maxStack);
+
+			// maximal stack size
+			attributesDOS.writeShort(maxStack);
+
+			// maximal local variable count
 			attributesDOS.writeShort(maxLocals);
 
+			// code attribute
 			for (final Instruction instruction : codeArea) {
 				instruction.writeTo(codeDOS);
 			}
-
+			// TODO why use codeDOS for size() and codeBAOS for toByteArray() ?
 			attributesDOS.writeInt(codeDOS.size());
-
 			attributesDOS.write(codeBAOS.toByteArray());
 
+			// exception table attribute (unused)
 			attributesDOS.writeShort(exceptionTableLength);
+
+			// attributes attribute
 			attributesDOS.writeShort(attributesCount);
+
+			regenerateStackMapTable();
+			stackMapTable.writeTo(attributesDOS);
+			
+			regenerateLocalVariableTable();
+			localVariableTable.writeTo(attributesDOS);
 
 			classfileDOS.writeShort(codeIndex);
 			classfileDOS.writeInt(attributesDOS.size());
@@ -243,4 +271,13 @@ public class CodeAttribute {
 	void addInstruction(final Instruction instruction) {
 		codeArea.add(instruction);
 	}
+
+	private void regenerateStackMapTable() {
+		// TODO implement
+	}
+
+	private void regenerateLocalVariableTable() {
+		// TODO implement
+	}
+
 }

@@ -7,7 +7,6 @@ import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.longToByteArray
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 
 import junitx.util.PrivateAccessor;
 
@@ -17,12 +16,10 @@ import org.mockito.internal.util.reflection.Whitebox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.corba.se.impl.encoding.OSFCodeSetRegistry.Entry;
-
 import swp_compiler_ss13.javabite.backend.classfile.CPInfo;
+import swp_compiler_ss13.javabite.backend.classfile.Classfile.InfoTag;
 import swp_compiler_ss13.javabite.backend.classfile.ConstantPool;
 import swp_compiler_ss13.javabite.backend.classfile.ConstantPoolFullExcetion;
-import swp_compiler_ss13.javabite.backend.classfile.IClassfile.InfoTag;
 
 /**
  * <h1>ConstantPoolTest</h1>
@@ -221,19 +218,22 @@ public class ConstantPoolTest {
 	@Test
 	public void testThatDoubleConstantAddedToCP() throws Throwable {
 		// 1.7976931348623157E308
-		double d = Double.MAX_VALUE;
+		final double d = Double.MAX_VALUE;
 		// 4.9E-324
-		double d2 = Double.MIN_VALUE;
-		
+		final double d2 = Double.MIN_VALUE;
+
 		final short index1 = ((Short) PrivateAccessor.invoke(cp,
-				"generateConstantDoubleInfo", new Class<?>[] { double.class, String.class },
-				new Object[] { Double.MIN_VALUE, "4.9E-324" })).shortValue();
+				"generateConstantDoubleInfo", new Class<?>[] { double.class,
+						String.class }, new Object[] { Double.MIN_VALUE,
+						"4.9E-324" })).shortValue();
 		final short index2 = ((Short) PrivateAccessor.invoke(cp,
-				"generateConstantDoubleInfo", new Class<?>[] { double.class, String.class },
-				new Object[] { Double.MAX_VALUE, "1.7976931348623157E308" })).shortValue();
+				"generateConstantDoubleInfo", new Class<?>[] { double.class,
+						String.class }, new Object[] { Double.MAX_VALUE,
+						"1.7976931348623157E308" })).shortValue();
 		final short index3 = ((Short) PrivateAccessor.invoke(cp,
-				"generateConstantDoubleInfo", new Class<?>[] { double.class, String.class },
-				new Object[] { Double.MAX_VALUE, "1.7976931348623157E308" })).shortValue();
+				"generateConstantDoubleInfo", new Class<?>[] { double.class,
+						String.class }, new Object[] { Double.MAX_VALUE,
+						"1.7976931348623157E308" })).shortValue();
 
 		assertTrue("Invalid index", index1 == 1);
 		assertTrue("Invalid index", index2 == 3);
@@ -259,15 +259,16 @@ public class ConstantPoolTest {
 	 * 
 	 * @throws Throwable
 	 */
-	//TODO: more concret tests
+	// TODO: more concret tests
 	@Test
 	public void testThatCPDoubleInfoHoldRightValues() throws Throwable {
 
 		final double value = 1000;
 
 		final short index = ((Short) PrivateAccessor.invoke(cp,
-				"generateConstantDoubleInfo", new Class<?>[] { double.class, String.class },
-				new Object[] { value, "1000" })).shortValue();
+				"generateConstantDoubleInfo", new Class<?>[] { double.class,
+						String.class }, new Object[] { value, "1000" }))
+				.shortValue();
 		@SuppressWarnings("unchecked")
 		final CPInfo constantPoolDoubleInfo = ((ArrayList<CPInfo>) Whitebox
 				.getInternalState(cp, "entryList")).get(index - 1);

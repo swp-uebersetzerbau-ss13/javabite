@@ -13,8 +13,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import swp_compiler_ss13.javabite.backend.classfile.Classfile;
-import swp_compiler_ss13.javabite.backend.classfile.IClassfile.MethodAccessFlag;
-import swp_compiler_ss13.javabite.backend.classfile.IClassfile.VariableType;
+import swp_compiler_ss13.javabite.backend.classfile.Classfile.MethodAccessFlag;
+import swp_compiler_ss13.javabite.backend.classfile.Classfile.VariableType;
 
 public class MethodAreaTest {
 	// METHODAREA_TESTS:

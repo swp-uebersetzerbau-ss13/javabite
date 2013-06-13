@@ -9,8 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import swp_compiler_ss13.javabite.backend.Instruction;
-import swp_compiler_ss13.javabite.backend.classfile.IClassfile.MethodAccessFlag;
-import swp_compiler_ss13.javabite.backend.classfile.IClassfile.VariableType;
+import swp_compiler_ss13.javabite.backend.classfile.Classfile.MethodAccessFlag;
+import swp_compiler_ss13.javabite.backend.classfile.Classfile.VariableType;
 
 /**
  * <h1>Method</h1>
@@ -89,10 +89,12 @@ class Method {
 
 	// TODO: UPDATE JAVADOC
 	Method(final short nameIndex, final short descriptorIndex,
-			final short codeIndex, final MethodAccessFlag... accessFlags) {
+			final short codeIndex, final short stackMapTableIndex,
+			final short localVariableTableIndex,
+			final MethodAccessFlag... accessFlags) {
 		this.nameIndex = nameIndex;
 		this.descriptorIndex = descriptorIndex;
-		codeAttribute = new CodeAttribute(codeIndex);
+		codeAttribute = new CodeAttribute(codeIndex, stackMapTableIndex, localVariableTableIndex);
 
 		for (final MethodAccessFlag a : accessFlags) {
 			this.accessFlags = (short) (this.accessFlags | a.getValue());

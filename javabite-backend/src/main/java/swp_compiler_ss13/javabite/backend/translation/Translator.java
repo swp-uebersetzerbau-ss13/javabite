@@ -9,9 +9,8 @@ import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.Program;
 import swp_compiler_ss13.javabite.backend.classfile.Classfile;
-import swp_compiler_ss13.javabite.backend.classfile.IClassfile;
-import swp_compiler_ss13.javabite.backend.classfile.IClassfile.InfoTag;
-import swp_compiler_ss13.javabite.backend.classfile.IClassfile.VariableType;
+import swp_compiler_ss13.javabite.backend.classfile.Classfile.InfoTag;
+import swp_compiler_ss13.javabite.backend.classfile.Classfile.VariableType;
 import swp_compiler_ss13.javabite.backend.external.QuadrupleImpl;
 
 /**
@@ -62,12 +61,12 @@ public class Translator {
 	 * @param superClassNameEIF
 	 *            string describing the superclass' class name of the class
 	 *            described in this classfile encoded in internal form
-	 * @return instance of a class implementing the IClassfile interface
+	 * @return instance of a class implementing the Classfile interface
 	 */
-	private IClassfile generateClassfile(final String name,
+	private Classfile generateClassfile(final String name,
 			final String thisClassNameEIF, final String superClassNameEIF,
 			final Classfile.ClassfileAccessFlag... accessFlags) {
-		final IClassfile file = new Classfile(name, thisClassNameEIF,
+		final Classfile file = new Classfile(name, thisClassNameEIF,
 				superClassNameEIF, accessFlags);
 		return file;
 	}
@@ -90,20 +89,20 @@ public class Translator {
 	 * @param className
 	 *            String filename of the (main)class, which always has to be
 	 *            generated
-	 * @return Collection<IClassfile> a collection of instances of the class
-	 *         Classfile, which implements the interface IClassfile. Every
+	 * @return Collection<Classfile> a collection of instances of the class
+	 *         Classfile, which implements the interface Classfile. Every
 	 *         instance can be used to generate appropriate bytecode meeting the
 	 *         jvm classfile specification.
 	 */
-	public Collection<IClassfile> translate(final String mainClassName,
+	public Collection<Classfile> translate(final String mainClassName,
 			List<Quadruple> tac) {
 
 		// some initialization
 		final String classFileName = mainClassName + FILEEXT_CLASS;
-		final Collection<IClassfile> classfiles = new ArrayList<IClassfile>();
+		final Collection<Classfile> classfiles = new ArrayList<Classfile>();
 
 		// create a new (main)classfile/ classfile with main method
-		final IClassfile classfile = generateClassfile(classFileName,
+		final Classfile classfile = generateClassfile(classFileName,
 				mainClassName, OBJECT_CLASSNAME_EIF,
 				Classfile.ClassfileAccessFlag.ACC_PUBLIC,
 				Classfile.ClassfileAccessFlag.ACC_SUPER);
@@ -135,9 +134,9 @@ public class Translator {
 	 * classes use new translate method or change trnaslate method to
 	 * translate(...,..., false)
 	 */
-	private Collection<IClassfile> generateClassfilesForStructsInTAC(
+	private Collection<Classfile> generateClassfilesForStructsInTAC(
 			final List<Quadruple> tac) {
-		final Collection<IClassfile> classfiles = new ArrayList<>();
+		final Collection<Classfile> classfiles = new ArrayList<>();
 		return classfiles;
 	}
 
@@ -163,7 +162,7 @@ public class Translator {
 	 * @param tac
 	 *            List<Quadruple> three-address-code
 	 */
-	private static void addConstantsToConstantPool(final IClassfile classFile,
+	private static void addConstantsToConstantPool(final Classfile classFile,
 			final List<Quadruple> tac) {
 
 		for (final Quadruple quad : tac) {
@@ -346,7 +345,7 @@ public class Translator {
 	 * @return List<Quadruple> the modified three-address-code
 	 */
 	private static List<Quadruple> addVariablesToLocalVariableSpace(
-			final IClassfile file, final String methodName,
+			final Classfile file, final String methodName,
 			final List<Quadruple> tac) {
 
 		// is set, while array is declared
@@ -444,7 +443,7 @@ public class Translator {
 	 * @param tac
 	 */
 	private static void extractInstructionsFromOperations(
-			final IClassfile classfile, final String methodName,
+			final Classfile classfile, final String methodName,
 			final List<Quadruple> tac) {
 		final Program.Builder pb = new Program.Builder(classfile, methodName);
 

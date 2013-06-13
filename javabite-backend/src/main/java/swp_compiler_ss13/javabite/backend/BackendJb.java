@@ -9,7 +9,7 @@ import java.util.Map;
 import swp_compiler_ss13.common.backend.Backend;
 import swp_compiler_ss13.common.backend.BackendException;
 import swp_compiler_ss13.common.backend.Quadruple;
-import swp_compiler_ss13.javabite.backend.classfile.IClassfile;
+import swp_compiler_ss13.javabite.backend.classfile.Classfile;
 import swp_compiler_ss13.javabite.backend.translation.TACOptimizer;
 import swp_compiler_ss13.javabite.backend.translation.TargetCodeOptimizer;
 import swp_compiler_ss13.javabite.backend.translation.Translator;
@@ -72,7 +72,7 @@ public class BackendJb implements Backend {
 		// TAC Optimizer
 		// ### currently empty ###
 		// Translator
-		final Collection<IClassfile> classfiles = translator.translate(
+		final Collection<Classfile> classfiles = translator.translate(
 				baseFileName, tac);
 		// Target Code Optimizer
 		// ### currently empty ###
@@ -92,10 +92,10 @@ public class BackendJb implements Backend {
 	 * @return
 	 */
 	private Map<String, InputStream> createTargetCodeStreams(
-			final Collection<IClassfile> classfiles) {
+			final Collection<Classfile> classfiles) {
 		final Map<String, InputStream> targetCodeIS = new HashMap<>();
 
-		for (final IClassfile classfile : classfiles) {
+		for (final Classfile classfile : classfiles) {
 			targetCodeIS.put(classfile.getName(),
 					classfile.generateInputstream());
 		}
