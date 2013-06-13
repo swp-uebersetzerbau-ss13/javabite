@@ -30,6 +30,10 @@ public class ConfigKeyFormInput {
 		return textField.getText() != configKey.getValue();
 	}
 	
+	public String getKey() {
+		return configKey.getName();
+	}
+	
 	public String getValue() {
 		return textField.getText();
 	}
