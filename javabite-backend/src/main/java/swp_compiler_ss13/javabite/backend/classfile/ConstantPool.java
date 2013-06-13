@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -78,7 +79,7 @@ public class ConstantPool {
 				logger.debug("{}", intToHexString(entryList.size() + 1));
 			}
 
-			 /*
+			/*
 			 * write constant_pool_count specification determines size as size
 			 * of cp plus 1
 			 */
@@ -107,14 +108,14 @@ public class ConstantPool {
 	 *            size of entries needed for store constant to constant pool.
 	 *            LONG and DOUBLE need two. The other constants need 1 entry.
 	 */
-	private void checkConstantPoolSize(int typeSize) {
-		if ((entryList.size() + typeSize) > 256) {
+	private void checkConstantPoolSize(final int typeSize) {
+		if (entryList.size() + typeSize > 256) {
 			throw new ConstantPoolFullExcetion(
 					"The ConstantPool is exceeded. You can't store more constants.");
 		}
 	}
 
-	//TODO: add exception 
+	// TODO: add exception
 	/**
 	 * <h1>generateConstantLongInfo</h1>
 	 * <p>
@@ -152,7 +153,7 @@ public class ConstantPool {
 		addCPMapEntry(key, index);
 		return index;
 	}
-	
+
 	/**
 	 * <h1>generateConstantDoubleInfo</h1>
 	 * <p>
@@ -166,12 +167,14 @@ public class ConstantPool {
 	 * @since 29.04.2013
 	 * @param value
 	 *            double value of entry, which is to be generated
+	 * @param keyValue
+	 *            original (unparsed) double value as string to assemble map key
 	 * @return short index of a DOUBLE info entry in the constant pool of this
 	 *         classfile meeting the parameters.
 	 */
-	short generateConstantDoubleInfo(final double value) {
+	short generateConstantDoubleInfo(final double value, final String keyValue) {
 		checkConstantPoolSize(2);
-		final String key = InfoTag.DOUBLE.name() + value;
+		final String key = InfoTag.DOUBLE.name() + keyValue;
 
 		// return existing entry's index, if it exists already
 		if (cpMapEntryExists(key)) {
@@ -189,7 +192,7 @@ public class ConstantPool {
 		addCPMapEntry(key, index);
 		return index;
 	}
-	
+
 	/**
 	 * <h1>generateConstantStringInfo</h1>
 	 * <p>
@@ -215,8 +218,9 @@ public class ConstantPool {
 			return getCPMapEntry(key);
 		}
 
-		value = new String(value.substring(2, value.length() - 2));
-
+		assert value.length() >= 2;
+		value = new String(value.substring(1, value.length() - 1));
+		value = StringEscapeUtils.unescapeJava(value);
 		// generate UTF8-entry
 		final short nameIndex = generateConstantUTF8Info(value);
 		// generate String entry
@@ -267,7 +271,7 @@ public class ConstantPool {
 		addCPMapEntry(key, index);
 		return index;
 	}
-	
+
 	/**
 	 * <h1>generateConstantUTF8Info</h1>
 	 * <p>
@@ -294,11 +298,67 @@ public class ConstantPool {
 		}
 
 		// generate entry
-		final ByteBuffer info = ByteBuffer.allocate(value.length() + 2);
-		info.put(shortToByteArray((short) value.length()));
-		info.put(value.getBytes());
+		// final Charset c = Charset.availableCharsets().get("UTF-8");
+		// final byte[] b = value.getBytes(c);
+		// final ByteBuffer info = ByteBuffer.allocate(b.length + 2);
+		// info.put(shortToByteArray((short) b.length));
+		// info.put(b);
+		// /////////////////////////////////
+		// from DataOutputStream.writeUtf()
+		// /////////////////////////////////
+		final int strlen = value.length();
+		int utflen = 0;
+		int c, count = 0;
 
-		final CPInfo utf8Info = new CPInfo(InfoTag.UTF8, info.array());
+		/* use charAt instead of copying String to char array */
+		for (int i = 0; i < strlen; i++) {
+			c = value.charAt(i);
+			if (c >= 0x0001 && c <= 0x007F) {
+				utflen++;
+			} else if (c > 0x07FF) {
+				utflen += 3;
+			} else {
+				utflen += 2;
+			}
+		}
+
+		if (utflen > 65535)
+			throw new RuntimeException("encoded string too long: " + utflen
+					+ " bytes");
+
+		byte[] bytearr = null;
+		bytearr = new byte[utflen + 2];
+		bytearr[count++] = (byte) (utflen >>> 8 & 0xFF);
+		bytearr[count++] = (byte) (utflen >>> 0 & 0xFF);
+
+		int i = 0;
+		for (i = 0; i < strlen; i++) {
+			c = value.charAt(i);
+			if (!(c >= 0x0001 && c <= 0x007F))
+				break;
+			bytearr[count++] = (byte) c;
+		}
+
+		for (; i < strlen; i++) {
+			c = value.charAt(i);
+			if (c >= 0x0001 && c <= 0x007F) {
+				bytearr[count++] = (byte) c;
+
+			} else if (c > 0x07FF) {
+				bytearr[count++] = (byte) (0xE0 | c >> 12 & 0x0F);
+				bytearr[count++] = (byte) (0x80 | c >> 6 & 0x3F);
+				bytearr[count++] = (byte) (0x80 | c >> 0 & 0x3F);
+			} else {
+				bytearr[count++] = (byte) (0xC0 | c >> 6 & 0x1F);
+				bytearr[count++] = (byte) (0x80 | c >> 0 & 0x3F);
+			}
+		}
+
+		// /////////////////////////////////
+		// from DataOutputStream.writeUtf()
+		// /////////////////////////////////
+
+		final CPInfo utf8Info = new CPInfo(InfoTag.UTF8, bytearr);
 		entryList.add(utf8Info);
 
 		// return index + 1
@@ -306,7 +366,7 @@ public class ConstantPool {
 		addCPMapEntry(key, index);
 		return index;
 	}
-	
+
 	/**
 	 * <h1>generateConstantMethodrefInfo</h1>
 	 * <p>
@@ -325,7 +385,9 @@ public class ConstantPool {
 	 *            short index of a NameAndType entry in this constant pool
 	 * @return short index of a Methodref info entry in the constant pool of
 	 *         this classfile meeting the parameters.
-	 * @see <a href=http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.4.2>COMSTANT_METHODREF</a>
+	 * @see <a
+	 *      href=http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html
+	 *      #jvms-4.4.2>COMSTANT_METHODREF</a>
 	 */
 	short generateConstantMethodrefInfo(final short classIndex,
 			final short nameAndTypeIndex) {
@@ -405,7 +467,7 @@ public class ConstantPool {
 			return 0;
 		}
 	}
-	
+
 	/**
 	 * <h1>generateConstantNameAndTypeInfo</h1>
 	 * <p>
@@ -471,7 +533,7 @@ public class ConstantPool {
 			return 0;
 		}
 	}
-	
+
 	/**
 	 * <h1>getIndexOfConstant</h1>
 	 * <p>
@@ -497,7 +559,7 @@ public class ConstantPool {
 			return 0;
 		}
 	};
-	
+
 	/**
 	 * <h1>addCPMapEntry</h1>
 	 * <p>
@@ -516,7 +578,7 @@ public class ConstantPool {
 		cpEntryMap.put(key, value);
 		return true;
 	}
-	
+
 	/**
 	 * <h1>cpMapEntryExists</h1>
 	 * <p>
@@ -536,7 +598,6 @@ public class ConstantPool {
 		return false;
 	}
 
-	
 	/**
 	 * <h1>getCPMapEntry</h1>
 	 * <p>

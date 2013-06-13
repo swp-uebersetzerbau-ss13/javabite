@@ -1,14 +1,13 @@
 package swp_compiler_ss13.javabite.backend;
 
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.byteArrayToHexString;
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.byteToHexString;
-
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
 
 /**
  * <h1>Instruction</h1>
@@ -72,7 +71,8 @@ public class Instruction {
 
 			if (logger.isDebugEnabled()) {
 				logger.debug("mnemonic bcode");
-				logger.debug("{}", byteToHexString(mnemonic.getBytecode()));
+				logger.debug("{}",
+						ByteUtils.byteToHexString(mnemonic.getBytecode()));
 			}
 
 			if (getArguments() != null) {
@@ -82,7 +82,8 @@ public class Instruction {
 
 				if (logger.isDebugEnabled()) {
 					logger.debug("arguments");
-					logger.debug("{}", byteArrayToHexString(getArguments()));
+					logger.debug("{}",
+							ByteUtils.byteArrayToHexString(getArguments()));
 				}
 			}
 		} catch (final IOException e) {

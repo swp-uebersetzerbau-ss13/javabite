@@ -2,34 +2,33 @@ package swp_compiler_ss13.javabite.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.EventQueue;
+import java.awt.FlowLayout;
+import java.awt.Font;
 import java.awt.Insets;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -37,61 +36,44 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
+import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.JToolBar;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultHighlighter;
-import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
-import javax.swing.text.StyleConstants.CharacterConstants;
 import javax.swing.text.StyledDocument;
 import javax.swing.text.Utilities;
 
 import swp_compiler_ss13.common.ast.AST;
-import swp_compiler_ss13.common.backend.Backend;
 import swp_compiler_ss13.common.backend.Quadruple;
-import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
-import swp_compiler_ss13.common.lexer.Lexer;
+import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
-import swp_compiler_ss13.common.parser.Parser;
 import swp_compiler_ss13.common.report.ReportLog;
 import swp_compiler_ss13.common.report.ReportType;
-import swp_compiler_ss13.common.semanticAnalysis.SemanticAnalyser;
-import swp_compiler_ss13.common.util.ModuleProvider;
 import swp_compiler_ss13.javabite.ast.ASTJb;
+import swp_compiler_ss13.javabite.codegen.IntermediateCodeGeneratorJb;
+import swp_compiler_ss13.javabite.compiler.AbstractJavabiteCompiler;
 import swp_compiler_ss13.javabite.config.JavabiteConfig;
 import swp_compiler_ss13.javabite.gui.ast.ASTVisualizerJb;
 import swp_compiler_ss13.javabite.gui.ast.fitted.KhaledGraphFrame;
+import swp_compiler_ss13.javabite.gui.tac.TacVisualizerJb;
 import swp_compiler_ss13.javabite.lexer.LexerJb;
 import swp_compiler_ss13.javabite.parser.ParserJb;
-
-import java.awt.FlowLayout;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
-import javax.swing.JLabel;
-
-import org.apache.commons.io.IOUtils;
-
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import javax.swing.JTable;
-import javax.swing.JSeparator;
+import swp_compiler_ss13.javabite.runtime.JavaClassProcess;
 
 public class MainFrame extends JFrame implements ReportLog {
 	
 	private static final long serialVersionUID = 1673088367851101738L;
-	
-	private JPanel contentPane;
 	
 	// class to setup styles for our sourcecode
 	StyledDocument doc = (StyledDocument) new DefaultStyledDocument();
@@ -99,6 +81,7 @@ public class MainFrame extends JFrame implements ReportLog {
 	// we need to communicate with the lexer to colorize tokens
 	private LexerJb lexer = new LexerJb();
 	private ParserJb parser;
+	private IntermediateCodeGeneratorJb icg;
 	private ASTJb ast;
 	
 	// components
@@ -122,12 +105,12 @@ public class MainFrame extends JFrame implements ReportLog {
 	JTable tableReportLogs;
 	DefaultTableModel modelReportLogs;
 	JTabbedPane tabbedPaneLog;
-	private static JTextPane editorPaneSourcecode;
+	private JTextPane editorPaneSourcecode;
 	
 	// get properties for syntax highlighting
 	JavabiteConfig properties = JavabiteConfig.getDefaultConfig();
 	
-	// File for opened sourcecode and changes listener
+	// file for opened sourcecode and changes listener
 	File openedFile = null;
 	boolean fileChanged = false;
 	SourecodeDocumentListener sourceCodeListener;
@@ -135,34 +118,17 @@ public class MainFrame extends JFrame implements ReportLog {
 	
 	// undo and redo
 	final ClassLoader loader = MainFrame.class.getClassLoader();
-	private Document editorPaneDocument;
 	protected UndoCostumManager undoManager;
 	private JButton undoButton;
 	private JButton redoButton;
 	private JScrollPane scrollPane;
 	private JMenuItem mntmProperties;
 	private JMenuItem mntmNew;
-	private JScrollPane scrollPaneReportLogs;
 	private JSeparator separator;
 	private JSeparator separator_1;
 
 	private boolean errorReported;
-	
-	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					MainFrame frame = new MainFrame();
-					frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+	private GuiCompiler guiCompiler;
 	
 	/**
 	 * Reads current editor code and writes it into given file
@@ -202,11 +168,12 @@ public class MainFrame extends JFrame implements ReportLog {
 			}
 			// remove wrongly inserted last newline
 			if (doc.getText(0, doc.getLength()).endsWith("\n")) {
-			    doc.remove(doc.getLength() - 1, 1);
+				doc.remove(doc.getLength() - 1, 1);
 			}
 		} catch (BadLocationException | IOException ex) {
 			ex.printStackTrace();
 		}
+		styleEditorText();
 	}
 	
 	/**
@@ -254,16 +221,18 @@ public class MainFrame extends JFrame implements ReportLog {
 						JFrame frame = new JFrame("Save");
 						Object[] options = {"Cancel", "No", "Yes"};
 						String fileName = (openedFile == null) ? "New File.prog" : openedFile.getName();
-						int n = JOptionPane.showOptionDialog(frame,
-						    "Save file \"" + fileName + "\"?\n",
-						    "Save",
-						    JOptionPane.YES_NO_CANCEL_OPTION,
-						    JOptionPane.QUESTION_MESSAGE,
-						    null,
-						    options,
-						    options[2]);
-						// 'Yes' was selected
-						if(n == 2) {
+						int n = JOptionPane.showOptionDialog (
+							frame,
+							"Save file \"" + fileName + "\"?\n",
+							"Save",
+							JOptionPane.YES_NO_CANCEL_OPTION,
+							JOptionPane.QUESTION_MESSAGE,
+							null,
+							options,
+							options[2]
+						);
+						
+						if (n == 2) { // "Yes" was selected
 							if (openedFile == null) {
 								// create and open the file chooser
 								JFileChooser chooser = new JFileChooser();
@@ -292,8 +261,7 @@ public class MainFrame extends JFrame implements ReportLog {
 										fileChanged = false;
 									}
 								}
-							} 
-							else {
+							} else {
 								// firstly save file
 								saveEditorContentIntoFile(openedFile);
 								setTitle("Javabite Compiler - " + openedFile.getName());
@@ -312,9 +280,7 @@ public class MainFrame extends JFrame implements ReportLog {
 									fileChanged = false;
 								}
 							}
-						} 
-						// 'No' was selected
-						else if (n == 1) {
+						} else if (n == 1) { // "No" was selected
 							// display file chooser
 							JFileChooser chooser = new JFileChooser();
 							chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
@@ -327,9 +293,7 @@ public class MainFrame extends JFrame implements ReportLog {
 								toolBarLabel.setText("Document opened.");
 								fileChanged = false;
 							}
-						} 
-						// 'Cancel' was selected
-						else {
+						} else { // "Cancel" was selected
 							return;
 						}
 					}
@@ -342,20 +306,22 @@ public class MainFrame extends JFrame implements ReportLog {
 		mntmNew.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// file was changed, thus ask what to do
-				if(fileChanged) {
+				if (fileChanged) {
 					JFrame frame = new JFrame("Save");
 					Object[] options = {"Cancel", "No", "Yes"};
 					String fileName = (openedFile == null) ? "New File.prog" : openedFile.getName();
-					int n = JOptionPane.showOptionDialog(frame,
-					    "Save file \"" + fileName + "\"?\n",
-					    "Save",
-					    JOptionPane.YES_NO_CANCEL_OPTION,
-					    JOptionPane.QUESTION_MESSAGE,
-					    null,
-					    options,
-					    options[2]);
-					// 'Yes' was selected
-					if(n == 2) {
+					int n = JOptionPane.showOptionDialog (
+						frame,
+						"Save file \"" + fileName + "\"?\n",
+						"Save",
+						JOptionPane.YES_NO_CANCEL_OPTION,
+						JOptionPane.QUESTION_MESSAGE,
+						null,
+						options,
+						options[2]
+					);
+					
+					if (n == 2) { // "Yes" was selected
 						if (openedFile == null) {
 							// create and open the file chooser
 							JFileChooser chooser = new JFileChooser();
@@ -378,8 +344,7 @@ public class MainFrame extends JFrame implements ReportLog {
 								toolBarLabel.setText("New document opened.");
 								setTitle("Javabite Compiler - New File.prog");
 							}
-						} 
-						else {
+						} else {
 							// firstly save file
 							saveEditorContentIntoFile(openedFile);
 							setTitle("Javabite Compiler - " + openedFile.getName());
@@ -392,23 +357,17 @@ public class MainFrame extends JFrame implements ReportLog {
 							toolBarLabel.setText("New document opened.");
 							setTitle("Javabite Compiler - New File.prog");
 						}
-					} 
-					// 'No' was selected
-					else if (n == 1) {
+					} else if (n == 1) { // "No" was selected
 						// open new file
 						openedFile = null;
 						fileChanged = false;
 						editorPaneSourcecode.setText("");
 						toolBarLabel.setText("New document opened.");
 						setTitle("Javabite Compiler - New File.prog");
-					} 
-					// 'Cancel' was selected
-					else {
+					} else { // "Cancel" was selected
 						return;
 					}
-				}
-				// file not changed, thus open new file
-				else {
+				} else { // file not changed, thus open new file
 					openedFile = null;
 					fileChanged = false;
 					editorPaneSourcecode.setText("");
@@ -419,7 +378,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		});
 		menuFile.add(mntmNew);
 		menuFile.add(menuFileOpen);
-
+		
 		menuFileSave = new JMenuItem("Save");
 		menuFileSave.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -442,17 +401,13 @@ public class MainFrame extends JFrame implements ReportLog {
 							saveEditorContentIntoFile(openedFile);
 							fileChanged = false;
 						}
-					}
-					// file already exists, but was changed
-					else {
+					} else { // file already exists, but was changed
 						saveEditorContentIntoFile(openedFile);
 						setTitle("Javabite Compiler - " + openedFile.getName());
 						toolBarLabel.setText("Document saved.");
 						fileChanged = false;
 					}
-				}
-				// file was not changed
-				else {
+				} else { // file was not changed
 					JFrame frame = new JFrame();
 					JOptionPane.showMessageDialog(frame, "There are no changes to save!");
 				}
@@ -464,20 +419,22 @@ public class MainFrame extends JFrame implements ReportLog {
 		menuFileClose.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// file was changed, thus ask what to do
-				if(fileChanged) {
+				if (fileChanged) {
 					JFrame frame = new JFrame("Save");
 					Object[] options = {"Cancel", "No", "Yes"};
 					String fileName = (openedFile == null) ? "New File.prog" : openedFile.getName();
-					int n = JOptionPane.showOptionDialog(frame,
-					    "Save file \"" + fileName + "\"?\n",
-					    "Save",
-					    JOptionPane.YES_NO_CANCEL_OPTION,
-					    JOptionPane.QUESTION_MESSAGE,
-					    null,
-					    options,
-					    options[2]);
-					// 'Yes' was selected
-					if(n == 2) {
+					int n = JOptionPane.showOptionDialog (
+						frame,
+						"Save file \"" + fileName + "\"?\n",
+						"Save",
+						JOptionPane.YES_NO_CANCEL_OPTION,
+						JOptionPane.QUESTION_MESSAGE,
+						null,
+						options,
+						options[2]
+					);
+					
+					if (n == 2) { // "Yes" was selected
 						if (openedFile == null) {
 							// create and open the file chooser
 							JFileChooser chooser = new JFileChooser();
@@ -497,29 +454,19 @@ public class MainFrame extends JFrame implements ReportLog {
 								// close application
 								System.exit(0);
 							}
-						} 
-						else {
+						} else {
 							// firstly save file
 							saveEditorContentIntoFile(openedFile);
 							setTitle("Javabite Compiler - " + openedFile.getName());
 							toolBarLabel.setText("Document saved.");
-							
-							// close application
 							System.exit(0);
 						}
-					} 
-					// 'No' was selected
-					else if (n == 1) {
-						// close application
+					} else if (n == 1) { // "No" was selected
 						System.exit(0);
-					} 
-					// 'Cancel' was selected
-					else {
+					} else { // "Cancel" was selected
 						return;
 					}
-				}
-				// file not changed, thus close application
-				else {
+				} else { // file not changed, thus close application
 					System.exit(0);
 				}
 			}
@@ -562,8 +509,7 @@ public class MainFrame extends JFrame implements ReportLog {
 				frame.setVisible(true);
 				KhaledGraphFrame k= new KhaledGraphFrame();
 				
-				
-			    frame.setSize(167*k.levelsCounter(ast), 55*k.maximumOfNodesInLevels());
+				frame.setSize(167*k.levelsCounter(ast), 55*k.maximumOfNodesInLevels());
 				frame.getContentPane().add(ast_frame);
 				frame.setVisible(true);
 				toolBarLabel.setText("Rendered AST.");
@@ -571,12 +517,29 @@ public class MainFrame extends JFrame implements ReportLog {
 		});
 		menuVisual.add(menuVisualAst);
 		
+		icg = new IntermediateCodeGeneratorJb();
 		menuVisualTac = new JMenuItem("TAC");
 		menuVisualTac.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				// TODO: show TAC
-				JFrame frame = new JFrame();
-				JOptionPane.showMessageDialog(frame, "TAC visualization should be placed here! (see AST code as example!)");
+				//JFrame frame = new JFrame();
+				//JOptionPane.showMessageDialog(frame, "TAC visualization should be placed here! (see AST code as example!)");
+
+				String text = editorPaneSourcecode.getText();
+				try {
+					lexer.setSourceStream(new ByteArrayInputStream(text.getBytes("UTF-8")));
+				} catch (UnsupportedEncodingException ex) {
+					ex.printStackTrace();
+				}
+				
+				parser.setLexer(lexer);
+				ast = parser.getParsedAST();
+				
+				try {
+					new TacVisualizerJb().visualizeTAC(icg.generateIntermediateCode(ast));
+				} catch (IntermediateCodeGeneratorException e1) {
+					e1.printStackTrace();
+				}
 				toolBarLabel.setText("Rendered TAC.");
 			}
 		});
@@ -650,7 +613,6 @@ public class MainFrame extends JFrame implements ReportLog {
 		
 		lexer = new LexerJb();
 		
-		
 		tabbedPaneLog = new JTabbedPane(JTabbedPane.TOP);
 		splitPane.setRightComponent(tabbedPaneLog);
 		
@@ -666,6 +628,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		tableReportLogs = new JTable(modelReportLogs);
 		tableReportLogs.setEnabled(false);
 		tabbedPaneLog.addTab("Report Log", null, tableReportLogs, null);
+		modelReportLogs.addColumn("");
 		modelReportLogs.addColumn("Type");
 		modelReportLogs.addColumn("Line");
 		modelReportLogs.addColumn("Column");
@@ -681,70 +644,67 @@ public class MainFrame extends JFrame implements ReportLog {
 		sourceCodeListener = new SourecodeDocumentListener(this);
 		editorPaneSourcecode.getDocument().addDocumentListener(sourceCodeListener);
 		
-		//undo redo manager
+		// undo redo manager
 		undoManager = new UndoCostumManager(editorPaneSourcecode);
 		
 		// tooltip
 		editorPaneSourcecode.addMouseMotionListener(new MouseAdapter() {
-			  public void mouseMoved(MouseEvent e) {
-				  Point loc = e.getPoint();
-				  int pos = editorPaneSourcecode.viewToModel(loc);
-				  String text = editorPaneSourcecode.getText();
-				  
-				  //dont do anything if the cursor is not hover an element
-				  if (pos < text.length()) {
-					  char cursor = 'x';
-					  
-					  //search as long we find a whitespace in our pos
-					  int searchPos = 0;
-					  int delimiterPos = -1;
-					  while (searchPos < pos) {
-						  if (text.charAt(searchPos) == ' ') {
-							  delimiterPos = searchPos;
-						  }
-						  
-						  searchPos++;
-					  }
-					  
-					  //search next whitespace location 
-					  while(searchPos < text.length()) {
-						  if(text.charAt(searchPos) == ' ' || text.charAt(searchPos) == '\n' || text.charAt(searchPos) == '\0')
-							  break;
-						  
-						  searchPos++;
-					  }
-					  
-					  String mouseOverWord = text.substring(delimiterPos+1, searchPos);
-					  
-					  //get attribute of word, this is the token type
-					  //we dont like to search for all tokens again
-					  List<Token> tokens = getTokenList(mouseOverWord);
-					  
-					  //check if there is just 1 token type, if not there is no space between tokens and we have to identify what tokens is the target
-					  if(tokens.size() == 1) {
-						  editorPaneSourcecode.setToolTipText(tokens.get(0).getTokenType().name());
-					  } else {
-						  int newPos = pos-delimiterPos;
-						  int posCount = 0;
-						  int tokenId = 0;
-						  String val;
-						  for(int i = 0; i < tokens.size(); i++) {
-							  val = tokens.get(i).getValue();
-							  posCount += val.length();
-							  if(posCount >= newPos)
-							  {
-								  tokenId = i;
-								  break;
-							  }
-						  }
-						  editorPaneSourcecode.setToolTipText(tokens.get(tokenId).getTokenType().name());
-					  }
-				  } else {
-					  editorPaneSourcecode.setToolTipText("");
-				  }
-			  }
+			public void mouseMoved(MouseEvent e) {
+				Point loc = e.getPoint();
+				int pos = editorPaneSourcecode.viewToModel(loc);
+				String text = editorPaneSourcecode.getText();
+				
+				// dont do anything if the cursor is not hover an element
+				if (pos < text.length()) {
+					//search as long we find a whitespace in our pos
+					int searchPos = 0;
+					int delimiterPos = -1;
+					while (searchPos < pos) {
+						if (text.charAt(searchPos) == ' ') {
+							delimiterPos = searchPos;
+						}
+						
+						searchPos++;
+					}
+					
+					// search next whitespace location 
+					while (searchPos < text.length()) {
+						if (text.charAt(searchPos) == ' ' || text.charAt(searchPos) == '\n' || text.charAt(searchPos) == '\0') {
+							break;
+						}
+						
+						searchPos++;
+					}
+					
+					String mouseOverWord = text.substring(delimiterPos+1, searchPos);
+					
+					// get attribute of word, this is the token type
+					// we dont like to search for all tokens again
+					List<Token> tokens = getTokenList(mouseOverWord);
+					
+					// check if there is just 1 token type, if not there is no space between tokens and we have to identify what tokens is the target
+					if (tokens.size() == 1) {
+						editorPaneSourcecode.setToolTipText(tokens.get(0).getTokenType().name());
+					} else {
+						int newPos = pos-delimiterPos;
+						int posCount = 0;
+						int tokenId = 0;
+						String val;
+						for (int i = 0; i < tokens.size(); i++) {
+							val = tokens.get(i).getValue();
+							posCount += val.length();
+							if (posCount >= newPos) {
+								tokenId = i;
+								break;
+							}
+						}
+						editorPaneSourcecode.setToolTipText(tokens.get(tokenId).getTokenType().name());
+					}
+				} else {
+					editorPaneSourcecode.setToolTipText("");
+				}
+			}
 		});
-		
 		
 		// add listener for sourcecode colorization 
 		editorPaneSourcecode.addKeyListener(new KeyAdapter() {
@@ -753,8 +713,65 @@ public class MainFrame extends JFrame implements ReportLog {
 				styleEditorText();
 			}
 		});
+		
+		guiCompiler = new GuiCompiler(this);
+
+		properties.getProperty("syntaxHighlighting.num", "#000000");
+		properties.getProperty("syntaxHighlighting.real", "#000000");
+		properties.getProperty("syntaxHighlighting.true", "#7F0055");
+		properties.getProperty("syntaxHighlighting.false", "#7F0055");
+		properties.getProperty("syntaxHighlighting.string", "#2A00FF");
+		properties.getProperty("syntaxHighlighting.id", "#2A00FF");
+		properties.getProperty("syntaxHighlighting.if", "#7F0055");
+		properties.getProperty("syntaxHighlighting.else", "#7F0055");
+		properties.getProperty("syntaxHighlighting.while", "#7F0055");
+		properties.getProperty("syntaxHighlighting.do", "#7F0055");
+		properties.getProperty("syntaxHighlighting.break", "#7F0055");
+		properties.getProperty("syntaxHighlighting.return", "#7F0055");
+		properties.getProperty("syntaxHighlighting.print", "#7F0055");
+		properties.getProperty("syntaxHighlighting.long_symbol", "#7F0055");
+		properties.getProperty("syntaxHighlighting.double_symbol", "#7F0055");
+		properties.getProperty("syntaxHighlighting.bool_symbol", "#7F0055");
+		properties.getProperty("syntaxHighlighting.record_symbol", "#7F0055");
+		properties.getProperty("syntaxHighlighting.assignop", "#000000");
+		properties.getProperty("syntaxHighlighting.and", "#000000");
+		properties.getProperty("syntaxHighlighting.or", "#000000");
+		properties.getProperty("syntaxHighlighting.equals", "#000000");
+		properties.getProperty("syntaxHighlighting.not_equals", "#000000");
+		properties.getProperty("syntaxHighlighting.less", "#000000");
+		properties.getProperty("syntaxHighlighting.less_or_equal", "#000000");
+		properties.getProperty("syntaxHighlighting.greater", "#000000");
+		properties.getProperty("syntaxHighlighting.greater_equal", "#000000");
+		properties.getProperty("syntaxHighlighting.plus", "#000000");
+		properties.getProperty("syntaxHighlighting.minus", "#000000");
+		properties.getProperty("syntaxHighlighting.times", "#000000");
+		properties.getProperty("syntaxHighlighting.divide", "#000000");
+		properties.getProperty("syntaxHighlighting.not", "#000000");
+		properties.getProperty("syntaxHighlighting.left_paran", "#2A00FF");
+		properties.getProperty("syntaxHighlighting.right_paran", "#2A00FF");
+		properties.getProperty("syntaxHighlighting.left_bracket", "#2A00FF");
+		properties.getProperty("syntaxHighlighting.right_bracket", "#2A00FF");
+		properties.getProperty("syntaxHighlighting.left_brace", "#2A00FF");
+		properties.getProperty("syntaxHighlighting.right_brace", "#2A00FF");
+		properties.getProperty("syntaxHighlighting.dot", "#000000");
+		properties.getProperty("syntaxHighlighting.semicolon", "#000000");
+		properties.getProperty("syntaxHighlighting.comment", "#3F7F5F");
+		properties.getProperty("syntaxHighlighting.not_a_token", "#FF0000");
+		
+		Integer fontSize = Integer.parseInt(properties.getProperty("font.size","18"));
+		editorPaneSourcecode.setFont(new Font(Font.MONOSPACED, 0, fontSize));
 	}
 	
+	public MainFrame(File file) {
+		this();
+		openedFile = file;
+		String fileName = openedFile.getName();
+		saveFileContentIntoEditor(openedFile);
+		setTitle("Javabite Compiler - " + fileName);
+		fileChanged = false;
+		toolBarLabel.setText("Document opened.");
+	}
+
 	/**
 	 * Returns a list of tokens for a given string
 	 * */
@@ -779,12 +796,11 @@ public class MainFrame extends JFrame implements ReportLog {
 	 * Styles a special part of the sourcecode
 	 */
 	private void styleToken(TokenType tokenType, int start, int end) {
-		//check properties file for tokentype key, if exist set defined color
+		// check properties file for tokentype key, if exist set defined color
 		String color;
 		if ((color = properties.getProperty("syntaxHighlighting."+tokenType.toString().toLowerCase())) != null) {
-			color = color.substring(1);
 			javax.swing.text.Style style = editorPaneSourcecode.addStyle(tokenType.toString(), null);
-			StyleConstants.setForeground(style, new Color(Integer.parseInt(color, 16)+0xFF000000));
+			StyleConstants.setForeground(style, Color.decode(color));
 			doc.setCharacterAttributes(start, end, editorPaneSourcecode.getStyle(tokenType.toString()), true);
 		} else {
 			javax.swing.text.Style style = editorPaneSourcecode.addStyle("Black", null);
@@ -799,7 +815,7 @@ public class MainFrame extends JFrame implements ReportLog {
 	private void styleEditorText() {
 		String text = editorPaneSourcecode.getText();
 		
-		//reset editor value to prevent some highlighting bugs
+		// reset editor value to prevent some highlighting bugs
 		int cursorPos = editorPaneSourcecode.getCaretPosition();
 		editorPaneSourcecode.setText("");
 		javax.swing.text.Style style = editorPaneSourcecode.addStyle("Black", null);
@@ -831,15 +847,18 @@ public class MainFrame extends JFrame implements ReportLog {
 				JFrame frame = new JFrame("Save");
 				Object[] options = {"Cancel", "No", "Yes"};
 				String fileName = (file == null) ? "New File.prog" : file.getName();
-				int n = JOptionPane.showOptionDialog(frame,
-				    "Sourcecode cannot be compiled, until it is saved.\nSave file \"" + fileName + "\"?\n",
-				    "Save",
-				    JOptionPane.YES_NO_CANCEL_OPTION,
-				    JOptionPane.QUESTION_MESSAGE,
-				    null,
-				    options,
-				    options[2]);
-				if (n == 2) {			// 'Yes' was selected
+				int n = JOptionPane.showOptionDialog (
+					frame,
+					"Sourcecode cannot be compiled, until it is saved.\nSave file \"" + fileName + "\"?\n",
+					"Save",
+					JOptionPane.YES_NO_CANCEL_OPTION,
+					JOptionPane.QUESTION_MESSAGE,
+					null,
+					options,
+					options[2]
+				);
+				
+				if (n == 2) { // "Yes" was selected
 					if (file == null) {
 						// create and open the file chooser
 						JFileChooser chooser = new JFileChooser();
@@ -860,7 +879,7 @@ public class MainFrame extends JFrame implements ReportLog {
 							// sourcecode can now be compiled
 							canCompiled = true;
 						}
-					} else {			// firstly save file
+					} else { // firstly save file
 						saveEditorContentIntoFile(openedFile);
 						setTitle("Javabite Compiler - " + file.getName());
 						toolBarLabel.setText("Document saved.");
@@ -868,7 +887,7 @@ public class MainFrame extends JFrame implements ReportLog {
 						// sourcecode can now be compiled
 						canCompiled = true;
 					}
-				} else if (n == 1) {	// 'No' was selected
+				} else if (n == 1) { // "No" was selected
 					if (file == null) {
 						canCompiled = false;
 						frame = new JFrame();
@@ -876,16 +895,50 @@ public class MainFrame extends JFrame implements ReportLog {
 					} else {
 						canCompiled = true;
 					}
-				} else {				// 'Cancel' was selected
+				} else { // "Cancel" was selected
 					canCompiled = false;
 				}
 			} else {
 				if (file == null) {		// file not changed, but doesn't exist
-					canCompiled = false;
-					JFrame frame = new JFrame();
-					JOptionPane.showMessageDialog(frame, "Sourcecode not saved into a file. Cannot compile!");
+					JFrame frame = new JFrame("Save");
+					Object[] options = {"Cancel", "No", "Yes"};
+					String fileName = (file == null) ? "New File.prog" : file.getName();
+					int n = JOptionPane.showOptionDialog (
+						frame,
+						"Sourcecode cannot be compiled, until it is saved.\nSave file \"" + fileName + "\"?\n",
+						"Save",
+						JOptionPane.YES_NO_CANCEL_OPTION,
+						JOptionPane.QUESTION_MESSAGE,
+						null,
+						options,
+						options[2]
+					);
+					
+					if (n == 2) { // "Yes" was selected
+						if (file == null) {
+							// create and open the file chooser
+							JFileChooser chooser = new JFileChooser();
+							chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+							chooser.setFileFilter(filter);
+							chooser.setSelectedFile(new File("New File.prog"));
+							
+							// save unchanged file
+							int returnVal = chooser.showSaveDialog(null);
+							if (returnVal == JFileChooser.APPROVE_OPTION) {
+								openedFile = chooser.getSelectedFile();
+								file = openedFile;
+								setTitle("Javabite Compiler - " + file.getName());
+								toolBarLabel.setText("Document saved.");
+								saveEditorContentIntoFile(openedFile);
+								fileChanged = false;
+								
+								// sourcecode can now be compiled
+								canCompiled = true;
+							}
+						}
+					}
 				} else {
-					canCompiled = true;	// file not changed, but it exists
+					canCompiled = true; // file not changed, but it exists
 				}
 			}
 			
@@ -893,122 +946,32 @@ public class MainFrame extends JFrame implements ReportLog {
 				textPaneLogs.setText("Compiler started.");
 				progressBar.setValue(0);
 				progressBar.setEnabled(true);
-				Lexer lexer = ModuleProvider.getLexerInstance();
-				Parser parser = ModuleProvider.getParserInstance();
-				parser.setLexer(lexer);
-				parser.setReportLog(this);
-				SemanticAnalyser semanticAnalyser=ModuleProvider.getSemanticAnalyserInstance();
-				semanticAnalyser.setReportLog(this);
-				IntermediateCodeGenerator codegen = ModuleProvider.getCodeGeneratorInstance();
-				Backend backend = ModuleProvider.getBackendInstance();
-				
+				errorReported = false;
 				for (int i = 0; i < modelReportLogs.getRowCount(); i++) {
 					modelReportLogs.removeRow(i);
 				}
-				
-				parser.setReportLog(this);
-				
-				progressBar.setValue(10);
-				boolean setupOk = true;
-				if (lexer == null) {
-					setupOk = false;
-				}
-				if (parser == null) {
-					setupOk = false;
-				}
-				if (codegen == null) {
-					setupOk = false;
-				}
-				if (backend == null) {
-					setupOk = false;
-				}
-				
-				if (setupOk) {
-					System.out.println("Compiler is ready to start");
-				} else {
-					System.out.println("Compiler could not load all need modules");
+				File mainFile = guiCompiler.compile(openedFile);
+				if (mainFile == null) {
+					progressBar.setValue(100);
+					progressBar.setEnabled(false);
 					return;
 				}
-				
-				// get the name of file without extension
-				progressBar.setValue(20);
-				textPaneLogs.setText(textPaneLogs.getText() + "\nGetting file.");
-				toolBarLabel.setText("Getting file content.");
-				String sourceBaseName = file.getName();
-				int lastDot = sourceBaseName.lastIndexOf(".");
-				lastDot = lastDot > -1 ? lastDot : sourceBaseName.length();
-				sourceBaseName = sourceBaseName.substring(0,lastDot);
-				
-				toolBarLabel.setText("Compiling sourcecode.");
-				progressBar.setValue(30);
-				errorReported = false;
-				lexer.setSourceStream(new FileInputStream(file));
-				toolBarLabel.setText("Building AST.");
-				textPaneLogs.setText(textPaneLogs.getText() + "\nStarting Lexer.");
-				textPaneLogs.setText(textPaneLogs.getText() + "\nStarting Parser.");
-				textPaneLogs.setText(textPaneLogs.getText() + "\nCreating AST.");
-				AST ast = parser.getParsedAST();
-				if (errorReported) {
-					textPaneLogs.setText(textPaneLogs.getText() + "\nSourcecode could not compile.");
-					toolBarLabel.setText("Sourcecode could not compile.");
-					tabbedPaneLog.setSelectedIndex(2);
+				if (!guiCompiler.isJavaBackend()) {
+					reportWarning(ReportType.UNDEFINED, null, "Class execution is only supported for Java-Backends");
+					progressBar.setValue(100);
+					progressBar.setEnabled(false);
 					return;
 				}
-				semanticAnalyser.analyse(ast);
-				if (errorReported) {
-					textPaneLogs.setText(textPaneLogs.getText() + "\nSourcecode could not compile.");
-					toolBarLabel.setText("Sourcecode could not compile.");
-					return;
-				}
+
+				textPaneLogs.setText(textPaneLogs.getText() + "\nExecute program...");
+				toolBarLabel.setText("Execute program...");
+				Long startTime = System.currentTimeMillis();
+				JavaClassProcess p = guiCompiler.execute(mainFile);
+				Long stopTime = System.currentTimeMillis();
+				textPaneConsole.setText(p.getProcessOutput());
+				textPaneConsole.setText(textPaneConsole.getText() + "\nReturn value: " + p.getReturnValue() + "\nExecution time: " + (stopTime - startTime) + "ms");
 				
-				textPaneLogs.setText(textPaneLogs.getText() + "\nCreating quadruples.");
-				progressBar.setValue(60);
-				List<Quadruple> quadruples = codegen.generateIntermediateCode(ast);
-				progressBar.setValue(70);
-				Map<String, InputStream> results = backend.generateTargetCode(sourceBaseName, quadruples);
-				progressBar.setValue(80);
-				textPaneLogs.setText(textPaneLogs.getText() + "\nGenerate target code finished.");
-				String retVal = "";
-				long execTime = -1;
-				int exitCode = -1;
-				for (Entry<String,InputStream> e:results.entrySet()) {
-					textPaneLogs.setText(textPaneLogs.getText() + "\nWrite output file: " + e.getKey());
-					File outFile = new File(e.getKey());
-					FileOutputStream fos = new FileOutputStream(outFile);
-					IOUtils.copy(e.getValue(), fos);
-					fos.close();
-					String line;
-					String absPath = outFile.getAbsolutePath();
-					String[] splitClass = absPath.split("class");
-					String cmd = "java " + splitClass[0].substring(0,splitClass[0].length()-1);
-					System.out.println("cmd: " + cmd);
-					String folder = cmd.substring(5,cmd.lastIndexOf(System.getProperty("file.separator")));
-					String classname = cmd.substring(cmd.lastIndexOf(System.getProperty("file.separator"))+1);
-					long startTime = new Date().getTime();
-					
-					Process p = Runtime.getRuntime().exec("java -cp \""+folder+"\" \""+classname+"\"");
-					
-					long endTime = new Date().getTime();
-					//calculate execute time in ms
-					execTime = endTime - startTime;
-					BufferedReader input = new BufferedReader(new InputStreamReader(p.getInputStream()));
-					while ((line = input.readLine()) != null) {
-						textPaneConsole.setText(textPaneConsole.getText() + "\n" + line + ".");
-					}
-					
-					final BufferedReader reader = new BufferedReader(
-							new InputStreamReader(p.getErrorStream()));
-					
-					String read = reader.readLine();
-					exitCode = p.exitValue();
-					input.close();
-				}
-				
-				textPaneConsole.setText(textPaneConsole.getText() + "\nReturn value: "+exitCode + "\nExecution time: " + execTime + "ms");
-				Icon icon = new ImageIcon(loader.getResource("images" + System.getProperty("file.separator") + "success-icon.png"));
-				toolBarLabel.setIcon(icon);
-				toolBarLabel.setText("File compiled.");
-				tabbedPaneLog.setSelectedIndex(0);
+				toolBarLabel.setText("Execute program finished.");
 				progressBar.setValue(100);
 				progressBar.setEnabled(false);
 			}
@@ -1027,40 +990,53 @@ public class MainFrame extends JFrame implements ReportLog {
 	@Override
 	public void reportWarning(ReportType type, List<Token> tokens, String message) {
 		errorReported = true;
-		modelReportLogs.addRow(new Object[] { type, tokens.get(0).getLine(), tokens.get(0).getColumn(), message });
-		underlineToken(tokens.get(0).getLine(), tokens.get(0).getColumn(), Color.YELLOW);
+		int line = 0;
+		int column = 0;
+		if (tokens != null && !tokens.isEmpty()) {
+			line = tokens.get(0).getLine();
+			column = tokens.get(0).getColumn();
+		}
+		modelReportLogs.addRow(new Object[] { "Warning", type, line, column, message });
+		underlineToken(line, column, Color.YELLOW);
 	}
 	
 	@Override
 	public void reportError(ReportType type, List<Token> tokens, String message) {
-		errorReported = true;
-		modelReportLogs.addRow(new Object[] { type, tokens.get(0).getLine(), tokens.get(0).getColumn(), message });
-		underlineToken(tokens.get(0).getLine(), tokens.get(0).getColumn(), Color.RED);
+		int line = 0;
+		int column = 0;
+		if (tokens != null && !tokens.isEmpty()) {
+			line = tokens.get(0).getLine();
+			column = tokens.get(0).getColumn();
+		}
+		modelReportLogs.addRow(new Object[] { "Error", type, line, column, message });
+		underlineToken(line, column, Color.RED);
 	}
 	
-	 public static int getRow(int pos, JTextComponent editor) {
-	        int rn = (pos==0) ? 1 : 0;
-	        try {
-	            int offs=pos;
-	            while( offs>0) {
-	                offs=Utilities.getRowStart(editor, offs)-1;
-	                rn++;
-	            }
-	        } catch (BadLocationException e) {
-	            e.printStackTrace();
-	        }
-	        return rn;
-	    }
-
-    public static int getColumn(int pos, JTextComponent editor) {
-        try {
-            return pos-Utilities.getRowStart(editor, pos)+1;
-        } catch (BadLocationException e) {
-            e.printStackTrace();
-        }
-        return -1;
-    }
-    
+	public static int getRow(int pos, JTextComponent editor) {
+		int rn = (pos == 0) ? 1 : 0;
+		try {
+			int offs = pos;
+			while (offs > 0) {
+				offs=Utilities.getRowStart(editor, offs) - 1;
+				rn++;
+			}
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+		}
+		
+		return rn;
+	}
+	
+	public static int getColumn(int pos, JTextComponent editor) {
+		try {
+			return pos-Utilities.getRowStart(editor, pos) + 1;
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+		}
+		
+		return -1;
+	}
+	
 	/**
 	 * Underlines wrongly typed tokens
 	 * */
@@ -1072,7 +1048,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		for (String codeLine : lines) {
 			if (lineNr == line - 1) {
 				SimpleAttributeSet attributes = new SimpleAttributeSet();
-			    StyleConstants.setForeground(attributes, color);
+				StyleConstants.setForeground(attributes, color);
 				StyleConstants.setUnderline(attributes, true);
 				StyledDocument doc = editorPaneSourcecode.getStyledDocument();
 				doc.setCharacterAttributes(code.indexOf(codeLine), codeLine.length(), attributes, true);
@@ -1082,4 +1058,83 @@ public class MainFrame extends JFrame implements ReportLog {
 			}
 		}
 	}
- }
+	
+	class GuiCompiler extends AbstractJavabiteCompiler {
+		MainFrame mainFrame;
+		
+		public GuiCompiler(MainFrame mainFrame) {
+			super();
+			this.mainFrame = mainFrame;
+			wire();
+		}
+		
+		@Override
+		public ReportLog getReportLog() {
+			return mainFrame;
+		}
+
+		@Override
+		protected boolean afterPreprocessing(String targetClassName) {
+			progressBar.setValue(20);
+			textPaneLogs.setText(textPaneLogs.getText() + "\nCompile File: " + targetClassName + ".prog");
+			textPaneLogs.setText(textPaneLogs.getText() + "\nGenerating AST for source file...");
+			toolBarLabel.setText("Compiling...");
+			return true;
+		}
+
+		@Override
+		protected boolean afterAstGeneration(AST ast) {
+			if (errorReported) {
+				reportFailure();
+			}
+
+			progressBar.setValue(40);
+			textPaneLogs.setText(textPaneLogs.getText() + "\nExecute semantical checks on AST...");
+			return true;
+		}
+
+		@Override
+		protected boolean afterSemanticalAnalysis(AST ast) {
+			if (errorReported) {
+				reportFailure();
+			}
+
+			progressBar.setValue(60);
+			textPaneLogs.setText(textPaneLogs.getText() + "\nGenerate TAC...");
+			return true;
+		}
+
+		@Override
+		protected boolean afterTacGeneration(List<Quadruple> quadruples) {
+			if (errorReported) {
+				reportFailure();
+			}
+
+			progressBar.setValue(80);
+			textPaneLogs.setText(textPaneLogs.getText() + "\nGenerate target code...");
+			return true;
+		}
+
+		@Override
+		protected boolean afterTargetCodeGeneration(File mainClassFile) {
+			if (errorReported) {
+				reportFailure();
+			}
+
+			progressBar.setValue(90);
+			textPaneLogs.setText(textPaneLogs.getText() + "\nCompilation successful. Main-file written to: " + mainClassFile.getAbsolutePath());
+			toolBarLabel.setText("Compilation successful.");
+			Icon icon = new ImageIcon(loader.getResource("images" + System.getProperty("file.separator") + "success-icon.png"));
+			toolBarLabel.setIcon(icon);
+			return true;
+		}
+		
+		private boolean reportFailure() {
+			textPaneLogs.setText(textPaneLogs.getText() + "\nCompilation failed. See error log!");
+			toolBarLabel.setText("Compilation failed.");
+			Icon icon = new ImageIcon(loader.getResource("images" + System.getProperty("file.separator") + "unsuccess-icon.png"));
+			toolBarLabel.setIcon(icon);
+			return false;
+		}
+	}
+}

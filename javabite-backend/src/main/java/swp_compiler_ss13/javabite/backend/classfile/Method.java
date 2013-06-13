@@ -99,7 +99,7 @@ class Method {
 		}
 
 	}
-	
+
 	/**
 	 * <h1>writeTo</h1>
 	 * <p>
@@ -134,7 +134,7 @@ class Method {
 		}
 
 	}
-	
+
 	/**
 	 * <h1>addVariableToCodeAttribute</h1>
 	 * <p>
@@ -180,7 +180,7 @@ class Method {
 	byte getIndexOfVariable(final String variableName) {
 		return codeAttribute.getIndexOfVariable(variableName);
 	}
-	
+
 	/**
 	 * <h1>addInstructionToCodeAttribute</h1>
 	 * <p>

@@ -16,9 +16,11 @@ public class LogicUnaryExpressionNodeConverter extends CastingAst2CodeConverter 
             throw new IntermediateCodeGeneratorException();
         LogicUnaryExpressionNode logicUnaryNode = (LogicUnaryExpressionNode) node;
         
+        // process right node and get identifier containing result
         icg.processNode(logicUnaryNode.getRightValue());
         IdentifierData oldData = icg.popIdentifierData();
         
+        // generate new identifier for result, add TAC and push new identifier for callee
         IdentifierData newData = icg.generateTempIdentifier(oldData.getType());
         icg.addQuadruple(QuadrupleFactoryJb.generateLogicUnary(logicUnaryNode.getOperator(), newData, oldData));
         icg.pushIdentifierData(newData);

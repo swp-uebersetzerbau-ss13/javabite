@@ -46,7 +46,7 @@ public class BranchNodeJb extends StatementNodeJb implements BranchNode {
 	
 	public void setStatementNodeOnFalse(StatementNode statementNodeOnFalse) {
 		this.statementNodeOnFalse = statementNodeOnFalse;
-		addChild(this.statementNodeOnFalse, 1);
+		addChild(this.statementNodeOnFalse, 2);
 	}
 	@Override
 	public List<Token> coverage() {

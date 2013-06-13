@@ -36,10 +36,11 @@ public class BackendJb implements Backend {
 	}
 
 	/**
-	 * TODO javadoc
+	 * Filters out every non legal character for java identifiers.
 	 * 
 	 * @param s
-	 * @return
+	 *            string to check for invalid characters
+	 * @return valid java identifier
 	 */
 	public static String rectifyJavaIdentifier(final String s) {
 		final StringBuilder sb = new StringBuilder();
@@ -59,7 +60,8 @@ public class BackendJb implements Backend {
 	}
 
 	/**
-	 * TODO javadoc
+	 * generates the target code for the input list of three address code
+	 * quadruples.
 	 */
 	@Override
 	public Map<String, InputStream> generateTargetCode(String baseFileName,

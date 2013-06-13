@@ -1,0 +1,26 @@
+# return 0
+# prints:
+# true
+# 18121313223
+# -2.323e-99
+# jagÄrEttString"
+
+long l;
+double d;
+string s;
+bool b;
+
+string linebreak;
+linebreak = "\n";
+
+b = true;
+l = 18121313223;
+d = -23.23e-100;
+s = "jagÄrEttString\"\n";  # c-like escaping in strings
+
+print b; print linebreak;
+print l; print linebreak;       # print one digit left of the radix point
+print d; print linebreak;
+print s;
+
+return;                    # equivalent to return EXIT_SUCCESS

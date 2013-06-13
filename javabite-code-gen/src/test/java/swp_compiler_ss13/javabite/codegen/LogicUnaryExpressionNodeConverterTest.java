@@ -36,6 +36,10 @@ public class LogicUnaryExpressionNodeConverterTest {
 				.mock(IntermediateCodeGeneratorJb.class);
 	}
 
+	
+	/**
+	 * Test to put a "minus" (subtraction) in front of a Logic Unary Expression, which has the type Long.
+	 */
 	@Test
 	public void testLogicUnaryExpressionLong(){
 		try {
@@ -52,6 +56,10 @@ public class LogicUnaryExpressionNodeConverterTest {
 	}
 	
 	
+	
+	/**
+	 * Test to put a "minus" (subtraction) in front of a Logic Unary Expression, which has the type Double.
+	 */
 	@Test
 	public void testLogicUnaryExpressionDouble(){
 		try {
@@ -70,6 +78,9 @@ public class LogicUnaryExpressionNodeConverterTest {
 	}
 	
 	
+	/**
+	 * Test to put a "minus" (subtraction) in front of a Logic Unary Expression, which has the type Boolean.
+	 */
 	@Test
 	public void testLogicUnaryExpressionBoolean(){
 		try {
@@ -88,6 +99,9 @@ public class LogicUnaryExpressionNodeConverterTest {
 	}
 	
 	
+	/**
+	 * Test to put a "minus" (subtraction) in front of a Logic Unary Expression, which has the type Struct.
+	 */
 	@Test
 	public void testLogicUnaryExpressionStruct(){
 		try {
@@ -109,6 +123,9 @@ public class LogicUnaryExpressionNodeConverterTest {
 	}
 	
 	
+	/**
+	 * Test to put a "minus" (subtraction) in front of a Logic Unary Expression, which has the type Array.
+	 */
 	@Test
 	public void testLogicUnaryExpressionArray(){
 		try {

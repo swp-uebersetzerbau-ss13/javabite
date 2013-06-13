@@ -242,7 +242,7 @@ public class QuadrupleFactoryJb {
 			IdentifierData leftData, IdentifierData rightData,
 			IdentifierData newData) throws IntermediateCodeGeneratorException {
 
-		if (newData.getType().getKind() == Kind.LONG) {
+		if (leftData.getType().getKind() == Kind.LONG) {
 			switch (binaryOperator) {
 			case EQUAL:
 				return new QuadrupleJb(Operator.COMPARE_LONG_E,
@@ -267,7 +267,7 @@ public class QuadrupleFactoryJb {
 			default:
 				break;
 			}
-		} else if (newData.getType().getKind() == Kind.DOUBLE) {
+		} else if (leftData.getType().getKind() == Kind.DOUBLE) {
 			switch (binaryOperator) {
 			case EQUAL:
 				return new QuadrupleJb(Operator.COMPARE_DOUBLE_E,

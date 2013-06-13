@@ -51,8 +51,6 @@ import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxStylesheet;
 
-;
-
 public class ASTVisualizerJb implements ASTVisualization {
 	public mxGraph graph;
 	JScrollPane frame;

@@ -7,3 +7,9 @@ build
 .classpath
 .project
 .settings
+
+# Java
+*.class
+
+# Project-Specific
+javabite.properties

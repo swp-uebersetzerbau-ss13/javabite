@@ -36,6 +36,11 @@ public class PrintNodeConverterTest {
 				.mock(IntermediateCodeGeneratorJb.class);
 	}
 	
+	
+	/**
+	 * Test for any PrintNode, which has the type Long.
+	 * Pop the IdentifierData, verify the converter and add the Quadruple.
+	 */
 	@Test
 	public void testPrintLongConverter(){
 		try{
@@ -52,6 +57,10 @@ public class PrintNodeConverterTest {
 	}
 
 
+	/**
+	 * Test for any PrintNode, which has the type Double.
+	 * Pop the IdentifierData, verify the converter and add the Quadruple.
+	 */
 	@Test
 	public void testPrintDoubleConverter() {
 		try {
@@ -70,6 +79,11 @@ public class PrintNodeConverterTest {
 		
 	}
 	
+	
+	/**
+	 * Test for any PrintNode, which has the type Boolean.
+	 * Pop the IdentifierData, verify the converter and add the Quadruple.
+	 */
 	@Test
 	public void testPrintBooleanConverter() {
 		try{
@@ -86,6 +100,10 @@ public class PrintNodeConverterTest {
 	}
 	
 	
+	/**
+	 * Test for any PrintNode, which has the type String.
+	 * Pop the IdentifierData, verify the converter and add the Quadruple.
+	 */
 	@Test
 	public void testPrintStringConverter() {
 		
@@ -104,6 +122,12 @@ public class PrintNodeConverterTest {
 	}
 	
 	
+	
+	/**
+	 * Test for any PrintNode, which has the type Struct.
+	 * Pop the IdentifierData, verify the converter and fail,
+	 * because the type Struct is not supported for this Test.
+	 */
 	@Test
 	public void testPrintStructConverter() {
 		try{
@@ -120,6 +144,12 @@ public class PrintNodeConverterTest {
 		}
 	}
 	
+	
+	/**
+	 * Test for any PrintNode, which has the type Array.
+	 * Pop the IdentifierData, verify the converter and fail,
+	 * because the type Array is not supported for this Test.
+	 */
 	@Test
 	public void testPrintArrayConverter() {
 		try{

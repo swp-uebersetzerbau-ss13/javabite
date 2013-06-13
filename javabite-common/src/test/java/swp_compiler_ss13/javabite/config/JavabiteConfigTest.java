@@ -1,5 +1,6 @@
 package swp_compiler_ss13.javabite.config;
 
+import java.io.File;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -9,16 +10,18 @@ import static org.junit.Assert.*;
 
 public class JavabiteConfigTest {
 	JavabiteConfig config;
-	
+
 	@Before
 	public void setUp() throws Exception {
-		config = new JavabiteConfig();
+		config = new JavabiteConfig("src" + File.separator + "test"
+				+ File.separator + "resources" + File.separator
+				+ "javabite.properties");
 	}
 
 	@Test
 	public void testGetConfigCategories() {
 		Set<ConfigCategory> categories = config.getConfigCategories();
-		
+
 		assertEquals(3, categories.size());
 		Iterator<ConfigCategory> it = categories.iterator();
 		ConfigCategory cc = it.next();
@@ -31,19 +34,19 @@ public class JavabiteConfigTest {
 		assertEquals("", cc.getName());
 		assertEquals("Misc", cc.toString());
 	}
-	
+
 	@Test
 	public void testGetConfigKeys() {
 		Set<ConfigKey> keys = config.getConfigKeys("syntaxHighlighting");
 		assertEquals(2, keys.size());
 		Iterator<ConfigKey> it = keys.iterator();
 		ConfigKey ck = it.next();
-		assertEquals("syntaxHighlighting.num", ck.getName());
-		assertEquals("Num", ck.toString());
-		ck = it.next();
 		assertEquals("syntaxHighlighting.string", ck.getName());
 		assertEquals("String", ck.toString());
-		
+		ck = it.next();
+		assertEquals("syntaxHighlighting.num", ck.getName());
+		assertEquals("Num", ck.toString());
+
 		keys = config.getConfigKeys("compiler");
 		assertEquals(2, keys.size());
 		it = keys.iterator();
@@ -53,7 +56,7 @@ public class JavabiteConfigTest {
 		ck = it.next();
 		assertEquals("compiler.parser", ck.getName());
 		assertEquals("Parser", ck.toString());
-		
+
 		keys = config.getConfigKeys("");
 		assertEquals(1, keys.size());
 		it = keys.iterator();

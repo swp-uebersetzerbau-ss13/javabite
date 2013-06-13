@@ -28,6 +28,10 @@ import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
  */
 public class Classfile implements IClassfile {
 
+	public static final byte[] MAJOR_VERSION_J2SE_7 = { (byte) 0, (byte) 51 };
+	public static final byte[] MAJOR_VERSION_J2SE_6 = { (byte) 0, (byte) 50 };
+	public static final byte[] MAJOR_VERSION_J2SE_5 = { (byte) 0, (byte) 49 };
+
 	private static final Logger logger = LoggerFactory
 			.getLogger(Classfile.class);
 
@@ -45,7 +49,7 @@ public class Classfile implements IClassfile {
 	private final byte[] magic = { (byte) 0xca, (byte) 0xfe, (byte) 0xba,
 			(byte) 0xbe };
 	private final byte[] minorVersion = { (byte) 0x00, (byte) 0x00 };
-	private final byte[] majorVersion = { (byte) 0x00, (byte) 0x33 };
+	private final byte[] majorVersion = MAJOR_VERSION_J2SE_7;
 	protected ConstantPool constantPool;
 	private short accessFlags;
 	private short thisClassIndex;
@@ -250,8 +254,9 @@ public class Classfile implements IClassfile {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public short addDoubleConstantToConstantPool(final double value) {
-		return constantPool.generateConstantDoubleInfo(value);
+	public short addDoubleConstantToConstantPool(final double value,
+			final String keyValue) {
+		return constantPool.generateConstantDoubleInfo(value, keyValue);
 	}
 
 	/**

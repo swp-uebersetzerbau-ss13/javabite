@@ -4,9 +4,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,30 +31,23 @@ public class JavabiteConfig extends Properties {
 			.getLogger(JavabiteConfig.class);
 
 	private final static String CONFIG_FILE_NAME = "javabite.properties";
-	private final static String DEFAULT_CONFIG_FILE_NAME = "default_javabite.properties";
+//	private final static String DEFAULT_CONFIG_FILE_NAME = "default_javabite.properties";
 	public final static JavabiteConfig SINGLETON = new JavabiteConfig();
 
 	private final List<Configurable> configurables = new ArrayList<>();
 	private final HashMap<String, ConfigEntry> configEntryMap = new HashMap<>();
 
-	public JavabiteConfig() {
-		File configFile = new File(CONFIG_FILE_NAME);
+	JavabiteConfig() {
+		this(CONFIG_FILE_NAME);
+	}
 
+	JavabiteConfig(String path) {
+		File configFile = new File(path);
+		System.out.println(configFile.getAbsolutePath());
 		try {
 			if (!configFile.exists()) {
-				ClassLoader cl = ClassLoader.getSystemClassLoader();// getClass().getClassLoader();
-				URL url = cl.getResource(DEFAULT_CONFIG_FILE_NAME);
-				try {
-					URI uri = new URI(url.toString());
-					String filename = uri.getPath();
-					configFile = new File(filename);
-				} catch (URISyntaxException e) {
-					configFile = null;
-				}
-			}
-
-			if (configFile == null) {
-				log.error("Could not load configuration file.");
+//				ClassLoader cl = ClassLoader.getSystemClassLoader();// getClass().getClassLoader();
+//				this.load(cl.getResourceAsStream(DEFAULT_CONFIG_FILE_NAME));
 				return;
 			}
 			

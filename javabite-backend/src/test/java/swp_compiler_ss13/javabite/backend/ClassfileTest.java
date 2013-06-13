@@ -21,8 +21,8 @@ import swp_compiler_ss13.javabite.backend.classfile.IClassfile;
  * ConstantPool or MethodArea class. For theese 'forwarding methods' the tests
  * are part of ConstantPoolTest or MethodAreaTest.
  * 
- *  	
- * @see ConstantPoolTest 
+ * 
+ * @see ConstantPoolTest
  * @see MethodAreaTest
  */
 public class ClassfileTest {
@@ -62,7 +62,7 @@ public class ClassfileTest {
 
 	}
 
-	//TODO: 
+	// TODO:
 	@Test
 	public void testWriteTo() {
 

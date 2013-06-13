@@ -1,19 +1,15 @@
 package swp_compiler_ss13.javabite.backend;
 
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.byteArrayToHexString;
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.intToByteArray;
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToByteArray;
-
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import swp_compiler_ss13.common.backend.Quadruple;
+import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.classfile.IClassfile;
 import swp_compiler_ss13.javabite.backend.classfile.IClassfile.ArrayType;
 import swp_compiler_ss13.javabite.backend.classfile.IClassfile.InfoTag;
@@ -103,7 +99,7 @@ public class Program {
 	 * @return the hex string
 	 */
 	public String toHexString() {
-		return byteArrayToHexString(toByteArray());
+		return ByteUtils.byteArrayToHexString(toByteArray());
 	}
 
 	/**
@@ -256,38 +252,39 @@ public class Program {
 			for (final JumpInstruction in : jumpInstructions) {
 				Instruction target = in.getTargetInstruction();
 				if (target == null) {
-					target = getJumpTarget(in.getTargetLabel());
+					// target instruction is null -> target label is set
+					// get instruction by label name
+					target = jumpTargets.get(in.getTargetLabel());
 				}
 				assert target != null;
+				// calculate offset delta from jump instruction to target
 				final int offset = target.getOffset() - in.getOffset();
 				if (offset > Short.MAX_VALUE) {
 					in.setMnemonic(Mnemonic.GOTO_W);
-					in.setArguments(intToByteArray(offset));
+					in.setArguments(ByteUtils.intToByteArray(offset));
 				} else {
-					in.setArguments(shortToByteArray((short) offset));
+					in.setArguments(ByteUtils.shortToByteArray((short) offset));
 				}
 			}
 
 			return new Program(operations);
 		}
 
-		private boolean isBoolean(String s) {
-			s = s.trim();
-			return s.equals(Translator.CONST_TRUE)
-					|| s.equals(Translator.CONST_FALSE);
+		private static boolean isBoolean(final String s) {
+			return s.equalsIgnoreCase(Translator.CONST_TRUE)
+					|| s.equalsIgnoreCase(Translator.CONST_FALSE);
 		}
 
-		private boolean isConstant(final String s) {
+		private static boolean isConstant(final String s) {
 			return s.startsWith(Translator.SYM_CONST);
 		}
 
-		private String removeConstantSign(final String s) {
-			final Matcher m = P_CONST_SIGN.matcher(s);
-			return m.replaceAll("");
+		private static String removeConstantSign(final String s) {
+			return P_CONST_SIGN.matcher(s).replaceAll("");
 		}
 
-		private Instruction getJumpTarget(final String s) {
-			return jumpTargets.get(s);
+		private static short convertBoolean(final String arg) {
+			return Translator.CONST_TRUE.equalsIgnoreCase(arg) ? (short) 1 : 0;
 		}
 
 		// INSTRUCTION CREATORS ------------------------------------------------
@@ -308,16 +305,18 @@ public class Program {
 				final Mnemonic varLoadOp) {
 			if (isBoolean(arg1)) {
 				if (isConstant(arg1)) {
-					final short value = (short) (Translator.CONST_TRUE
-							.equals(arg1.toUpperCase()) ? 1 : 0);
-					return new Instruction(Mnemonic.ICONST(value),
+					final short value = convertBoolean(arg1);
+					return new Instruction(
+							Mnemonic.getMnemonic("ICONST", value),
 							ByteUtils.shortToByteArray(value));
 				} else {
 					final byte index = classfile.getIndexOfVariableInMethod(
 							methodName, arg1);
-					return new Instruction(Mnemonic.ILOAD(index), index);
+					return new Instruction(
+							Mnemonic.getMnemonic("ILOAD", index), index);
 				}
-			} else if (isConstant(arg1) && constType != null) {
+			} else if (isConstant(arg1)) {
+				assert constType != null;
 				final short index = classfile.getIndexOfConstantInConstantPool(
 						constType, removeConstantSign(arg1));
 				assert index > 0;
@@ -490,9 +489,7 @@ public class Program {
 		private Builder booleanOp(final Quadruple q, final Mnemonic mnemonic) {
 			final Operation.Builder op = Operation.Builder.newBuilder();
 			op.add(loadOp(q.getArgument1(), null, Mnemonic.ILOAD));
-			if (!"!".equals(q.getArgument2())) {
-				op.add(loadOp(q.getArgument2(), null, Mnemonic.ILOAD));
-			}
+			op.add(loadOp(q.getArgument2(), null, Mnemonic.ILOAD));
 			op.add(mnemonic);
 			op.add(storeOp(q.getResult(), Mnemonic.ISTORE));
 			return add(op.build());
@@ -524,11 +521,15 @@ public class Program {
 		}
 
 		/**
-		 * TODO javadoc
+		 * Adds a multiarray signature to the constant pool. The dimension of
+		 * the array corresponds to the number of open braces, followed by the
+		 * type of the array.
 		 * 
 		 * @param dimensions
+		 *            Number of dimensions of the reference to load
 		 * @param type
-		 * @return
+		 *            data type of reference to load
+		 * @return index of reference in constant pool
 		 */
 		private short addMultiArraySignature(final byte dimensions,
 				final ArrayType type) {
@@ -538,7 +539,10 @@ public class Program {
 		}
 
 		/**
-		 * TODO javadoc
+		 * Creates a new array. There are three types of arrays: single
+		 * dimension primitive type, single dimension object type, multi
+		 * dimension object type. Because multi dimensional arrays contain
+		 * arrays, both primitive and object types can be stored within.
 		 * 
 		 * @param type
 		 *            datatype of array contents
@@ -561,7 +565,8 @@ public class Program {
 				// every multi dimensional array is an array of references
 				final short classIndex = addMultiArraySignature(dimensions,
 						type);
-				final byte[] classIndexArray = shortToByteArray(classIndex);
+				final byte[] classIndexArray = ByteUtils
+						.shortToByteArray(classIndex);
 				assert classIndexArray.length == 2;
 				op.add(Mnemonic.MULTIANEWARRAY, classIndexArray[0],
 						classIndexArray[1], dimensions);
@@ -573,7 +578,8 @@ public class Program {
 				// class reference
 				final short classIndex = classfile
 						.addClassConstantToConstantPool(type.getClassName());
-				op.add(Mnemonic.ANEWARRAY, shortToByteArray(classIndex));
+				op.add(Mnemonic.ANEWARRAY,
+						ByteUtils.shortToByteArray(classIndex));
 			}
 
 			op.add(storeOp(arrayName, Mnemonic.ASTORE));
@@ -592,7 +598,7 @@ public class Program {
 		 *            operation to perform for loading the value from the array
 		 * @param storeOp
 		 *            operation to store the retrieved array value
-		 * @return
+		 * @return this builders instance
 		 */
 		private Builder arrayGet(final Quadruple q, final Mnemonic loadOp,
 				final Mnemonic storeOp) {
@@ -608,13 +614,20 @@ public class Program {
 		}
 
 		/**
-		 * TODO javadoc
+		 * Sets a value into an array at the specified index. Because the
+		 * specified language does not distinguish between int and long and
+		 * therefore always uses long, and java cannot use long as array index,
+		 * the long value has to be always converted into int.
 		 * 
 		 * @param q
+		 *            quadruple of operation
 		 * @param constType
+		 *            type of constant value if constant
 		 * @param varLoadOp
+		 *            operation to use for loading if value is a variable
 		 * @param storeOp
-		 * @return
+		 *            operation to use for storing into the array
+		 * @return this builders instance
 		 */
 		private Builder arraySet(final Quadruple q, final InfoTag constType,
 				final Mnemonic varLoadOp, final Mnemonic storeOp) {
@@ -705,7 +718,19 @@ public class Program {
 		 * === M1 === FINISHED
 		 */
 
+		/**
+		 * Declare long. This operation is used in two ways: declaring a long
+		 * (with expected arguments) or declaring a long array (without
+		 * arguments, but preceeding array declarations). Because usual long
+		 * declarations are already filtered out at this point of code
+		 * generation, this operation only serves to create arrays.
+		 * 
+		 * @param q
+		 *            quadruple of operation
+		 * @return this builders instance
+		 */
 		public Builder declareLong(final Quadruple q) {
+			assert q.getOperator() == Operator.DECLARE_LONG;
 			if ("!".equals(q.getResult())) {
 				return arrayCreate(ArrayType.LONG);
 			}
@@ -713,7 +738,19 @@ public class Program {
 			return this;
 		}
 
+		/**
+		 * Declare double. This operation is used in two ways: declaring a
+		 * double (with expected arguments) or declaring a double array (without
+		 * arguments, but preceeding array declarations). Because usual double
+		 * declarations are already filtered out at this point of code
+		 * generation, this operation only serves to create arrays.
+		 * 
+		 * @param q
+		 *            quadruple of operation
+		 * @return this builders instance
+		 */
 		public Builder declareDouble(final Quadruple q) {
+			assert q.getOperator() == Operator.DECLARE_DOUBLE;
 			if ("!".equals(q.getResult())) {
 				return arrayCreate(ArrayType.DOUBLE);
 			}
@@ -721,7 +758,19 @@ public class Program {
 			return this;
 		}
 
+		/**
+		 * Declare string. This operation is used in two ways: declaring a
+		 * string (with expected arguments) or declaring a string array (without
+		 * arguments, but preceeding array declarations). Because usual string
+		 * declarations are already filtered out at this point of code
+		 * generation, this operation only serves to create arrays.
+		 * 
+		 * @param q
+		 *            quadruple of operation
+		 * @return this builders instance
+		 */
 		public Builder declareString(final Quadruple q) {
+			assert q.getOperator() == Operator.DECLARE_STRING;
 			if ("!".equals(q.getResult())) {
 				return arrayCreate(ArrayType.STRING);
 			}
@@ -729,7 +778,19 @@ public class Program {
 			return this;
 		}
 
+		/**
+		 * Declare boolean. This operation is used in two ways: declaring a
+		 * boolean (with expected arguments) or declaring a boolean array
+		 * (without arguments, but preceeding array declarations). Because usual
+		 * boolean declarations are already filtered out at this point of code
+		 * generation, this operation only serves to create arrays.
+		 * 
+		 * @param q
+		 *            quadruple of operation
+		 * @return this builders instance
+		 */
 		public Builder declareBoolean(final Quadruple q) {
+			assert q.getOperator() == Operator.DECLARE_BOOLEAN;
 			if ("!".equals(q.getResult())) {
 				return arrayCreate(ArrayType.BOOLEAN);
 			}
@@ -764,6 +825,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder longToDouble(final Quadruple q) {
+			assert q.getOperator() == Operator.LONG_TO_DOUBLE;
 			return assign(q, InfoTag.LONG, Mnemonic.LLOAD, Mnemonic.L2D,
 					Mnemonic.DSTORE);
 		}
@@ -795,6 +857,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder doubleToLong(final Quadruple q) {
+			assert q.getOperator() == Operator.DOUBLE_TO_LONG;
 			return assign(q, InfoTag.DOUBLE, Mnemonic.DLOAD, Mnemonic.D2L,
 					Mnemonic.LSTORE);
 		}
@@ -826,6 +889,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder assignLong(final Quadruple q) {
+			assert q.getOperator() == Operator.ASSIGN_LONG;
 			return assign(q, InfoTag.LONG, Mnemonic.LLOAD, null,
 					Mnemonic.LSTORE);
 		}
@@ -857,6 +921,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder assignDouble(final Quadruple q) {
+			assert q.getOperator() == Operator.ASSIGN_DOUBLE;
 			return assign(q, InfoTag.DOUBLE, Mnemonic.DLOAD, null,
 					Mnemonic.DSTORE);
 		}
@@ -888,6 +953,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder assignString(final Quadruple q) {
+			assert q.getOperator() == Operator.ASSIGN_STRING;
 			return assign(q, InfoTag.STRING, Mnemonic.ALOAD, null,
 					Mnemonic.ASTORE);
 		}
@@ -919,6 +985,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder assignBoolean(final Quadruple q) {
+			assert q.getOperator() == Operator.ASSIGN_BOOLEAN;
 			final Operation.Builder op = Operation.Builder.newBuilder();
 			op.add(loadOp(q.getArgument1(), null, Mnemonic.ILOAD));
 			op.add(storeOp(q.getResult(), Mnemonic.ISTORE));
@@ -952,6 +1019,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder addLong(final Quadruple q) {
+			assert q.getOperator() == Operator.ADD_LONG;
 			return calculateNumber(q, InfoTag.LONG, Mnemonic.LLOAD,
 					Mnemonic.LADD, Mnemonic.LSTORE);
 		}
@@ -983,6 +1051,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder addDouble(final Quadruple q) {
+			assert q.getOperator() == Operator.ADD_DOUBLE;
 			return calculateNumber(q, InfoTag.DOUBLE, Mnemonic.DLOAD,
 					Mnemonic.DADD, Mnemonic.DSTORE);
 		}
@@ -1014,6 +1083,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder subLong(final Quadruple q) {
+			assert q.getOperator() == Operator.SUB_LONG;
 			return calculateNumber(q, InfoTag.LONG, Mnemonic.LLOAD,
 					Mnemonic.LSUB, Mnemonic.LSTORE);
 		}
@@ -1045,6 +1115,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder subDouble(final Quadruple q) {
+			assert q.getOperator() == Operator.SUB_DOUBLE;
 			return calculateNumber(q, InfoTag.DOUBLE, Mnemonic.DLOAD,
 					Mnemonic.DSUB, Mnemonic.DSTORE);
 		}
@@ -1076,6 +1147,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder mulLong(final Quadruple q) {
+			assert q.getOperator() == Operator.MUL_LONG;
 			return calculateNumber(q, InfoTag.LONG, Mnemonic.LLOAD,
 					Mnemonic.LMUL, Mnemonic.LSTORE);
 		}
@@ -1107,6 +1179,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder mulDouble(final Quadruple q) {
+			assert q.getOperator() == Operator.MUL_DOUBLE;
 			return calculateNumber(q, InfoTag.DOUBLE, Mnemonic.DLOAD,
 					Mnemonic.DMUL, Mnemonic.DSTORE);
 		}
@@ -1138,6 +1211,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder divLong(final Quadruple q) {
+			assert q.getOperator() == Operator.DIV_LONG;
 			return calculateNumber(q, InfoTag.LONG, Mnemonic.LLOAD,
 					Mnemonic.LDIV, Mnemonic.LSTORE);
 		}
@@ -1169,6 +1243,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder divDouble(final Quadruple q) {
+			assert q.getOperator() == Operator.DIV_DOUBLE;
 			return calculateNumber(q, InfoTag.DOUBLE, Mnemonic.DLOAD,
 					Mnemonic.DDIV, Mnemonic.DSTORE);
 		}
@@ -1200,6 +1275,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder returnLong(final Quadruple q) {
+			assert q.getOperator() == Operator.RETURN;
 			final short systemExitIndex = addSystemExitMethodToClassfile();
 
 			final Operation.Builder op = Operation.Builder.newBuilder();
@@ -1247,7 +1323,25 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder notBoolean(final Quadruple q) {
-			return booleanOp(q, Mnemonic.INEG);
+			assert q.getOperator() == Operator.NOT_BOOLEAN;
+			final Operation.Builder op = Operation.Builder.newBuilder();
+
+			final Instruction falseOp = new Instruction(Mnemonic.ICONST_0);
+			final Instruction storeOp = storeOp(q.getResult(), Mnemonic.ISTORE);
+			final JumpInstruction jumpFalse = new JumpInstruction(
+					Mnemonic.IFNE, falseOp);
+			final JumpInstruction jumpTrue = new JumpInstruction(Mnemonic.GOTO,
+					storeOp);
+
+			op.add(loadOp(q.getArgument1(), null, Mnemonic.ILOAD));
+			op.add(jumpFalse);
+			jumpInstructions.add(jumpFalse);
+			op.add(Mnemonic.ICONST_1);
+			op.add(jumpTrue);
+			jumpInstructions.add(jumpTrue);
+			op.add(falseOp);
+			op.add(storeOp);
+			return add(op.build());
 		}
 
 		/**
@@ -1275,6 +1369,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder orBoolean(final Quadruple q) {
+			assert q.getOperator() == Operator.OR_BOOLEAN;
 			return booleanOp(q, Mnemonic.IOR);
 		}
 
@@ -1303,6 +1398,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder andBoolean(final Quadruple q) {
+			assert q.getOperator() == Operator.AND_BOOLEAN;
 			return booleanOp(q, Mnemonic.IAND);
 		}
 
@@ -1333,6 +1429,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder compareLongE(final Quadruple q) {
+			assert q.getOperator() == Operator.COMPARE_LONG_E;
 			return compareNumber(q, InfoTag.LONG, Mnemonic.LLOAD,
 					Mnemonic.LCMP, Mnemonic.IFNE);
 		}
@@ -1363,6 +1460,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder compareLongG(final Quadruple q) {
+			assert q.getOperator() == Operator.COMPARE_LONG_G;
 			return compareNumber(q, InfoTag.LONG, Mnemonic.LLOAD,
 					Mnemonic.LCMP, Mnemonic.IFLE);
 		}
@@ -1393,6 +1491,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder compareLongL(final Quadruple q) {
+			assert q.getOperator() == Operator.COMPARE_LONG_L;
 			return compareNumber(q, InfoTag.LONG, Mnemonic.LLOAD,
 					Mnemonic.LCMP, Mnemonic.IFGE);
 		}
@@ -1424,6 +1523,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder compareLongGE(final Quadruple q) {
+			assert q.getOperator() == Operator.COMPARE_LONG_GE;
 			return compareNumber(q, InfoTag.LONG, Mnemonic.LLOAD,
 					Mnemonic.LCMP, Mnemonic.IFLT);
 		}
@@ -1454,6 +1554,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder compareLongLE(final Quadruple q) {
+			assert q.getOperator() == Operator.COMPARE_LONG_LE;
 			return compareNumber(q, InfoTag.LONG, Mnemonic.LLOAD,
 					Mnemonic.LCMP, Mnemonic.IFGT);
 		}
@@ -1485,6 +1586,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder compareDoubleE(final Quadruple q) {
+			assert q.getOperator() == Operator.COMPARE_DOUBLE_E;
 			return compareNumber(q, InfoTag.DOUBLE, Mnemonic.DLOAD,
 					Mnemonic.DCMPL, Mnemonic.IFNE);
 		}
@@ -1515,6 +1617,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder compareDoubleG(final Quadruple q) {
+			assert q.getOperator() == Operator.COMPARE_DOUBLE_G;
 			return compareNumber(q, InfoTag.DOUBLE, Mnemonic.DLOAD,
 					Mnemonic.DCMPL, Mnemonic.IFLE);
 		}
@@ -1545,6 +1648,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder compareDoubleL(final Quadruple q) {
+			assert q.getOperator() == Operator.COMPARE_DOUBLE_L;
 			return compareNumber(q, InfoTag.DOUBLE, Mnemonic.DLOAD,
 					Mnemonic.DCMPG, Mnemonic.IFGE);
 		}
@@ -1575,6 +1679,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder compareDoubleGE(final Quadruple q) {
+			assert q.getOperator() == Operator.COMPARE_DOUBLE_GE;
 			return compareNumber(q, InfoTag.DOUBLE, Mnemonic.DLOAD,
 					Mnemonic.DCMPL, Mnemonic.IFLT);
 		}
@@ -1605,6 +1710,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder compareDoubleLE(final Quadruple q) {
+			assert q.getOperator() == Operator.COMPARE_DOUBLE_LE;
 			return compareNumber(q, InfoTag.DOUBLE, Mnemonic.DLOAD,
 					Mnemonic.DCMPG, Mnemonic.IFGT);
 		}
@@ -1635,6 +1741,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder label(final Quadruple q) {
+			assert q.getOperator() == Operator.LABEL;
 			labelFlag = true;
 			labelNames.push(q.getArgument1());
 			return this;
@@ -1673,6 +1780,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder branch(final Quadruple q) {
+			assert q.getOperator() == Operator.BRANCH;
 			final Operation.Builder op = Operation.Builder.newBuilder();
 			if ("!".equals(q.getResult())) {
 				// unconditional branch
@@ -1721,6 +1829,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder printBoolean(final Quadruple q) {
+			assert q.getOperator() == Operator.PRINT_BOOLEAN;
 			final short printIndex = addPrintMethodToClassfile("Z");
 			final Operation.Builder op = Operation.Builder.newBuilder();
 			op.add(Mnemonic.GETSTATIC,
@@ -1757,6 +1866,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder printLong(final Quadruple q) {
+			assert q.getOperator() == Operator.PRINT_LONG;
 			return print(q.getArgument1(), InfoTag.LONG, "J", Mnemonic.LLOAD);
 		}
 
@@ -1786,6 +1896,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder printDouble(final Quadruple q) {
+			assert q.getOperator() == Operator.PRINT_DOUBLE;
 			return print(q.getArgument1(), InfoTag.DOUBLE, "D", Mnemonic.DLOAD);
 		}
 
@@ -1815,6 +1926,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder printString(final Quadruple q) {
+			assert q.getOperator() == Operator.PRINT_STRING;
 			return print(q.getArgument1(), InfoTag.STRING,
 					"Ljava/lang/String;", Mnemonic.ALOAD);
 		}
@@ -1845,6 +1957,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder declareArray(final Quadruple q) {
+			assert q.getOperator() == Operator.DECLARE_ARRAY;
 			if (!"!".equals(q.getResult())) {
 				arrayName = q.getResult();
 			}
@@ -1878,6 +1991,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder arrayGetLong(final Quadruple q) {
+			assert q.getOperator() == Operator.ARRAY_GET_LONG;
 			return arrayGet(q, Mnemonic.LALOAD, Mnemonic.LSTORE);
 		}
 
@@ -1907,6 +2021,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder arrayGetDouble(final Quadruple q) {
+			assert q.getOperator() == Operator.ARRAY_GET_DOUBLE;
 			return arrayGet(q, Mnemonic.DALOAD, Mnemonic.DSTORE);
 		}
 
@@ -1936,6 +2051,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder arrayGetBoolean(final Quadruple q) {
+			assert q.getOperator() == Operator.ARRAY_GET_BOOLEAN;
 			return arrayGet(q, Mnemonic.BALOAD, Mnemonic.ISTORE);
 		}
 
@@ -1965,6 +2081,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder arrayGetString(final Quadruple q) {
+			assert q.getOperator() == Operator.ARRAY_GET_STRING;
 			return arrayGet(q, Mnemonic.AALOAD, Mnemonic.ASTORE);
 		}
 
@@ -1994,6 +2111,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder arrayGetReference(final Quadruple q) {
+			assert q.getOperator() == Operator.ARRAY_GET_REFERENCE;
 			return arrayGet(q, Mnemonic.AALOAD, Mnemonic.ASTORE);
 		}
 
@@ -2023,6 +2141,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder arraySetLong(final Quadruple q) {
+			assert q.getOperator() == Operator.ARRAY_SET_LONG;
 			return arraySet(q, InfoTag.LONG, Mnemonic.LDC2_W, Mnemonic.LASTORE);
 		}
 
@@ -2052,6 +2171,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder arraySetDouble(final Quadruple q) {
+			assert q.getOperator() == Operator.ARRAY_SET_DOUBLE;
 			return arraySet(q, InfoTag.DOUBLE, Mnemonic.LDC2_W,
 					Mnemonic.DASTORE);
 		}
@@ -2082,6 +2202,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder arraySetBoolean(final Quadruple q) {
+			assert q.getOperator() == Operator.ARRAY_SET_BOOLEAN;
 			final Operation.Builder op = Operation.Builder.newBuilder();
 			final byte arrayIndex = classfile.getIndexOfVariableInMethod(
 					methodName, q.getArgument1());
@@ -2119,6 +2240,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder arraySetString(final Quadruple q) {
+			assert q.getOperator() == Operator.ARRAY_SET_STRING;
 			return arraySet(q, InfoTag.STRING, Mnemonic.LDC, Mnemonic.AASTORE);
 		}
 
@@ -2149,6 +2271,7 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public Builder arraySetArray(final Quadruple q) {
+			assert q.getOperator() == Operator.ARRAY_SET_ARRAY;
 			return arraySet(q, null, Mnemonic.ALOAD, Mnemonic.AASTORE);
 		}
 

@@ -120,7 +120,6 @@ public class SymbolTableJb implements SymbolTable {
 	@Override
 	public Type lookupTypeInCurrentScope(String identifier) {
 		SymbolTableInfo sbInfo = table.get(identifier);
-		
 		if (sbInfo == null) {
 			return null;
 		}
@@ -153,7 +152,11 @@ public class SymbolTableJb implements SymbolTable {
 		
 		sbInfo.liveliness = liveliness;
 	}
-
+	
+	public void setParentSymbolTable(SymbolTable table){
+		this.parent=table;
+	}
+	
 	public String toString(){
 		return table.toString();
 	}

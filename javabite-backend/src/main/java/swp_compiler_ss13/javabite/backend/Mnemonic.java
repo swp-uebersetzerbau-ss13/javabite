@@ -257,6 +257,10 @@ public enum Mnemonic {
 		return argc;
 	}
 
+	public short getStackChange() {
+		return stackChange;
+	}
+
 	/**
 	 * Returns the bytecode operation byte as a string in hexadecimal format,
 	 * eg. 01 or 5A. This is the string representation of the byte, and is
@@ -281,8 +285,8 @@ public enum Mnemonic {
 
 	public static Mnemonic getMnemonic(final String prefix, final int value) {
 		try {
-			final String name = prefix + "_"
-					+ (value == -1 ? "M1" : Integer.toString(value));
+			final String name = prefix + "_" + (value < 0 ? "M" : "")
+					+ Integer.toString(Math.abs(value));
 			final Mnemonic m = valueOf(name);
 			return m;
 		} catch (final IllegalArgumentException e) {
@@ -292,66 +296,6 @@ public enum Mnemonic {
 
 	public static Mnemonic getMnemonic(final String prefix) {
 		return valueOf(prefix);
-	}
-
-	public static Mnemonic ICONST(final int value) {
-		return getMnemonic("ICONST", value);
-	}
-
-	public static Mnemonic LCONST(final int value) {
-		return getMnemonic("LCONST", value);
-	}
-
-	public static Mnemonic FCONST(final int value) {
-		return getMnemonic("FCONST", value);
-	}
-
-	public static Mnemonic DCONST(final int value) {
-		return getMnemonic("DCONST", value);
-	}
-
-	public static Mnemonic ILOAD(final int value) {
-		return getMnemonic("ILOAD", value);
-	}
-
-	public static Mnemonic LLOAD(final int value) {
-		return getMnemonic("LLOAD", value);
-	}
-
-	public static Mnemonic FLOAD(final int value) {
-		return getMnemonic("FLOAD", value);
-	}
-
-	public static Mnemonic DLOAD(final int value) {
-		return getMnemonic("DLOAD", value);
-	}
-
-	public static Mnemonic ALOAD(final int value) {
-		return getMnemonic("ALOAD", value);
-	}
-
-	public static Mnemonic ISTORE(final int value) {
-		return getMnemonic("ISTORE", value);
-	}
-
-	public static Mnemonic LSTORE(final int value) {
-		return getMnemonic("LSTORE", value);
-	}
-
-	public static Mnemonic FSTORE(final int value) {
-		return getMnemonic("FSTORE", value);
-	}
-
-	public static Mnemonic DSTORE(final int value) {
-		return getMnemonic("DSTORE", value);
-	}
-
-	public static Mnemonic ASTORE(final int value) {
-		return getMnemonic("ASTORE", value);
-	}
-
-	public short getStackChange() {
-		return stackChange;
 	}
 
 }

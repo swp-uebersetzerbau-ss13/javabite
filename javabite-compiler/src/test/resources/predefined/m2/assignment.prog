@@ -1,0 +1,14 @@
+# returns 10
+# prints nothing
+long a;
+long b;
+long c;
+
+a = 4;
+b = 3;
+c = 2;
+
+a = b = 4;
+c = a + b + c;
+
+return c;

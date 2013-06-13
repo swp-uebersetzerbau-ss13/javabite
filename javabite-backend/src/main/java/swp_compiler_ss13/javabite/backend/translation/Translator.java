@@ -193,8 +193,9 @@ public class Translator {
 								.parseLong(removeConstantSign(result)));
 						break;
 					case ARRAY_SET_DOUBLE:
-						classFile.addDoubleConstantToConstantPool(Double
-								.parseDouble(removeConstantSign(result)));
+						final String resMod = removeConstantSign(result);
+						classFile.addDoubleConstantToConstantPool(
+								Double.parseDouble(resMod), resMod);
 						break;
 					case ARRAY_SET_STRING:
 						classFile
@@ -237,12 +238,14 @@ public class Translator {
 
 			case DOUBLE:
 				if (isConstant(arg1)) {
-					classFile.addDoubleConstantToConstantPool(Double
-							.parseDouble(removeConstantSign(arg1)));
+					final String arg1Mod = removeConstantSign(arg1);
+					classFile.addDoubleConstantToConstantPool(
+							Double.parseDouble(arg1Mod), arg1Mod);
 				}
 				if (isConstant(arg2)) {
-					classFile.addDoubleConstantToConstantPool(Double
-							.parseDouble(removeConstantSign(arg2)));
+					final String arg2Mod = removeConstantSign(arg2);
+					classFile.addDoubleConstantToConstantPool(
+							Double.parseDouble(arg2Mod), arg2Mod);
 				}
 				break;
 

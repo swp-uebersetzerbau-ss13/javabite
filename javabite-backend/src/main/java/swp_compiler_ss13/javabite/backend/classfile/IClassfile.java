@@ -224,10 +224,12 @@ public interface IClassfile {
 	 * @since 26.05.2013
 	 * @param value
 	 *            double value of the value which is to be generated
+	 * @param keyValue
+	 *            original (unparsed) double value as string to assemble map key
 	 * @return short index of a double info entry in the constant pool of this
 	 *         classfile meeting the parameters.
 	 */
-	public short addDoubleConstantToConstantPool(double value);
+	public short addDoubleConstantToConstantPool(double value, String keyValue);
 
 	/**
 	 * <h1>addStringConstantToConstantPool</h1>

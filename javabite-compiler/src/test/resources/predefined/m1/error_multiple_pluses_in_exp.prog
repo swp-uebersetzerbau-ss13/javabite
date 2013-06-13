@@ -1,0 +1,5 @@
+# error: too many pluses in an expression
+long foo;
+long bar;
+foo = 3;
+bar = foo ++ 1;
