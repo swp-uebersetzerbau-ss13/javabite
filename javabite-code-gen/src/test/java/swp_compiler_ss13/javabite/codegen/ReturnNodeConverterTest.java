@@ -1,6 +1,3 @@
-
-
-
 package swp_compiler_ss13.javabite.codegen;
 
 import static org.mockito.Matchers.any;

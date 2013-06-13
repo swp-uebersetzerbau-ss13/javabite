@@ -53,6 +53,8 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import javax.swing.text.Utilities;
 
+import org.apache.commons.io.IOUtils;
+
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
@@ -204,7 +206,10 @@ public class MainFrame extends JFrame implements ReportLog {
 					
 					// open file chooser
 					JFileChooser chooser = new JFileChooser();
-					chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+					if (openedFile != null)
+						chooser.setCurrentDirectory(openedFile.getParentFile());
+					else
+						chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
 					chooser.setFileFilter(filter);
 					int returnVal = chooser.showOpenDialog(null);
 					if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -555,7 +560,13 @@ public class MainFrame extends JFrame implements ReportLog {
 		menuBar.add(buttonRunCompile);
 		
 		// undo button
-		Icon icon = new ImageIcon(loader.getResource("images" + System.getProperty("file.separator") + "undo-icon.png"));
+		
+		Icon icon = null;
+		try {
+			icon = new ImageIcon(IOUtils.toByteArray(ClassLoader.getSystemResourceAsStream("images/undo-icon.png")));
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
 		undoButton = new JButton("", icon);
 		undoButton.setMargin(new Insets(0, 0, 0, 0));
 		undoButton.setBorder(null);
@@ -571,7 +582,11 @@ public class MainFrame extends JFrame implements ReportLog {
 		menuBar.add(undoButton);
 		
 		// redo button
-		icon = new ImageIcon(loader.getResource("images" + System.getProperty("file.separator") + "redo-icon.png"));
+		try {
+			icon = new ImageIcon(IOUtils.toByteArray(ClassLoader.getSystemResourceAsStream("images/redo-icon.png")));
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
 		redoButton = new JButton("", icon);
 		redoButton.setMargin(new Insets(0, 0, 0, 0));
 		redoButton.setBorder(null);
@@ -980,7 +995,12 @@ public class MainFrame extends JFrame implements ReportLog {
 			
 			textPaneLogs.setText(textPaneLogs.getText() + "\nCompilation failed.");
 			toolBarLabel.setText("Compilation failed.");
-			Icon icon = new ImageIcon(loader.getResource("images" + System.getProperty("file.separator") + "unsuccess-icon.png"));
+			Icon icon = null;
+			try {
+				icon = new ImageIcon(IOUtils.toByteArray(ClassLoader.getSystemResourceAsStream("images" + System.getProperty("file.separator") + "unsuccess-icon.png")));
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
 			toolBarLabel.setIcon(icon);
 			progressBar.setValue(0);
 			progressBar.setEnabled(false);
@@ -1124,7 +1144,12 @@ public class MainFrame extends JFrame implements ReportLog {
 			progressBar.setValue(90);
 			textPaneLogs.setText(textPaneLogs.getText() + "\nCompilation successful. Main-file written to: " + mainClassFile.getAbsolutePath());
 			toolBarLabel.setText("Compilation successful.");
-			Icon icon = new ImageIcon(loader.getResource("images" + System.getProperty("file.separator") + "success-icon.png"));
+			Icon icon = null;
+			try {
+				icon = new ImageIcon(IOUtils.toByteArray(ClassLoader.getSystemResourceAsStream("images" + System.getProperty("file.separator") + "success-icon.png")));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			toolBarLabel.setIcon(icon);
 			return true;
 		}
@@ -1132,7 +1157,12 @@ public class MainFrame extends JFrame implements ReportLog {
 		private boolean reportFailure() {
 			textPaneLogs.setText(textPaneLogs.getText() + "\nCompilation failed. See error log!");
 			toolBarLabel.setText("Compilation failed.");
-			Icon icon = new ImageIcon(loader.getResource("images" + System.getProperty("file.separator") + "unsuccess-icon.png"));
+			Icon icon = null;
+			try {
+				icon = new ImageIcon(IOUtils.toByteArray(ClassLoader.getSystemResourceAsStream("images" + System.getProperty("file.separator") + "unsuccess-icon.png")));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			toolBarLabel.setIcon(icon);
 			return false;
 		}
