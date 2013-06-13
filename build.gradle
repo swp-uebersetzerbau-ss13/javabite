@@ -109,36 +109,36 @@ task buildAll(dependsOn: subprojects.fatJar) {
 		}
 	}
 }
-task testAll(dependsOn: subprojects.test) {
-	evaluationDependsOnChildren()
-	subprojects.each { project ->
-		copy {
-			from "${reportsDir}/tests"
-			into 'build/tests'
-		}
-	}
-	//TODO: why does this not works?
-	def report = new org.gradle.api.internal.tasks.testing.junit.report.DefaultTestReport()
-	report.setTestReportDir file('build/tests')
-	report.setTestResultsDir file("${buildDir}/test-results")
-	report.generateReport()
-}
-project.gradle.taskGraph.whenReady { taskGraph ->
-	if ( taskGraph.allTasks.find { it.name == "testAll" } != null) {
-		project.tasks.withType(Test).each { Test test ->
-			test.ignoreFailures=true
-			test.afterSuite { td, tr ->
-				if ( td.getParent() == null ) {
-					project.ext.testFailures=tr.getFailedTestCount()
-				}
-			}
-		}
-		project.tasks.getByName("testAll") {
-			doLast {
-				if ( testFailures ) {
-				   throw new Exception("There were ${testFailures} test failures")
-				  }
-			}
-		}
-	}
-}
+//task testAll(dependsOn: subprojects.test) {
+//	evaluationDependsOnChildren()
+//	subprojects.each { project ->
+//		copy {
+//			from "${reportsDir}/tests"
+//			into 'build/tests'
+//		}
+//	}
+//	//TODO: why does this not works?
+//	def report = new org.gradle.api.internal.tasks.testing.junit.report.DefaultTestReport()
+//	report.setTestReportDir file('build/tests')
+//	report.setTestResultsDir file("${buildDir}/test-results")
+//	report.generateReport()
+//}
+//project.gradle.taskGraph.whenReady { taskGraph ->
+//	if ( taskGraph.allTasks.find { it.name == "testAll" } != null) {
+//		project.tasks.withType(Test).each { Test test ->
+//			test.ignoreFailures=true
+//			test.afterSuite { td, tr ->
+//				if ( td.getParent() == null ) {
+//					project.ext.testFailures=tr.getFailedTestCount()
+//				}
+//			}
+//		}
+//		project.tasks.getByName("testAll") {
+//			doLast {
+//				if ( testFailures ) {
+//				   throw new Exception("There were ${testFailures} test failures")
+//				  }
+//			}
+//		}
+//	}
+//}
