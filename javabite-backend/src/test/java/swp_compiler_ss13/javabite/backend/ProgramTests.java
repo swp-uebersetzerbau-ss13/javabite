@@ -418,10 +418,10 @@ public class ProgramTests {
 		addBooleanVariable("test");
 		pb.notBoolean(new QuadrupleImpl(Operator.NOT_BOOLEAN, "#true", "!",
 				"test"));
-		final byte[] bExpected = new byte[] { (byte) 0x03, (byte) 0x9a,
+		final byte[] bExpected = new byte[] { (byte) 0x04, (byte) 0x9a,
 				(byte) 0x00, (byte) 0x07, (byte) 0x04, (byte) 0xa7,
 				(byte) 0x00, (byte) 0x04, (byte) 0x03, (byte) 0x3c, (byte) 0xb1 };
-		final String sExpected = "ICONST_0\nIFNE 00 07\nICONST_1\nGOTO 00 04\nICONST_0\nISTORE_1\nRETURN\n";
+		final String sExpected = "ICONST_1\nIFNE 00 07\nICONST_1\nGOTO 00 04\nICONST_0\nISTORE_1\nRETURN\n";
 		makeAssertions(pb, bExpected, sExpected);
 	}
 
@@ -430,9 +430,9 @@ public class ProgramTests {
 		addBooleanVariable("test");
 		pb.andBoolean(new QuadrupleImpl(Operator.AND_BOOLEAN, "#true", "#true",
 				"test"));
-		final byte[] bExpected = new byte[] { (byte) 0x03, (byte) 0x03,
+		final byte[] bExpected = new byte[] { (byte) 0x04, (byte) 0x04,
 				(byte) 0x7e, (byte) 0x3c, (byte) 0xb1 };
-		final String sExpected = "ICONST_0\nICONST_0\nIAND\nISTORE_1\nRETURN\n";
+		final String sExpected = "ICONST_1\nICONST_1\nIAND\nISTORE_1\nRETURN\n";
 		makeAssertions(pb, bExpected, sExpected);
 	}
 
@@ -441,9 +441,9 @@ public class ProgramTests {
 		addBooleanVariable("test");
 		pb.orBoolean(new QuadrupleImpl(Operator.OR_BOOLEAN, "#true", "#false",
 				"test"));
-		final byte[] bExpected = new byte[] { (byte) 0x03, (byte) 0x03,
+		final byte[] bExpected = new byte[] { (byte) 0x04, (byte) 0x03,
 				(byte) 0x80, (byte) 0x3c, (byte) 0xb1 };
-		final String sExpected = "ICONST_0\nICONST_0\nIOR\nISTORE_1\nRETURN\n";
+		final String sExpected = "ICONST_1\nICONST_0\nIOR\nISTORE_1\nRETURN\n";
 		makeAssertions(pb, bExpected, sExpected);
 	}
 

@@ -38,7 +38,7 @@ public class JavaClassProcess {
 		ProcessBuilder processBuilder = new ProcessBuilder(javaExecutablePath,
 				"-cp", classPath, NO_VERIFY_NEEDED?NO_VERIFY:"", className);
 		try {
-			p = processBuilder.start();
+			p = processBuilder.redirectErrorStream(true).start();
 			p.waitFor();
 		} catch (IOException | InterruptedException e) {
 			throw new JavaClassProcessRuntimeException(e.getMessage(), e);
@@ -52,7 +52,7 @@ public class JavaClassProcess {
 	public String getProcessOutput() {
 		StringWriter writer = new StringWriter();
 		try {
-			IOUtils.copy(p.getInputStream(), writer, "UTF-8");
+			IOUtils.copy(p.getInputStream(), writer);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}

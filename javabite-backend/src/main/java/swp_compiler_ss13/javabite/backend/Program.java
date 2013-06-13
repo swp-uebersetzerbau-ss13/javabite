@@ -287,7 +287,7 @@ public class Program {
 		}
 
 		private static short convertBoolean(final String arg) {
-			return Translator.CONST_TRUE.equals(arg) ? (short) 1 : 0;
+			return Translator.CONST_TRUE.equalsIgnoreCase(arg) ? (short) 1 : 0;
 		}
 
 		private Instruction getJumpTarget(final String s) {
