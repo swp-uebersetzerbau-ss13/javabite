@@ -36,17 +36,14 @@ public class SettingsPanel extends JFrame {
 		JPanel panel = new JPanel();
 		splitPane.setRightComponent(panel);
 		panel.setLayout(new BorderLayout(0, 0));
-
 		JPanel buttonPanel = new JPanel();
 		FlowLayout flowLayout = (FlowLayout) buttonPanel.getLayout();
 		flowLayout.setAlignment(FlowLayout.RIGHT);
 		panel.add(buttonPanel, BorderLayout.SOUTH);
-
 		JButton btnSave = new JButton("Save");
 		btnSave.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-			
 				for (ConfigKeyFormInput input:formInputs) {
 					if (input.isChanged())
 						config.setProperty(input.getKey(), input.getValue());
@@ -66,7 +63,6 @@ public class SettingsPanel extends JFrame {
 
 		final JPanel formPanel = new JPanel();
 		panel.add(formPanel, BorderLayout.CENTER);
-
 		final JList<ConfigCategory> list = new JList<ConfigCategory>();
 		list.addListSelectionListener(new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent evt) {
@@ -91,7 +87,7 @@ public class SettingsPanel extends JFrame {
 			public int getSize() {
 				return values.size();
 			}
-
+			
 			public ConfigCategory getElementAt(int index) {
 				return values.get(index);
 			}

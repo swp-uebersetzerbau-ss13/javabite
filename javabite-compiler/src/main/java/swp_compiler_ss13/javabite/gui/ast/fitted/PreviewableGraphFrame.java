@@ -1,6 +1,7 @@
 package swp_compiler_ss13.javabite.gui.ast.fitted;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Rectangle;
@@ -9,6 +10,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import swp_compiler_ss13.common.ast.AST;
@@ -17,6 +19,7 @@ import swp_compiler_ss13.javabite.gui.ast.ASTVisualizerJb;
 
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.view.mxGraph;
+import com.sun.xml.internal.ws.policy.spi.PolicyAssertionValidator.Fitness;
 
 public class PreviewableGraphFrame extends GraphFrame {
 
@@ -98,14 +101,21 @@ public class PreviewableGraphFrame extends GraphFrame {
 
 				Dimension graphSize = graphComponent.getGraphControl()
 						.getSize();
-				// Dimension viewPortSize =
-				// graphComponent.getViewport().getSize();
+				Dimension viewPortSize = graphComponent.getViewport().getSize();
 
-				int x = graphSize.width * 2;
-				int y = graphSize.height * 2;
+				int x = graphSize.width;
+				int y = graphSize.height;
+				int w = viewPortSize.height;
+				int z = viewPortSize.width;
+				if (w > y && z > x) {
+					int thenX = ((w - y) + y);
+					int thenY = ((z - x) + x);
+					graphComponent.getGraphControl().scrollRectToVisible(
+							new Rectangle(thenX, thenY));
 
-				graphComponent.getGraphControl().scrollRectToVisible(
-						new Rectangle(x, y));
+				} else {
+
+				}
 
 			}
 		});
