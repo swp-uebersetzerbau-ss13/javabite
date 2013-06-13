@@ -288,7 +288,7 @@ public class ConstantPool {
 	 * @return short index of an UTF8 info entry in the constant pool of this
 	 *         classfile meeting the parameters.
 	 */
-	short generateConstantUTF8Info(String value) {
+	short generateConstantUTF8Info(final String value) {
 		checkConstantPoolSize(1);
 		final String key = InfoTag.UTF8.name() + value;
 
@@ -298,65 +298,66 @@ public class ConstantPool {
 		}
 
 		// generate entry
-		//final Charset c = Charset.availableCharsets().get("UTF-8");
-		//final byte[] b = value.getBytes(c);
-		//final ByteBuffer info = ByteBuffer.allocate(b.length + 2);
-		//info.put(shortToByteArray((short) b.length));
-		//info.put(b);
-		///////////////////////////////////
+		// final Charset c = Charset.availableCharsets().get("UTF-8");
+		// final byte[] b = value.getBytes(c);
+		// final ByteBuffer info = ByteBuffer.allocate(b.length + 2);
+		// info.put(shortToByteArray((short) b.length));
+		// info.put(b);
+		// /////////////////////////////////
 		// from DataOutputStream.writeUtf()
-		///////////////////////////////////
-		int strlen = value.length();
-        int utflen = 0;
-        int c, count = 0;
+		// /////////////////////////////////
+		final int strlen = value.length();
+		int utflen = 0;
+		int c, count = 0;
 
-        /* use charAt instead of copying String to char array */
-        for (int i = 0; i < strlen; i++) {
-            c = value.charAt(i);
-            if ((c >= 0x0001) && (c <= 0x007F)) {
-                utflen++;
-            } else if (c > 0x07FF) {
-                utflen += 3;
-            } else {
-                utflen += 2;
-            }
-        }
+		/* use charAt instead of copying String to char array */
+		for (int i = 0; i < strlen; i++) {
+			c = value.charAt(i);
+			if (c >= 0x0001 && c <= 0x007F) {
+				utflen++;
+			} else if (c > 0x07FF) {
+				utflen += 3;
+			} else {
+				utflen += 2;
+			}
+		}
 
-        if (utflen > 65535)
-            throw new RuntimeException(
-                "encoded string too long: " + utflen + " bytes");
+		if (utflen > 65535)
+			throw new RuntimeException("encoded string too long: " + utflen
+					+ " bytes");
 
-        byte[] bytearr = null;
-        bytearr = new byte[utflen+2];
-        bytearr[count++] = (byte) ((utflen >>> 8) & 0xFF);
-        bytearr[count++] = (byte) ((utflen >>> 0) & 0xFF);
+		byte[] bytearr = null;
+		bytearr = new byte[utflen + 2];
+		bytearr[count++] = (byte) (utflen >>> 8 & 0xFF);
+		bytearr[count++] = (byte) (utflen >>> 0 & 0xFF);
 
-        int i=0;
-        for (i=0; i<strlen; i++) {
-           c = value.charAt(i);
-           if (!((c >= 0x0001) && (c <= 0x007F))) break;
-           bytearr[count++] = (byte) c;
-        }
+		int i = 0;
+		for (i = 0; i < strlen; i++) {
+			c = value.charAt(i);
+			if (!(c >= 0x0001 && c <= 0x007F))
+				break;
+			bytearr[count++] = (byte) c;
+		}
 
-        for (;i < strlen; i++){
-            c = value.charAt(i);
-            if ((c >= 0x0001) && (c <= 0x007F)) {
-                bytearr[count++] = (byte) c;
+		for (; i < strlen; i++) {
+			c = value.charAt(i);
+			if (c >= 0x0001 && c <= 0x007F) {
+				bytearr[count++] = (byte) c;
 
-            } else if (c > 0x07FF) {
-                bytearr[count++] = (byte) (0xE0 | ((c >> 12) & 0x0F));
-                bytearr[count++] = (byte) (0x80 | ((c >>  6) & 0x3F));
-                bytearr[count++] = (byte) (0x80 | ((c >>  0) & 0x3F));
-            } else {
-                bytearr[count++] = (byte) (0xC0 | ((c >>  6) & 0x1F));
-                bytearr[count++] = (byte) (0x80 | ((c >>  0) & 0x3F));
-            }
-        }
+			} else if (c > 0x07FF) {
+				bytearr[count++] = (byte) (0xE0 | c >> 12 & 0x0F);
+				bytearr[count++] = (byte) (0x80 | c >> 6 & 0x3F);
+				bytearr[count++] = (byte) (0x80 | c >> 0 & 0x3F);
+			} else {
+				bytearr[count++] = (byte) (0xC0 | c >> 6 & 0x1F);
+				bytearr[count++] = (byte) (0x80 | c >> 0 & 0x3F);
+			}
+		}
 
-		///////////////////////////////////
+		// /////////////////////////////////
 		// from DataOutputStream.writeUtf()
-		///////////////////////////////////
-        
+		// /////////////////////////////////
+
 		final CPInfo utf8Info = new CPInfo(InfoTag.UTF8, bytearr);
 		entryList.add(utf8Info);
 

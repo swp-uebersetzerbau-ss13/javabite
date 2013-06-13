@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import swp_compiler_ss13.common.backend.Quadruple;
@@ -255,7 +254,7 @@ public class Program {
 				if (target == null) {
 					// target instruction is null -> target label is set
 					// get instruction by label name
-					target = getJumpTarget(in.getTargetLabel());
+					target = jumpTargets.get(in.getTargetLabel());
 				}
 				assert target != null;
 				// calculate offset delta from jump instruction to target
@@ -271,10 +270,9 @@ public class Program {
 			return new Program(operations);
 		}
 
-		private static boolean isBoolean(String s) {
-			s = s.trim().toUpperCase();
-			return s.equals(Translator.CONST_TRUE)
-					|| s.equals(Translator.CONST_FALSE);
+		private static boolean isBoolean(final String s) {
+			return s.equalsIgnoreCase(Translator.CONST_TRUE)
+					|| s.equalsIgnoreCase(Translator.CONST_FALSE);
 		}
 
 		private static boolean isConstant(final String s) {
@@ -282,16 +280,11 @@ public class Program {
 		}
 
 		private static String removeConstantSign(final String s) {
-			final Matcher m = P_CONST_SIGN.matcher(s);
-			return m.replaceAll("");
+			return P_CONST_SIGN.matcher(s).replaceAll("");
 		}
 
 		private static short convertBoolean(final String arg) {
 			return Translator.CONST_TRUE.equalsIgnoreCase(arg) ? (short) 1 : 0;
-		}
-
-		private Instruction getJumpTarget(final String s) {
-			return jumpTargets.get(s);
 		}
 
 		// INSTRUCTION CREATORS ------------------------------------------------
@@ -725,6 +718,17 @@ public class Program {
 		 * === M1 === FINISHED
 		 */
 
+		/**
+		 * Declare long. This operation is used in two ways: declaring a long
+		 * (with expected arguments) or declaring a long array (without
+		 * arguments, but preceeding array declarations). Because usual long
+		 * declarations are already filtered out at this point of code
+		 * generation, this operation only serves to create arrays.
+		 * 
+		 * @param q
+		 *            quadruple of operation
+		 * @return this builders instance
+		 */
 		public Builder declareLong(final Quadruple q) {
 			assert q.getOperator() == Operator.DECLARE_LONG;
 			if ("!".equals(q.getResult())) {
@@ -734,6 +738,17 @@ public class Program {
 			return this;
 		}
 
+		/**
+		 * Declare double. This operation is used in two ways: declaring a
+		 * double (with expected arguments) or declaring a double array (without
+		 * arguments, but preceeding array declarations). Because usual double
+		 * declarations are already filtered out at this point of code
+		 * generation, this operation only serves to create arrays.
+		 * 
+		 * @param q
+		 *            quadruple of operation
+		 * @return this builders instance
+		 */
 		public Builder declareDouble(final Quadruple q) {
 			assert q.getOperator() == Operator.DECLARE_DOUBLE;
 			if ("!".equals(q.getResult())) {
@@ -743,6 +758,17 @@ public class Program {
 			return this;
 		}
 
+		/**
+		 * Declare string. This operation is used in two ways: declaring a
+		 * string (with expected arguments) or declaring a string array (without
+		 * arguments, but preceeding array declarations). Because usual string
+		 * declarations are already filtered out at this point of code
+		 * generation, this operation only serves to create arrays.
+		 * 
+		 * @param q
+		 *            quadruple of operation
+		 * @return this builders instance
+		 */
 		public Builder declareString(final Quadruple q) {
 			assert q.getOperator() == Operator.DECLARE_STRING;
 			if ("!".equals(q.getResult())) {
@@ -752,6 +778,17 @@ public class Program {
 			return this;
 		}
 
+		/**
+		 * Declare boolean. This operation is used in two ways: declaring a
+		 * boolean (with expected arguments) or declaring a boolean array
+		 * (without arguments, but preceeding array declarations). Because usual
+		 * boolean declarations are already filtered out at this point of code
+		 * generation, this operation only serves to create arrays.
+		 * 
+		 * @param q
+		 *            quadruple of operation
+		 * @return this builders instance
+		 */
 		public Builder declareBoolean(final Quadruple q) {
 			assert q.getOperator() == Operator.DECLARE_BOOLEAN;
 			if ("!".equals(q.getResult())) {
