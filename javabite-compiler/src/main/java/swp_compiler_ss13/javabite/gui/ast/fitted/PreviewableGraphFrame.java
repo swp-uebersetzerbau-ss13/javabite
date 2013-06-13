@@ -19,6 +19,7 @@ import swp_compiler_ss13.javabite.gui.ast.ASTVisualizerJb;
 
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.view.mxGraph;
+import com.sun.xml.internal.ws.policy.spi.PolicyAssertionValidator.Fitness;
 
 public class PreviewableGraphFrame extends GraphFrame {
 
@@ -100,14 +101,21 @@ public class PreviewableGraphFrame extends GraphFrame {
 
 				Dimension graphSize = graphComponent.getGraphControl()
 						.getSize();
-				// Dimension viewPortSize =
-				// graphComponent.getViewport().getSize();
+				Dimension viewPortSize = graphComponent.getViewport().getSize();
 
-				int x = graphSize.width * 2;
-				int y = graphSize.height * 2;
+				int x = graphSize.width;
+				int y = graphSize.height;
+				int w = viewPortSize.height;
+				int z = viewPortSize.width;
+				if (w > y && z > x) {
+					int thenX = ((w - y) + y);
+					int thenY = ((z - x) + x);
+					graphComponent.getGraphControl().scrollRectToVisible(
+							new Rectangle(thenX, thenY));
 
-				graphComponent.getGraphControl().scrollRectToVisible(
-						new Rectangle(x, y));
+				} else {
+
+				}
 
 			}
 		});
