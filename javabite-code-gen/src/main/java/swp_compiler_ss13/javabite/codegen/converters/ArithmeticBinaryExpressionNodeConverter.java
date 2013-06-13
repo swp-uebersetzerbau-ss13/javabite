@@ -12,6 +12,8 @@ import swp_compiler_ss13.javabite.codegen.QuadrupleFactoryJb;
 
 public class ArithmeticBinaryExpressionNodeConverter extends CastingAst2CodeConverter {
 
+	//TODO: tests:
+	// check
 	@Override
 	public void convert(ASTNode node) throws IntermediateCodeGeneratorException {
 		if (!(node instanceof ArithmeticBinaryExpressionNode))
