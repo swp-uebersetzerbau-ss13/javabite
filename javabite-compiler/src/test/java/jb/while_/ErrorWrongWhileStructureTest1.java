@@ -11,7 +11,7 @@ public class ErrorWrongWhileStructureTest1 extends AbstractCompilerTest{
 	
 	@Override
 	public String getProgFile() {
-		return "jb" + File.separator + "while_" + File.separator + "error_swrong_structure_1.prog";
+		return "jb" + File.separator + "while_" + File.separator + "error_wrong_structure_1.prog";
 	}
 
 	@Override

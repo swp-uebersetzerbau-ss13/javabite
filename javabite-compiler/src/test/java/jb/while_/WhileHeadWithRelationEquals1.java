@@ -7,11 +7,11 @@ import java.util.List;
 import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.javabite.compiler.AbstractCompilerTest;
 
-public class ErrorWrongWhileStructureTest5 extends AbstractCompilerTest{
+public class WhileHeadWithRelationEquals1 extends AbstractCompilerTest{
 	
 	@Override
 	public String getProgFile() {
-		return "jb" + File.separator + "while_" + File.separator + "error_wrong_structure_5.prog";
+		return "jb" + File.separator + "while_" + File.separator + "while_head_with_relation_equals_1.prog";
 	}
 
 	@Override
@@ -21,13 +21,12 @@ public class ErrorWrongWhileStructureTest5 extends AbstractCompilerTest{
 
 	@Override
 	public Integer getResultValue() {
-		return 0;
+		return 1;
 	}
 
 	@Override
 	public List<ReportType> getErrorList() {
 		List<ReportType> errors = new ArrayList<>();
-		errors.add(ReportType.WORD_NOT_IN_GRAMMAR);
 		return errors;
 	}
 }

@@ -1,0 +1,8 @@
+bool b1;
+bool b2;
+long l;
+l = 1;
+
+while( b1 = b2 = true) {
+	return l;
+}
