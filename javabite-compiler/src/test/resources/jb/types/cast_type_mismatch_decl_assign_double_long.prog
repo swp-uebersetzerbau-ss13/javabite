@@ -1,0 +1,10 @@
+# double declared, long assigned
+# -> cast necessary
+
+double b;
+long c;
+c = 123;
+b = c;
+print b;
+
+return;

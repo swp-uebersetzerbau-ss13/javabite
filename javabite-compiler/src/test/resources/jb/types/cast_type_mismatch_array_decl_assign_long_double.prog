@@ -1,0 +1,6 @@
+# long array declared, double assigned
+# -> cast necessary
+
+long[3][3] a;
+a[0][0] = 123.24;
+print a[0][0];
