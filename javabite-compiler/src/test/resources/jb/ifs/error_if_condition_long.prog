@@ -1,0 +1,5 @@
+long msg;
+msg = 1;
+
+if(msg)
+    print msg;
