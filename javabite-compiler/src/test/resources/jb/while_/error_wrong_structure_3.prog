@@ -1,0 +1,6 @@
+bool = true;
+long l;
+l = 1;
+
+while(b)
+	return l;
