@@ -1,0 +1,13 @@
+# return 0
+double d1;
+double d2;
+double d3;
+double d4;
+d1 = -23.23e-100;
+d2 = 2.;
+d3 = .568;
+d4 = .1e2;
+print d1;
+print d2;
+print d3;
+print d4;

@@ -1,0 +1,5 @@
+# long declared, boolean assigned
+# -> type mismatch
+
+long b;
+b = true;

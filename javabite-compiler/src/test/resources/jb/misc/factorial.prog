@@ -1,0 +1,13 @@
+long in;
+long sum;
+
+in = 3;
+sum = 1;
+
+while(in > 0) {
+    sum = sum * in;
+    in = in - 1;
+}
+
+print sum;
+return sum;

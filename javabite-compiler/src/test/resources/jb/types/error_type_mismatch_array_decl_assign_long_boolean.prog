@@ -1,0 +1,5 @@
+# long array declared, boolean assigned
+# -> type mismatch
+
+long[3][3] a;
+a[0][0] = true;

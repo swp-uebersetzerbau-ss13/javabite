@@ -1,0 +1,5 @@
+string msg;
+msg = "hallo";
+
+if (msg)
+    print msg;

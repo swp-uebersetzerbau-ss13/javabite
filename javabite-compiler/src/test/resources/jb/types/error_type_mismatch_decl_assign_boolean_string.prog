@@ -1,0 +1,5 @@
+# bool declared, string assigned
+# -> type mismatch
+
+bool b;
+b = "stringVal";

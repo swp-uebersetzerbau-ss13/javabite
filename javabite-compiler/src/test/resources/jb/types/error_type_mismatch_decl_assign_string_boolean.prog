@@ -1,0 +1,5 @@
+# string declared, boolean assigned
+# -> type mismatch
+
+string b;
+b = true;

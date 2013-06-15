@@ -1,0 +1,4 @@
+boolean msg;
+msg = false;
+
+return msg;
