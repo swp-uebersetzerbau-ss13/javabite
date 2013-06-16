@@ -19,7 +19,6 @@ import swp_compiler_ss13.javabite.gui.ast.ASTVisualizerJb;
 
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.view.mxGraph;
-import com.sun.xml.internal.ws.policy.spi.PolicyAssertionValidator.Fitness;
 
 public class PreviewableGraphFrame extends GraphFrame {
 
