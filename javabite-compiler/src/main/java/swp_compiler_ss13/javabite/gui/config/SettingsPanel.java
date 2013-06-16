@@ -21,10 +21,12 @@ import javax.swing.event.ListSelectionListener;
 import swp_compiler_ss13.javabite.config.ConfigCategory;
 import swp_compiler_ss13.javabite.config.ConfigKey;
 import swp_compiler_ss13.javabite.config.JavabiteConfig;
+import swp_compiler_ss13.javabite.gui.ConfigFormFieldFactory;
 
 public class SettingsPanel extends JFrame {
+	private static final long serialVersionUID = 1L;
 	final JavabiteConfig config = JavabiteConfig.getDefaultConfig();
-	List<ConfigKeyFormInput> formInputs = new ArrayList<>();
+	List<ConfigFormField> formInputs = new ArrayList<>();
 
 	public SettingsPanel() {
 		this.setMinimumSize(new Dimension(600, 400));
@@ -44,7 +46,7 @@ public class SettingsPanel extends JFrame {
 		btnSave.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				for (ConfigKeyFormInput input:formInputs) {
+				for (ConfigFormField input:formInputs) {
 					if (input.isChanged())
 						config.setProperty(input.getKey(), input.getValue());
 				}
@@ -72,7 +74,7 @@ public class SettingsPanel extends JFrame {
 				formPanel.removeAll();
 				formInputs.clear();
 				for (ConfigKey ck : configKeys) {
-					ConfigKeyFormInput ckfi = new ConfigKeyFormInput(ck);
+					ConfigFormField ckfi = ConfigFormFieldFactory.generateField(ck);
 					formPanel.add(ckfi.getPanel());
 					formInputs.add(ckfi);
 				}

@@ -65,6 +65,7 @@ import swp_compiler_ss13.javabite.compiler.AbstractJavabiteCompiler;
 import swp_compiler_ss13.javabite.config.JavabiteConfig;
 import swp_compiler_ss13.javabite.gui.ast.ASTVisualizerJb;
 import swp_compiler_ss13.javabite.gui.ast.fitted.KhaledGraphFrame;
+import swp_compiler_ss13.javabite.gui.config.SettingsPanel;
 import swp_compiler_ss13.javabite.gui.tac.TacVisualizerJb;
 import swp_compiler_ss13.javabite.runtime.JavaClassProcess;
 
@@ -472,7 +473,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		mntmProperties = new JMenuItem("Properties");
 		mntmProperties.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// TODO: Implementation of property editor here
+				showSettingsPanel();
 			}
 		});
 		
@@ -1053,6 +1054,10 @@ public class MainFrame extends JFrame implements ReportLog {
 		frame.getContentPane().add(ast_frame);
 		frame.setVisible(true);
 		toolBarLabel.setText("Rendered AST.");
+	}
+	
+	private void showSettingsPanel() {
+		new SettingsPanel().setVisible(true);
 	}
 	
 	class GuiCompiler extends AbstractJavabiteCompiler {
