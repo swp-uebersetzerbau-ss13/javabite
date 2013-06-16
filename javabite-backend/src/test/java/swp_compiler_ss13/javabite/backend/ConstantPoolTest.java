@@ -7,7 +7,6 @@ import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.longToByteArray
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 
 import junitx.util.PrivateAccessor;
 
@@ -16,8 +15,6 @@ import org.junit.Test;
 import org.mockito.internal.util.reflection.Whitebox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.sun.corba.se.impl.encoding.OSFCodeSetRegistry.Entry;
 
 import swp_compiler_ss13.javabite.backend.classfile.CPInfo;
 import swp_compiler_ss13.javabite.backend.classfile.ConstantPool;

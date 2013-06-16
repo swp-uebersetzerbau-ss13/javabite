@@ -105,9 +105,9 @@ project(':javabite-common') {
 	dependencies { compile project(':common') }
 }
 
-project(':fuc') {
-	ant.importBuild '../fuc/code/build.xml'
-}
+//project(':fuc') {
+//	ant.importBuild '../fuc/code/build.xml'
+//}
 /**
  * END of project specific configs
  */
@@ -133,7 +133,7 @@ task run(type: JavaExec, dependsOn: buildCompiler) {
 	main = 'swp_compiler_ss13.javabite.MainDispatcher'
 	classpath = files('bin/javabite-compiler-0.1.jar')
 }
-task runAllModules(type: JavaExec, dependsOn: [':fuc:dist', buildCompiler]) {
+task runAllModules(type: JavaExec, dependsOn: buildCompiler) {
 	main = 'swp_compiler_ss13.javabite.MainDispatcher'
 	classpath = files('bin/javabite-compiler-0.1.jar') + fucJarFiles()
 }
