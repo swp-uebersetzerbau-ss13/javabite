@@ -11,7 +11,7 @@ public class CastLongAssignedToDoubleTest extends AbstractCompilerTest {
 
 	@Override
 	public String getProgFile() {
-		return "jb" + File.separator + "types" + File.separator + "cast_type_mismatch_decl_assign_double_long.prog";
+		return "jb" + File.separator + "types" + File.separator + "cast_type_assign_double_long.prog";
 	}
 
 	@Override

@@ -7,6 +7,7 @@ import java.util.List;
 import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.javabite.compiler.AbstractCompilerTest;
 
+//TODO: SEMANTICAL
 public class ReturnDoubleTest extends AbstractCompilerTest {
 
 	@Override

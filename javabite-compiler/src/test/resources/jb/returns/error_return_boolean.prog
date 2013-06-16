@@ -1,4 +1,3 @@
-boolean msg;
+bool msg;
 msg = false;
-
 return msg;

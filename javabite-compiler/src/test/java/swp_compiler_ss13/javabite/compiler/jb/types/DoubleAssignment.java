@@ -16,7 +16,7 @@ public class DoubleAssignment extends AbstractCompilerTest {
 
 	@Override
 	public String getOutput() {
-		return "-2.323e-992.00.5680.01";
+		return "-2.323E-992.00.5681.0";
 	}
 
 	@Override
