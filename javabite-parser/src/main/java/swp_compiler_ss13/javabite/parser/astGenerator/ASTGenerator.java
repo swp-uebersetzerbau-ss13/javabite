@@ -13,6 +13,8 @@ import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOper
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
 import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode;
+import swp_compiler_ss13.common.lexer.NumToken;
+import swp_compiler_ss13.common.lexer.RealToken;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.parser.SymbolTable;
 import swp_compiler_ss13.common.types.Type;
@@ -40,9 +42,6 @@ import swp_compiler_ss13.javabite.ast.nodes.unary.LogicUnaryExpressionNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.unary.PrintNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.unary.ReturnNodeJb;
 import swp_compiler_ss13.javabite.parser.targetgrammar.TargetGrammar;
-import swp_compiler_ss13.javabite.token.NumTokenJb;
-import swp_compiler_ss13.javabite.token.RealTokenJb;
-import swp_compiler_ss13.javabite.token.TokenJb;
 
 /**
  * ASTGenerator class. This class provides functions to create an AST from
@@ -637,8 +636,7 @@ public class ASTGenerator {
 			factor = this.useLocProduction();
 			break;
 		case "factor -> NUM":
-			NumTokenJb num=(NumTokenJb)thisReduction.getRightSide().get(0);
-			Long l=num.getLongValue();
+			NumToken num=(NumToken)thisReduction.getRightSide().get(0);
 			
 			LiteralNodeJb numNode = new LiteralNodeJb();
 			numNode.setLiteral(num.getValue());
@@ -647,8 +645,7 @@ public class ASTGenerator {
 			factor = numNode;
 			break;
 		case "factor -> REAL":
-			RealTokenJb real=(RealTokenJb)thisReduction.getRightSide().get(0);
-			Double val=real.getDoubleValue();
+			RealToken real=(RealToken)thisReduction.getRightSide().get(0);
 			
 			LiteralNodeJb realNode = new LiteralNodeJb();
 			realNode.setLiteral(real.getValue());
@@ -672,7 +669,7 @@ public class ASTGenerator {
 			break;
 		case "factor -> STRING":
 			// Tmp get value of string ... not necessary in MS1
-			Token token=(TokenJb)thisReduction.getRightSide().get(0);
+			Token token = (Token) thisReduction.getRightSide().get(0);
 			
 			LiteralNodeJb string = new LiteralNodeJb();
 			string.setLiteral(token.getValue());
