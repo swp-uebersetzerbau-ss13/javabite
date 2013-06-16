@@ -1,7 +1,18 @@
-allprojects {
+apply plugin: 'java'
+apply plugin: 'eclipse'
+buildscript {
+	repositories {
+		mavenCentral()
+	}
+
+	dependencies {
+		classpath 'eu.appsatori:gradle-fatjar-plugin:0.2-rc1'
+	}
+}
+configure(javabiteProjects()) {
 	apply plugin: 'java'
-	apply plugin: 'eclipse'
 	apply plugin: 'fatjar'
+	apply plugin: 'eclipse'
 
 	sourceCompatibility = 1.7
 	version = '0.1'
@@ -28,6 +39,10 @@ allprojects {
 
 	test { systemProperties 'org.slf4j.simpleLogger.defaultLogLevel': 'debug' }
 }
+
+/**
+ * BEGIN of project specific configs
+ */
 project(':common'){
 	sourceSets {
 		main {
@@ -38,6 +53,7 @@ project(':common'){
 		}
 	}
 }
+
 project(':javabite-compiler') {
 	
 	apply plugin:'application'
@@ -61,45 +77,49 @@ project(':javabite-compiler') {
 		compile project(':javabite-common'), project(':javabite-lexer'), project(':javabite-parser'), project(':javabite-code-gen'), project(':javabite-backend'), project(':javabite-semantic')
 	}
 }
+
 project(':javabite-lexer') {
 	dependencies { 
 		compile project(':javabite-common') 
 		testCompile project(':common').sourceSets.test.output
 	}
 }
+
 project(':javabite-parser') {
 	dependencies { compile project(':javabite-common') }
 }
+
 project(':javabite-semantic') {
 	dependencies { compile project(':javabite-common') }
 }
+
 project(':javabite-code-gen') {
 	dependencies { compile project(':javabite-common') }
 }
+
 project(':javabite-backend') {
 	dependencies { compile project(':javabite-common') }
 }
+
 project(':javabite-common') {
 	dependencies { compile project(':common') }
 }
-buildscript {
-	repositories {
-		mavenCentral()
-	}
 
-	dependencies {
-		classpath 'eu.appsatori:gradle-fatjar-plugin:0.2-rc1'
-	}
+project(':fuc') {
+	ant.importBuild '../fuc/code/build.xml'
 }
+/**
+ * END of project specific configs
+ */
 task wrapper(type: Wrapper) {
 	gradleVersion = '1.6'
 }
-task buildCompiler(type: Copy, dependsOn: ['clean',':javabite-compiler:fatJar']) {
+task buildCompiler(type: Copy, dependsOn: [':javabite-compiler:fatJar']) {
 	from 'javabite-compiler/build/libs'
 	into 'bin'
 	include 'javabite-compiler-*.*.jar'
 }
-task buildAll(dependsOn: subprojects.fatJar) {
+task buildAll(dependsOn: javabiteProjects().fatJar) {
 	evaluationDependsOnChildren()
 	subprojects.each { project ->
 		copy {
@@ -109,6 +129,27 @@ task buildAll(dependsOn: subprojects.fatJar) {
 		}
 	}
 }
+task run(type: JavaExec, dependsOn: buildCompiler) {
+	main = 'swp_compiler_ss13.javabite.MainDispatcher'
+	classpath = files('bin/javabite-compiler-0.1.jar')
+}
+task runAllModules(type: JavaExec, dependsOn: [':fuc:dist', buildCompiler]) {
+	main = 'swp_compiler_ss13.javabite.MainDispatcher'
+	classpath = files('bin/javabite-compiler-0.1.jar') + fucJarFiles()
+}
+
+def javabiteProjects() {
+	subprojects.findAll { project -> project.name != 'fuc' }
+}
+
+def fucJarFiles() {
+	files('../fuc/code/dist/FUC-SymbolTable.jar','../fuc/code/dist/FUC-AST.jar',
+		'../fuc/code/dist/FUC-Lexer.jar','../fuc/code/dist/FUC-Parser.jar',
+		'../fuc/code/dist/FUC-Semantic-Analyser.jar','../fuc/code/dist/FUC-IRGen.jar',
+		'../fuc/code/dist/FUC-Backend.jar','../fuc/code/dist/lib/log4j-1.2.17.jar',
+		'../fuc/code/dist/FUC-Backend.jar')
+}
+
 //task testAll(dependsOn: subprojects.test) {
 //	evaluationDependsOnChildren()
 //	subprojects.each { project ->
@@ -142,3 +183,4 @@ task buildAll(dependsOn: subprojects.fatJar) {
 //		}
 //	}
 //}
+
