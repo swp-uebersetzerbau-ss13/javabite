@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 import swp_compiler_ss13.javabite.backend.classfile.CPInfo;
 import swp_compiler_ss13.javabite.backend.classfile.Classfile.InfoTag;
 import swp_compiler_ss13.javabite.backend.classfile.ConstantPool;
-import swp_compiler_ss13.javabite.backend.classfile.ConstantPoolFullExcetion;
+import swp_compiler_ss13.javabite.backend.classfile.ConstantPoolFullException;
 
 /**
  * <h1>ConstantPoolTest</h1>
@@ -141,7 +141,7 @@ public class ConstantPoolTest {
 		}
 	}
 
-	@Test(expected = ConstantPoolFullExcetion.class)
+	@Test(expected = ConstantPoolFullException.class)
 	public void testThatConstantPoolExceededExceptionIsThrown()
 			throws Throwable {
 		/**
@@ -218,9 +218,9 @@ public class ConstantPoolTest {
 	@Test
 	public void testThatDoubleConstantAddedToCP() throws Throwable {
 		// 1.7976931348623157E308
-		final double d = Double.MAX_VALUE;
+		// final double d = Double.MAX_VALUE;
 		// 4.9E-324
-		final double d2 = Double.MIN_VALUE;
+		// final double d2 = Double.MIN_VALUE;
 
 		final short index1 = ((Short) PrivateAccessor.invoke(cp,
 				"generateConstantDoubleInfo", new Class<?>[] { double.class,

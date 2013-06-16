@@ -3,9 +3,9 @@ package swp_compiler_ss13.javabite.backend.classfile;
 import java.io.DataOutputStream;
 
 public abstract class Attribute {
-	
-	private short attributeNameIndex;
-	
+
+	private final short attributeNameIndex;
+
 	public Attribute(final short attributeNameIndex) {
 		this.attributeNameIndex = attributeNameIndex;
 	}
@@ -34,7 +34,7 @@ public abstract class Attribute {
 	 * 
 	 * @return byte size of attribute
 	 */
-	abstract int getAttributeLength();
+	public abstract int getAttributeLength();
 
 	/**
 	 * <h1>writeTo</h1>

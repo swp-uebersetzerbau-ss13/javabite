@@ -36,7 +36,7 @@ class Method {
 	 */
 	private final short attributesCount = 1;
 	// Attributes
-	private final CodeAttribute codeAttribute;
+	private final Code codeAttribute;
 
 	/**
 	 * <h1>Method</h1>
@@ -94,7 +94,8 @@ class Method {
 			final MethodAccessFlag... accessFlags) {
 		this.nameIndex = nameIndex;
 		this.descriptorIndex = descriptorIndex;
-		codeAttribute = new CodeAttribute(codeIndex, stackMapTableIndex, localVariableTableIndex);
+		codeAttribute = new Code(codeIndex, stackMapTableIndex,
+				localVariableTableIndex);
 
 		for (final MethodAccessFlag a : accessFlags) {
 			this.accessFlags = (short) (this.accessFlags | a.getValue());
@@ -143,7 +144,7 @@ class Method {
 	 * This method adds a new variable to a methods code attribute by allocating
 	 * appropriate space in the local variable table of the method using the
 	 * CodeAttribute method
-	 * {@link CodeAttribute#addVariable(String, swp_compiler_ss13.javabite.backend.classfile.IClassfile.VariableType)}
+	 * {@link Code#addVariable(String, swp_compiler_ss13.javabite.backend.classfile.IClassfile.VariableType)}
 	 * .
 	 * </p>
 	 * 
@@ -154,8 +155,8 @@ class Method {
 	 * @param variableType
 	 *            VariableType variable type of the variable
 	 * @see VariableType
-	 * @see CodeAttribute
-	 * @see CodeAttribute#addVariable(String,
+	 * @see Code
+	 * @see Code#addVariable(String,
 	 *      swp_compiler_ss13.javabite.backend.classfile.IClassfile.VariableType)
 	 */
 	void addVariableToCodeAttribute(final String variableName,
@@ -168,7 +169,7 @@ class Method {
 	 * <p>
 	 * This method looks up the index of a variable name in the code attribute
 	 * of this method using the CodeAttribute's method
-	 * {@link CodeAttribute#getIndexOfVariable(String)}.
+	 * {@link Code#getIndexOfVariable(String)}.
 	 * </p>
 	 * 
 	 * @author Marco
@@ -176,8 +177,8 @@ class Method {
 	 * @param variableName
 	 *            String name of the variable
 	 * @return index of the variable in local variable space of this method.
-	 * @see CodeAttribute
-	 * @see CodeAttribute#getIndexOfVariable(String)
+	 * @see Code
+	 * @see Code#getIndexOfVariable(String)
 	 */
 	byte getIndexOfVariable(final String variableName) {
 		return codeAttribute.getIndexOfVariable(variableName);
@@ -188,15 +189,15 @@ class Method {
 	 * <p>
 	 * This method adds a new Instruction object to the code area of the code
 	 * attribute of this method using the CodeAttribute's method
-	 * {@link CodeAttribute#addInstruction(Instruction)}.
+	 * {@link Code#addInstruction(Instruction)}.
 	 * </p>
 	 * 
 	 * @author Marco
 	 * @since 30.04.2013
 	 * @param instruction
 	 *            instance of class Instruction
-	 * @see CodeAttribute
-	 * @see CodeAttribute#addInstruction(Instruction)
+	 * @see Code
+	 * @see Code#addInstruction(Instruction)
 	 * @see Instruction
 	 */
 	void addInstructionToCodeAttribute(final Instruction instruction) {

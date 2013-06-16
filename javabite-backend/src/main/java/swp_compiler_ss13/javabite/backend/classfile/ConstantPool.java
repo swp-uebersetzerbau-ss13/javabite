@@ -110,7 +110,7 @@ public class ConstantPool {
 	 */
 	private void checkConstantPoolSize(final int typeSize) {
 		if (entryList.size() + typeSize > 256) {
-			throw new ConstantPoolFullExcetion(
+			throw new ConstantPoolFullException(
 					"The ConstantPool is exceeded. You can't store more constants.");
 		}
 	}

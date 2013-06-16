@@ -29,7 +29,7 @@ import swp_compiler_ss13.javabite.backend.classfile.Classfile.VariableType;
  * @author Marco
  * @since 28.04.2013
  */
-public class CodeAttribute {
+public class Code {
 
 	Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -56,9 +56,9 @@ public class CodeAttribute {
 	private final ArrayList<Instruction> codeArea;
 	private final short exceptionTableLength;
 
-	private short attributesCount;
-	private StackMapTableAttribute stackMapTable;
-	private LocalVariableTableAttribute localVariableTable;
+	private final short attributesCount;
+	private final StackMapTable stackMapTable;
+	private final LocalVariableTable localVariableTable;
 
 	/**
 	 * <h1>CodeAttribute</h1>
@@ -84,7 +84,7 @@ public class CodeAttribute {
 	 *            short index into this classfile's constant pool of string
 	 *            "LocalVariableTable".
 	 */
-	public CodeAttribute(final short codeIndex, final short stackMapTableIndex,
+	public Code(final short codeIndex, final short stackMapTableIndex,
 			final short localVariableTableIndex) {
 		this.codeIndex = codeIndex;
 		variableMap = new HashMap<String, Byte>();
@@ -95,9 +95,8 @@ public class CodeAttribute {
 		exceptionTableLength = 0;
 
 		attributesCount = 2;
-		stackMapTable = new StackMapTableAttribute(stackMapTableIndex);
-		localVariableTable = new LocalVariableTableAttribute(
-				localVariableTableIndex);
+		stackMapTable = new StackMapTable(stackMapTableIndex);
+		localVariableTable = new LocalVariableTable(localVariableTableIndex);
 	};
 
 	/**
@@ -150,7 +149,7 @@ public class CodeAttribute {
 
 			regenerateStackMapTable();
 			stackMapTable.writeTo(attributesDOS);
-			
+
 			regenerateLocalVariableTable();
 			localVariableTable.writeTo(attributesDOS);
 
