@@ -147,11 +147,11 @@ public class Code {
 			// attributes attribute
 			attributesDOS.writeShort(attributesCount);
 
-			regenerateStackMapTable();
-			stackMapTable.writeTo(attributesDOS);
+			//regenerateStackMapTable();
+			//stackMapTable.writeTo(attributesDOS);
 
-			regenerateLocalVariableTable();
-			localVariableTable.writeTo(attributesDOS);
+			//regenerateLocalVariableTable();
+			//localVariableTable.writeTo(attributesDOS);
 
 			classfileDOS.writeShort(codeIndex);
 			classfileDOS.writeInt(attributesDOS.size());

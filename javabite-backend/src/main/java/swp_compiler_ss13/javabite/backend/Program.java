@@ -174,7 +174,7 @@ public class Program {
 	 */
 	public static class Builder {
 
-		private static final Pattern P_CONST_SIGN = Pattern.compile("#.*?");
+		private static final Pattern P_CONST_SIGN = Pattern.compile("^#(.*?)");
 
 		// the list of operations of this program
 		private final List<Operation> operations;
