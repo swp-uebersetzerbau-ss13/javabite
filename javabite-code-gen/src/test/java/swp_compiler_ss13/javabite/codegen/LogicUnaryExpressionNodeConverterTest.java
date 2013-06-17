@@ -5,6 +5,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -22,7 +23,7 @@ import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.javabite.codegen.converters.LogicUnaryExpressionNodeConverter;
 import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
 
-
+@Ignore
 public class LogicUnaryExpressionNodeConverterTest {
 	
 	

@@ -101,22 +101,6 @@ public class PreviewableGraphFrame extends GraphFrame {
 				Dimension graphSize = graphComponent.getGraphControl()
 						.getSize();
 				Dimension viewPortSize = graphComponent.getViewport().getSize();
-<<<<<<< Updated upstream
-
-				int x = graphSize.width;
-				int y = graphSize.height;
-				int w = viewPortSize.height;
-				int z = viewPortSize.width;
-				if (w > y && z > x) {
-					int thenX = ((w - y) + y);
-					int thenY = ((z - x) + x);
-					graphComponent.getGraphControl().scrollRectToVisible(
-							new Rectangle(thenX, thenY));
-
-				} else {
-
-				}
-=======
 				
 				//hier will sub the view from the windows size and the graph and then will will add it
 				
@@ -133,8 +117,6 @@ public class PreviewableGraphFrame extends GraphFrame {
 
 				graphComponent.getGraphControl().scrollRectToVisible(
 						new Rectangle(neww, newv));
->>>>>>> Stashed changes
-
 			}
 		});
 		buttonBar.add(btZoomOut);

@@ -3,6 +3,7 @@ package swp_compiler_ss13.javabite.codegen;
 import java.util.List;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -17,6 +18,7 @@ import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.javabite.codegen.converters.BlockNodeConverter;
 
+@Ignore
 public class BlockNodeConverterTest {
 	BlockNodeConverter converter;
 	

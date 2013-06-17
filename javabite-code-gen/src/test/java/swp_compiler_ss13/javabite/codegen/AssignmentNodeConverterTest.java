@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -27,6 +28,7 @@ import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.javabite.codegen.converters.AssignmentNodeConverter;
 import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
 
+@Ignore
 public class AssignmentNodeConverterTest {
 	AssignmentNodeConverter converter;
 	
