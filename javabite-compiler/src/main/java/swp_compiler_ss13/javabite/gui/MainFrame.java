@@ -42,6 +42,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.JToolBar;
+import javax.swing.ToolTipManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.BadLocationException;
@@ -125,6 +126,7 @@ public class MainFrame extends JFrame implements ReportLog {
 	private boolean errorReported;
 	private GuiCompiler guiCompiler;
 	
+	private String lastTooltipStr;
 	/**
 	 * Reads current editor code and writes it into given file
 	 * */
@@ -613,6 +615,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		undoManager = new UndoCostumManager(editorPaneSourcecode);
 		
 		// tooltip
+		ToolTipManager.sharedInstance().setDismissDelay(5000);
 		editorPaneSourcecode.addMouseMotionListener(new MouseAdapter() {
 			public void mouseMoved(MouseEvent e) {
 				Point loc = e.getPoint();
@@ -649,7 +652,10 @@ public class MainFrame extends JFrame implements ReportLog {
 					
 					// check if there is just 1 token type, if not there is no space between tokens and we have to identify what tokens is the target
 					if (tokens.size() == 1) {
-						editorPaneSourcecode.setToolTipText(tokens.get(0).getTokenType().name());
+						String mouseOverTokenStr = tokens.get(0).getTokenType().name();
+						if(!mouseOverTokenStr.equals(lastTooltipStr)) {
+							editorPaneSourcecode.setToolTipText(mouseOverTokenStr);
+						}
 					} else {
 						int newPos = pos-delimiterPos;
 						int posCount = 0;
@@ -666,7 +672,7 @@ public class MainFrame extends JFrame implements ReportLog {
 						editorPaneSourcecode.setToolTipText(tokens.get(tokenId).getTokenType().name());
 					}
 				} else {
-					editorPaneSourcecode.setToolTipText("");
+//					editorPaneSourcecode.setToolTipText("");
 				}
 			}
 		});
@@ -723,8 +729,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		properties.getProperty("syntaxHighlighting.comment", "#3F7F5F");
 		properties.getProperty("syntaxHighlighting.not_a_token", "#FF0000");
 		
-		Integer fontSize = Integer.parseInt(properties.getProperty("font.size","18"));
-		editorPaneSourcecode.setFont(new Font(Font.MONOSPACED, 0, fontSize));
+		reloadConfig();
 	}
 	
 	public MainFrame(File file) {
@@ -1056,8 +1061,15 @@ public class MainFrame extends JFrame implements ReportLog {
 		toolBarLabel.setText("Rendered AST.");
 	}
 	
+	public void reloadConfig() {
+		properties = JavabiteConfig.getDefaultConfig();
+		Integer fontSize = Integer.parseInt(properties.getProperty("font.size","18"));
+		editorPaneSourcecode.setFont(new Font(Font.MONOSPACED, 0, fontSize));
+	
+		
+	}
 	private void showSettingsPanel() {
-		new SettingsPanel().setVisible(true);
+		new SettingsPanel(this).setVisible(true);
 	}
 	
 	class GuiCompiler extends AbstractJavabiteCompiler {

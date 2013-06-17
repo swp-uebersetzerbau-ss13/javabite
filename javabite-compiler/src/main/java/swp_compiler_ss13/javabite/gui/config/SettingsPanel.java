@@ -22,13 +22,15 @@ import swp_compiler_ss13.javabite.config.ConfigCategory;
 import swp_compiler_ss13.javabite.config.ConfigKey;
 import swp_compiler_ss13.javabite.config.JavabiteConfig;
 import swp_compiler_ss13.javabite.gui.ConfigFormFieldFactory;
+import swp_compiler_ss13.javabite.gui.MainFrame;
 
 public class SettingsPanel extends JFrame {
 	private static final long serialVersionUID = 1L;
 	final JavabiteConfig config = JavabiteConfig.getDefaultConfig();
 	List<ConfigFormField> formInputs = new ArrayList<>();
-
-	public SettingsPanel() {
+	static MainFrame mainframe;
+	public SettingsPanel(MainFrame mainframe) {
+		this.mainframe = mainframe;
 		this.setMinimumSize(new Dimension(600, 400));
 		getContentPane().setLayout(new BorderLayout(0, 0));
 
@@ -101,6 +103,7 @@ public class SettingsPanel extends JFrame {
 	}
 
 	public void closeWindow() {
+		mainframe.reloadConfig();
 		this.dispose();
 	}
 
@@ -116,7 +119,7 @@ public class SettingsPanel extends JFrame {
 		config.getProperty("comp.key1", "default1");
 		config.getProperty("comp.key2", "default1");
 		config.getProperty("comp.key3", "default1");
-		new SettingsPanel().setVisible(true);
+		new SettingsPanel(mainframe).setVisible(true);
 	}
 
 }
