@@ -192,3 +192,7 @@ Eclipse will setup repository for you.
 ### Runtime test
 
 They can be executed with: `gradlew :javabite-compiler:test`
+
+### Cross testing
+
+Cross-testing is not automated yet. Manually they can be executed by adding the jars to the :javabite:test-task classpath and change the javabite.properties in test-resources.
