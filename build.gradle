@@ -15,7 +15,7 @@ configure(javabiteProjects()) {
 	apply plugin: 'eclipse'
 
 	sourceCompatibility = 1.7
-	version = '0.1'
+	version = '0.2'
 	ext.title = 'Javabite'
 	jar {
 		manifest {
@@ -105,9 +105,6 @@ project(':javabite-common') {
 	dependencies { compile project(':common') }
 }
 
-//project(':fuc') {
-//	ant.importBuild '../fuc/code/build.xml'
-//}
 /**
  * END of project specific configs
  */
@@ -139,7 +136,7 @@ task runAllModules(type: JavaExec, dependsOn: buildCompiler) {
 }
 
 def javabiteProjects() {
-	subprojects.findAll { project -> project.name != 'fuc' }
+	subprojects
 }
 
 def fucJarFiles() {

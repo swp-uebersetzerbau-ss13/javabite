@@ -1,3 +1,1 @@
-include 'common', 'javabite-backend', 'javabite-common', 'javabite-code-gen', 'javabite-compiler', 'javabite-lexer', 'javabite-parser', 'javabite-semantic', 'fuc'
-
-project(':fuc').projectDir =  new File(settingsDir, "../fuc")
+include 'common', 'javabite-backend', 'javabite-common', 'javabite-code-gen', 'javabite-compiler', 'javabite-lexer', 'javabite-parser', 'javabite-semantic'
