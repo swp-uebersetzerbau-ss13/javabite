@@ -114,11 +114,12 @@ The optimization components are not implemented, yet, as they are optional.
 The translator translates the three-address-code into java bytecode in several steps:
 
 swp_compiler_ss13.javabite.backend.translation.Translator.translate(String, List<Quadruple>)
-1. First, it generates a new classfile object (swp_compiler_ss13.javabite.backend.classfile.Classfile), initializes it with all necessary information considering the jvm specification for classfiles and adds a new “main”-method object to it, which will be used to run the generated code.
+
+1. First, it generates a new classfile object (swp_compiler_ss13.javabite.backend.classfile.Classfile), initializes it with all necessary information considering the jvm specification for classfiles and adds a new 'main'-method object to it, which will be used to run the generated code.
 2. Then, the translator iterates three times over the three-address-code extracting different information.
-3. During the first iteration it looks for variable declarations and allocates appropriate space for every found one in the code attribute of the previously generated classfile’s main-method.
-4. During the second iteration the translator looks for all constants in the three-address-code being prefixed with the symbol “#” and adds appropriate constant pool info structures meeting the jvm specification for those ones to the previously generated classfile’s constant pool.
-5. During the third iteration, the actual translation takes place and the three-address-code is translated into instruction objects being modeled considering the jvm specification for those ones. The generated code is added to the code attribute of the previously generated classfile’s main-method, afterwards.
+3. During the first iteration it looks for variable declarations and allocates appropriate space for every found one in the code attribute of the previously generated classfile's main-method.
+4. During the second iteration the translator looks for all constants in the three-address-code being prefixed with the symbol '#' and adds appropriate constant pool info structures meeting the jvm specification for those ones to the previously generated classfile's constant pool.
+5. During the third iteration, the actual translation takes place and the three-address-code is translated into instruction objects being modeled considering the jvm specification for those ones. The generated code is added to the code attribute of the previously generated classfile's main-method, afterwards.
 6. Finally, the translator returns a Collection of classfile objects.
 
 [JVM Specification - http://docs.oracle.com/javase/specs/jvms/se7/html/](http://docs.oracle.com/javase/specs/jvms/se7/html/)
