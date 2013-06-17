@@ -96,11 +96,12 @@ public class PreviewableGraphFrame extends GraphFrame {
 		JButton btZoomOut = new JButton("Zoom Out");
 		btCenter.addActionListener(new ActionListener() {
 
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent e) {
 
 				Dimension graphSize = graphComponent.getGraphControl()
 						.getSize();
 				Dimension viewPortSize = graphComponent.getViewport().getSize();
+<<<<<<< Updated upstream
 
 				int x = graphSize.width;
 				int y = graphSize.height;
@@ -115,6 +116,24 @@ public class PreviewableGraphFrame extends GraphFrame {
 				} else {
 
 				}
+=======
+				
+				//hier will sub the view from the windows size and the graph and then will will add it
+				
+				int x = (int) viewPortSize.width;
+				int y = (int) viewPortSize.height;
+				int w = (int) graphSize.width ;
+				int v = (int) graphSize.height;
+				
+				int z = x - w;
+				int l = y - v;
+				
+				int neww= (int) graphSize.height + z;
+				int newv= (int) graphSize.width + l;
+
+				graphComponent.getGraphControl().scrollRectToVisible(
+						new Rectangle(neww, newv));
+>>>>>>> Stashed changes
 
 			}
 		});
