@@ -63,7 +63,7 @@ public class Classfile {
 	 * @since 03.05.2013
 	 */
 	public enum MethodAccessFlag {
-		ACC_PUBLIC(0x0001), ACC_PRIVATE(0x0002), ACC_PROTECTED(0x0002), ACC_STATIC(
+		ACC_PUBLIC(0x0001), ACC_PRIVATE(0x0002), ACC_PROTECTED(0x0004), ACC_STATIC(
 				0x0008), ACC_FINAL(0x0010), ACC_SYNCHRONIZED(0x0020), ACC_BRIDGE(
 				0x0040), ACC_VARARGS(0x0080), ACC_NATIVE(0x0100), ACC_ABSTRACT(
 				0x0400), ACC_STRICT(0x0800), ACC_SYNTHETIC(0x1000);
@@ -71,6 +71,31 @@ public class Classfile {
 		private final short value;
 
 		MethodAccessFlag(final int value) {
+			this.value = (short) value;
+		}
+
+		public short getValue() {
+			return value;
+		}
+	}
+
+	/**
+	 * <h1>FieldAccessFlag</h1>
+	 * <p>
+	 * Enumeration of possible field access flags.
+	 * </p>
+	 * 
+	 * @author Marco
+	 * @since 03.05.2013
+	 */
+	public enum FieldAccessFlag {
+		ACC_PUBLIC(0x0001), ACC_PRIVATE(0x0002), ACC_PROTECTED(0x0004), ACC_STATIC(
+				0x0008), ACC_FINAL(0x0010), ACC_VOLATILE(0x0040), ACC_TRANSIENT(
+				0x0080), ACC_SYNTHETIC(0x1000), ACC_ENUM(0x4000);
+
+		private final short value;
+
+		FieldAccessFlag(final int value) {
 			this.value = (short) value;
 		}
 
@@ -202,7 +227,7 @@ public class Classfile {
 	private final short interfaceCount;
 	// interface area left out
 	private final short fieldsCount;
-	// field area left out
+	protected FieldArea fieldArea;
 	protected MethodArea methodArea;
 	private final short attributesCount;
 
@@ -254,6 +279,7 @@ public class Classfile {
 		// instantiate constant pool, field area, method area and attribute area
 		constantPool = new ConstantPool();
 		methodArea = new MethodArea();
+		fieldArea = new FieldArea();
 
 		// initialize classfile
 		initializeClassfile();
