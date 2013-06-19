@@ -20,6 +20,14 @@ public class ByteUtils {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(ByteUtils.class);
+	
+	public static byte shortUpperByte(final short x) {
+		return (byte) (x >> 8 & 0xff);
+	}
+	
+	public static byte shortLowerByte(final short x) {
+		return (byte) (x & 0xff);
+	}
 
 	/**
 	 * splits a short value into a byte array. Array starts with higher bytes.

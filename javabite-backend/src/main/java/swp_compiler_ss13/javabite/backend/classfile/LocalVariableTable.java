@@ -1,36 +1,39 @@
 package swp_compiler_ss13.javabite.backend.classfile;
 
 import java.io.DataOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
-public class LocalVariableTable extends Attribute {
+class LocalVariableTable implements Attribute {
 
-	private List<VariableInfo> localVariableTable;
+	private final short attributeNameIndex;
+	private final List<VariableInfo> localVariableTable;
+	private int attributeLength;
 
 	public LocalVariableTable(final short attributeNameIndex) {
-		super(attributeNameIndex);
-		// TODO Auto-generated constructor stub
+		this.attributeNameIndex = attributeNameIndex;
+		this.localVariableTable = new ArrayList<>();
+		this.attributeLength = 0;
+	}
+
+	public void addLocalVariable(final VariableInfo vi) {
+		localVariableTable.add(vi);
+		attributeLength += vi.getLength();
 	}
 
 	@Override
-	public int getAttributeLength() {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	public short getLocalVariableTableLength() {
-		return localVariableTable != null ? (short) localVariableTable.size()
-				: 0;
-	}
-
-	public List<VariableInfo> getLocalVariableTable() {
-		return localVariableTable;
-	}
-
-	@Override
-	void writeTo(final DataOutputStream out) {
-		// TODO Auto-generated method stub
-
+	public void writeTo(final DataOutputStream out) {
+		try {
+			out.writeShort(attributeNameIndex);
+			out.writeInt(attributeLength);
+			out.writeShort(localVariableTable.size());
+			for (final VariableInfo vi : localVariableTable) {
+				out.write(vi.toByteArray());
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 }

@@ -8,9 +8,9 @@ import java.io.StringWriter;
 import org.apache.commons.io.IOUtils;
 
 public class JavaClassProcess {
-	private final static boolean NO_VERIFY_NEEDED = true;
+	private final static boolean NO_VERIFY_NEEDED = false;
 	private final static String NO_VERIFY = "-noverify";
-	
+
 	Process p;
 
 	public JavaClassProcess(File classFile) {
@@ -35,8 +35,14 @@ public class JavaClassProcess {
 
 		String javaExecutablePath = System.getProperty("java.home")
 				+ File.separator + "bin" + File.separator + "java";
-		ProcessBuilder processBuilder = new ProcessBuilder(javaExecutablePath,
-				"-cp", classPath, NO_VERIFY_NEEDED?NO_VERIFY:"", className);
+		ProcessBuilder processBuilder;
+		if (NO_VERIFY_NEEDED) {
+			processBuilder = new ProcessBuilder(javaExecutablePath, "-cp",
+					classPath, NO_VERIFY, className);
+		} else {
+			processBuilder = new ProcessBuilder(javaExecutablePath, "-cp",
+					classPath, className);
+		}
 		try {
 			p = processBuilder.redirectErrorStream(true).start();
 			p.waitFor();

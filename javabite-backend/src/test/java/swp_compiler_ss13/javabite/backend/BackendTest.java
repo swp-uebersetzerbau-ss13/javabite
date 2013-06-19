@@ -175,11 +175,10 @@ public class BackendTest {
 			new QuadrupleImpl(Operator.PRINT_STRING, "linebreak", "!", "!"),
 			new QuadrupleImpl(Operator.PRINT_STRING, "s", "!", "!"),
 			new QuadrupleImpl(Operator.RETURN, "#0", "!", "!"));
-	
-	static final List<Quadruple> tac14 = asList(
-			new QuadrupleImpl(Operator.DECLARE_STRING, "#\"#\"", "!", "s"),
-			new QuadrupleImpl(Operator.PRINT_STRING, "s", "!", "!")
-	);
+
+	static final List<Quadruple> tac14 = asList(new QuadrupleImpl(
+			Operator.DECLARE_STRING, "#\"#\"", "!", "s"), new QuadrupleImpl(
+			Operator.PRINT_STRING, "s", "!", "!"));
 
 	@Before
 	public void setup() {
@@ -256,12 +255,12 @@ public class BackendTest {
 //				0, testToReturnValueOfTac(tac10, 1));
 //	}
 //
-//	@Test
-//	public void testTac11ReturnVal() throws BackendException {
-//		assertEquals(
-//				"Generated target code returns unexpected value while execution",
-//				10, testToReturnValueOfTac(tac11, 1));
-//	}
+	@Test
+	public void testTac11ReturnVal() throws BackendException {
+		assertEquals(
+				"Generated target code returns unexpected value while execution",
+				10, testToReturnValueOfTac(tac11, 1));
+	}
 //
 //	@Test
 //	public void testTac12ReturnVal() throws BackendException {
@@ -276,13 +275,13 @@ public class BackendTest {
 //				"Generated target code returns unexpected value while execution",
 //				0, testToReturnValueOfTac(tac13, 1));
 //	}
-
-	@Test
-	public void testTac14ReturnVal() throws BackendException {
-		assertEquals(
-				"Generated target code returns unexpected value while execution",
-				0, testToReturnValueOfTac(tac14, 1));
-	}
+//
+//	@Test
+//	public void testTac14ReturnVal() throws BackendException {
+//		assertEquals(
+//				"Generated target code returns unexpected value while execution",
+//				0, testToReturnValueOfTac(tac14, 1));
+//	}
 
 	public long testToReturnValueOfTac(final List<Quadruple> tac,
 			final int fileamount) throws BackendException {

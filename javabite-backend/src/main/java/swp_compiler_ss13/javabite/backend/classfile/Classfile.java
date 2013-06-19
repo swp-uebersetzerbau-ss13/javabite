@@ -194,7 +194,7 @@ public class Classfile {
 	private final byte[] magic = { (byte) 0xca, (byte) 0xfe, (byte) 0xba,
 			(byte) 0xbe };
 	private final byte[] minorVersion = { (byte) 0x00, (byte) 0x00 };
-	private final byte[] majorVersion = MAJOR_VERSION_J2SE_7;
+	private final byte[] majorVersion = MAJOR_VERSION_J2SE_5;
 	protected ConstantPool constantPool;
 	private short accessFlags;
 	private short thisClassIndex;

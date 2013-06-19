@@ -9,6 +9,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,12 +54,9 @@ public class Code {
 	 * 
 	 * @see Instruction </p>
 	 */
-	private final ArrayList<Instruction> codeArea;
+	private final List<Instruction> codeArea;
 	private final short exceptionTableLength;
-
-	private final short attributesCount;
-	private final StackMapTable stackMapTable;
-	private final LocalVariableTable localVariableTable;
+	private List<Attribute> attributes;
 
 	/**
 	 * <h1>CodeAttribute</h1>
@@ -94,9 +92,8 @@ public class Code {
 		maxLocals = 1;
 		exceptionTableLength = 0;
 
-		attributesCount = 2;
-		stackMapTable = new StackMapTable(stackMapTableIndex);
-		localVariableTable = new LocalVariableTable(localVariableTableIndex);
+		// stackMapTable = new StackMapTable(stackMapTableIndex);
+		// localVariableTable = new LocalVariableTable(localVariableTableIndex);
 	};
 
 	/**
@@ -145,13 +142,14 @@ public class Code {
 			attributesDOS.writeShort(exceptionTableLength);
 
 			// attributes attribute
-			attributesDOS.writeShort(attributesCount);
-
-			//regenerateStackMapTable();
-			//stackMapTable.writeTo(attributesDOS);
-
-			//regenerateLocalVariableTable();
-			//localVariableTable.writeTo(attributesDOS);
+			if(attributes != null) {
+				attributesDOS.writeShort(attributes.size());
+				for(final Attribute ca : attributes) {
+					ca.writeTo(attributesDOS);
+				}
+			} else {
+				attributesDOS.writeShort(0);
+			}
 
 			classfileDOS.writeShort(codeIndex);
 			classfileDOS.writeInt(attributesDOS.size());
@@ -269,14 +267,6 @@ public class Code {
 	 */
 	void addInstruction(final Instruction instruction) {
 		codeArea.add(instruction);
-	}
-
-	private void regenerateStackMapTable() {
-		// TODO implement
-	}
-
-	private void regenerateLocalVariableTable() {
-		// TODO implement
 	}
 
 }
