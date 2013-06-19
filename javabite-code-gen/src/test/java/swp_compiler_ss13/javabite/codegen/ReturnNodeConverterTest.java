@@ -1,6 +1,3 @@
-
-
-
 package swp_compiler_ss13.javabite.codegen;
 
 import static org.mockito.Matchers.any;
@@ -9,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -31,6 +29,7 @@ import swp_compiler_ss13.javabite.codegen.converters.PrintNodeConverter;
 import swp_compiler_ss13.javabite.codegen.converters.ReturnNodeConverter;
 import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
 
+@Ignore
 public class ReturnNodeConverterTest {
 	ReturnNodeConverter converter;
 	

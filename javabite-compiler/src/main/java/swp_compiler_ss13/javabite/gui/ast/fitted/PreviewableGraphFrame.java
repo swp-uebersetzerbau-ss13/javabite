@@ -1,6 +1,7 @@
 package swp_compiler_ss13.javabite.gui.ast.fitted;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Rectangle;
@@ -9,6 +10,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import swp_compiler_ss13.common.ast.AST;
@@ -94,19 +96,27 @@ public class PreviewableGraphFrame extends GraphFrame {
 		JButton btZoomOut = new JButton("Zoom Out");
 		btCenter.addActionListener(new ActionListener() {
 
-			public void actionPerformed(ActionEvent arg0) {
+			public void actionPerformed(ActionEvent e) {
 
 				Dimension graphSize = graphComponent.getGraphControl()
 						.getSize();
-				// Dimension viewPortSize =
-				// graphComponent.getViewport().getSize();
-
-				int x = graphSize.width * 2;
-				int y = graphSize.height * 2;
+				Dimension viewPortSize = graphComponent.getViewport().getSize();
+				
+				//hier will sub the view from the windows size and the graph and then will will add it
+				
+				int x = (int) viewPortSize.width;
+				int y = (int) viewPortSize.height;
+				int w = (int) graphSize.width ;
+				int v = (int) graphSize.height;
+				
+				int z = x - w;
+				int l = y - v;
+				
+				int neww= (int) graphSize.height + z;
+				int newv= (int) graphSize.width + l;
 
 				graphComponent.getGraphControl().scrollRectToVisible(
-						new Rectangle(x, y));
-
+						new Rectangle(neww, newv));
 			}
 		});
 		buttonBar.add(btZoomOut);

@@ -1,10 +1,21 @@
-allprojects {
+apply plugin: 'java'
+apply plugin: 'eclipse'
+buildscript {
+	repositories {
+		mavenCentral()
+	}
+
+	dependencies {
+		classpath 'eu.appsatori:gradle-fatjar-plugin:0.2-rc1'
+	}
+}
+configure(javabiteProjects()) {
 	apply plugin: 'java'
-	apply plugin: 'eclipse'
 	apply plugin: 'fatjar'
+	apply plugin: 'eclipse'
 
 	sourceCompatibility = 1.7
-	version = '0.1'
+	version = '0.2'
 	ext.title = 'Javabite'
 	jar {
 		manifest {
@@ -28,6 +39,10 @@ allprojects {
 
 	test { systemProperties 'org.slf4j.simpleLogger.defaultLogLevel': 'debug' }
 }
+
+/**
+ * BEGIN of project specific configs
+ */
 project(':common'){
 	sourceSets {
 		main {
@@ -38,6 +53,7 @@ project(':common'){
 		}
 	}
 }
+
 project(':javabite-compiler') {
 	
 	apply plugin:'application'
@@ -61,45 +77,46 @@ project(':javabite-compiler') {
 		compile project(':javabite-common'), project(':javabite-lexer'), project(':javabite-parser'), project(':javabite-code-gen'), project(':javabite-backend'), project(':javabite-semantic')
 	}
 }
+
 project(':javabite-lexer') {
 	dependencies { 
 		compile project(':javabite-common') 
 		testCompile project(':common').sourceSets.test.output
 	}
 }
+
 project(':javabite-parser') {
 	dependencies { compile project(':javabite-common') }
 }
+
 project(':javabite-semantic') {
 	dependencies { compile project(':javabite-common') }
 }
+
 project(':javabite-code-gen') {
 	dependencies { compile project(':javabite-common') }
 }
+
 project(':javabite-backend') {
 	dependencies { compile project(':javabite-common') }
 }
+
 project(':javabite-common') {
 	dependencies { compile project(':common') }
 }
-buildscript {
-	repositories {
-		mavenCentral()
-	}
 
-	dependencies {
-		classpath 'eu.appsatori:gradle-fatjar-plugin:0.2-rc1'
-	}
-}
+/**
+ * END of project specific configs
+ */
 task wrapper(type: Wrapper) {
 	gradleVersion = '1.6'
 }
-task buildCompiler(type: Copy, dependsOn: ['clean',':javabite-compiler:fatJar']) {
+task buildCompiler(type: Copy, dependsOn: [':javabite-compiler:fatJar']) {
 	from 'javabite-compiler/build/libs'
 	into 'bin'
 	include 'javabite-compiler-*.*.jar'
 }
-task buildAll(dependsOn: subprojects.fatJar) {
+task buildAll(dependsOn: javabiteProjects().fatJar) {
 	evaluationDependsOnChildren()
 	subprojects.each { project ->
 		copy {
@@ -109,36 +126,51 @@ task buildAll(dependsOn: subprojects.fatJar) {
 		}
 	}
 }
-//task testAll(dependsOn: subprojects.test) {
-//	evaluationDependsOnChildren()
-//	subprojects.each { project ->
-//		copy {
-//			from "${reportsDir}/tests"
-//			into 'build/tests'
-//		}
-//	}
-//	//TODO: why does this not works?
-//	def report = new org.gradle.api.internal.tasks.testing.junit.report.DefaultTestReport()
-//	report.setTestReportDir file('build/tests')
-//	report.setTestResultsDir file("${buildDir}/test-results")
-//	report.generateReport()
-//}
-//project.gradle.taskGraph.whenReady { taskGraph ->
-//	if ( taskGraph.allTasks.find { it.name == "testAll" } != null) {
-//		project.tasks.withType(Test).each { Test test ->
-//			test.ignoreFailures=true
-//			test.afterSuite { td, tr ->
-//				if ( td.getParent() == null ) {
-//					project.ext.testFailures=tr.getFailedTestCount()
-//				}
-//			}
-//		}
-//		project.tasks.getByName("testAll") {
-//			doLast {
-//				if ( testFailures ) {
-//				   throw new Exception("There were ${testFailures} test failures")
-//				  }
-//			}
-//		}
-//	}
-//}
+task run(type: JavaExec, dependsOn: buildCompiler) {
+	main = 'swp_compiler_ss13.javabite.MainDispatcher'
+	classpath = files('bin/javabite-compiler-0.1.jar')
+}
+task runAllModules(type: JavaExec, dependsOn: buildCompiler) {
+	main = 'swp_compiler_ss13.javabite.MainDispatcher'
+	classpath = files('bin/javabite-compiler-0.1.jar') + fucJarFiles()
+}
+
+def javabiteProjects() {
+	subprojects
+}
+
+def fucJarFiles() {
+	files('../fuc/code/dist/FUC-SymbolTable.jar','../fuc/code/dist/FUC-AST.jar',
+		'../fuc/code/dist/FUC-Lexer.jar','../fuc/code/dist/FUC-Parser.jar',
+		'../fuc/code/dist/FUC-Semantic-Analyser.jar','../fuc/code/dist/FUC-IRGen.jar',
+		'../fuc/code/dist/FUC-Backend.jar','../fuc/code/dist/lib/log4j-1.2.17.jar',
+		'../fuc/code/dist/FUC-Backend.jar')
+}
+
+task testAll(type: TestReport,dependsOn: javabiteProjects().test) {
+	evaluationDependsOnChildren()
+	testResultDirs = files(project.tasks.withType(Test)*.binResultsDir)
+	destinationDir = file("${buildDir}/test-results")
+}
+project.gradle.taskGraph.whenReady { taskGraph ->
+	if ( taskGraph.allTasks.find { it.name == "testAll" } != null) {
+		javabiteProjects().each { it.tasks.findAll({it instanceof Test}).each { Test test ->
+				println test.toString()
+				test.ignoreFailures=true
+				test.afterSuite { td, tr ->
+					if ( td.getParent() == null ) {
+						project.ext.testFailures=tr.getFailedTestCount()
+					}
+				}
+			}
+		}
+		project.tasks.getByName("testAll") {
+			doLast {
+				if ( testFailures ) {
+				   throw new Exception("There were ${testFailures} test failures")
+				  }
+			}
+		}
+	}
+}
+

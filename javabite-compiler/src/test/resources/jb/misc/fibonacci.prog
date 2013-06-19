@@ -1,0 +1,24 @@
+long in;
+long prevPrev;
+long prev;
+long result;
+
+in = 5;
+prevPrev = 0;
+prev = 1;
+result = 0;
+
+if (in <= 1) {
+	print in;
+	return in;
+}
+
+while (in >= 0) {
+    result = prev + prevPrev;
+    prevPrev = prev;
+    prev = result;
+    in = in - 1;
+}
+
+print result;
+return result;

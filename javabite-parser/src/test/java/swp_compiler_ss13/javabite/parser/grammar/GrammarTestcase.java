@@ -1,6 +1,7 @@
 package swp_compiler_ss13.javabite.parser.grammar;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
@@ -14,12 +15,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.sun.corba.se.impl.javax.rmi.CORBA.Util;
-
-import swp_compiler_ss13.javabite.parser.grammar.Grammar;
-import swp_compiler_ss13.javabite.parser.grammar.Item;
-import swp_compiler_ss13.javabite.parser.grammar.Symbol;
 
 public class GrammarTestcase {
 	
@@ -160,19 +155,19 @@ public class GrammarTestcase {
 		Set<SimpleT> firstEM= g2.getFirstSet(EM);
 		Set<SimpleT> firstTM= g2.getFirstSet(TM);
 		
-		assertEquals(firstE, new HashSet(list(T_OPEN,T_ID)));
+		assertEquals(firstE, new HashSet<Symbol>(list(T_OPEN,T_ID)));
 		assertEquals(firstE,firstF);
 		assertEquals(firstE,firstT);
 		
-		assertEquals(firstEM, new HashSet(list(T_ADD,T_EPSILON)));
-		assertEquals(firstTM, new HashSet(list(T_MUL,T_EPSILON)));
+		assertEquals(firstEM, new HashSet<Symbol>(list(T_ADD,T_EPSILON)));
+		assertEquals(firstTM, new HashSet<Symbol>(list(T_MUL,T_EPSILON)));
 		
 	}
 	
 	@Test
 	public void testFollowSetG2(){
 		Set<SimpleT> followE= g2.getFollowSet(E);
-		assertEquals(new HashSet(list(T_CLOSE,T_EOF)),followE);
+		assertEquals(new HashSet<Symbol>(list(T_CLOSE,T_EOF)),followE);
 		
 		Set<SimpleT> followEM= g2.getFollowSet(EM);
 		Set<SimpleT> followT= g2.getFollowSet(T);
@@ -180,9 +175,9 @@ public class GrammarTestcase {
 		Set<SimpleT> followF= g2.getFollowSet(F);
 		
 		assertEquals(followE, followEM);
-		assertEquals(new HashSet(list(T_CLOSE,T_EOF,T_ADD)),followT);
+		assertEquals(new HashSet<Symbol>(list(T_CLOSE,T_EOF,T_ADD)),followT);
 		assertEquals(followT, followTM);
-		assertEquals(new HashSet(list(T_CLOSE,T_EOF,T_ADD,T_MUL)),followF);
+		assertEquals(new HashSet<Symbol>(list(T_CLOSE,T_EOF,T_ADD,T_MUL)),followF);
 		
 		
 	}

@@ -43,7 +43,6 @@ public class JavabiteConfig extends Properties {
 
 	JavabiteConfig(String path) {
 		File configFile = new File(path);
-		System.out.println(configFile.getAbsolutePath());
 		try {
 			if (!configFile.exists()) {
 //				ClassLoader cl = ClassLoader.getSystemClassLoader();// getClass().getClassLoader();

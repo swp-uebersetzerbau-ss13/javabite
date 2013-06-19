@@ -7,6 +7,6 @@ public class ColorConfigEntry implements ConfigEntry {
 
 	@Override
 	public ConfigType getConfigType() {
-		return ConfigType.TEXT;
+		return ConfigType.COLOR;
 	}
 }

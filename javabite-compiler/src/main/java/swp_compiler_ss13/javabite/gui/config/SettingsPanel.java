@@ -21,62 +21,62 @@ import javax.swing.event.ListSelectionListener;
 import swp_compiler_ss13.javabite.config.ConfigCategory;
 import swp_compiler_ss13.javabite.config.ConfigKey;
 import swp_compiler_ss13.javabite.config.JavabiteConfig;
+import swp_compiler_ss13.javabite.gui.ConfigFormFieldFactory;
+import swp_compiler_ss13.javabite.gui.MainFrame;
 
 public class SettingsPanel extends JFrame {
+	private static final long serialVersionUID = 1L;
 	final JavabiteConfig config = JavabiteConfig.getDefaultConfig();
-	List<ConfigKeyFormInput> formInputs = new ArrayList<>();
-	
-	public SettingsPanel() {
+	List<ConfigFormField> formInputs = new ArrayList<>();
+	static MainFrame mainframe;
+	public SettingsPanel(MainFrame mainframe) {
+		this.mainframe = mainframe;
 		this.setMinimumSize(new Dimension(600, 400));
 		getContentPane().setLayout(new BorderLayout(0, 0));
-		
+
 		JSplitPane splitPane = new JSplitPane();
 		getContentPane().add(splitPane);
-		
+
 		JPanel panel = new JPanel();
 		splitPane.setRightComponent(panel);
 		panel.setLayout(new BorderLayout(0, 0));
-		
 		JPanel buttonPanel = new JPanel();
 		FlowLayout flowLayout = (FlowLayout) buttonPanel.getLayout();
 		flowLayout.setAlignment(FlowLayout.RIGHT);
 		panel.add(buttonPanel, BorderLayout.SOUTH);
-		
 		JButton btnSave = new JButton("Save");
 		btnSave.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				//TODO: save the changes done on this view
-				//therefore you have to do the following:
-				// * iterate over the formInputs
-				// * check if formInput is changed (isChanged())
-				// * if changed -> insert into config
-				//    -> config.setProperty(key,value)
+				for (ConfigFormField input:formInputs) {
+					if (input.isChanged())
+						config.setProperty(input.getKey(), input.getValue());
+				}
 			}
 		});
 		buttonPanel.add(btnSave);
-		
+
 		JButton btnClose = new JButton("Close");
 		btnClose.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				//TODO: close the SettingsPanel
+				closeWindow();
 			}
 		});
 		buttonPanel.add(btnClose);
-		
+
 		final JPanel formPanel = new JPanel();
 		panel.add(formPanel, BorderLayout.CENTER);
-				
 		final JList<ConfigCategory> list = new JList<ConfigCategory>();
 		list.addListSelectionListener(new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent evt) {
 				ConfigCategory cc = list.getSelectedValue();
-				List<ConfigKey> configKeys = new ArrayList<>(config.getConfigKeys(cc));
+				List<ConfigKey> configKeys = new ArrayList<>(config
+						.getConfigKeys(cc));
 				formPanel.removeAll();
 				formInputs.clear();
-				for(ConfigKey ck:configKeys) {
-					ConfigKeyFormInput ckfi = new ConfigKeyFormInput(ck);
+				for (ConfigKey ck : configKeys) {
+					ConfigFormField ckfi = ConfigFormFieldFactory.generateField(ck);
 					formPanel.add(ckfi.getPanel());
 					formInputs.add(ckfi);
 				}
@@ -85,25 +85,41 @@ public class SettingsPanel extends JFrame {
 		});
 		list.setModel(new AbstractListModel<ConfigCategory>() {
 			private static final long serialVersionUID = 1L;
-			List<ConfigCategory> values = new ArrayList<>(config.getConfigCategories());
+			List<ConfigCategory> values = new ArrayList<>(config
+					.getConfigCategories());
+
 			public int getSize() {
 				return values.size();
 			}
+			
 			public ConfigCategory getElementAt(int index) {
 				return values.get(index);
 			}
 		});
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		splitPane.setLeftComponent(list);
-		
+
 		pack();
 	}
-	
+
+	public void closeWindow() {
+		mainframe.reloadConfig();
+		this.dispose();
+	}
+
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		new SettingsPanel().setVisible(true);
+		JavabiteConfig config = JavabiteConfig.getDefaultConfig();
+		config.getProperty("catFirst.value1", "default1");
+		config.getProperty("catFirst.value2", "default2");
+		config.getProperty("catFirst.value3", "default3");
+		config.getProperty("value1", "default1");
+		config.getProperty("comp.key1", "default1");
+		config.getProperty("comp.key2", "default1");
+		config.getProperty("comp.key3", "default1");
+		new SettingsPanel(mainframe).setVisible(true);
 	}
 
 }

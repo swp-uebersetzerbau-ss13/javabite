@@ -1,0 +1,8 @@
+long l1;
+long l2
+l1 = 1;
+l2 = 2;
+
+while(l1 > l2) {
+	return l;
+}

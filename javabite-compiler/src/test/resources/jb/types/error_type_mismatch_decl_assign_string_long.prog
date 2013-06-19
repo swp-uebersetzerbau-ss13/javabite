@@ -1,0 +1,5 @@
+# string declared, long assigned
+# -> type mismatch
+
+string b;
+b = 100;

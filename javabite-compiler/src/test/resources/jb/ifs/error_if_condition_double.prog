@@ -1,0 +1,5 @@
+double msg;
+msg = 1.2;
+
+if(msg)
+    print msg;

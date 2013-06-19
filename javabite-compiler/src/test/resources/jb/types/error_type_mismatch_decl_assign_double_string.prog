@@ -1,0 +1,5 @@
+# double declared, string assigned
+# -> type mismatch
+
+double b;
+b = "StringVal";

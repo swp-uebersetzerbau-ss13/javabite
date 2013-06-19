@@ -1,0 +1,5 @@
+# bool declared, long assigned
+# -> type mismatch
+
+bool b;
+b = 100;

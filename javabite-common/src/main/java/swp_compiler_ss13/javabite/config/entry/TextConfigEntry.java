@@ -7,6 +7,6 @@ public class TextConfigEntry implements ConfigEntry {
 
 	@Override
 	public ConfigType getConfigType() {
-		return ConfigType.COLOR;
+		return ConfigType.TEXT;
 	}
 }

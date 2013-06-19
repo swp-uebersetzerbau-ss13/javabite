@@ -42,6 +42,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.JToolBar;
+import javax.swing.ToolTipManager;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.BadLocationException;
@@ -53,22 +54,20 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import javax.swing.text.Utilities;
 
+import org.apache.commons.io.IOUtils;
+
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.backend.Quadruple;
-import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.report.ReportLog;
 import swp_compiler_ss13.common.report.ReportType;
-import swp_compiler_ss13.javabite.ast.ASTJb;
-import swp_compiler_ss13.javabite.codegen.IntermediateCodeGeneratorJb;
 import swp_compiler_ss13.javabite.compiler.AbstractJavabiteCompiler;
 import swp_compiler_ss13.javabite.config.JavabiteConfig;
 import swp_compiler_ss13.javabite.gui.ast.ASTVisualizerJb;
 import swp_compiler_ss13.javabite.gui.ast.fitted.KhaledGraphFrame;
+import swp_compiler_ss13.javabite.gui.config.SettingsPanel;
 import swp_compiler_ss13.javabite.gui.tac.TacVisualizerJb;
-import swp_compiler_ss13.javabite.lexer.LexerJb;
-import swp_compiler_ss13.javabite.parser.ParserJb;
 import swp_compiler_ss13.javabite.runtime.JavaClassProcess;
 
 public class MainFrame extends JFrame implements ReportLog {
@@ -78,11 +77,8 @@ public class MainFrame extends JFrame implements ReportLog {
 	// class to setup styles for our sourcecode
 	StyledDocument doc = (StyledDocument) new DefaultStyledDocument();
 	
-	// we need to communicate with the lexer to colorize tokens
-	private LexerJb lexer = new LexerJb();
-	private ParserJb parser;
-	private IntermediateCodeGeneratorJb icg;
-	private ASTJb ast;
+	private boolean astVisualizationRequested = false;
+	private boolean tacVisualizationRequested = false;
 	
 	// components
 	JMenuBar menuBar;
@@ -130,6 +126,7 @@ public class MainFrame extends JFrame implements ReportLog {
 	private boolean errorReported;
 	private GuiCompiler guiCompiler;
 	
+	private String lastTooltipStr;
 	/**
 	 * Reads current editor code and writes it into given file
 	 * */
@@ -204,7 +201,10 @@ public class MainFrame extends JFrame implements ReportLog {
 					
 					// open file chooser
 					JFileChooser chooser = new JFileChooser();
-					chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+					if (openedFile != null)
+						chooser.setCurrentDirectory(openedFile.getParentFile());
+					else
+						chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
 					chooser.setFileFilter(filter);
 					int returnVal = chooser.showOpenDialog(null);
 					if (returnVal == JFileChooser.APPROVE_OPTION) {
@@ -475,7 +475,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		mntmProperties = new JMenuItem("Properties");
 		mntmProperties.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// TODO: Implementation of property editor here
+				showSettingsPanel();
 			}
 		});
 		
@@ -490,57 +490,17 @@ public class MainFrame extends JFrame implements ReportLog {
 		menuVisual = new JMenu("Visual");
 		menuBar.add(menuVisual);
 		menuVisualAst = new JMenuItem("AST");
-		parser = new ParserJb();
 		menuVisualAst.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				String text = editorPaneSourcecode.getText();
-				try {
-					lexer.setSourceStream(new ByteArrayInputStream(text.getBytes("UTF-8")));
-				} catch (UnsupportedEncodingException ex) {
-					ex.printStackTrace();
-				}
-				
-				parser.setLexer(lexer);
-				ast = parser.getParsedAST();
-				ASTVisualizerJb visualizer = new ASTVisualizerJb();
-				visualizer.visualizeAST(ast);
-				JFrame frame = new JFrame();
-				JScrollPane ast_frame=visualizer.getFrame();
-				frame.setVisible(true);
-				KhaledGraphFrame k= new KhaledGraphFrame();
-				
-				frame.setSize(167*k.levelsCounter(ast), 55*k.maximumOfNodesInLevels());
-				frame.getContentPane().add(ast_frame);
-				frame.setVisible(true);
-				toolBarLabel.setText("Rendered AST.");
+				requestAstVisualization();
 			}
 		});
 		menuVisual.add(menuVisualAst);
 		
-		icg = new IntermediateCodeGeneratorJb();
 		menuVisualTac = new JMenuItem("TAC");
 		menuVisualTac.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// TODO: show TAC
-				//JFrame frame = new JFrame();
-				//JOptionPane.showMessageDialog(frame, "TAC visualization should be placed here! (see AST code as example!)");
-
-				String text = editorPaneSourcecode.getText();
-				try {
-					lexer.setSourceStream(new ByteArrayInputStream(text.getBytes("UTF-8")));
-				} catch (UnsupportedEncodingException ex) {
-					ex.printStackTrace();
-				}
-				
-				parser.setLexer(lexer);
-				ast = parser.getParsedAST();
-				
-				try {
-					new TacVisualizerJb().visualizeTAC(icg.generateIntermediateCode(ast));
-				} catch (IntermediateCodeGeneratorException e1) {
-					e1.printStackTrace();
-				}
-				toolBarLabel.setText("Rendered TAC.");
+				requestTacVisualization();
 			}
 		});
 		menuVisual.add(menuVisualTac);
@@ -548,14 +508,19 @@ public class MainFrame extends JFrame implements ReportLog {
 		buttonRunCompile = new JButton("\u25BA");
 		buttonRunCompile.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				compile(openedFile);
-				progressBar.setValue(0);
+				compile();
 			}
 		});
 		menuBar.add(buttonRunCompile);
 		
 		// undo button
-		Icon icon = new ImageIcon(loader.getResource("images" + System.getProperty("file.separator") + "undo-icon.png"));
+		
+		Icon icon = null;
+		try {
+			icon = new ImageIcon(IOUtils.toByteArray(ClassLoader.getSystemResourceAsStream("images/undo-icon.png")));
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
 		undoButton = new JButton("", icon);
 		undoButton.setMargin(new Insets(0, 0, 0, 0));
 		undoButton.setBorder(null);
@@ -571,7 +536,11 @@ public class MainFrame extends JFrame implements ReportLog {
 		menuBar.add(undoButton);
 		
 		// redo button
-		icon = new ImageIcon(loader.getResource("images" + System.getProperty("file.separator") + "redo-icon.png"));
+		try {
+			icon = new ImageIcon(IOUtils.toByteArray(ClassLoader.getSystemResourceAsStream("images/redo-icon.png")));
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
 		redoButton = new JButton("", icon);
 		redoButton.setMargin(new Insets(0, 0, 0, 0));
 		redoButton.setBorder(null);
@@ -611,8 +580,6 @@ public class MainFrame extends JFrame implements ReportLog {
 		splitPane.setDividerLocation(250);
 		getContentPane().add(splitPane, BorderLayout.CENTER);
 		
-		lexer = new LexerJb();
-		
 		tabbedPaneLog = new JTabbedPane(JTabbedPane.TOP);
 		splitPane.setRightComponent(tabbedPaneLog);
 		
@@ -648,6 +615,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		undoManager = new UndoCostumManager(editorPaneSourcecode);
 		
 		// tooltip
+		ToolTipManager.sharedInstance().setDismissDelay(5000);
 		editorPaneSourcecode.addMouseMotionListener(new MouseAdapter() {
 			public void mouseMoved(MouseEvent e) {
 				Point loc = e.getPoint();
@@ -680,11 +648,14 @@ public class MainFrame extends JFrame implements ReportLog {
 					
 					// get attribute of word, this is the token type
 					// we dont like to search for all tokens again
-					List<Token> tokens = getTokenList(mouseOverWord);
+					List<Token> tokens = guiCompiler.getTokenListFor(mouseOverWord);
 					
 					// check if there is just 1 token type, if not there is no space between tokens and we have to identify what tokens is the target
 					if (tokens.size() == 1) {
-						editorPaneSourcecode.setToolTipText(tokens.get(0).getTokenType().name());
+						String mouseOverTokenStr = tokens.get(0).getTokenType().name();
+						if(!mouseOverTokenStr.equals(lastTooltipStr)) {
+							editorPaneSourcecode.setToolTipText(mouseOverTokenStr);
+						}
 					} else {
 						int newPos = pos-delimiterPos;
 						int posCount = 0;
@@ -701,7 +672,7 @@ public class MainFrame extends JFrame implements ReportLog {
 						editorPaneSourcecode.setToolTipText(tokens.get(tokenId).getTokenType().name());
 					}
 				} else {
-					editorPaneSourcecode.setToolTipText("");
+//					editorPaneSourcecode.setToolTipText("");
 				}
 			}
 		});
@@ -758,8 +729,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		properties.getProperty("syntaxHighlighting.comment", "#3F7F5F");
 		properties.getProperty("syntaxHighlighting.not_a_token", "#FF0000");
 		
-		Integer fontSize = Integer.parseInt(properties.getProperty("font.size","18"));
-		editorPaneSourcecode.setFont(new Font(Font.MONOSPACED, 0, fontSize));
+		reloadConfig();
 	}
 	
 	public MainFrame(File file) {
@@ -772,224 +742,8 @@ public class MainFrame extends JFrame implements ReportLog {
 		toolBarLabel.setText("Document opened.");
 	}
 
-	/**
-	 * Returns a list of tokens for a given string
-	 * */
-	private List<Token> getTokenList(String text) {
-		Token t;
-		List<Token> tokens = new ArrayList<Token>();
-		
-		try {
-			lexer.setSourceStream(new ByteArrayInputStream(text.getBytes("UTF-8")));
-			do {
-				t = lexer.getNextToken();
-				tokens.add(t);
-			} while (t.getTokenType() != TokenType.EOF);
-		} catch (UnsupportedEncodingException ex) {
-			ex.printStackTrace();
-		}
-		
-		return tokens;
-	}
-	
-	/**
-	 * Styles a special part of the sourcecode
-	 */
-	private void styleToken(TokenType tokenType, int start, int end) {
-		// check properties file for tokentype key, if exist set defined color
-		String color;
-		if ((color = properties.getProperty("syntaxHighlighting."+tokenType.toString().toLowerCase())) != null) {
-			javax.swing.text.Style style = editorPaneSourcecode.addStyle(tokenType.toString(), null);
-			StyleConstants.setForeground(style, Color.decode(color));
-			doc.setCharacterAttributes(start, end, editorPaneSourcecode.getStyle(tokenType.toString()), true);
-		} else {
-			javax.swing.text.Style style = editorPaneSourcecode.addStyle("Black", null);
-			StyleConstants.setForeground(style, Color.BLACK);
-			doc.setCharacterAttributes(start, end, editorPaneSourcecode.getStyle("Black"), true);
-		}
-	}
-	
-	/**
-	 * Styles the whole sourcode jtextpane
-	 */
-	private void styleEditorText() {
-		String text = editorPaneSourcecode.getText();
-		
-		// reset editor value to prevent some highlighting bugs
-		int cursorPos = editorPaneSourcecode.getCaretPosition();
-		editorPaneSourcecode.setText("");
-		javax.swing.text.Style style = editorPaneSourcecode.addStyle("Black", null);
-		StyleConstants.setForeground(style, Color.BLACK);
-		doc.setCharacterAttributes(0, 1, editorPaneSourcecode.getStyle("Black"), true);
-	
-		editorPaneSourcecode.setText(text);
-		editorPaneSourcecode.setCaretPosition(cursorPos);
-		int index = 0;
-		List<Token> tokens = getTokenList(text);
-		
-		Token current_token;
-		int lastIndex = 0;
-		for (int i = 0; i < tokens.size(); i++) {
-			current_token = tokens.get(i);
-			index = text.indexOf(current_token.getValue(), lastIndex);
-			lastIndex = index + current_token.getValue().length();
-			styleToken(current_token.getTokenType(), index , current_token.getValue().length());
-		}
-	}
-	
-	/**
-	 * Main entry point for the compile process
-	 * */
-	private void compile(File file) {
-		try {
-			boolean canCompiled = false;
-			if (fileChanged) {
-				JFrame frame = new JFrame("Save");
-				Object[] options = {"Cancel", "No", "Yes"};
-				String fileName = (file == null) ? "New File.prog" : file.getName();
-				int n = JOptionPane.showOptionDialog (
-					frame,
-					"Sourcecode cannot be compiled, until it is saved.\nSave file \"" + fileName + "\"?\n",
-					"Save",
-					JOptionPane.YES_NO_CANCEL_OPTION,
-					JOptionPane.QUESTION_MESSAGE,
-					null,
-					options,
-					options[2]
-				);
-				
-				if (n == 2) { // "Yes" was selected
-					if (file == null) {
-						// create and open the file chooser
-						JFileChooser chooser = new JFileChooser();
-						chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
-						chooser.setFileFilter(filter);
-						chooser.setSelectedFile(new File("New File.prog"));
-						
-						// save unchanged file
-						int returnVal = chooser.showSaveDialog(null);
-						if (returnVal == JFileChooser.APPROVE_OPTION) {
-							openedFile = chooser.getSelectedFile();
-							file = openedFile;
-							setTitle("Javabite Compiler - " + file.getName());
-							toolBarLabel.setText("Document saved.");
-							saveEditorContentIntoFile(openedFile);
-							fileChanged = false;
-							
-							// sourcecode can now be compiled
-							canCompiled = true;
-						}
-					} else { // firstly save file
-						saveEditorContentIntoFile(openedFile);
-						setTitle("Javabite Compiler - " + file.getName());
-						toolBarLabel.setText("Document saved.");
-						
-						// sourcecode can now be compiled
-						canCompiled = true;
-					}
-				} else if (n == 1) { // "No" was selected
-					if (file == null) {
-						canCompiled = false;
-						frame = new JFrame();
-						JOptionPane.showMessageDialog(frame, "Sourcecode not saved into a file. Cannot compile!");
-					} else {
-						canCompiled = true;
-					}
-				} else { // "Cancel" was selected
-					canCompiled = false;
-				}
-			} else {
-				if (file == null) {		// file not changed, but doesn't exist
-					JFrame frame = new JFrame("Save");
-					Object[] options = {"Cancel", "No", "Yes"};
-					String fileName = (file == null) ? "New File.prog" : file.getName();
-					int n = JOptionPane.showOptionDialog (
-						frame,
-						"Sourcecode cannot be compiled, until it is saved.\nSave file \"" + fileName + "\"?\n",
-						"Save",
-						JOptionPane.YES_NO_CANCEL_OPTION,
-						JOptionPane.QUESTION_MESSAGE,
-						null,
-						options,
-						options[2]
-					);
-					
-					if (n == 2) { // "Yes" was selected
-						if (file == null) {
-							// create and open the file chooser
-							JFileChooser chooser = new JFileChooser();
-							chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
-							chooser.setFileFilter(filter);
-							chooser.setSelectedFile(new File("New File.prog"));
-							
-							// save unchanged file
-							int returnVal = chooser.showSaveDialog(null);
-							if (returnVal == JFileChooser.APPROVE_OPTION) {
-								openedFile = chooser.getSelectedFile();
-								file = openedFile;
-								setTitle("Javabite Compiler - " + file.getName());
-								toolBarLabel.setText("Document saved.");
-								saveEditorContentIntoFile(openedFile);
-								fileChanged = false;
-								
-								// sourcecode can now be compiled
-								canCompiled = true;
-							}
-						}
-					}
-				} else {
-					canCompiled = true; // file not changed, but it exists
-				}
-			}
-			
-			if (canCompiled) {
-				textPaneLogs.setText("Compiler started.");
-				progressBar.setValue(0);
-				progressBar.setEnabled(true);
-				errorReported = false;
-				for (int i = 0; i < modelReportLogs.getRowCount(); i++) {
-					modelReportLogs.removeRow(i);
-				}
-				File mainFile = guiCompiler.compile(openedFile);
-				if (mainFile == null) {
-					progressBar.setValue(100);
-					progressBar.setEnabled(false);
-					return;
-				}
-				if (!guiCompiler.isJavaBackend()) {
-					reportWarning(ReportType.UNDEFINED, null, "Class execution is only supported for Java-Backends");
-					progressBar.setValue(100);
-					progressBar.setEnabled(false);
-					return;
-				}
-
-				textPaneLogs.setText(textPaneLogs.getText() + "\nExecute program...");
-				toolBarLabel.setText("Execute program...");
-				Long startTime = System.currentTimeMillis();
-				JavaClassProcess p = guiCompiler.execute(mainFile);
-				Long stopTime = System.currentTimeMillis();
-				textPaneConsole.setText(p.getProcessOutput());
-				textPaneConsole.setText(textPaneConsole.getText() + "\nReturn value: " + p.getReturnValue() + "\nExecution time: " + (stopTime - startTime) + "ms");
-				
-				toolBarLabel.setText("Execute program finished.");
-				progressBar.setValue(100);
-				progressBar.setEnabled(false);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-			
-			textPaneLogs.setText(textPaneLogs.getText() + "\nCompilation failed.");
-			toolBarLabel.setText("Compilation failed.");
-			Icon icon = new ImageIcon(loader.getResource("images" + System.getProperty("file.separator") + "unsuccess-icon.png"));
-			toolBarLabel.setIcon(icon);
-			progressBar.setValue(0);
-			progressBar.setEnabled(false);
-		}
-	}
-	
 	@Override
 	public void reportWarning(ReportType type, List<Token> tokens, String message) {
-		errorReported = true;
 		int line = 0;
 		int column = 0;
 		if (tokens != null && !tokens.isEmpty()) {
@@ -1002,6 +756,7 @@ public class MainFrame extends JFrame implements ReportLog {
 	
 	@Override
 	public void reportError(ReportType type, List<Token> tokens, String message) {
+		errorReported = true;
 		int line = 0;
 		int column = 0;
 		if (tokens != null && !tokens.isEmpty()) {
@@ -1036,7 +791,206 @@ public class MainFrame extends JFrame implements ReportLog {
 		
 		return -1;
 	}
+
+	/**
+	 * Styles a special part of the sourcecode
+	 */
+	private void styleToken(TokenType tokenType, int start, int end) {
+		// check properties file for tokentype key, if exist set defined color
+		String color;
+		if ((color = properties.getProperty("syntaxHighlighting."+tokenType.toString().toLowerCase())) != null) {
+			javax.swing.text.Style style = editorPaneSourcecode.addStyle(tokenType.toString(), null);
+			StyleConstants.setForeground(style, Color.decode(color));
+			doc.setCharacterAttributes(start, end, editorPaneSourcecode.getStyle(tokenType.toString()), true);
+		} else {
+			javax.swing.text.Style style = editorPaneSourcecode.addStyle("Black", null);
+			StyleConstants.setForeground(style, Color.BLACK);
+			doc.setCharacterAttributes(start, end, editorPaneSourcecode.getStyle("Black"), true);
+		}
+	}
+
+	/**
+	 * Styles the whole sourcode jtextpane
+	 */
+	private void styleEditorText() {
+		String text = editorPaneSourcecode.getText();
+		
+		// reset editor value to prevent some highlighting bugs
+		int cursorPos = editorPaneSourcecode.getCaretPosition();
+		editorPaneSourcecode.setText("");
+		javax.swing.text.Style style = editorPaneSourcecode.addStyle("Black", null);
+		StyleConstants.setForeground(style, Color.BLACK);
+		doc.setCharacterAttributes(0, 1, editorPaneSourcecode.getStyle("Black"), true);
 	
+		editorPaneSourcecode.setText(text);
+		editorPaneSourcecode.setCaretPosition(cursorPos);
+		int index = 0;
+		List<Token> tokens = guiCompiler.getTokenListFor(text);
+		
+		Token current_token;
+		int lastIndex = 0;
+		for (int i = 0; i < tokens.size(); i++) {
+			current_token = tokens.get(i);
+			index = text.indexOf(current_token.getValue(), lastIndex);
+			lastIndex = index + current_token.getValue().length();
+			styleToken(current_token.getTokenType(), index , current_token.getValue().length());
+		}
+	}
+
+	/**
+	 * Main entry point for the compile process
+	 * */
+	private void compile() {
+		progressBar.setValue(0);
+		try {
+			boolean canCompiled = false;
+			if (fileChanged) {
+				JFrame frame = new JFrame("Save");
+				Object[] options = {"Cancel", "No", "Yes"};
+				String fileName = (openedFile == null) ? "New File.prog" : openedFile.getName();
+				int n = JOptionPane.showOptionDialog (
+					frame,
+					"Sourcecode cannot be compiled, until it is saved.\nSave file \"" + fileName + "\"?\n",
+					"Save",
+					JOptionPane.YES_NO_CANCEL_OPTION,
+					JOptionPane.QUESTION_MESSAGE,
+					null,
+					options,
+					options[2]
+				);
+				
+				if (n == 2) { // "Yes" was selected
+					if (openedFile == null) {
+						// create and open the file chooser
+						JFileChooser chooser = new JFileChooser();
+						chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+						chooser.setFileFilter(filter);
+						chooser.setSelectedFile(new File("New File.prog"));
+						
+						// save unchanged file
+						int returnVal = chooser.showSaveDialog(null);
+						if (returnVal == JFileChooser.APPROVE_OPTION) {
+							openedFile = chooser.getSelectedFile();
+							setTitle("Javabite Compiler - " + openedFile.getName());
+							toolBarLabel.setText("Document saved.");
+							saveEditorContentIntoFile(openedFile);
+							fileChanged = false;
+							
+							// sourcecode can now be compiled
+							canCompiled = true;
+						}
+					} else { // firstly save file
+						saveEditorContentIntoFile(openedFile);
+						setTitle("Javabite Compiler - " + openedFile.getName());
+						toolBarLabel.setText("Document saved.");
+						
+						// sourcecode can now be compiled
+						canCompiled = true;
+					}
+				} else if (n == 1) { // "No" was selected
+					if (openedFile == null) {
+						canCompiled = false;
+						frame = new JFrame();
+						JOptionPane.showMessageDialog(frame, "Sourcecode not saved into a file. Cannot compile!");
+					} else {
+						canCompiled = true;
+					}
+				} else { // "Cancel" was selected
+					canCompiled = false;
+				}
+			} else {
+				if (openedFile == null) {		// file not changed, but doesn't exist
+					JFrame frame = new JFrame("Save");
+					Object[] options = {"Cancel", "No", "Yes"};
+					String fileName = (openedFile == null) ? "New File.prog" : openedFile.getName();
+					int n = JOptionPane.showOptionDialog (
+						frame,
+						"Sourcecode cannot be compiled, until it is saved.\nSave file \"" + fileName + "\"?\n",
+						"Save",
+						JOptionPane.YES_NO_CANCEL_OPTION,
+						JOptionPane.QUESTION_MESSAGE,
+						null,
+						options,
+						options[2]
+					);
+					
+					if (n == 2) { // "Yes" was selected
+						if (openedFile == null) {
+							// create and open the file chooser
+							JFileChooser chooser = new JFileChooser();
+							chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+							chooser.setFileFilter(filter);
+							chooser.setSelectedFile(new File("New File.prog"));
+							
+							// save unchanged file
+							int returnVal = chooser.showSaveDialog(null);
+							if (returnVal == JFileChooser.APPROVE_OPTION) {
+								openedFile = chooser.getSelectedFile();
+								setTitle("Javabite Compiler - " + openedFile.getName());
+								toolBarLabel.setText("Document saved.");
+								saveEditorContentIntoFile(openedFile);
+								fileChanged = false;
+								
+								// sourcecode can now be compiled
+								canCompiled = true;
+							}
+						}
+					}
+				} else {
+					canCompiled = true; // file not changed, but it exists
+				}
+			}
+			
+			if (canCompiled) {
+				textPaneLogs.setText("Compiler started.");
+				progressBar.setValue(0);
+				progressBar.setEnabled(true);
+				errorReported = false;
+				for (int i = 0; i < modelReportLogs.getRowCount(); i++) {
+					modelReportLogs.removeRow(i);
+				}
+				File mainFile = guiCompiler.compile(openedFile);
+				if (mainFile == null) {
+					progressBar.setValue(100);
+					progressBar.setEnabled(false);
+					return;
+				}
+				if (!guiCompiler.isJavaBackend()) {
+					reportWarning(ReportType.UNDEFINED, null, "Class execution is only supported for Java-Backends");
+					progressBar.setValue(100);
+					progressBar.setEnabled(false);
+					return;
+				}
+	
+				textPaneLogs.setText(textPaneLogs.getText() + "\nExecute program...");
+				toolBarLabel.setText("Execute program...");
+				Long startTime = System.currentTimeMillis();
+				JavaClassProcess p = guiCompiler.execute(mainFile);
+				Long stopTime = System.currentTimeMillis();
+				textPaneConsole.setText(p.getProcessOutput());
+				textPaneConsole.setText(textPaneConsole.getText() + "\nReturn value: " + p.getReturnValue() + "\nExecution time: " + (stopTime - startTime) + "ms");
+				
+				toolBarLabel.setText("Execute program finished.");
+				progressBar.setValue(100);
+				progressBar.setEnabled(false);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			
+			textPaneLogs.setText(textPaneLogs.getText() + "\nCompilation failed.");
+			toolBarLabel.setText("Compilation failed.");
+			Icon icon = null;
+			try {
+				icon = new ImageIcon(IOUtils.toByteArray(ClassLoader.getSystemResourceAsStream("images" + System.getProperty("file.separator") + "unsuccess-icon.png")));
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			toolBarLabel.setIcon(icon);
+			progressBar.setValue(0);
+			progressBar.setEnabled(false);
+		}
+	}
+
 	/**
 	 * Underlines wrongly typed tokens
 	 * */
@@ -1057,6 +1011,65 @@ public class MainFrame extends JFrame implements ReportLog {
 				lineNr++;
 			}
 		}
+	}
+	
+	private void requestTacVisualization() {
+		tacVisualizationRequested = true;
+		compile();
+	}
+	
+	private void showTacVisualization(List<Quadruple> tac) {
+		progressBar.setValue(0);
+		progressBar.setEnabled(false);
+		if (errorReported) {
+			JOptionPane.showMessageDialog(null, "While generating the Three Adress Code an error occoured.", "Compilation Errors", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		
+		tacVisualizationRequested = false;
+		new TacVisualizerJb().visualizeTAC(tac);
+		toolBarLabel.setText("Rendered TAC.");
+	}
+	
+	private void requestAstVisualization() {
+		astVisualizationRequested = true;
+		compile();
+	}
+	
+	private void showAstVisualization(AST ast) {
+		progressBar.setValue(0);
+		progressBar.setEnabled(false);
+		if (ast == null) {
+			JOptionPane.showMessageDialog(null, "While generating the AST an error occoured.", "Compilation Errors", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		else if (errorReported) {
+			JOptionPane.showMessageDialog(null, "While generating the AST an error occoured. The shown AST is not correct.", "Compilation Errors", JOptionPane.ERROR_MESSAGE);
+		}
+
+		astVisualizationRequested = false;
+		ASTVisualizerJb visualizer = new ASTVisualizerJb();
+		visualizer.visualizeAST(ast);
+		JFrame frame = new JFrame();
+		JScrollPane ast_frame=visualizer.getFrame();
+		frame.setVisible(true);
+		KhaledGraphFrame k= new KhaledGraphFrame();
+		
+		frame.setSize(167*k.levelsCounter(ast), 55*k.maximumOfNodesInLevels());
+		frame.getContentPane().add(ast_frame);
+		frame.setVisible(true);
+		toolBarLabel.setText("Rendered AST.");
+	}
+	
+	public void reloadConfig() {
+		properties = JavabiteConfig.getDefaultConfig();
+		Integer fontSize = Integer.parseInt(properties.getProperty("font.size","18"));
+		editorPaneSourcecode.setFont(new Font(Font.MONOSPACED, 0, fontSize));
+	
+		
+	}
+	private void showSettingsPanel() {
+		new SettingsPanel(this).setVisible(true);
 	}
 	
 	class GuiCompiler extends AbstractJavabiteCompiler {
@@ -1085,6 +1098,8 @@ public class MainFrame extends JFrame implements ReportLog {
 		@Override
 		protected boolean afterAstGeneration(AST ast) {
 			if (errorReported) {
+				if (astVisualizationRequested)
+					showAstVisualization(ast);
 				reportFailure();
 			}
 
@@ -1096,7 +1111,14 @@ public class MainFrame extends JFrame implements ReportLog {
 		@Override
 		protected boolean afterSemanticalAnalysis(AST ast) {
 			if (errorReported) {
+				if (astVisualizationRequested)
+					showAstVisualization(ast);
 				reportFailure();
+			}
+
+			if (astVisualizationRequested) {
+				showAstVisualization(ast);
+				return false;
 			}
 
 			progressBar.setValue(60);
@@ -1105,11 +1127,18 @@ public class MainFrame extends JFrame implements ReportLog {
 		}
 
 		@Override
-		protected boolean afterTacGeneration(List<Quadruple> quadruples) {
+		protected boolean afterTacGeneration(List<Quadruple> tac) {
 			if (errorReported) {
+				if (tacVisualizationRequested)
+					showTacVisualization(tac);
 				reportFailure();
 			}
 
+			if (tacVisualizationRequested) {
+				showTacVisualization(tac);
+				return false;
+			}
+			
 			progressBar.setValue(80);
 			textPaneLogs.setText(textPaneLogs.getText() + "\nGenerate target code...");
 			return true;
@@ -1124,7 +1153,12 @@ public class MainFrame extends JFrame implements ReportLog {
 			progressBar.setValue(90);
 			textPaneLogs.setText(textPaneLogs.getText() + "\nCompilation successful. Main-file written to: " + mainClassFile.getAbsolutePath());
 			toolBarLabel.setText("Compilation successful.");
-			Icon icon = new ImageIcon(loader.getResource("images" + System.getProperty("file.separator") + "success-icon.png"));
+			Icon icon = null;
+			try {
+				icon = new ImageIcon(IOUtils.toByteArray(ClassLoader.getSystemResourceAsStream("images" + System.getProperty("file.separator") + "success-icon.png")));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			toolBarLabel.setIcon(icon);
 			return true;
 		}
@@ -1132,9 +1166,34 @@ public class MainFrame extends JFrame implements ReportLog {
 		private boolean reportFailure() {
 			textPaneLogs.setText(textPaneLogs.getText() + "\nCompilation failed. See error log!");
 			toolBarLabel.setText("Compilation failed.");
-			Icon icon = new ImageIcon(loader.getResource("images" + System.getProperty("file.separator") + "unsuccess-icon.png"));
+			Icon icon = null;
+			try {
+				icon = new ImageIcon(IOUtils.toByteArray(ClassLoader.getSystemResourceAsStream("images" + System.getProperty("file.separator") + "unsuccess-icon.png")));
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			toolBarLabel.setIcon(icon);
 			return false;
+		}
+		
+		/**
+		 * Returns a list of tokens for a given string
+		 * */
+		private List<Token> getTokenListFor(String text) {
+			Token t;
+			List<Token> tokens = new ArrayList<Token>();
+			
+			try {
+				lexer.setSourceStream(new ByteArrayInputStream(text.getBytes("UTF-8")));
+				do {
+					t = lexer.getNextToken();
+					tokens.add(t);
+				} while (t.getTokenType() != TokenType.EOF);
+			} catch (UnsupportedEncodingException ex) {
+				ex.printStackTrace();
+			}
+			
+			return tokens;
 		}
 	}
 }

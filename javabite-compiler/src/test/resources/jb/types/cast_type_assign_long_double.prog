@@ -1,0 +1,10 @@
+# long declared, double assigned
+# -> cast necessary
+
+long b;
+double d;
+d = 123.89;
+b = d;
+print b;
+
+return;

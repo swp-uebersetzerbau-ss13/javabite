@@ -1,0 +1,6 @@
+long l;
+l = 1;
+
+while(true && true) {
+	return l;
+}

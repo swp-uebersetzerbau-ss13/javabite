@@ -1,0 +1,3 @@
+double msg;
+msg = 1.2;
+return msg;
