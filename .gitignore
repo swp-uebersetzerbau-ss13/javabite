@@ -14,3 +14,4 @@ build
 
 # Project-Specific
 javabite.properties
+*.log
