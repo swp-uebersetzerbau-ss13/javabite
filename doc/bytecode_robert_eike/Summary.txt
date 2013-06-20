@@ -1,0 +1,172 @@
+Instruktionen, die von der JVM ausgeführt werden
+JVM: Keine Register (für Umgebungen ohne/mit wenigen Registern: Intel 486)
+JVM: Stapelorientiert, Opcodes liegen auf dem Stapel
+Bytecode besitzt 256 Opcodes, da jeder Opcode 1 Byte lang (daher der Name)
+  51 davon sind für zukünftige Nutzung reserviert
+  3 permanent gesperrt
+    254 (0xFE), 255 (0xFF) trapdoors zu implementationsspezifischen Funktionen
+    202 (0xCA) breakpoints
+Kompaktes Design: schnelle Übertragung, systemunabhängig
+
+==========================================================================
+
+Mnemonics
+  Merkbare Aliase für Opcodes
+
+  0x00: nop: no operation
+  0x60: iadd: integer addieren
+
+==========================================================================
+
+Instruktionsgruppen
+  Laden und Speichern                       - aload_0, istore
+  Arithmentische und logische Operationen   - ladd, fcmpl
+  Typkonversion                             - i2b, d2i
+  Objekterzeugung und -manipulierung        - new, putfield
+  Operandenstapelmanagement                 - swap, dup2
+  Kontrollübertragung                       - ifeq, goto
+  Methodenausführung und Returnanweisung    - invokespecial, areturn
+
+==========================================================================
+
+Primitive
+  integer     - 4 byte signed
+  long        - 8 byte signed
+  short       - 2 byte signed
+  byte        - 1 byte signed
+  character   - 2 byte unsigned
+  float       - 4 byte single precision
+  double      - 8 byte double precision
+
+  Primitive mit mehr als 1 byte Länge werden in Big-Endian auf den Stack gelegt:
+
+  Big-Endian:     sipush 256; // 17 01 00
+  Little-Endian:  sipush 256; // 17 00 01
+
+  JVM-Slotgröße ist 32 bit/4 byte, daher werden alle Primitive unter 4 byte Größe (byte, short, char) auf 4 Byte erweitert
+
+==========================================================================
+
+Prefixe
+  i   - integer  
+  l   - long     
+  s   - short    
+  b   - byte     
+  c   - character
+  f   - float    
+  d   - double   
+  z   - boolean  
+  a   - reference
+
+  iadd: integer addieren
+  dadd: double addieren
+
+==========================================================================
+
+Suffixe
+  0..n
+
+  iconst_5: integer 5 auf Stapel legen
+
+==========================================================================
+
+Schema
+
+  Zeile: <byte offset>: <opcode> [argument1 [, argument 2]]
+
+  byte offset zeigt aktuelle Anzahl an Bytes an, dient zur Orientierung für goto-Aufrufe
+
+==========================================================================
+
+Beispiel 1
+
+  Stackoperationen
+  # opcode      Beschreibung                                          stack
+  0 iconst_1    Konstante 1 auf Stapel legen                          1
+  1 iconst_1    Konstante 1 auf Stapel legen                          1 1
+  2 iadd        Oberste 2 auf Stapel addieren, Ergebnis zurücklegen   2
+  3 istore_0    Oberste auf Stapel in lokaler Variable ablegen        _
+
+==========================================================================
+
+Beispiel 2
+
+package example;
+
+public class Example {
+
+  public static void main(String[] args) {
+    System.out.println("Hello, World!");
+  }
+
+}
+
+==========================================================================
+
+# javap -c example.Example
+
+Classfile /data/Repositories/FUBerlin/Semester/ss13/ss13-semp/Vortrag/example/Example.class
+  Last modified 12.04.2013; size 429 bytes
+  MD5 checksum fe91c51c057ecd33db3dc365459fb92d
+  Compiled from "Example.java"
+public class example.Example
+  SourceFile: "Example.java"
+  minor version: 0
+  major version: 51
+  flags: ACC_PUBLIC, ACC_SUPER
+Constant pool:
+   #1 = Methodref          #6.#15         //  java/lang/Object."<init>":()V
+   #2 = Fieldref           #16.#17        //  java/lang/System.out:Ljava/io/PrintStream;
+   #3 = String             #18            //  Hello, World!
+   #4 = Methodref          #19.#20        //  java/io/PrintStream.println:(Ljava/lang/String;)V
+   #5 = Class              #21            //  example/Example
+   #6 = Class              #22            //  java/lang/Object
+   #7 = Utf8               <init>
+   #8 = Utf8               ()V
+   #9 = Utf8               Code
+  #10 = Utf8               LineNumberTable
+  #11 = Utf8               main
+  #12 = Utf8               ([Ljava/lang/String;)V
+  #13 = Utf8               SourceFile
+  #14 = Utf8               Example.java
+  #15 = NameAndType        #7:#8          //  "<init>":()V
+  #16 = Class              #23            //  java/lang/System
+  #17 = NameAndType        #24:#25        //  out:Ljava/io/PrintStream;
+  #18 = Utf8               Hello, World!
+  #19 = Class              #26            //  java/io/PrintStream
+  #20 = NameAndType        #27:#28        //  println:(Ljava/lang/String;)V
+  #21 = Utf8               example/Example
+  #22 = Utf8               java/lang/Object
+  #23 = Utf8               java/lang/System
+  #24 = Utf8               out
+  #25 = Utf8               Ljava/io/PrintStream;
+  #26 = Utf8               java/io/PrintStream
+  #27 = Utf8               println
+  #28 = Utf8               (Ljava/lang/String;)V
+{
+  public example.Example();
+    flags: ACC_PUBLIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: aload_0       
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: return        
+      LineNumberTable:
+        line 3: 0
+
+  public static void main(java.lang.String[]);
+    flags: ACC_PUBLIC, ACC_STATIC
+    Code:
+      stack=2, locals=1, args_size=1
+         0: getstatic     #2                  // Field java/lang/System.out:Ljava/io/PrintStream;
+         3: ldc           #3                  // String Hello, World!
+         5: invokevirtual #4                  // Method java/io/PrintStream.println:(Ljava/lang/String;)V
+         8: return        
+      LineNumberTable:
+        line 6: 0
+        line 7: 8
+}
+
+
+
+==========================================================================

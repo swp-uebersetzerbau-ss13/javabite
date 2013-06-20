@@ -1,9 +1,9 @@
 package swp_compiler_ss13.javabite.gui.config.inputs;
 
-import java.awt.BorderLayout;
 import java.util.Vector;
 
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -23,16 +23,17 @@ public class DropdownConfigFormField implements ConfigFormField {
 	}
 
 	@Override
-	public JPanel getPanel() {
-		JPanel panel = new JPanel();
-		panel.setLayout(new BorderLayout());
-		panel.add(new JLabel(configKey.toString()), BorderLayout.WEST);
+	public JLabel getLabel() {
+		return new JLabel(configKey.toString(), JLabel.TRAILING);
+	}
+
+	@Override
+	public JComponent getComponent() {
 		DropdownConfigEntry ce = (DropdownConfigEntry) configKey
 				.getEntryDescription();
 		comboBox = new JComboBox<>(new Vector<>(ce.getPredefinedValues()));
 		comboBox.setSelectedItem(configKey.getValue());
-		panel.add(comboBox, BorderLayout.EAST);
-		return panel;
+		return comboBox;
 	}
 
 	@Override
