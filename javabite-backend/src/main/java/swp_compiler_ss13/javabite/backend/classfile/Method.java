@@ -9,8 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import swp_compiler_ss13.javabite.backend.Instruction;
-import swp_compiler_ss13.javabite.backend.classfile.Classfile.MethodAccessFlag;
-import swp_compiler_ss13.javabite.backend.classfile.Classfile.VariableType;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodAccessFlag;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.VariableType;
 
 /**
  * <h1>Method</h1>

@@ -13,8 +13,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import swp_compiler_ss13.javabite.backend.classfile.Classfile;
-import swp_compiler_ss13.javabite.backend.classfile.Classfile.MethodAccessFlag;
-import swp_compiler_ss13.javabite.backend.classfile.Classfile.VariableType;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ClassfileAccessFlag;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodAccessFlag;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.VariableType;
 
 public class MethodAreaTest {
 	// METHODAREA_TESTS:
@@ -31,8 +32,7 @@ public class MethodAreaTest {
 	public void setup() {
 		final Classfile classfile = new Classfile("classname",
 				"thisClassNameEIF", "superClassNameEIF",
-				Classfile.ClassfileAccessFlag.ACC_PUBLIC,
-				Classfile.ClassfileAccessFlag.ACC_SUPER);
+				ClassfileAccessFlag.ACC_PUBLIC, ClassfileAccessFlag.ACC_SUPER);
 		try {
 			methodArea = getField(classfile, "methodArea");
 			methodMap = (HashMap<String, Object>) PrivateAccessor.getField(

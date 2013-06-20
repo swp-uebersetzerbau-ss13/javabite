@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.mockito.internal.util.reflection.Whitebox;
 
 import swp_compiler_ss13.javabite.backend.classfile.Classfile;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ClassfileAccessFlag;
 
 /**
  * <h1>ClassfileTest</h1>
@@ -31,8 +32,8 @@ public class ClassfileTest {
 	@Before
 	public void setup() {
 		classfile = new Classfile("classname", "thisClassNameEIF",
-				"superClassNameEIF", Classfile.ClassfileAccessFlag.ACC_PUBLIC,
-				Classfile.ClassfileAccessFlag.ACC_SUPER);
+				"superClassNameEIF", ClassfileAccessFlag.ACC_PUBLIC,
+				ClassfileAccessFlag.ACC_SUPER);
 	}
 
 	@After

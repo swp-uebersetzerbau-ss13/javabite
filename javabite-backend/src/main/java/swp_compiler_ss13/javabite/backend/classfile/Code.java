@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import swp_compiler_ss13.javabite.backend.Instruction;
-import swp_compiler_ss13.javabite.backend.classfile.Classfile.VariableType;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.VariableType;
 
 /**
  * <h1>CodeAttribute</h1>
@@ -30,7 +30,7 @@ import swp_compiler_ss13.javabite.backend.classfile.Classfile.VariableType;
  * @author Marco
  * @since 28.04.2013
  */
-public class Code {
+class Code {
 
 	Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -91,9 +91,6 @@ public class Code {
 		maxStack = 1;
 		maxLocals = 1;
 		exceptionTableLength = 0;
-
-		// stackMapTable = new StackMapTable(stackMapTableIndex);
-		// localVariableTable = new LocalVariableTable(localVariableTableIndex);
 	};
 
 	/**
@@ -142,9 +139,9 @@ public class Code {
 			attributesDOS.writeShort(exceptionTableLength);
 
 			// attributes attribute
-			if(attributes != null) {
+			if (attributes != null) {
 				attributesDOS.writeShort(attributes.size());
-				for(final Attribute ca : attributes) {
+				for (final Attribute ca : attributes) {
 					ca.writeTo(attributesDOS);
 				}
 			} else {

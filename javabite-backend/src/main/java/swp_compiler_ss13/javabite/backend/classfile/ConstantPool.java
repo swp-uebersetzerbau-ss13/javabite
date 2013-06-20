@@ -17,8 +17,8 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import swp_compiler_ss13.javabite.backend.classfile.Classfile.InfoTag;
 import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.InfoTag;
 
 /**
  * <h1>ConstantPool</h1>

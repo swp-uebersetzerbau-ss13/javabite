@@ -10,7 +10,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import swp_compiler_ss13.javabite.backend.classfile.Classfile.FieldAccessFlag;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.FieldAccessFlag;
 
 /**
  * <h1>FieldArea</h1>
@@ -22,7 +22,7 @@ import swp_compiler_ss13.javabite.backend.classfile.Classfile.FieldAccessFlag;
  * @author Marco
  * @since 19.06.2013
  */
-public class FieldArea {
+class FieldArea {
 
 	Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -62,7 +62,7 @@ public class FieldArea {
 			/*
 			 * write fields count
 			 */
-			classfileDOS.writeShort((short) (entryList.size()));
+			classfileDOS.writeShort((short) entryList.size());
 
 			for (final FieldInfo entry : entryList) {
 				entry.writeTo(classfileDOS);

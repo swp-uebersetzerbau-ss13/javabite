@@ -12,6 +12,8 @@ import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.classfile.Classfile;
 import swp_compiler_ss13.javabite.backend.external.QuadrupleImpl;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ClassfileAccessFlag;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodAccessFlag;
 
 public class ProgramTests {
 
@@ -27,11 +29,10 @@ public class ProgramTests {
 	@Before
 	public void setUp() {
 		classfile = new Classfile("main.class", "tests/example",
-				"java/lang/Object", Classfile.ClassfileAccessFlag.ACC_PUBLIC,
-				Classfile.ClassfileAccessFlag.ACC_SUPER);
+				"java/lang/Object", ClassfileAccessFlag.ACC_PUBLIC,
+				ClassfileAccessFlag.ACC_SUPER);
 		classfile.addMethodToMethodArea(methodName, "([Ljava/lang/String;])V",
-				Classfile.MethodAccessFlag.ACC_PUBLIC,
-				Classfile.MethodAccessFlag.ACC_STATIC);
+				MethodAccessFlag.ACC_PUBLIC, MethodAccessFlag.ACC_STATIC);
 		pb = new Program.Builder(classfile, methodName);
 	}
 

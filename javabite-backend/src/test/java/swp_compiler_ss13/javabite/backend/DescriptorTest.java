@@ -76,7 +76,7 @@ public class DescriptorTest {
 				"V"));
 	}
 
-	// @Test
+	@Test
 	public void testClassNames() {
 		Class<?> c = boolean[][].class;
 		System.out.printf(

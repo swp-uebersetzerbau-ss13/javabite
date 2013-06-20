@@ -9,9 +9,11 @@ import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.Program;
 import swp_compiler_ss13.javabite.backend.classfile.Classfile;
-import swp_compiler_ss13.javabite.backend.classfile.Classfile.InfoTag;
-import swp_compiler_ss13.javabite.backend.classfile.Classfile.VariableType;
 import swp_compiler_ss13.javabite.backend.external.QuadrupleImpl;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ClassfileAccessFlag;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.InfoTag;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodAccessFlag;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.VariableType;
 
 /**
  * <h1>Translator</h1>
@@ -65,7 +67,7 @@ public class Translator {
 	 */
 	private Classfile generateClassfile(final String name,
 			final String thisClassNameEIF, final String superClassNameEIF,
-			final Classfile.ClassfileAccessFlag... accessFlags) {
+			final ClassfileAccessFlag... accessFlags) {
 		final Classfile file = new Classfile(name, thisClassNameEIF,
 				superClassNameEIF, accessFlags);
 		return file;
@@ -104,13 +106,11 @@ public class Translator {
 		// create a new (main)classfile/ classfile with main method
 		final Classfile classfile = generateClassfile(classFileName,
 				mainClassName, OBJECT_CLASSNAME_EIF,
-				Classfile.ClassfileAccessFlag.ACC_PUBLIC,
-				Classfile.ClassfileAccessFlag.ACC_SUPER);
+				ClassfileAccessFlag.ACC_PUBLIC, ClassfileAccessFlag.ACC_SUPER);
 
 		// add main method to this (main)classfile
 		classfile.addMethodToMethodArea(METHODNAME_MAIN, METHODDESCRIPTOR_MAIN,
-				Classfile.MethodAccessFlag.ACC_PUBLIC,
-				Classfile.MethodAccessFlag.ACC_STATIC);
+				MethodAccessFlag.ACC_PUBLIC, MethodAccessFlag.ACC_STATIC);
 
 		// parse tac for struct declarations and create classfiles for them
 		classfiles.addAll(generateClassfilesForStructsInTAC(tac));

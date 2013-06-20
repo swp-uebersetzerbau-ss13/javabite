@@ -17,9 +17,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import swp_compiler_ss13.javabite.backend.classfile.CPInfo;
-import swp_compiler_ss13.javabite.backend.classfile.Classfile.InfoTag;
 import swp_compiler_ss13.javabite.backend.classfile.ConstantPool;
 import swp_compiler_ss13.javabite.backend.classfile.ConstantPoolFullException;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.InfoTag;
 
 /**
  * <h1>ConstantPoolTest</h1>

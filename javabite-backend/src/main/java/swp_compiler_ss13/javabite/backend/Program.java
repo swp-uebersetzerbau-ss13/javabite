@@ -11,10 +11,10 @@ import java.util.regex.Pattern;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.classfile.Classfile;
-import swp_compiler_ss13.javabite.backend.classfile.Classfile.ArrayType;
-import swp_compiler_ss13.javabite.backend.classfile.Classfile.InfoTag;
 import swp_compiler_ss13.javabite.backend.translation.Translator;
 import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ArrayType;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.InfoTag;
 
 /**
  * <h1>Program</h1>

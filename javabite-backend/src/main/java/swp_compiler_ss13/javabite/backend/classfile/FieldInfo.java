@@ -6,8 +6,8 @@ import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import swp_compiler_ss13.javabite.backend.classfile.Classfile.FieldAccessFlag;
 import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.FieldAccessFlag;
 
 /**
  * <h1>FieldInfo</h1>
@@ -19,7 +19,7 @@ import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
  * @author Marco
  * @since 19.06.2013
  */
-public class FieldInfo {
+class FieldInfo {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -79,23 +79,21 @@ public class FieldInfo {
 	void writeTo(final DataOutputStream classfileDOS) {
 		try {
 
-			classfileDOS.writeShort(this.accessFlags);
-			classfileDOS.writeShort(this.nameIndex);
-			classfileDOS.writeShort(this.descriptorIndex);
-			classfileDOS.writeShort(this.attributesCount);
+			classfileDOS.writeShort(accessFlags);
+			classfileDOS.writeShort(nameIndex);
+			classfileDOS.writeShort(descriptorIndex);
+			classfileDOS.writeShort(attributesCount);
 
 			if (logger.isDebugEnabled()) {
 				logger.debug("Field Info Structure");
 				logger.debug("Access Flags");
-				logger.debug("{}", ByteUtils.shortToHexString(this.accessFlags));
+				logger.debug("{}", ByteUtils.shortToHexString(accessFlags));
 				logger.debug("Name Index");
-				logger.debug("{}", ByteUtils.shortToHexString(this.nameIndex));
+				logger.debug("{}", ByteUtils.shortToHexString(nameIndex));
 				logger.debug("Descriptor Index");
-				logger.debug("{}",
-						ByteUtils.shortToHexString(this.descriptorIndex));
+				logger.debug("{}", ByteUtils.shortToHexString(descriptorIndex));
 				logger.debug("Attributes Count");
-				logger.debug("{}",
-						ByteUtils.shortToHexString(this.attributesCount));
+				logger.debug("{}", ByteUtils.shortToHexString(attributesCount));
 			}
 
 		} catch (final IOException e) {

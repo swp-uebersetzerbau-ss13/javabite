@@ -2,7 +2,7 @@ package swp_compiler_ss13.javabite.backend.classfile;
 
 import java.io.DataOutputStream;
 
-public interface Attribute<T> {
+interface Attribute {
 
 	/**
 	 * <h1>writeTo</h1>
