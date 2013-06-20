@@ -447,11 +447,7 @@ public class Translator {
 			final List<Quadruple> tac) {
 		final Program.Builder pb = new Program.Builder(classfile, methodName);
 
-		boolean stopTranslation = false;
 		for (final Quadruple quad : tac) {
-
-			if (stopTranslation)
-				break;
 
 			switch (quad.getOperator()) {
 			case ADD_DOUBLE:
@@ -504,7 +500,6 @@ public class Translator {
 				break;
 			case RETURN:
 				pb.returnLong(quad);
-				stopTranslation = true;
 				break;
 			case SUB_DOUBLE:
 				pb.subDouble(quad);
