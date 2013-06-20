@@ -127,6 +127,7 @@ public class MainFrame extends JFrame implements ReportLog {
 	private GuiCompiler guiCompiler;
 	
 	private String lastTooltipStr;
+	private JScrollPane scrollPaneReportLogs;
 	/**
 	 * Reads current editor code and writes it into given file
 	 * */
@@ -592,14 +593,19 @@ public class MainFrame extends JFrame implements ReportLog {
 		tabbedPaneLog.addTab("Compiler Log", null, textPaneLogs, null);
 		
 		modelReportLogs = new DefaultTableModel();
+		
+		scrollPaneReportLogs = new JScrollPane();
+		tabbedPaneLog.addTab("Report Log", null, scrollPaneReportLogs, null);
+		
 		tableReportLogs = new JTable(modelReportLogs);
 		tableReportLogs.setEnabled(false);
-		tabbedPaneLog.addTab("Report Log", null, tableReportLogs, null);
 		modelReportLogs.addColumn("");
 		modelReportLogs.addColumn("Type");
 		modelReportLogs.addColumn("Line");
 		modelReportLogs.addColumn("Column");
 		modelReportLogs.addColumn("Message");
+		tableReportLogs.setFillsViewportHeight(true);
+		scrollPaneReportLogs.setViewportView(tableReportLogs);
 		
 		scrollPane = new JScrollPane();
 		splitPane.setLeftComponent(scrollPane);
@@ -750,8 +756,9 @@ public class MainFrame extends JFrame implements ReportLog {
 			line = tokens.get(0).getLine();
 			column = tokens.get(0).getColumn();
 		}
+		
 		modelReportLogs.addRow(new Object[] { "Warning", type, line, column, message });
-		underlineToken(line, column, Color.YELLOW);
+		underlineToken(tokens, line, column, Color.YELLOW);
 	}
 	
 	@Override
@@ -763,8 +770,9 @@ public class MainFrame extends JFrame implements ReportLog {
 			line = tokens.get(0).getLine();
 			column = tokens.get(0).getColumn();
 		}
+		
 		modelReportLogs.addRow(new Object[] { "Error", type, line, column, message });
-		underlineToken(line, column, Color.RED);
+		underlineToken(tokens, line, column, Color.RED);
 	}
 	
 	public static int getRow(int pos, JTextComponent editor) {
@@ -996,7 +1004,7 @@ public class MainFrame extends JFrame implements ReportLog {
 	/**
 	 * Underlines wrongly typed tokens
 	 * */
-	private void underlineToken(int line, int column, Color color) {
+	private void underlineToken(List<Token> tokens, int line, int column, Color color) {
 		line = line - 1;
 		String code = editorPaneSourcecode.getText();
 		String[] lines = code.split(System.getProperty("line.separator"));
