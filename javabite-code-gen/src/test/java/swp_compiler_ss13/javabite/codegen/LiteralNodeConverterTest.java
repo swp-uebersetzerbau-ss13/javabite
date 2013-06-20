@@ -4,7 +4,6 @@ import static org.junit.Assert.fail;
 import static org.mockito.Mockito.verify;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -19,7 +18,6 @@ import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.common.types.primitive.StringType;
 import swp_compiler_ss13.javabite.codegen.converters.LiteralNodeConverter;
 
-@Ignore
 public class LiteralNodeConverterTest {
 	LiteralNodeConverter converter;
 	
