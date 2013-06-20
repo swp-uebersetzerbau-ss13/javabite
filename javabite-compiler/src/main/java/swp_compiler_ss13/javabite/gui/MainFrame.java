@@ -1112,7 +1112,7 @@ public class MainFrame extends JFrame implements ReportLog {
 			if (errorReported) {
 				if (astVisualizationRequested)
 					showAstVisualization(ast);
-				reportFailure();
+				return reportFailure();
 			}
 
 			progressBar.setValue(40);
@@ -1125,7 +1125,7 @@ public class MainFrame extends JFrame implements ReportLog {
 			if (errorReported) {
 				if (astVisualizationRequested)
 					showAstVisualization(ast);
-				reportFailure();
+				return reportFailure();
 			}
 			
 			if (astVisualizationRequested) {
@@ -1144,7 +1144,7 @@ public class MainFrame extends JFrame implements ReportLog {
 			if (errorReported) {
 				if (tacVisualizationRequested)
 					showTacVisualization(tac);
-				reportFailure();
+				return reportFailure();
 			}
 
 			if (tacVisualizationRequested) {
@@ -1161,7 +1161,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		@Override
 		protected boolean afterTargetCodeGeneration(File mainClassFile) {
 			if (errorReported) {
-				reportFailure();
+				return reportFailure();
 			}
 
 			progressBar.setValue(90);
