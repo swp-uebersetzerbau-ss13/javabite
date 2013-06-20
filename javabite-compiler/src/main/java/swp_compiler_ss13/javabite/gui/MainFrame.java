@@ -63,6 +63,7 @@ import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.report.ReportLog;
 import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.javabite.compiler.AbstractJavabiteCompiler;
+import swp_compiler_ss13.javabite.config.Configurable;
 import swp_compiler_ss13.javabite.config.JavabiteConfig;
 import swp_compiler_ss13.javabite.gui.ast.ASTVisualizerJb;
 import swp_compiler_ss13.javabite.gui.ast.fitted.KhaledGraphFrame;
@@ -70,7 +71,7 @@ import swp_compiler_ss13.javabite.gui.config.SettingsPanel;
 import swp_compiler_ss13.javabite.gui.tac.TacVisualizerJb;
 import swp_compiler_ss13.javabite.runtime.JavaClassProcess;
 
-public class MainFrame extends JFrame implements ReportLog {
+public class MainFrame extends JFrame implements ReportLog, Configurable {
 	
 	private static final long serialVersionUID = 1673088367851101738L;
 	
@@ -729,7 +730,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		properties.getProperty("syntaxHighlighting.comment", "#3F7F5F");
 		properties.getProperty("syntaxHighlighting.not_a_token", "#FF0000");
 		
-		reloadConfig();
+		JavabiteConfig.registerConfigurable(this);
 	}
 	
 	public MainFrame(File file) {
@@ -1061,15 +1062,16 @@ public class MainFrame extends JFrame implements ReportLog {
 		toolBarLabel.setText("Rendered AST.");
 	}
 	
-	public void reloadConfig() {
-		properties = JavabiteConfig.getDefaultConfig();
+
+
+	@Override
+	public void onConfigChanges(JavabiteConfig config) {
 		Integer fontSize = Integer.parseInt(properties.getProperty("font.size","18"));
 		editorPaneSourcecode.setFont(new Font(Font.MONOSPACED, 0, fontSize));
-	
-		
 	}
+
 	private void showSettingsPanel() {
-		new SettingsPanel(this).setVisible(true);
+		new SettingsPanel().setVisible(true);
 	}
 	
 	class GuiCompiler extends AbstractJavabiteCompiler {

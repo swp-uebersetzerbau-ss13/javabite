@@ -1,7 +1,6 @@
 package swp_compiler_ss13.javabite.gui.config.inputs;
 
-import java.awt.BorderLayout;
-
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -18,14 +17,14 @@ public class DefaultConfigFormField implements ConfigFormField {
 	}
 
 	@Override
-	public JPanel getPanel() {
-		JPanel panel = new JPanel();
-		panel.setLayout(new BorderLayout());
-		panel.add(new JLabel(configKey.toString()), BorderLayout.WEST);
+	public JLabel getLabel() {
+		return new JLabel(configKey.toString(), JLabel.TRAILING);
+	}
+
+	@Override
+	public JComponent getComponent() {
 		textField = new JTextField(configKey.getValue());
-		textField.setColumns(20);
-		panel.add(textField, BorderLayout.EAST);
-		return panel;
+		return textField;
 	}
 
 	@Override
