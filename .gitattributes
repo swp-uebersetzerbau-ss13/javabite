@@ -3,7 +3,9 @@
 
 *.cs     text diff=csharp
 *.java   text diff=java
+*.gradle text diff=java
 *.html   text diff=html
+*.xml    text diff=html
 *.css    text
 *.js     text
 *.sql    text
