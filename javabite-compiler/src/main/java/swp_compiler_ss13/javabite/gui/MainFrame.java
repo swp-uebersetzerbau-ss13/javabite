@@ -943,6 +943,7 @@ public class MainFrame extends JFrame implements ReportLog {
 			
 			if (canCompiled) {
 				textPaneLogs.setText("Compiler started.");
+				textPaneConsole.setText(textPaneConsole.getText() + "[Compiler] started");
 				progressBar.setValue(0);
 				progressBar.setEnabled(true);
 				errorReported = false;
@@ -961,13 +962,14 @@ public class MainFrame extends JFrame implements ReportLog {
 					progressBar.setEnabled(false);
 					return;
 				}
-	
+				
 				textPaneLogs.setText(textPaneLogs.getText() + "\nExecute program...");
+				textPaneConsole.setText(textPaneConsole.getText() + "\n[Compiler] execute program...");
 				toolBarLabel.setText("Execute program...");
 				Long startTime = System.currentTimeMillis();
 				JavaClassProcess p = guiCompiler.execute(mainFile);
 				Long stopTime = System.currentTimeMillis();
-				textPaneConsole.setText(p.getProcessOutput());
+				textPaneConsole.setText(textPaneConsole.getText() + "\n" + p.getProcessOutput());
 				textPaneConsole.setText(textPaneConsole.getText() + "\nReturn value: " + p.getReturnValue() + "\nExecution time: " + (stopTime - startTime) + "ms");
 				
 				toolBarLabel.setText("Execute program finished.");
@@ -1090,7 +1092,9 @@ public class MainFrame extends JFrame implements ReportLog {
 		protected boolean afterPreprocessing(String targetClassName) {
 			progressBar.setValue(20);
 			textPaneLogs.setText(textPaneLogs.getText() + "\nCompile File: " + targetClassName + ".prog");
+			textPaneConsole.setText(textPaneConsole.getText() + "\n[Compiler] compile file " + targetClassName + ".prog");
 			textPaneLogs.setText(textPaneLogs.getText() + "\nGenerating AST for source file...");
+			textPaneConsole.setText(textPaneConsole.getText() + "\n[Compiler] generate AST for source file");
 			toolBarLabel.setText("Compiling...");
 			return true;
 		}
@@ -1115,14 +1119,15 @@ public class MainFrame extends JFrame implements ReportLog {
 					showAstVisualization(ast);
 				reportFailure();
 			}
-
+			
 			if (astVisualizationRequested) {
 				showAstVisualization(ast);
 				return false;
 			}
-
+			
 			progressBar.setValue(60);
 			textPaneLogs.setText(textPaneLogs.getText() + "\nGenerate TAC...");
+			textPaneConsole.setText(textPaneConsole.getText() + "\n[Compiler] generate TAC");
 			return true;
 		}
 
@@ -1141,6 +1146,7 @@ public class MainFrame extends JFrame implements ReportLog {
 			
 			progressBar.setValue(80);
 			textPaneLogs.setText(textPaneLogs.getText() + "\nGenerate target code...");
+			textPaneConsole.setText(textPaneConsole.getText() + "\n[Compiler] generate target code");
 			return true;
 		}
 
