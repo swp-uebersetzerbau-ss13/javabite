@@ -1005,22 +1005,16 @@ public class MainFrame extends JFrame implements ReportLog {
 	 * Underlines wrongly typed tokens
 	 * */
 	private void underlineToken(List<Token> tokens, int line, int column, Color color) {
-		line = line - 1;
 		String code = editorPaneSourcecode.getText();
 		String[] lines = code.split(System.getProperty("line.separator"));
-		int lineNr = 0;
-		for (String codeLine : lines) {
-			if (lineNr == line - 1) {
-				SimpleAttributeSet attributes = new SimpleAttributeSet();
-				StyleConstants.setForeground(attributes, color);
-				StyleConstants.setUnderline(attributes, true);
-				StyledDocument doc = editorPaneSourcecode.getStyledDocument();
-				doc.setCharacterAttributes(code.indexOf(codeLine), codeLine.length(), attributes, true);
-				break;
-			} else {
-				lineNr++;
-			}
-		}
+		
+		SimpleAttributeSet attributes = new SimpleAttributeSet();
+		StyleConstants.setForeground(attributes, color);
+		StyleConstants.setUnderline(attributes, true);
+		StyledDocument doc = editorPaneSourcecode.getStyledDocument();
+		System.out.println(line-1);
+		System.out.println("df " + lines[line-1]);
+		doc.setCharacterAttributes(code.indexOf(lines[line-1]), tokens.get(0).getValue().length(), attributes, true);
 	}
 	
 	private void requestTacVisualization() {
