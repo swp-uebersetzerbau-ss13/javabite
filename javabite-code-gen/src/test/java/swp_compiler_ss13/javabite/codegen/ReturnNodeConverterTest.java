@@ -1,35 +1,22 @@
 package swp_compiler_ss13.javabite.codegen;
 
-import static org.mockito.Matchers.any;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.nodes.IdentifierNode;
-import swp_compiler_ss13.common.ast.nodes.unary.PrintNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
-import swp_compiler_ss13.common.types.derived.ArrayType;
-import swp_compiler_ss13.common.types.derived.Member;
-import swp_compiler_ss13.common.types.derived.StructType;
-import swp_compiler_ss13.common.types.primitive.BooleanType;
-import swp_compiler_ss13.common.types.primitive.DoubleType;
-import swp_compiler_ss13.common.types.primitive.LongType;
-import swp_compiler_ss13.common.types.primitive.StringType;
-import swp_compiler_ss13.javabite.ast.nodes.unary.PrintNodeJb;
-import swp_compiler_ss13.javabite.codegen.converters.PrintNodeConverter;
 import swp_compiler_ss13.javabite.codegen.converters.ReturnNodeConverter;
 import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
 
-@Ignore
 public class ReturnNodeConverterTest {
 	ReturnNodeConverter converter;
 	
