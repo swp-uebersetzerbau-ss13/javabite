@@ -13,8 +13,7 @@ interface Attribute {
 	 * information in its member variables.
 	 * </p>
 	 * 
-	 * @author Robert, Marco
-	 * @param classfileDOS
+	 * @param out
 	 *            DataOutputStream to which the bytes are written
 	 */
 	void writeTo(DataOutputStream out);

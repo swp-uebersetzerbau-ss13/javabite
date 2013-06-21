@@ -1,9 +1,10 @@
 package swp_compiler_ss13.javabite.backend.classfile;
 
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.doubleToByteArray;
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.intToHexString;
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.longToByteArray;
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToByteArray;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -13,12 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringEscapeUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.*;
 
 /**
  * <h1>ConstantPool</h1>
@@ -48,14 +44,14 @@ public class ConstantPool {
 	 * pool.
 	 * </p>
 	 * 
-	 * @see Classfile#getIndexOfConstantInConstantPool(swp_compiler_ss13.javabite.backend.classfile.ConstantPoolType.InfoTag,
+	 * @see Classfile#getIndexOfConstantInConstantPool(swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType,
 	 *      String)
 	 */
 	private final Map<String, Short> cpEntryMap;
 
 	public ConstantPool() {
-		entryList = new ArrayList<CPInfo>();
-		cpEntryMap = new HashMap<String, Short>();
+		entryList = new ArrayList<>();
+		cpEntryMap = new HashMap<>();
 	}
 
 	/**
@@ -67,7 +63,6 @@ public class ConstantPool {
 	 * the writeTo methods of its member objects.
 	 * </p>
 	 * 
-	 * @author Robert, Marco
 	 * @param classfileDOS
 	 *            DataOutputStream to which the bytes are written
 	 */
@@ -125,7 +120,6 @@ public class ConstantPool {
 	 * will be returned. Otherwise the existing entry's index is returned.
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 27.04.2013
 	 * @param value
 	 *            long value of entry, which is to be generated
@@ -163,7 +157,6 @@ public class ConstantPool {
 	 * entry will be returned. Otherwise the existing entry's index is returned.
 	 * </p>
 	 * 
-	 * @author Marco, Robert
 	 * @since 29.04.2013
 	 * @param value
 	 *            double value of entry, which is to be generated
@@ -202,7 +195,6 @@ public class ConstantPool {
 	 * entry will be returned. Otherwise the existing entry's index is returned.
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 29.04.2013
 	 * @param value
 	 *            string value of entry, which is to be generated
@@ -219,8 +211,8 @@ public class ConstantPool {
 		}
 
 		assert value.length() >= 2;
-		value = new String(value.substring(1, value.length() - 1));
-		value = StringEscapeUtils.unescapeJava(value);
+		value = StringEscapeUtils.unescapeJava(value.substring(1,
+				value.length() - 1));
 		// generate UTF8-entry
 		final short nameIndex = generateConstantUTF8Info(value);
 		// generate String entry
@@ -243,7 +235,6 @@ public class ConstantPool {
 	 * will be returned. Otherwise the existing entry's index is returned.
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 28.04.2013
 	 * @param value
 	 *            string value of entry, which is to be generated
@@ -281,7 +272,6 @@ public class ConstantPool {
 	 * will be returned. Otherwise the existing entry's index is returned.
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 28.04.2013
 	 * @param value
 	 *            string value of entry, which is to be generated
@@ -297,15 +287,6 @@ public class ConstantPool {
 			return getCPMapEntry(key);
 		}
 
-		// generate entry
-		// final Charset c = Charset.availableCharsets().get("UTF-8");
-		// final byte[] b = value.getBytes(c);
-		// final ByteBuffer info = ByteBuffer.allocate(b.length + 2);
-		// info.put(shortToByteArray((short) b.length));
-		// info.put(b);
-		// /////////////////////////////////
-		// from DataOutputStream.writeUtf()
-		// /////////////////////////////////
 		final int strlen = value.length();
 		int utflen = 0;
 		int c, count = 0;
@@ -326,12 +307,12 @@ public class ConstantPool {
 			throw new RuntimeException("encoded string too long: " + utflen
 					+ " bytes");
 
-		byte[] bytearr = null;
+		byte[] bytearr;
 		bytearr = new byte[utflen + 2];
 		bytearr[count++] = (byte) (utflen >>> 8 & 0xFF);
-		bytearr[count++] = (byte) (utflen >>> 0 & 0xFF);
+		bytearr[count++] = (byte) (utflen & 0xFF);
 
-		int i = 0;
+		int i;
 		for (i = 0; i < strlen; i++) {
 			c = value.charAt(i);
 			if (!(c >= 0x0001 && c <= 0x007F))
@@ -347,10 +328,10 @@ public class ConstantPool {
 			} else if (c > 0x07FF) {
 				bytearr[count++] = (byte) (0xE0 | c >> 12 & 0x0F);
 				bytearr[count++] = (byte) (0x80 | c >> 6 & 0x3F);
-				bytearr[count++] = (byte) (0x80 | c >> 0 & 0x3F);
+				bytearr[count++] = (byte) (0x80 | c & 0x3F);
 			} else {
 				bytearr[count++] = (byte) (0xC0 | c >> 6 & 0x1F);
-				bytearr[count++] = (byte) (0x80 | c >> 0 & 0x3F);
+				bytearr[count++] = (byte) (0x80 | c & 0x3F);
 			}
 		}
 
@@ -377,7 +358,6 @@ public class ConstantPool {
 	 * returned.
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 30.04.2013
 	 * @param classIndex
 	 *            short index of a CLASS info entry in this constant pool
@@ -429,7 +409,6 @@ public class ConstantPool {
 	 * returned.
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 30.05.2013
 	 * @param classIndex
 	 *            short index of a CLASS info entry in this constant pool
@@ -478,7 +457,6 @@ public class ConstantPool {
 	 * returned.
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 30.04.2013
 	 * @param name
 	 *            string name of the method
@@ -541,14 +519,13 @@ public class ConstantPool {
 	 * This method looks up the index of a constant.
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 30.04.2013
 	 * @param constantName
 	 *            String name of the constant
 	 * @param constantType
 	 *            InfoTag type of the constant
 	 * @return index of the constant in this constant pool
-	 * @see Classfile#getIndexOfConstantInConstantPool(swp_compiler_ss13.javabite.backend.classfile.ConstantPoolType.InfoTag,
+	 * @see Classfile#getIndexOfConstantInConstantPool(swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType,
 	 *      String)
 	 */
 	public short getIndexOfConstant(final ConstantPoolType constantType,
@@ -559,7 +536,7 @@ public class ConstantPool {
 		} else {
 			return 0;
 		}
-	};
+	}
 
 	/**
 	 * <h1>addCPMapEntry</h1>
@@ -568,7 +545,6 @@ public class ConstantPool {
 	 * parameters.
 	 * </p>
 	 * 
-	 * @author Robert, Marco
 	 * @since 29.04.2013
 	 * @param key
 	 *            String key which is to be used in the mapping
@@ -587,16 +563,12 @@ public class ConstantPool {
 	 * {@link #cpEntryMap}.
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 30.04.2013
 	 * @param key
 	 *            String key which is to be checked
 	 */
 	boolean cpMapEntryExists(final String key) {
-		if (cpEntryMap.containsKey(key)) {
-			return true;
-		}
-		return false;
+		return cpEntryMap.containsKey(key);
 	}
 
 	/**
@@ -606,7 +578,6 @@ public class ConstantPool {
 	 * {@link #cpMapEntryExists(String)} and if it does, it'll return the
 	 * corresponding value, else 0;
 	 * 
-	 * @author Marco
 	 * @since 30.04.2013
 	 * @param key
 	 *            String key which is to be checked

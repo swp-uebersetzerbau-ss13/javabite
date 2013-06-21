@@ -2,9 +2,8 @@ package swp_compiler_ss13.javabite.backend.translation;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-
-import swp_compiler_ss13.common.backend.Quadruple.Operator;
 
 /**
  * <h1>Operation</h1>
@@ -22,7 +21,6 @@ public class Operation {
 
 	private final Instruction[] instructions;
 	private final int size;
-	private Operator operator;
 
 	private Operation(final List<Instruction> instructions, final int size) {
 		this.instructions = instructions.toArray(new Instruction[instructions
@@ -48,15 +46,6 @@ public class Operation {
 	 */
 	public Instruction getInstruction(final int index) {
 		return instructions[index];
-	}
-
-	/**
-	 * Returns this operations operator
-	 * 
-	 * @return the operator
-	 */
-	public Operator getOperator() {
-		return operator;
 	}
 
 	/**
@@ -114,8 +103,7 @@ public class Operation {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result
-				+ (instructions == null ? 0 : instructions.hashCode());
-		result = prime * result + (operator == null ? 0 : operator.hashCode());
+				+ (instructions == null ? 0 : Arrays.hashCode(instructions));
 		result = prime * result + size;
 		return result;
 	}
@@ -137,13 +125,9 @@ public class Operation {
 		if (instructions == null) {
 			if (other.instructions != null)
 				return false;
-		} else if (!instructions.equals(other.instructions))
+		} else if (!Arrays.equals(instructions, other.instructions))
 			return false;
-		if (operator != other.operator)
-			return false;
-		if (size != other.size)
-			return false;
-		return true;
+		return size == other.size;
 	}
 
 	/**
@@ -217,8 +201,7 @@ public class Operation {
 		 * @return new object, created by this builder
 		 */
 		public Operation build() {
-			final Operation op = new Operation(instructions, size);
-			return op;
+			return new Operation(instructions, size);
 		}
 
 	}

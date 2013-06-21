@@ -1,18 +1,13 @@
 package swp_compiler_ss13.javabite.backend.utils;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.util.Map;
-import java.util.regex.Pattern;
-
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.*;
+import java.nio.ByteBuffer;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 public final class ByteUtils {
 
@@ -20,14 +15,6 @@ public final class ByteUtils {
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(ByteUtils.class);
-
-	public static byte shortUpperByte(final short x) {
-		return (byte) (x >> 8 & 0xff);
-	}
-
-	public static byte shortLowerByte(final short x) {
-		return (byte) (x & 0xff);
-	}
 
 	/**
 	 * splits a short value into a byte array. Array starts with higher bytes.
@@ -37,7 +24,7 @@ public final class ByteUtils {
 	 * @return byte array
 	 */
 	public static byte[] shortToByteArray(final short x) {
-		return new byte[] { (byte) (x >> 8 & 0xff), (byte) (x & 0xff) };
+		return new byte[]{(byte) (x >> 8 & 0xff), (byte) (x & 0xff)};
 	}
 
 	/**
@@ -48,8 +35,8 @@ public final class ByteUtils {
 	 * @return byte array
 	 */
 	public static byte[] intToByteArray(final int x) {
-		return new byte[] { (byte) (x >> 24 & 0xff), (byte) (x >> 16 & 0xff),
-				(byte) (x >> 8 & 0xff), (byte) (x & 0xff) };
+		return new byte[]{(byte) (x >> 24 & 0xff), (byte) (x >> 16 & 0xff),
+				(byte) (x >> 8 & 0xff), (byte) (x & 0xff)};
 	}
 
 	/**
@@ -60,10 +47,10 @@ public final class ByteUtils {
 	 * @return byte array
 	 */
 	public static byte[] longToByteArray(final long x) {
-		return new byte[] { (byte) (x >> 56 & 0xff), (byte) (x >> 48 & 0xff),
+		return new byte[]{(byte) (x >> 56 & 0xff), (byte) (x >> 48 & 0xff),
 				(byte) (x >> 40 & 0xff), (byte) (x >> 32 & 0xff),
 				(byte) (x >> 24 & 0xff), (byte) (x >> 16 & 0xff),
-				(byte) (x >> 8 & 0xff), (byte) (x & 0xff) };
+				(byte) (x >> 8 & 0xff), (byte) (x & 0xff)};
 	}
 
 	/**
@@ -99,7 +86,7 @@ public final class ByteUtils {
 	 * @return hex string
 	 */
 	public static String intToHexString(final int i) {
-		return splitHexBytes(String.format("%08x", Integer.valueOf(i)));
+		return splitHexBytes(String.format("%08x", i));
 	}
 
 	/**
@@ -110,7 +97,7 @@ public final class ByteUtils {
 	 * @return hex string
 	 */
 	public static String shortToHexString(final short i) {
-		return splitHexBytes(String.format("%04x", Short.valueOf(i)));
+		return splitHexBytes(String.format("%04x", i));
 	}
 
 	/**
@@ -121,7 +108,7 @@ public final class ByteUtils {
 	 * @return hex string
 	 */
 	public static String byteToHexString(final byte i) {
-		return String.format("%02x", Byte.valueOf(i));
+		return String.format("%02x", i);
 	}
 
 	/**
@@ -160,8 +147,8 @@ public final class ByteUtils {
 		for (final String classname : targetCodeIS.keySet()) {
 
 			final StringBuilder sb = new StringBuilder();
-			sb.append("Classname : " + classname + "\n");
-			sb.append("Content : \n\n");
+			sb.append("Classname : ").append(classname).append("\n")
+					.append("Content : \n\n");
 
 			final ByteArrayInputStream is = (ByteArrayInputStream) targetCodeIS
 					.get(classname);

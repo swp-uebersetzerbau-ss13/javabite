@@ -1,13 +1,5 @@
 package swp_compiler_ss13.javabite.backend.translation;
 
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isConstant;
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.removeConstantSign;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.ListIterator;
-
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.classfile.Classfile;
@@ -17,6 +9,14 @@ import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodAccessFlag;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.VariableType;
 import swp_compiler_ss13.javabite.backend.utils.ConstantUtils;
 import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.ListIterator;
+
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isConstant;
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.removeConstantSign;
 
 /**
  * <h1>Translator</h1>
@@ -43,7 +43,6 @@ public class Translator {
 	 * appends it to the translator's classfile list.
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 27.04.2013
 	 * 
 	 * @param name
@@ -59,9 +58,8 @@ public class Translator {
 	private Classfile generateClassfile(final String name,
 			final String thisClassNameEIF, final String superClassNameEIF,
 			final ClassfileAccessFlag... accessFlags) {
-		final Classfile file = new Classfile(name, thisClassNameEIF,
-				superClassNameEIF, accessFlags);
-		return file;
+		return new Classfile(name, thisClassNameEIF, superClassNameEIF,
+				accessFlags);
 	}
 
 	/**
@@ -74,25 +72,20 @@ public class Translator {
 	 * specification.
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 27.04.2013
 	 * 
-	 * @param tac
-	 *            List of quadruple objects
-	 * @param className
+	 * @param mainClassName
 	 *            String filename of the (main)class, which always has to be
 	 *            generated
-	 * @return Collection<Classfile> a collection of instances of the class
-	 *         Classfile, which implements the interface Classfile. Every
-	 *         instance can be used to generate appropriate bytecode meeting the
-	 *         jvm classfile specification.
+	 * @param tac
+	 *            List of quadruple objects
 	 */
 	public Collection<Classfile> translate(final String mainClassName,
 			List<Quadruple> tac) {
 
 		// some initialization
 		final String classFileName = mainClassName + FILE_EXTENSION_CLASS;
-		final Collection<Classfile> classfiles = new ArrayList<Classfile>();
+		final Collection<Classfile> classfiles = new ArrayList<>();
 
 		// create a new (main)classfile/ classfile with main method
 		final Classfile mainClassfile = generateClassfile(classFileName,
@@ -140,10 +133,10 @@ public class Translator {
 	 * classfile's constant pool.
 	 * </p>
 	 * 
-	 * @author Robert, Marco
 	 * @since 29.04.2013
 	 * 
 	 * @param classFile
+	 *            classfile of constant pool to add constants to
 	 * @param tac
 	 *            List<Quadruple> three-address-code
 	 */
@@ -172,21 +165,21 @@ public class Translator {
 				// result can be a cnstant of different types
 				if (isConstant(result)) {
 					switch (operator) {
-					case ARRAY_SET_LONG:
-						classFile.addLongConstantToConstantPool(Long
-								.parseLong(removeConstantSign(result)));
-						break;
-					case ARRAY_SET_DOUBLE:
-						final String resMod = removeConstantSign(result);
-						classFile.addDoubleConstantToConstantPool(
-								Double.parseDouble(resMod), resMod);
-						break;
-					case ARRAY_SET_STRING:
-						classFile
-								.addStringConstantToConstantPool(removeConstantSign(result));
-						break;
-					default:
-						break;
+						case ARRAY_SET_LONG :
+							classFile.addLongConstantToConstantPool(Long
+									.parseLong(removeConstantSign(result)));
+							break;
+						case ARRAY_SET_DOUBLE :
+							final String resMod = removeConstantSign(result);
+							classFile.addDoubleConstantToConstantPool(
+									Double.parseDouble(resMod), resMod);
+							break;
+						case ARRAY_SET_STRING :
+							classFile
+									.addStringConstantToConstantPool(removeConstantSign(result));
+							break;
+						default :
+							break;
 					}
 				}
 				continue;
@@ -209,43 +202,43 @@ public class Translator {
 			 */
 
 			switch (type) {
-			case LONG:
-				if (isConstant(arg1)) {
-					classFile.addLongConstantToConstantPool(Long
-							.parseLong(removeConstantSign(arg1)));
-				}
-				if (isConstant(arg2)) {
-					classFile.addLongConstantToConstantPool(Long
-							.parseLong(removeConstantSign(arg2)));
-				}
-				break;
+				case LONG :
+					if (isConstant(arg1)) {
+						classFile.addLongConstantToConstantPool(Long
+								.parseLong(removeConstantSign(arg1)));
+					}
+					if (isConstant(arg2)) {
+						classFile.addLongConstantToConstantPool(Long
+								.parseLong(removeConstantSign(arg2)));
+					}
+					break;
 
-			case DOUBLE:
-				if (isConstant(arg1)) {
-					final String arg1Mod = removeConstantSign(arg1);
-					classFile.addDoubleConstantToConstantPool(
-							Double.parseDouble(arg1Mod), arg1Mod);
-				}
-				if (isConstant(arg2)) {
-					final String arg2Mod = removeConstantSign(arg2);
-					classFile.addDoubleConstantToConstantPool(
-							Double.parseDouble(arg2Mod), arg2Mod);
-				}
-				break;
+				case DOUBLE :
+					if (isConstant(arg1)) {
+						final String arg1Mod = removeConstantSign(arg1);
+						classFile.addDoubleConstantToConstantPool(
+								Double.parseDouble(arg1Mod), arg1Mod);
+					}
+					if (isConstant(arg2)) {
+						final String arg2Mod = removeConstantSign(arg2);
+						classFile.addDoubleConstantToConstantPool(
+								Double.parseDouble(arg2Mod), arg2Mod);
+					}
+					break;
 
-			case STRING:
-				if (type == ConstantPoolType.STRING && isConstant(arg1)) {
-					classFile
-							.addStringConstantToConstantPool(removeConstantSign(arg1));
-				}
-				if (type == ConstantPoolType.STRING && isConstant(arg2)) {
-					classFile
-							.addStringConstantToConstantPool(removeConstantSign(arg2));
-				}
-				break;
+				case STRING :
+					if (type == ConstantPoolType.STRING && isConstant(arg1)) {
+						classFile
+								.addStringConstantToConstantPool(removeConstantSign(arg1));
+					}
+					if (type == ConstantPoolType.STRING && isConstant(arg2)) {
+						classFile
+								.addStringConstantToConstantPool(removeConstantSign(arg2));
+					}
+					break;
 
-			default:
-				break;
+				default :
+					break;
 			}
 		}
 	}
@@ -261,7 +254,6 @@ public class Translator {
 	 * 
 	 * TODO: Expand operator by expected constant type or "multiple"?
 	 * 
-	 * @author Eike
 	 * @since 09.05.2013
 	 * 
 	 * @param operator
@@ -273,46 +265,46 @@ public class Translator {
 			final Operator operator) {
 		switch (operator) {
 
-		case ASSIGN_LONG:
-		case ADD_LONG:
-		case SUB_LONG:
-		case MUL_LONG:
-		case DIV_LONG:
-		case DECLARE_ARRAY:
-		case ARRAY_GET_LONG:
-		case ARRAY_GET_DOUBLE:
-		case ARRAY_GET_BOOLEAN:
-		case ARRAY_GET_STRING:
-		case ARRAY_GET_ARRAY:
-		case ARRAY_GET_REFERENCE:
-		case COMPARE_LONG_E:
-		case COMPARE_LONG_G:
-		case COMPARE_LONG_L:
-		case COMPARE_LONG_GE:
-		case COMPARE_LONG_LE:
-		case PRINT_LONG:
-		case RETURN:
-			return ConstantPoolType.LONG;
+			case ASSIGN_LONG :
+			case ADD_LONG :
+			case SUB_LONG :
+			case MUL_LONG :
+			case DIV_LONG :
+			case DECLARE_ARRAY :
+			case ARRAY_GET_LONG :
+			case ARRAY_GET_DOUBLE :
+			case ARRAY_GET_BOOLEAN :
+			case ARRAY_GET_STRING :
+			case ARRAY_GET_ARRAY :
+			case ARRAY_GET_REFERENCE :
+			case COMPARE_LONG_E :
+			case COMPARE_LONG_G :
+			case COMPARE_LONG_L :
+			case COMPARE_LONG_GE :
+			case COMPARE_LONG_LE :
+			case PRINT_LONG :
+			case RETURN :
+				return ConstantPoolType.LONG;
 
-		case ASSIGN_DOUBLE:
-		case ADD_DOUBLE:
-		case SUB_DOUBLE:
-		case MUL_DOUBLE:
-		case DIV_DOUBLE:
-		case COMPARE_DOUBLE_E:
-		case COMPARE_DOUBLE_G:
-		case COMPARE_DOUBLE_L:
-		case COMPARE_DOUBLE_GE:
-		case COMPARE_DOUBLE_LE:
-		case PRINT_DOUBLE:
-			return ConstantPoolType.DOUBLE;
+			case ASSIGN_DOUBLE :
+			case ADD_DOUBLE :
+			case SUB_DOUBLE :
+			case MUL_DOUBLE :
+			case DIV_DOUBLE :
+			case COMPARE_DOUBLE_E :
+			case COMPARE_DOUBLE_G :
+			case COMPARE_DOUBLE_L :
+			case COMPARE_DOUBLE_GE :
+			case COMPARE_DOUBLE_LE :
+			case PRINT_DOUBLE :
+				return ConstantPoolType.DOUBLE;
 
-		case ASSIGN_STRING:
-		case PRINT_STRING:
-			return ConstantPoolType.STRING;
+			case ASSIGN_STRING :
+			case PRINT_STRING :
+				return ConstantPoolType.STRING;
 
-		default:
-			return null;
+			default :
+				return null;
 		}
 	}
 
@@ -325,7 +317,6 @@ public class Translator {
 	 * initial value and will delete them if not.
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 29.04.2013
 	 * @return List<Quadruple> the modified three-address-code
 	 */
@@ -362,38 +353,38 @@ public class Translator {
 			}
 
 			switch (quad.getOperator()) {
-			case DECLARE_REFERENCE:
-				file.addVariableToMethodsCode(methodName, result,
-						VariableType.AREF);
-				tacIter.remove();
-				continue;
-			case DECLARE_ARRAY:
-				arrayFlag = true;
-				file.addVariableToMethodsCode(methodName, result,
-						VariableType.AREF);
-				continue;
-			case DECLARE_STRING:
-				op = Operator.ASSIGN_STRING;
-				defValue = ConstantUtils.DEFAULT_VALUE_STRING;
-				varType = VariableType.STRING;
-				break;
-			case DECLARE_LONG:
-				op = Operator.ASSIGN_LONG;
-				defValue = ConstantUtils.DEFAULT_VALUE_LONG;
-				varType = VariableType.LONG;
-				break;
-			case DECLARE_DOUBLE:
-				op = Operator.ASSIGN_DOUBLE;
-				defValue = ConstantUtils.DEFAULT_VALUE_DOUBLE;
-				varType = VariableType.DOUBLE;
-				break;
-			case DECLARE_BOOLEAN:
-				op = Operator.ASSIGN_BOOLEAN;
-				defValue = ConstantUtils.DEFAULT_VALUE_BOOLEAN;
-				varType = VariableType.BOOLEAN;
-				break;
-			default:
-				continue;
+				case DECLARE_REFERENCE :
+					file.addVariableToMethodsCode(methodName, result,
+							VariableType.AREF);
+					tacIter.remove();
+					continue;
+				case DECLARE_ARRAY :
+					arrayFlag = true;
+					file.addVariableToMethodsCode(methodName, result,
+							VariableType.AREF);
+					continue;
+				case DECLARE_STRING :
+					op = Operator.ASSIGN_STRING;
+					defValue = ConstantUtils.DEFAULT_VALUE_STRING;
+					varType = VariableType.STRING;
+					break;
+				case DECLARE_LONG :
+					op = Operator.ASSIGN_LONG;
+					defValue = ConstantUtils.DEFAULT_VALUE_LONG;
+					varType = VariableType.LONG;
+					break;
+				case DECLARE_DOUBLE :
+					op = Operator.ASSIGN_DOUBLE;
+					defValue = ConstantUtils.DEFAULT_VALUE_DOUBLE;
+					varType = VariableType.DOUBLE;
+					break;
+				case DECLARE_BOOLEAN :
+					op = Operator.ASSIGN_BOOLEAN;
+					defValue = ConstantUtils.DEFAULT_VALUE_BOOLEAN;
+					varType = VariableType.BOOLEAN;
+					break;
+				default :
+					continue;
 			}
 
 			// "allocate" local variable space
@@ -423,11 +414,12 @@ public class Translator {
 	 * This method generates instructions from the passed tac.
 	 * </p>
 	 * 
-	 * @author Eike
 	 * @since 09.05.2013
 	 * 
 	 * @param classfile
+	 *            classfile to generate bytecode sources for
 	 * @param tac
+	 *            list of tac-quadruples to generate bytecode with
 	 */
 	private static void extractInstructionsFromOperations(
 			final Classfile classfile, final String methodName,
@@ -437,155 +429,155 @@ public class Translator {
 		for (final Quadruple quad : tac) {
 
 			switch (quad.getOperator()) {
-			case ADD_DOUBLE:
-				pb.addDouble(quad);
-				break;
-			case ADD_LONG:
-				pb.addLong(quad);
-				break;
-			case ASSIGN_BOOLEAN:
-				pb.assignBoolean(quad);
-				break;
-			case ASSIGN_DOUBLE:
-				pb.assignDouble(quad);
-				break;
-			case ASSIGN_LONG:
-				pb.assignLong(quad);
-				break;
-			case ASSIGN_STRING:
-				pb.assignString(quad);
-				break;
-			case DECLARE_BOOLEAN:
-				pb.declareBoolean(quad);
-				break;
-			case DECLARE_DOUBLE:
-				pb.declareDouble(quad);
-				break;
-			case DECLARE_LONG:
-				pb.declareLong(quad);
-				break;
-			case DECLARE_STRING:
-				pb.declareString(quad);
-				break;
-			case DIV_DOUBLE:
-				pb.divDouble(quad);
-				break;
-			case DIV_LONG:
-				pb.divLong(quad);
-				break;
-			case DOUBLE_TO_LONG:
-				pb.doubleToLong(quad);
-				break;
-			case LONG_TO_DOUBLE:
-				pb.longToDouble(quad);
-				break;
-			case MUL_DOUBLE:
-				pb.mulDouble(quad);
-				break;
-			case MUL_LONG:
-				pb.mulLong(quad);
-				break;
-			case RETURN:
-				pb.returnLong(quad);
-				break;
-			case SUB_DOUBLE:
-				pb.subDouble(quad);
-				break;
-			case SUB_LONG:
-				pb.subLong(quad);
-				break;
-			case AND_BOOLEAN:
-				pb.andBoolean(quad);
-				break;
-			case OR_BOOLEAN:
-				pb.orBoolean(quad);
-				break;
-			case NOT_BOOLEAN:
-				pb.notBoolean(quad);
-				break;
-			case COMPARE_LONG_E:
-				pb.compareLongE(quad);
-				break;
-			case COMPARE_LONG_G:
-				pb.compareLongG(quad);
-				break;
-			case COMPARE_LONG_L:
-				pb.compareLongL(quad);
-				break;
-			case COMPARE_LONG_GE:
-				pb.compareLongGE(quad);
-				break;
-			case COMPARE_LONG_LE:
-				pb.compareLongLE(quad);
-				break;
-			case COMPARE_DOUBLE_E:
-				pb.compareDoubleE(quad);
-				break;
-			case COMPARE_DOUBLE_G:
-				pb.compareDoubleG(quad);
-				break;
-			case COMPARE_DOUBLE_L:
-				pb.compareDoubleL(quad);
-				break;
-			case COMPARE_DOUBLE_GE:
-				pb.compareDoubleGE(quad);
-				break;
-			case COMPARE_DOUBLE_LE:
-				pb.compareDoubleLE(quad);
-				break;
-			case LABEL:
-				pb.label(quad);
-				break;
-			case BRANCH:
-				pb.branch(quad);
-				break;
-			case PRINT_BOOLEAN:
-				pb.printBoolean(quad);
-				break;
-			case PRINT_DOUBLE:
-				pb.printDouble(quad);
-				break;
-			case PRINT_LONG:
-				pb.printLong(quad);
-				break;
-			case PRINT_STRING:
-				pb.printString(quad);
-				break;
-			case DECLARE_ARRAY:
-				pb.declareArray(quad);
-				break;
-			case ARRAY_GET_LONG:
-				pb.arrayGetLong(quad);
-				break;
-			case ARRAY_GET_DOUBLE:
-				pb.arrayGetDouble(quad);
-				break;
-			case ARRAY_GET_BOOLEAN:
-				pb.arrayGetBoolean(quad);
-				break;
-			case ARRAY_GET_STRING:
-				pb.arrayGetString(quad);
-				break;
-			case ARRAY_GET_REFERENCE:
-				pb.arrayGetReference(quad);
-				break;
-			case ARRAY_SET_LONG:
-				pb.arraySetLong(quad);
-				break;
-			case ARRAY_SET_DOUBLE:
-				pb.arraySetDouble(quad);
-				break;
-			case ARRAY_SET_BOOLEAN:
-				pb.arraySetBoolean(quad);
-				break;
-			case ARRAY_SET_STRING:
-				pb.arraySetString(quad);
-				break;
-			case ARRAY_SET_ARRAY:
-				pb.arraySetArray(quad);
-				break;
-			default:
-				break;
+				case ADD_DOUBLE :
+					pb.addDouble(quad);
+					break;
+				case ADD_LONG :
+					pb.addLong(quad);
+					break;
+				case ASSIGN_BOOLEAN :
+					pb.assignBoolean(quad);
+					break;
+				case ASSIGN_DOUBLE :
+					pb.assignDouble(quad);
+					break;
+				case ASSIGN_LONG :
+					pb.assignLong(quad);
+					break;
+				case ASSIGN_STRING :
+					pb.assignString(quad);
+					break;
+				case DECLARE_BOOLEAN :
+					pb.declareBoolean(quad);
+					break;
+				case DECLARE_DOUBLE :
+					pb.declareDouble(quad);
+					break;
+				case DECLARE_LONG :
+					pb.declareLong(quad);
+					break;
+				case DECLARE_STRING :
+					pb.declareString(quad);
+					break;
+				case DIV_DOUBLE :
+					pb.divDouble(quad);
+					break;
+				case DIV_LONG :
+					pb.divLong(quad);
+					break;
+				case DOUBLE_TO_LONG :
+					pb.doubleToLong(quad);
+					break;
+				case LONG_TO_DOUBLE :
+					pb.longToDouble(quad);
+					break;
+				case MUL_DOUBLE :
+					pb.mulDouble(quad);
+					break;
+				case MUL_LONG :
+					pb.mulLong(quad);
+					break;
+				case RETURN :
+					pb.returnLong(quad);
+					break;
+				case SUB_DOUBLE :
+					pb.subDouble(quad);
+					break;
+				case SUB_LONG :
+					pb.subLong(quad);
+					break;
+				case AND_BOOLEAN :
+					pb.andBoolean(quad);
+					break;
+				case OR_BOOLEAN :
+					pb.orBoolean(quad);
+					break;
+				case NOT_BOOLEAN :
+					pb.notBoolean(quad);
+					break;
+				case COMPARE_LONG_E :
+					pb.compareLongE(quad);
+					break;
+				case COMPARE_LONG_G :
+					pb.compareLongG(quad);
+					break;
+				case COMPARE_LONG_L :
+					pb.compareLongL(quad);
+					break;
+				case COMPARE_LONG_GE :
+					pb.compareLongGE(quad);
+					break;
+				case COMPARE_LONG_LE :
+					pb.compareLongLE(quad);
+					break;
+				case COMPARE_DOUBLE_E :
+					pb.compareDoubleE(quad);
+					break;
+				case COMPARE_DOUBLE_G :
+					pb.compareDoubleG(quad);
+					break;
+				case COMPARE_DOUBLE_L :
+					pb.compareDoubleL(quad);
+					break;
+				case COMPARE_DOUBLE_GE :
+					pb.compareDoubleGE(quad);
+					break;
+				case COMPARE_DOUBLE_LE :
+					pb.compareDoubleLE(quad);
+					break;
+				case LABEL :
+					pb.label(quad);
+					break;
+				case BRANCH :
+					pb.branch(quad);
+					break;
+				case PRINT_BOOLEAN :
+					pb.printBoolean(quad);
+					break;
+				case PRINT_DOUBLE :
+					pb.printDouble(quad);
+					break;
+				case PRINT_LONG :
+					pb.printLong(quad);
+					break;
+				case PRINT_STRING :
+					pb.printString(quad);
+					break;
+				case DECLARE_ARRAY :
+					pb.declareArray(quad);
+					break;
+				case ARRAY_GET_LONG :
+					pb.arrayGetLong(quad);
+					break;
+				case ARRAY_GET_DOUBLE :
+					pb.arrayGetDouble(quad);
+					break;
+				case ARRAY_GET_BOOLEAN :
+					pb.arrayGetBoolean(quad);
+					break;
+				case ARRAY_GET_STRING :
+					pb.arrayGetString(quad);
+					break;
+				case ARRAY_GET_REFERENCE :
+					pb.arrayGetReference(quad);
+					break;
+				case ARRAY_SET_LONG :
+					pb.arraySetLong(quad);
+					break;
+				case ARRAY_SET_DOUBLE :
+					pb.arraySetDouble(quad);
+					break;
+				case ARRAY_SET_BOOLEAN :
+					pb.arraySetBoolean(quad);
+					break;
+				case ARRAY_SET_STRING :
+					pb.arraySetString(quad);
+					break;
+				case ARRAY_SET_ARRAY :
+					pb.arraySetArray(quad);
+					break;
+				default :
+					break;
 			}
 		}
 

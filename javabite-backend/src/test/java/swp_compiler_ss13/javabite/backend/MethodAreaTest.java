@@ -1,21 +1,17 @@
 package swp_compiler_ss13.javabite.backend;
 
-import static junitx.util.PrivateAccessor.getField;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.util.HashMap;
-
 import junitx.util.PrivateAccessor;
-
 import org.junit.Before;
 import org.junit.Test;
-
 import swp_compiler_ss13.javabite.backend.classfile.Classfile;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ClassfileAccessFlag;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodAccessFlag;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.VariableType;
+
+import java.util.HashMap;
+
+import static junitx.util.PrivateAccessor.getField;
+import static org.junit.Assert.*;
 
 public class MethodAreaTest {
 	// METHODAREA_TESTS:
@@ -53,34 +49,34 @@ public class MethodAreaTest {
 	public void testThatAddMethodAddsMethodToMethodMap() {
 		try {
 			final int size = (int) PrivateAccessor.invoke(methodMap, "size",
-					new Class<?>[] {}, new Object[] {});
+					new Class<?>[]{}, new Object[]{});
 
 			PrivateAccessor.invoke(methodArea, "addMethod",
 			/**
 			 * Types of Parameter
 			 */
-			new Class<?>[] { String.class, short.class, short.class,
-					short.class, String.class, MethodAccessFlag[].class, },
+			new Class<?>[]{String.class, short.class, short.class, short.class,
+					String.class, MethodAccessFlag[].class,},
 			/**
 			 * Parameterarray
 			 */
-			new Object[] {
+			new Object[]{
 					"main",
 					(short) 1,
 					(short) 2,
 					(short) 3,
 					"([Ljava/lang/String;])V})",
-					new MethodAccessFlag[] { MethodAccessFlag.ACC_PUBLIC,
-							MethodAccessFlag.ACC_STATIC } });
+					new MethodAccessFlag[]{MethodAccessFlag.ACC_PUBLIC,
+							MethodAccessFlag.ACC_STATIC}});
 
 			final Object addedMethod = PrivateAccessor.invoke(methodArea,
-					"getMethodByMethodName", new Class<?>[] { String.class },
-					new Object[] { "main" });
+					"getMethodByMethodName", new Class<?>[]{String.class},
+					new Object[]{"main"});
 
 			assertNotNull("Method isn't put in methodMap.", addedMethod);
 
 			final int newSize = (int) PrivateAccessor.invoke(methodMap, "size",
-					new Class<?>[] {}, new Object[] {});
+					new Class<?>[]{}, new Object[]{});
 
 			assertTrue(
 					"Something went wrong while putting method to methodMap - size isn't increased by one",
@@ -113,15 +109,15 @@ public class MethodAreaTest {
 	public void testThatMethodReturnsMethodIfContained() {
 		try {
 			Object method = PrivateAccessor.invoke(methodArea,
-					"getMethodByMethodName", new Class<?>[] { String.class },
-					new Object[] { "testMethod1" });
+					"getMethodByMethodName", new Class<?>[]{String.class},
+					new Object[]{"testMethod1"});
 
 			assertTrue("Method shouldn't be in methodArea", method == null);
 
 			addDummyMethod("testMethod1");
 			method = PrivateAccessor.invoke(methodArea,
-					"getMethodByMethodName", new Class<?>[] { String.class },
-					new Object[] { "testMethod1" });
+					"getMethodByMethodName", new Class<?>[]{String.class},
+					new Object[]{"testMethod1"});
 
 			assertNotNull("Method should be in methodArea", method);
 
@@ -136,9 +132,8 @@ public class MethodAreaTest {
 		try {
 			for (final VariableType type : VariableType.values()) {
 				final Object method = PrivateAccessor.invoke(methodArea,
-						"getMethodByMethodName",
-						new Class<?>[] { String.class },
-						new Object[] { "testMethod" });
+						"getMethodByMethodName", new Class<?>[]{String.class},
+						new Object[]{"testMethod"});
 
 				final Object codeAttribute = PrivateAccessor.getField(method,
 						"codeAttribute");
@@ -148,19 +143,19 @@ public class MethodAreaTest {
 				assertTrue(
 						"Variable shouldn't be in variableMap of codeAttribute.",
 						null == PrivateAccessor.invoke(variableMap, "get",
-								new Class<?>[] { Object.class },
-								new Object[] { "varName_" + type.name() }));
+								new Class<?>[]{Object.class},
+								new Object[]{"varName_" + type.name()}));
 
 				PrivateAccessor.invoke(methodArea, "addVariableToMethodsCode",
-						new Class<?>[] { String.class, String.class,
-								VariableType.class }, new Object[] {
-								"testMethod", "varName_" + type.name(), type });
+						new Class<?>[]{String.class, String.class,
+								VariableType.class}, new Object[]{"testMethod",
+								"varName_" + type.name(), type});
 
 				assertTrue(
 						"Variable should be in variableMap of codeAttribute right now",
 						null != PrivateAccessor.invoke(variableMap, "get",
-								new Class<?>[] { Object.class },
-								new Object[] { "varName_" + type.name() }));
+								new Class<?>[]{Object.class},
+								new Object[]{"varName_" + type.name()}));
 			}
 		} catch (final Throwable e) {
 			e.printStackTrace();
@@ -172,8 +167,8 @@ public class MethodAreaTest {
 		addDummyMethod("testMethod");
 		try {
 			final Object method = PrivateAccessor.invoke(methodArea,
-					"getMethodByMethodName", new Class<?>[] { String.class },
-					new Object[] { "testMethod" });
+					"getMethodByMethodName", new Class<?>[]{String.class},
+					new Object[]{"testMethod"});
 
 			final Object codeAttribute = PrivateAccessor.getField(method,
 					"codeAttribute");
@@ -182,20 +177,20 @@ public class MethodAreaTest {
 
 			assertTrue("maxLocals should be initial 1.", maxLocals == 1);
 
-			final VariableType[] doubleWideTypes = new VariableType[] {
-					VariableType.LONG, VariableType.DOUBLE };
-			final VariableType[] singleWideTypes = new VariableType[] {
+			final VariableType[] doubleWideTypes = new VariableType[]{
+					VariableType.LONG, VariableType.DOUBLE};
+			final VariableType[] singleWideTypes = new VariableType[]{
 					VariableType.STRING, VariableType.BOOLEAN,
-					VariableType.AREF };
+					VariableType.AREF};
 
 			short maxLocals_control = 1;
 			short expectedIndex = 1;
 			for (final VariableType type : doubleWideTypes) {
 
 				PrivateAccessor.invoke(methodArea, "addVariableToMethodsCode",
-						new Class<?>[] { String.class, String.class,
-								VariableType.class }, new Object[] {
-								"testMethod", "varName_" + type.name(), type });
+						new Class<?>[]{String.class, String.class,
+								VariableType.class}, new Object[]{"testMethod",
+								"varName_" + type.name(), type});
 
 				maxLocals_control += 2;
 
@@ -209,9 +204,9 @@ public class MethodAreaTest {
 				 * maxLocals equals index of variable
 				 */
 				final byte index = (byte) PrivateAccessor.invoke(methodArea,
-						"getIndexOfVariableInMethod", new Class<?>[] {
-								String.class, String.class }, new Object[] {
-								"testMethod", "varName_" + type.name() });
+						"getIndexOfVariableInMethod", new Class<?>[]{
+								String.class, String.class}, new Object[]{
+								"testMethod", "varName_" + type.name()});
 
 				assertTrue("The index(" + index
 						+ ") of the variable isn't like the expected index("
@@ -222,9 +217,9 @@ public class MethodAreaTest {
 
 			for (final VariableType type : singleWideTypes) {
 				PrivateAccessor.invoke(methodArea, "addVariableToMethodsCode",
-						new Class<?>[] { String.class, String.class,
-								VariableType.class }, new Object[] {
-								"testMethod", "varName_" + type.name(), type });
+						new Class<?>[]{String.class, String.class,
+								VariableType.class}, new Object[]{"testMethod",
+								"varName_" + type.name(), type});
 
 				final short maxLocals_fst = (short) PrivateAccessor.getField(
 						codeAttribute, "maxLocals");
@@ -239,9 +234,9 @@ public class MethodAreaTest {
 				 * maxLocals equals index of variable
 				 */
 				final byte index = (byte) PrivateAccessor.invoke(methodArea,
-						"getIndexOfVariableInMethod", new Class<?>[] {
-								String.class, String.class }, new Object[] {
-								"testMethod", "varName_" + type.name() });
+						"getIndexOfVariableInMethod", new Class<?>[]{
+								String.class, String.class}, new Object[]{
+								"testMethod", "varName_" + type.name()});
 
 				assertTrue("The index(" + index
 						+ ") of the variable isn't like the expected index("
@@ -263,19 +258,19 @@ public class MethodAreaTest {
 			/**
 			 * Types of Parameter
 			 */
-			new Class<?>[] { String.class, short.class, short.class,
-					short.class, String.class, MethodAccessFlag[].class, },
+			new Class<?>[]{String.class, short.class, short.class, short.class,
+					String.class, MethodAccessFlag[].class,},
 			/**
 			 * Parameterarray
 			 */
-			new Object[] {
+			new Object[]{
 					methodName,
 					(short) 1,
 					(short) 2,
 					(short) 3,
 					"([Ljava/lang/String;])V})",
-					new MethodAccessFlag[] { MethodAccessFlag.ACC_PUBLIC,
-							MethodAccessFlag.ACC_STATIC } });
+					new MethodAccessFlag[]{MethodAccessFlag.ACC_PUBLIC,
+							MethodAccessFlag.ACC_STATIC}});
 		} catch (final Throwable e) {
 			e.printStackTrace();
 		}

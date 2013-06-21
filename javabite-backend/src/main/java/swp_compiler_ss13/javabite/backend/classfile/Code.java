@@ -1,8 +1,9 @@
 package swp_compiler_ss13.javabite.backend.classfile;
 
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.byteArrayToHexString;
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.intToHexString;
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToHexString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import swp_compiler_ss13.javabite.backend.translation.Instruction;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.VariableType;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -11,11 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import swp_compiler_ss13.javabite.backend.translation.Instruction;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.VariableType;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.*;
 
 /**
  * <h1>CodeAttribute</h1>
@@ -70,28 +67,20 @@ class Code {
 	 * The constructor initializes the CodeAttribute object.
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 28.04.2013
 	 * @param codeIndex
 	 *            short index into this classfile's constant pool of string
 	 *            "Code".
-	 * @param stackMapTableIndex
-	 *            short index into this classfile's constant pool of string
-	 *            "StackMapTable".
-	 * @param localVariableTableIndex
-	 *            short index into this classfile's constant pool of string
-	 *            "LocalVariableTable".
 	 */
-	public Code(final short codeIndex, final short stackMapTableIndex,
-			final short localVariableTableIndex) {
+	public Code(final short codeIndex) {
 		this.codeIndex = codeIndex;
-		variableMap = new HashMap<String, Byte>();
-		codeArea = new ArrayList<Instruction>();
+		variableMap = new HashMap<>();
+		codeArea = new ArrayList<>();
 
 		maxStack = 1;
 		maxLocals = 1;
 		exceptionTableLength = 0;
-	};
+	}
 
 	/**
 	 * <h1>writeTo</h1>
@@ -102,7 +91,6 @@ class Code {
 	 * information in its member variables.
 	 * </p>
 	 * 
-	 * @author Robert, Marco
 	 * @param classfileDOS
 	 *            DataOutputStream to which the bytes are written
 	 */
@@ -179,7 +167,6 @@ class Code {
 	 * objects' methods {@link Instruction#getStackChange()}.
 	 * </p>
 	 * 
-	 * @author Eike
 	 * @since 13.05.2013
 	 * @return short max stack size that can be reached
 	 * @see #codeArea
@@ -206,7 +193,6 @@ class Code {
 	 * happen.maxLocals
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 29.04.2013
 	 * @param variableName
 	 *            String name of the variable to be added
@@ -230,7 +216,6 @@ class Code {
 	 * this code attribute.
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 30.04.2013
 	 * @param variableName
 	 *            String name of the variable
@@ -255,7 +240,6 @@ class Code {
 	 * attribute
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 30.04.2013
 	 * @param instruction
 	 *            instance of class Instruction

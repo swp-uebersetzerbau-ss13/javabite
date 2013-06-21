@@ -1,8 +1,8 @@
 package swp_compiler_ss13.javabite.backend;
 
-import java.util.regex.Pattern;
-
 import org.junit.Test;
+
+import java.util.regex.Pattern;
 
 public class DescriptorTest {
 
@@ -10,9 +10,11 @@ public class DescriptorTest {
 			final String leadin) {
 		if (clazz == null)
 			return;
-		final String type = clazz.isInterface() ? "interface"
-				: clazz.isArray() ? "array" : clazz.isPrimitive() ? "primitive"
-						: clazz.isEnum() ? "enum" : "class";
+		final String type = clazz.isInterface() ? "interface" : clazz.isArray()
+				? "array"
+				: clazz.isPrimitive() ? "primitive" : clazz.isEnum()
+						? "enum"
+						: "class";
 		System.out.printf("%s%s%s %s ( %s )%n", pad, leadin, type,
 				clazz.getSimpleName(), clazz.getName());
 		for (final Class<?> interfaze : clazz.getInterfaces()) {

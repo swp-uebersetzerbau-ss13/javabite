@@ -1,13 +1,12 @@
 package swp_compiler_ss13.javabite.backend.classfile;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.FieldAccessFlag;
+
+import java.io.DataOutputStream;
+import java.io.IOException;
 
 /**
  * <h1>FieldInfo</h1>
@@ -41,7 +40,6 @@ class FieldInfo {
 	 * The constructor initializes the field info structure object.
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 19.06.2013
 	 * @param nameIndex
 	 *            short index into this classfile's constant pool of field's
@@ -49,8 +47,6 @@ class FieldInfo {
 	 * @param descriptorIndex
 	 *            short index into this classfile's constant pool of field's
 	 *            string descriptor.
-	 * @param FieldAccessFlag
-	 *            arbitrary amount of field access flags.
 	 */
 	FieldInfo(final short nameIndex, final short descriptorIndex,
 			final FieldAccessFlag... accessFlags) {
@@ -72,7 +68,6 @@ class FieldInfo {
 	 * information in its member variables.
 	 * </p>
 	 * 
-	 * @author Robert, Marco
 	 * @param classfileDOS
 	 *            DataOutputStream to which the bytes are written
 	 */

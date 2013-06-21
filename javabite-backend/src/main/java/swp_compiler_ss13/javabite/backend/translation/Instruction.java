@@ -1,13 +1,12 @@
 package swp_compiler_ss13.javabite.backend.translation;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
+
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
 
 /**
  * <h1>Instruction</h1>
@@ -50,8 +49,6 @@ public class Instruction {
 	/**
 	 * Create a new instruction class instance
 	 * 
-	 * @param size
-	 *            byte size
 	 * @param mnemonic
 	 *            mnemonic of opcode
 	 */
@@ -97,6 +94,7 @@ public class Instruction {
 	 * 
 	 * @return the mnemonic
 	 */
+	@SuppressWarnings("unused")
 	public Mnemonic getMnemonic() {
 		return mnemonic;
 	}
@@ -216,9 +214,7 @@ public class Instruction {
 			return false;
 		if (mnemonic != other.mnemonic)
 			return false;
-		if (byteCount != other.byteCount)
-			return false;
-		return true;
+		return byteCount == other.byteCount;
 	}
 
 }

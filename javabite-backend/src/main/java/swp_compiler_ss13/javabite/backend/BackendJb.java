@@ -1,11 +1,5 @@
 package swp_compiler_ss13.javabite.backend;
 
-import java.io.InputStream;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import swp_compiler_ss13.common.backend.Backend;
 import swp_compiler_ss13.common.backend.BackendException;
 import swp_compiler_ss13.common.backend.Quadruple;
@@ -13,6 +7,12 @@ import swp_compiler_ss13.javabite.backend.classfile.Classfile;
 import swp_compiler_ss13.javabite.backend.translation.TACOptimizer;
 import swp_compiler_ss13.javabite.backend.translation.TargetCodeOptimizer;
 import swp_compiler_ss13.javabite.backend.translation.Translator;
+
+import java.io.InputStream;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * BackendImpl class. Implementation of the interface "Backend".
@@ -89,7 +89,9 @@ public class BackendJb implements Backend {
 	 * TODO javadoc
 	 * 
 	 * @param classfiles
-	 * @return
+	 *            list of classfiles to create target code streams from
+	 * @return map of classfile names as keys, with their target code streams as
+	 *         values
 	 */
 	private Map<String, InputStream> createTargetCodeStreams(
 			final Collection<Classfile> classfiles) {

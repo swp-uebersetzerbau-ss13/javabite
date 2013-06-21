@@ -1,18 +1,7 @@
 package swp_compiler_ss13.javabite.backend.classfile;
 
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.byteArrayToHexString;
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToHexString;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import swp_compiler_ss13.javabite.backend.translation.Instruction;
 import swp_compiler_ss13.javabite.backend.translation.Mnemonic;
 import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
@@ -20,6 +9,11 @@ import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ClassfileAccessFl
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodAccessFlag;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.VariableType;
+
+import java.io.*;
+
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.byteArrayToHexString;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToHexString;
 
 /**
  * <h1>Classfile</h1>
@@ -32,9 +26,9 @@ import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.VariableType;
  */
 public class Classfile {
 
-	public static final byte[] MAJOR_VERSION_J2SE_7 = { (byte) 0, (byte) 51 };
-	public static final byte[] MAJOR_VERSION_J2SE_6 = { (byte) 0, (byte) 50 };
-	public static final byte[] MAJOR_VERSION_J2SE_5 = { (byte) 0, (byte) 49 };
+	public static final byte[] MAJOR_VERSION_J2SE_7 = {(byte) 0, (byte) 51};
+	public static final byte[] MAJOR_VERSION_J2SE_6 = {(byte) 0, (byte) 50};
+	public static final byte[] MAJOR_VERSION_J2SE_5 = {(byte) 0, (byte) 49};
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(Classfile.class);
@@ -50,9 +44,9 @@ public class Classfile {
 	private final String superClassNameEIF;
 
 	// general classfile structure information
-	private final byte[] magic = { (byte) 0xca, (byte) 0xfe, (byte) 0xba,
-			(byte) 0xbe };
-	private final byte[] minorVersion = { (byte) 0x00, (byte) 0x00 };
+	private final byte[] magic = {(byte) 0xca, (byte) 0xfe, (byte) 0xba,
+			(byte) 0xbe};
+	private final byte[] minorVersion = {(byte) 0x00, (byte) 0x00};
 	private final byte[] majorVersion = MAJOR_VERSION_J2SE_5;
 	protected ConstantPool constantPool;
 	private short accessFlags;
@@ -79,7 +73,6 @@ public class Classfile {
 	 * method area and attribute area and sets basic classfile information.
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 27.04.2013
 	 * @param name
 	 *            string describing the classfile's name being used when the
@@ -126,7 +119,6 @@ public class Classfile {
 	 * and creates an init method (constructor).
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 28.04.2013
 	 */
 	private void initializeClassfile() {
@@ -181,7 +173,6 @@ public class Classfile {
 	 * "writeTo(OutputStream os)".
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 27.04.2013
 	 * @see #writeTo(OutputStream)
 	 */
@@ -207,11 +198,10 @@ public class Classfile {
 	 * objects.
 	 * </p>
 	 * 
-	 * @author Robert, Marco
-	 * @param os
+	 * @param classfileOS
 	 *            the output stream to which the bytes are written
-	 * @see Classfile.ConstantPool#writeTo(java.io.DataOutputStream)
-	 * @see Classfile.MethodArea#writeTo(java.io.DataOutputStream)
+	 * @see ConstantPool#writeTo(java.io.DataOutputStream)
+	 * @see MethodArea#writeTo(java.io.DataOutputStream)
 	 */
 	public void writeTo(final OutputStream classfileOS) {
 		try {
@@ -267,7 +257,6 @@ public class Classfile {
 	 * This method returns the classfile's name.
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 27.04.2013
 	 */
 	public String getName() {
@@ -283,7 +272,6 @@ public class Classfile {
 	 * already in it. The entry's index is returned.
 	 * </p>
 	 * 
-	 * @author Eike, Marco
 	 * @since 26.05.2013
 	 * @param value
 	 *            long value of the value which is to be generated
@@ -303,7 +291,6 @@ public class Classfile {
 	 * not already in it. The entry's index is returned.
 	 * </p>
 	 * 
-	 * @author Eike, Marco
 	 * @since 26.05.2013
 	 * @param value
 	 *            double value of the value which is to be generated
@@ -326,7 +313,6 @@ public class Classfile {
 	 * not already in it. The entry's index is returned.
 	 * </p>
 	 * 
-	 * @author Eike, Marco
 	 * @since 26.05.2013
 	 * @param value
 	 *            string value of the value which is to be generated
@@ -346,7 +332,6 @@ public class Classfile {
 	 * already in it. The entry's index is returned.
 	 * </p>
 	 * 
-	 * @author Eike, Marco
 	 * @since 26.05.2013
 	 * @param value
 	 *            string value of the value which is to be generated
@@ -366,7 +351,6 @@ public class Classfile {
 	 * already in it. The entry's index is returned.
 	 * </p>
 	 * 
-	 * @author Eike, Marco
 	 * @since 26.05.2013
 	 * @param value
 	 *            string value of the value which is to be generated
@@ -388,7 +372,6 @@ public class Classfile {
 	 * defined method via the instruction invokestatic.
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 13.05.2013
 	 * @param methodName
 	 *            string name of the method
@@ -402,17 +385,13 @@ public class Classfile {
 	 */
 	public short addMethodrefConstantToConstantPool(final String methodName,
 			final String methodNameDescriptor, final String classNameEIF) {
-
 		// add class
 		final short classIndex = addClassConstantToConstantPool(classNameEIF);
 		// add NAT
 		final short natIndex = constantPool.generateConstantNameAndTypeInfo(
 				methodName, methodNameDescriptor);
 		// add methodref
-		final short methodrefIndex = constantPool
-				.generateConstantMethodrefInfo(classIndex, natIndex);
-
-		return methodrefIndex;
+		return constantPool.generateConstantMethodrefInfo(classIndex, natIndex);
 	}
 
 	/**
@@ -426,7 +405,6 @@ public class Classfile {
 	 * another class via the instruction getstatic.
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 30.05.2013
 	 * @param fieldName
 	 *            string name of the field
@@ -440,17 +418,13 @@ public class Classfile {
 	 */
 	public short addFieldrefConstantToConstantPool(final String fieldName,
 			final String fieldNameDescriptor, final String classNameEIF) {
-
 		// add class
 		final short classIndex = addClassConstantToConstantPool(classNameEIF);
 		// add NAT
 		final short natIndex = constantPool.generateConstantNameAndTypeInfo(
 				fieldName, fieldNameDescriptor);
 		// add fieldref
-		final short fieldrefIndex = constantPool.generateConstantFieldrefInfo(
-				classIndex, natIndex);
-
-		return fieldrefIndex;
+		return constantPool.generateConstantFieldrefInfo(classIndex, natIndex);
 	}
 
 	/**
@@ -469,7 +443,6 @@ public class Classfile {
 	 * NameAndType - {method name}{method descriptor}
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 30.04.2013
 	 * @param constantType
 	 *            InfoTag type of the constant
@@ -480,7 +453,7 @@ public class Classfile {
 	public short getIndexOfConstantInConstantPool(
 			final ConstantPoolType constantType, final String constantName) {
 		return constantPool.getIndexOfConstant(constantType, constantName);
-	};
+	}
 
 	/**
 	 * <h1>addMethodToMethodArea</h1>
@@ -489,7 +462,6 @@ public class Classfile {
 	 * add and initialize a new method.
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 29.04.2013
 	 * @param methodName
 	 *            String name of the method
@@ -521,7 +493,6 @@ public class Classfile {
 	 * appropriate space in the local variable table of the method.
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 29.04.2013
 	 * @param methodName
 	 *            String name of the method
@@ -545,7 +516,6 @@ public class Classfile {
 	 * type.
 	 * </p>
 	 * 
-	 * @author Eike, Marco
 	 * @since 25.05.2013
 	 * @param methodName
 	 *            String name of the method
@@ -567,7 +537,6 @@ public class Classfile {
 	 * type.
 	 * </p>
 	 * 
-	 * @author Eike, Marco
 	 * @since 25.05.2013
 	 * @param methodName
 	 *            String name of the method
@@ -589,7 +558,6 @@ public class Classfile {
 	 * type.
 	 * </p>
 	 * 
-	 * @author Eike, Marco
 	 * @since 25.05.2013
 	 * @param methodName
 	 *            String name of the method
@@ -611,7 +579,6 @@ public class Classfile {
 	 * variable type.
 	 * </p>
 	 * 
-	 * @author Eike, Marco
 	 * @since 25.05.2013
 	 * @param methodName
 	 *            String name of the method
@@ -632,7 +599,6 @@ public class Classfile {
 	 * of the code attribute of the specified method and returns it.
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 30.04.2013
 	 * @param methodName
 	 *            String name of the method
@@ -654,19 +620,16 @@ public class Classfile {
 	 * This method adds a new Instruction to the code area of the code attribute
 	 * of the provided method of the method area of this classfile using the
 	 * method
-	 * {@link Classfile.MethodArea#addInstructionToMethodsCode(String, Instruction)}
-	 * .
+	 * {@link MethodArea#addInstructionToMethodsCode(String, Instruction)} .
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 30.04.2013
 	 * @param methodName
 	 *            String name of the method
 	 * @param instruction
 	 *            instance of class Instruction
-	 * @see Classfile.MethodArea
-	 * @see Classfile.MethodArea#addInstructionToMethodsCode(String,
-	 *      Instruction)
+	 * @see MethodArea
+	 * @see MethodArea#addInstructionToMethodsCode(String, Instruction)
 	 * @see Instruction
 	 */
 	public void addInstructionToMethodsCode(final String methodName,
@@ -682,7 +645,6 @@ public class Classfile {
 	 * Classfile method addInstructionToMethodsCode.
 	 * </p>
 	 * 
-	 * @author Eike
 	 * @since 09.05.2013
 	 * @param methodName
 	 *            String name of the method

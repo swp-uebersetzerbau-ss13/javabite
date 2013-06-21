@@ -1,17 +1,5 @@
 package swp_compiler_ss13.javabite.backend.translation;
 
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.convertBooleanConstant;
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isBooleanConstant;
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isConstant;
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.removeConstantSign;
-
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
-
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.classfile.Classfile;
@@ -19,6 +7,11 @@ import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ArrayType;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType;
 import swp_compiler_ss13.javabite.backend.utils.ConstantUtils;
+
+import java.nio.ByteBuffer;
+import java.util.*;
+
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.*;
 
 /**
  * <h1>Program</h1>
@@ -40,33 +33,25 @@ public class Program {
 	}
 
 	/**
-	 * Returns this programs operations
-	 * 
-	 * @return the operations
-	 */
-	public List<Operation> toOperationsList() {
-		return operations;
-	}
-
-	/**
 	 * Returns this programs instructions.
 	 * 
 	 * @return the instructions
 	 */
 	public Instruction[] toInstructionsArray() {
+		if (operations == null) {
+			return null;
+		}
 		int icount = 0;
 		for (final Operation op : operations) {
 			icount += op.getInstructionCount();
 		}
 		final Instruction[] instructions = new Instruction[icount];
 		int currIndex = 0;
-		if (operations != null) {
-			for (final Operation op : operations) {
+		for (final Operation op : operations) {
 
-				System.arraycopy(op.getInstructions(), 0, instructions,
-						currIndex, op.getInstructionCount());
-				currIndex += op.getInstructionCount();
-			}
+			System.arraycopy(op.getInstructions(), 0, instructions, currIndex,
+					op.getInstructionCount());
+			currIndex += op.getInstructionCount();
 		}
 		return instructions;
 	}
@@ -104,15 +89,6 @@ public class Program {
 	 */
 	public String toHexString() {
 		return ByteUtils.byteArrayToHexString(toByteArray());
-	}
-
-	/**
-	 * Returns this programs operations count
-	 * 
-	 * @return the operator count
-	 */
-	public int getOperationsCount() {
-		return operations.size();
 	}
 
 	/**
@@ -639,7 +615,6 @@ public class Program {
 		 * pool.
 		 * </p>
 		 * 
-		 * @author Marco
 		 * @since 13.05.2013
 		 * 
 		 * @return short index into the constant pool of the system exit's
@@ -661,7 +636,6 @@ public class Program {
 		 * it'll add the needed print data to the classfile's constant pool.
 		 * </p>
 		 * 
-		 * @author Marco
 		 * @since 30.05.2013
 		 */
 		private short addPrintMethodToConstantPool(final String paramType) {

@@ -1,16 +1,15 @@
 package swp_compiler_ss13.javabite.backend.classfile;
 
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToHexString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import swp_compiler_ss13.javabite.backend.translation.Instruction;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodAccessFlag;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.VariableType;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import swp_compiler_ss13.javabite.backend.translation.Instruction;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodAccessFlag;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.VariableType;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToHexString;
 
 /**
  * <h1>Method</h1>
@@ -52,12 +51,7 @@ class Method {
 	 * according to the parameters.
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 28.04.2013
-	 * @param methodName
-	 *            String name of the method to be instantiated
-	 * @param methodDescriptor
-	 *            String descriptor of the method to be instantiated
 	 * @param accessFlags
 	 *            arbitrary amount of MethodAccessFlag
 	 * @see #accessFlags
@@ -112,7 +106,6 @@ class Method {
 	 * variables and the writeTo methods of its member objects.
 	 * </p>
 	 * 
-	 * @author Robert, Marco
 	 * @param classfileDOS
 	 *            DataOutputStream to which the bytes are written
 	 */
@@ -144,11 +137,10 @@ class Method {
 	 * This method adds a new variable to a methods code attribute by allocating
 	 * appropriate space in the local variable table of the method using the
 	 * CodeAttribute method
-	 * {@link Code#addVariable(String, swp_compiler_ss13.javabite.backend.classfile.IClassfile.VariableType)}
+	 * {@link Code#addVariable(String, swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.VariableType)}
 	 * .
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 29.04.2013
 	 * @param variableName
 	 *            String name of the variable
@@ -157,7 +149,7 @@ class Method {
 	 * @see VariableType
 	 * @see Code
 	 * @see Code#addVariable(String,
-	 *      swp_compiler_ss13.javabite.backend.classfile.IClassfile.VariableType)
+	 *      swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.VariableType)
 	 */
 	void addVariableToCodeAttribute(final String variableName,
 			final VariableType variableType) {
@@ -172,7 +164,6 @@ class Method {
 	 * {@link Code#getIndexOfVariable(String)}.
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 30.04.2013
 	 * @param variableName
 	 *            String name of the variable
@@ -192,7 +183,6 @@ class Method {
 	 * {@link Code#addInstruction(Instruction)}.
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 30.04.2013
 	 * @param instruction
 	 *            instance of class Instruction
