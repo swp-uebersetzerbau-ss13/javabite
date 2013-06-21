@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
 import swp_compiler_ss13.javabite.backend.classfile.CPInfo;
 import swp_compiler_ss13.javabite.backend.classfile.ConstantPool;
 import swp_compiler_ss13.javabite.backend.classfile.ConstantPoolFullException;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.InfoTag;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType;
 
 /**
  * <h1>ConstantPoolTest</h1>
@@ -104,12 +104,12 @@ public class ConstantPoolTest {
 				"CONSTANT_LONG does not exists in constant pool map after adding",
 				(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 						new Class<?>[] { String.class }, new Object[] { ""
-								+ InfoTag.LONG + Long.MIN_VALUE }));
+								+ ConstantPoolType.LONG + Long.MIN_VALUE }));
 		assertTrue(
 				"CONSTANT_LONG does not exists in constant pool map after adding",
 				(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 						new Class<?>[] { String.class }, new Object[] { ""
-								+ InfoTag.LONG + Long.MAX_VALUE }));
+								+ ConstantPoolType.LONG + Long.MAX_VALUE }));
 
 	}
 
@@ -243,12 +243,12 @@ public class ConstantPoolTest {
 				"CONSTANT_DOUBLE does not exists in constant pool map after adding",
 				(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 						new Class<?>[] { String.class }, new Object[] { ""
-								+ InfoTag.DOUBLE + Double.MIN_VALUE }));
+								+ ConstantPoolType.DOUBLE + Double.MIN_VALUE }));
 		assertTrue(
 				"CONSTANT_DOUBLE does not exists in constant pool map after adding",
 				(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 						new Class<?>[] { String.class }, new Object[] { ""
-								+ InfoTag.DOUBLE + Double.MAX_VALUE }));
+								+ ConstantPoolType.DOUBLE + Double.MAX_VALUE }));
 	}
 
 	/**
@@ -444,38 +444,42 @@ public class ConstantPoolTest {
 				"CONSTANT_NAMEANDTYPE does not exists in constant pool map after adding",
 				(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 						new Class<?>[] { String.class }, new Object[] { ""
-								+ InfoTag.NAMEANDTYPE + "testLong1" + "J" }));
+								+ ConstantPoolType.NAMEANDTYPE + "testLong1"
+								+ "J" }));
 
 		assertTrue(
 				"CONSTANT_NAMEANDTYPE does not exists in constant pool map after adding",
 				(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 						new Class<?>[] { String.class }, new Object[] { ""
-								+ InfoTag.NAMEANDTYPE + "testLong2" + "J" }));
+								+ ConstantPoolType.NAMEANDTYPE + "testLong2"
+								+ "J" }));
 
 		assertTrue(
 				"CONSTANT_NAMEANDTYPE does not exists in constant pool map after adding",
 				(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 						new Class<?>[] { String.class }, new Object[] { ""
-								+ InfoTag.NAMEANDTYPE + "testDouble1" + "D" }));
+								+ ConstantPoolType.NAMEANDTYPE + "testDouble1"
+								+ "D" }));
 
 		assertTrue(
 				"CONSTANT_NAMEANDTYPE does not exists in constant pool map after adding",
 				(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 						new Class<?>[] { String.class }, new Object[] { ""
-								+ InfoTag.NAMEANDTYPE + "testDouble2" + "D" }));
+								+ ConstantPoolType.NAMEANDTYPE + "testDouble2"
+								+ "D" }));
 
 		assertTrue(
 				"CONSTANT_NAMEANDTYPE does not exists in constant pool map after adding",
 				(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 						new Class<?>[] { String.class }, new Object[] { ""
-								+ InfoTag.NAMEANDTYPE + "testObject1"
+								+ ConstantPoolType.NAMEANDTYPE + "testObject1"
 								+ "Ljava/lang/String" }));
 
 		assertTrue(
 				"CONSTANT_NAMEANDTYPE does not exists in constant pool map after adding",
 				(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 						new Class<?>[] { String.class }, new Object[] { ""
-								+ InfoTag.NAMEANDTYPE + "testObject2"
+								+ ConstantPoolType.NAMEANDTYPE + "testObject2"
 								+ "Ljava/lang/String" }));
 
 		/**
@@ -485,37 +489,37 @@ public class ConstantPoolTest {
 				"CONSTANT_NAMEANDTYPE does not exists in constant pool map after adding",
 				(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 						new Class<?>[] { String.class }, new Object[] { ""
-								+ InfoTag.UTF8 + "testLong1" }));
+								+ ConstantPoolType.UTF8 + "testLong1" }));
 
 		assertTrue(
 				"CONSTANT_NAMEANDTYPE does not exists in constant pool map after adding",
 				(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 						new Class<?>[] { String.class }, new Object[] { ""
-								+ InfoTag.UTF8 + "testLong2" }));
+								+ ConstantPoolType.UTF8 + "testLong2" }));
 
 		assertTrue(
 				"CONSTANT_NAMEANDTYPE does not exists in constant pool map after adding",
 				(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 						new Class<?>[] { String.class }, new Object[] { ""
-								+ InfoTag.UTF8 + "testDouble1" }));
+								+ ConstantPoolType.UTF8 + "testDouble1" }));
 
 		assertTrue(
 				"CONSTANT_NAMEANDTYPE does not exists in constant pool map after adding",
 				(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 						new Class<?>[] { String.class }, new Object[] { ""
-								+ InfoTag.UTF8 + "testDouble2" }));
+								+ ConstantPoolType.UTF8 + "testDouble2" }));
 
 		assertTrue(
 				"CONSTANT_NAMEANDTYPE does not exists in constant pool map after adding",
 				(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 						new Class<?>[] { String.class }, new Object[] { ""
-								+ InfoTag.UTF8 + "testObject1" }));
+								+ ConstantPoolType.UTF8 + "testObject1" }));
 
 		assertTrue(
 				"CONSTANT_NAMEANDTYPE does not exists in constant pool map after adding",
 				(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 						new Class<?>[] { String.class }, new Object[] { ""
-								+ InfoTag.UTF8 + "testObject2" }));
+								+ ConstantPoolType.UTF8 + "testObject2" }));
 	}
 
 	/**
@@ -558,25 +562,25 @@ public class ConstantPoolTest {
 				"CONSTANT_UTF8 does not exists in constant pool map after adding",
 				(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 						new Class<?>[] { String.class }, new Object[] { ""
-								+ InfoTag.STRING + "test1111" }));
+								+ ConstantPoolType.STRING + "test1111" }));
 
 		assertTrue(
 				"CONSTANT_STRING does not exists in constant pool map after adding",
 				(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 						new Class<?>[] { String.class }, new Object[] { ""
-								+ InfoTag.STRING + "test1111" }));
+								+ ConstantPoolType.STRING + "test1111" }));
 
 		assertTrue(
 				"CONSTANT_UTF8 does not exists in constant pool map after adding",
 				(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 						new Class<?>[] { String.class }, new Object[] { ""
-								+ InfoTag.STRING + "test2222" }));
+								+ ConstantPoolType.STRING + "test2222" }));
 
 		assertTrue(
 				"CONSTANT_STRING does not exists in constant pool map after adding",
 				(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 						new Class<?>[] { String.class }, new Object[] { ""
-								+ InfoTag.STRING + "test2222" }));
+								+ ConstantPoolType.STRING + "test2222" }));
 	}
 
 	/**
@@ -619,25 +623,29 @@ public class ConstantPoolTest {
 				"CONSTANT_UTF8 does not exists in constant pool map after adding",
 				(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 						new Class<?>[] { String.class }, new Object[] { ""
-								+ InfoTag.UTF8 + "java/lang/String" }));
+								+ ConstantPoolType.UTF8 + "java/lang/String" }));
 
 		assertTrue(
 				"CONSTANT_CLASS does not exists in constant pool map after adding",
-				(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
-						new Class<?>[] { String.class }, new Object[] { ""
-								+ InfoTag.CLASS + "java/lang/String" }));
+				(boolean) PrivateAccessor
+						.invoke(cp, "cpMapEntryExists",
+								new Class<?>[] { String.class },
+								new Object[] { "" + ConstantPoolType.CLASS
+										+ "java/lang/String" }));
 
 		assertTrue(
 				"CONSTANT_UTF8 does not exists in constant pool map after adding",
 				(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
-						new Class<?>[] { String.class }, new Object[] { ""
-								+ InfoTag.UTF8 + "java/io/PrintStream" }));
+						new Class<?>[] { String.class },
+						new Object[] { "" + ConstantPoolType.UTF8
+								+ "java/io/PrintStream" }));
 
 		assertTrue(
 				"CONSTANT_CLASS does not exists in constant pool map after adding",
 				(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
 						new Class<?>[] { String.class }, new Object[] { ""
-								+ InfoTag.CLASS + "java/io/PrintStream" }));
+								+ ConstantPoolType.CLASS
+								+ "java/io/PrintStream" }));
 	}
 
 	@Test

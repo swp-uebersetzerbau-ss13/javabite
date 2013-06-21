@@ -13,11 +13,11 @@ import java.io.OutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import swp_compiler_ss13.javabite.backend.Instruction;
-import swp_compiler_ss13.javabite.backend.Mnemonic;
+import swp_compiler_ss13.javabite.backend.translation.Instruction;
+import swp_compiler_ss13.javabite.backend.translation.Mnemonic;
 import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ClassfileAccessFlag;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.InfoTag;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodAccessFlag;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.VariableType;
 
@@ -190,6 +190,10 @@ public class Classfile {
 		final DataOutputStream classfileDOS = new DataOutputStream(baos);
 
 		writeTo(classfileDOS);
+
+		// final ClassReader cr = new ClassReader(baos.toByteArray());
+		// final ClassWriter cw = new ClassWriter(cr,
+		// ClassWriter.COMPUTE_FRAMES);
 
 		return new ByteArrayInputStream(baos.toByteArray());
 	}
@@ -473,8 +477,8 @@ public class Classfile {
 	 *            String name of the constant
 	 * @return index of the constant in the constant pool of this classfile.
 	 */
-	public short getIndexOfConstantInConstantPool(final InfoTag constantType,
-			final String constantName) {
+	public short getIndexOfConstantInConstantPool(
+			final ConstantPoolType constantType, final String constantName) {
 		return constantPool.getIndexOfConstant(constantType, constantName);
 	};
 

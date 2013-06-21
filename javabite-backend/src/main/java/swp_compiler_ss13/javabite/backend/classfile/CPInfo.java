@@ -7,7 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.InfoTag;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType;
 
 /**
  * <h1>CPInfo</h1>
@@ -26,16 +26,16 @@ public class CPInfo {
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	// General CPInfo structure information
-	private final InfoTag tag;
+	private final ConstantPoolType tag;
 	private final byte[] info;
 
-	CPInfo(final InfoTag tag, final byte[] info) {
+	CPInfo(final ConstantPoolType tag, final byte[] info) {
 		this.tag = tag;
 		this.info = info;
 	}
 
 	CPInfo() {
-		tag = InfoTag.NONE;
+		tag = ConstantPoolType.NONE;
 		info = null;
 	}
 
@@ -72,7 +72,7 @@ public class CPInfo {
 		}
 	}
 
-	public InfoTag getTag() {
+	public ConstantPoolType getTag() {
 		return tag;
 	}
 

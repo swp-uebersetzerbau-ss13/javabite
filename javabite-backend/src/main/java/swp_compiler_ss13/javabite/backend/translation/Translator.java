@@ -1,5 +1,8 @@
 package swp_compiler_ss13.javabite.backend.translation;
 
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isConstant;
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.removeConstantSign;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -7,13 +10,13 @@ import java.util.ListIterator;
 
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
-import swp_compiler_ss13.javabite.backend.Program;
 import swp_compiler_ss13.javabite.backend.classfile.Classfile;
-import swp_compiler_ss13.javabite.backend.external.QuadrupleImpl;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ClassfileAccessFlag;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.InfoTag;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodAccessFlag;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.VariableType;
+import swp_compiler_ss13.javabite.backend.utils.ConstantUtils;
+import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
 
 /**
  * <h1>Translator</h1>
@@ -27,22 +30,10 @@ import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.VariableType;
  */
 public class Translator {
 
-	// necessary string constants
-	public static final String SYM_CONST = "#";
-	public static final String SYM_IGNORE = "!";
+	public static final String FILE_EXTENSION_CLASS = ".class";
 
-	public static final String CONST_FALSE = "#FALSE";
-	public static final String CONST_TRUE = "#TRUE";
-
-	public static final String DEF_LONG = "#0";
-	public static final String DEF_DOUBLE = "#0.0";
-	public static final String DEF_BOOLEAN = CONST_FALSE;
-	public static final String DEF_STRING = "#\"\"";
-
-	public static final String FILEEXT_CLASS = ".class";
-
-	public static final String METHODNAME_MAIN = "main";
-	public static final String METHODDESCRIPTOR_MAIN = "([Ljava/lang/String;)V";
+	public static final String METHOD_NAME_MAIN = "main";
+	public static final String METHOD_DESCRIPTOR_MAIN = "([Ljava/lang/String;)V";
 	public static final String OBJECT_CLASSNAME_EIF = "java/lang/Object";
 
 	/**
@@ -100,31 +91,33 @@ public class Translator {
 			List<Quadruple> tac) {
 
 		// some initialization
-		final String classFileName = mainClassName + FILEEXT_CLASS;
+		final String classFileName = mainClassName + FILE_EXTENSION_CLASS;
 		final Collection<Classfile> classfiles = new ArrayList<Classfile>();
 
 		// create a new (main)classfile/ classfile with main method
-		final Classfile classfile = generateClassfile(classFileName,
+		final Classfile mainClassfile = generateClassfile(classFileName,
 				mainClassName, OBJECT_CLASSNAME_EIF,
 				ClassfileAccessFlag.ACC_PUBLIC, ClassfileAccessFlag.ACC_SUPER);
 
 		// add main method to this (main)classfile
-		classfile.addMethodToMethodArea(METHODNAME_MAIN, METHODDESCRIPTOR_MAIN,
-				MethodAccessFlag.ACC_PUBLIC, MethodAccessFlag.ACC_STATIC);
+		mainClassfile.addMethodToMethodArea(METHOD_NAME_MAIN,
+				METHOD_DESCRIPTOR_MAIN, MethodAccessFlag.ACC_PUBLIC,
+				MethodAccessFlag.ACC_STATIC);
 
 		// parse tac for struct declarations and create classfiles for them
 		classfiles.addAll(generateClassfilesForStructsInTAC(tac));
 
 		// translate tac/program into the main method's code
 		if (tac != null) {
-			tac = addVariablesToLocalVariableSpace(classfile, METHODNAME_MAIN,
+			tac = addVariablesToLocalVariableSpace(mainClassfile,
+					METHOD_NAME_MAIN, tac);
+			addConstantsToConstantPool(mainClassfile, tac);
+			extractInstructionsFromOperations(mainClassfile, METHOD_NAME_MAIN,
 					tac);
-			addConstantsToConstantPool(classfile, tac);
-			extractInstructionsFromOperations(classfile, METHODNAME_MAIN, tac);
 		}
 
 		// add final (main)classfile to the translator's classfile list
-		classfiles.add(classfile);
+		classfiles.add(mainClassfile);
 
 		return classfiles;
 	}
@@ -138,14 +131,6 @@ public class Translator {
 			final List<Quadruple> tac) {
 		final Collection<Classfile> classfiles = new ArrayList<>();
 		return classfiles;
-	}
-
-	private static String removeConstantSign(final String s) {
-		return s.startsWith(SYM_CONST) ? s.substring(1) : s;
-	}
-
-	private static boolean isConstant(final String s) {
-		return s.startsWith(SYM_CONST);
 	}
 
 	/**
@@ -208,7 +193,7 @@ public class Translator {
 			}
 
 			// get expected type of constants
-			final InfoTag type = getExpectedInfoTagOfConstantsByOperator(operator);
+			final ConstantPoolType type = getExpectedInfoTagOfConstantsByOperator(operator);
 
 			/*
 			 * if type is equal to zero, there'll be no constants in this
@@ -249,11 +234,11 @@ public class Translator {
 				break;
 
 			case STRING:
-				if (type == InfoTag.STRING && isConstant(arg1)) {
+				if (type == ConstantPoolType.STRING && isConstant(arg1)) {
 					classFile
 							.addStringConstantToConstantPool(removeConstantSign(arg1));
 				}
-				if (type == InfoTag.STRING && isConstant(arg2)) {
+				if (type == ConstantPoolType.STRING && isConstant(arg2)) {
 					classFile
 							.addStringConstantToConstantPool(removeConstantSign(arg2));
 				}
@@ -284,7 +269,7 @@ public class Translator {
 	 * @return InfoTag value which describes, of which type the operation
 	 *         constants are expected to be
 	 */
-	private static InfoTag getExpectedInfoTagOfConstantsByOperator(
+	private static ConstantPoolType getExpectedInfoTagOfConstantsByOperator(
 			final Operator operator) {
 		switch (operator) {
 
@@ -307,7 +292,7 @@ public class Translator {
 		case COMPARE_LONG_LE:
 		case PRINT_LONG:
 		case RETURN:
-			return InfoTag.LONG;
+			return ConstantPoolType.LONG;
 
 		case ASSIGN_DOUBLE:
 		case ADD_DOUBLE:
@@ -320,11 +305,11 @@ public class Translator {
 		case COMPARE_DOUBLE_GE:
 		case COMPARE_DOUBLE_LE:
 		case PRINT_DOUBLE:
-			return InfoTag.DOUBLE;
+			return ConstantPoolType.DOUBLE;
 
 		case ASSIGN_STRING:
 		case PRINT_STRING:
-			return InfoTag.STRING;
+			return ConstantPoolType.STRING;
 
 		default:
 			return null;
@@ -389,22 +374,22 @@ public class Translator {
 				continue;
 			case DECLARE_STRING:
 				op = Operator.ASSIGN_STRING;
-				defValue = DEF_STRING;
+				defValue = ConstantUtils.DEFAULT_VALUE_STRING;
 				varType = VariableType.STRING;
 				break;
 			case DECLARE_LONG:
 				op = Operator.ASSIGN_LONG;
-				defValue = DEF_LONG;
+				defValue = ConstantUtils.DEFAULT_VALUE_LONG;
 				varType = VariableType.LONG;
 				break;
 			case DECLARE_DOUBLE:
 				op = Operator.ASSIGN_DOUBLE;
-				defValue = DEF_DOUBLE;
+				defValue = ConstantUtils.DEFAULT_VALUE_DOUBLE;
 				varType = VariableType.DOUBLE;
 				break;
 			case DECLARE_BOOLEAN:
 				op = Operator.ASSIGN_BOOLEAN;
-				defValue = DEF_BOOLEAN;
+				defValue = ConstantUtils.DEFAULT_VALUE_BOOLEAN;
 				varType = VariableType.BOOLEAN;
 				break;
 			default:
@@ -415,12 +400,14 @@ public class Translator {
 			file.addVariableToMethodsCode(methodName, result, varType);
 
 			// modify current quadruple
-			if (!SYM_IGNORE.equals(arg1)) {
+			if (!ConstantUtils.SYMBOL_IGNORE_PARAM.equals(arg1)) {
 				// set provided value
-				q = new QuadrupleImpl(op, arg1, SYM_IGNORE, result);
+				q = new QuadrupleJb(op, arg1,
+						ConstantUtils.SYMBOL_IGNORE_PARAM, result);
 			} else {
 				// set default value
-				q = new QuadrupleImpl(op, defValue, SYM_IGNORE, result);
+				q = new QuadrupleJb(op, defValue,
+						ConstantUtils.SYMBOL_IGNORE_PARAM, result);
 			}
 
 			// replace current quadruple by modified one

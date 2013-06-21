@@ -18,7 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.InfoTag;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType;
 
 /**
  * <h1>ConstantPool</h1>
@@ -48,7 +48,7 @@ public class ConstantPool {
 	 * pool.
 	 * </p>
 	 * 
-	 * @see Classfile#getIndexOfConstantInConstantPool(swp_compiler_ss13.javabite.backend.classfile.IClassfile.InfoTag,
+	 * @see Classfile#getIndexOfConstantInConstantPool(swp_compiler_ss13.javabite.backend.classfile.ConstantPoolType.InfoTag,
 	 *      String)
 	 */
 	private final Map<String, Short> cpEntryMap;
@@ -135,7 +135,7 @@ public class ConstantPool {
 	short generateConstantLongInfo(final long value) {
 		checkConstantPoolSize(2);
 
-		final String key = InfoTag.LONG.name() + value;
+		final String key = ConstantPoolType.LONG.name() + value;
 
 		// return existing entry's index, if it exists already
 		if (cpMapEntryExists(key)) {
@@ -144,7 +144,7 @@ public class ConstantPool {
 
 		// generate entry
 		final byte[] info = longToByteArray(value);
-		final CPInfo longInfo = new CPInfo(InfoTag.LONG, info);
+		final CPInfo longInfo = new CPInfo(ConstantPoolType.LONG, info);
 		entryList.add(longInfo);
 		final CPInfo longInfo2ndPartDummy = new CPInfo();
 		entryList.add(longInfo2ndPartDummy);
@@ -174,7 +174,7 @@ public class ConstantPool {
 	 */
 	short generateConstantDoubleInfo(final double value, final String keyValue) {
 		checkConstantPoolSize(2);
-		final String key = InfoTag.DOUBLE.name() + keyValue;
+		final String key = ConstantPoolType.DOUBLE.name() + keyValue;
 
 		// return existing entry's index, if it exists already
 		if (cpMapEntryExists(key)) {
@@ -183,7 +183,7 @@ public class ConstantPool {
 
 		// generate entry
 		final byte[] info = doubleToByteArray(value);
-		final CPInfo doubleInfo = new CPInfo(InfoTag.DOUBLE, info);
+		final CPInfo doubleInfo = new CPInfo(ConstantPoolType.DOUBLE, info);
 		entryList.add(doubleInfo);
 		final CPInfo doubleInfo2ndPartDummy = new CPInfo();
 		entryList.add(doubleInfo2ndPartDummy);
@@ -211,7 +211,7 @@ public class ConstantPool {
 	 */
 	short generateConstantStringInfo(String value) {
 		checkConstantPoolSize(1);
-		final String key = InfoTag.STRING.name() + value;
+		final String key = ConstantPoolType.STRING.name() + value;
 
 		// return existing entry's index, if it exists already
 		if (cpMapEntryExists(key)) {
@@ -225,7 +225,7 @@ public class ConstantPool {
 		final short nameIndex = generateConstantUTF8Info(value);
 		// generate String entry
 		final byte[] info = ByteUtils.shortToByteArray(nameIndex);
-		final CPInfo stringInfo = new CPInfo(InfoTag.STRING, info);
+		final CPInfo stringInfo = new CPInfo(ConstantPoolType.STRING, info);
 		entryList.add(stringInfo);
 
 		// return index + 1
@@ -252,7 +252,7 @@ public class ConstantPool {
 	 */
 	short generateConstantClassInfo(final String value) {
 		checkConstantPoolSize(1);
-		final String key = InfoTag.CLASS.name() + value;
+		final String key = ConstantPoolType.CLASS.name() + value;
 
 		// return existing entry's index, if it exists already
 		if (cpMapEntryExists(key)) {
@@ -263,7 +263,7 @@ public class ConstantPool {
 		final short nameIndex = generateConstantUTF8Info(value);
 		// generate CLASS-entry
 		final byte[] info = ByteUtils.shortToByteArray(nameIndex);
-		final CPInfo longInfo = new CPInfo(InfoTag.CLASS, info);
+		final CPInfo longInfo = new CPInfo(ConstantPoolType.CLASS, info);
 		entryList.add(longInfo);
 
 		// return index + 1
@@ -290,7 +290,7 @@ public class ConstantPool {
 	 */
 	short generateConstantUTF8Info(final String value) {
 		checkConstantPoolSize(1);
-		final String key = InfoTag.UTF8.name() + value;
+		final String key = ConstantPoolType.UTF8.name() + value;
 
 		// return existing entry's index, if it exists already
 		if (cpMapEntryExists(key)) {
@@ -358,7 +358,7 @@ public class ConstantPool {
 		// from DataOutputStream.writeUtf()
 		// /////////////////////////////////
 
-		final CPInfo utf8Info = new CPInfo(InfoTag.UTF8, bytearr);
+		final CPInfo utf8Info = new CPInfo(ConstantPoolType.UTF8, bytearr);
 		entryList.add(utf8Info);
 
 		// return index + 1
@@ -392,7 +392,7 @@ public class ConstantPool {
 	short generateConstantMethodrefInfo(final short classIndex,
 			final short nameAndTypeIndex) {
 		checkConstantPoolSize(1);
-		final String key = InfoTag.METHODREF.name() + classIndex + "."
+		final String key = ConstantPoolType.METHODREF.name() + classIndex + "."
 				+ nameAndTypeIndex;
 
 		// return existing entry's index, if it exists already
@@ -406,7 +406,7 @@ public class ConstantPool {
 			info.put(shortToByteArray(classIndex));
 			info.put(shortToByteArray(nameAndTypeIndex));
 
-			final CPInfo methodrefInfo = new CPInfo(InfoTag.METHODREF,
+			final CPInfo methodrefInfo = new CPInfo(ConstantPoolType.METHODREF,
 					info.array());
 			entryList.add(methodrefInfo);
 
@@ -441,7 +441,7 @@ public class ConstantPool {
 	short generateConstantFieldrefInfo(final short classIndex,
 			final short nameAndTypeIndex) {
 		checkConstantPoolSize(1);
-		final String key = InfoTag.FIELDREF.name() + classIndex + "."
+		final String key = ConstantPoolType.FIELDREF.name() + classIndex + "."
 				+ nameAndTypeIndex;
 
 		// return existing entry's index, if it exists already
@@ -455,7 +455,7 @@ public class ConstantPool {
 			info.put(shortToByteArray(classIndex));
 			info.put(shortToByteArray(nameAndTypeIndex));
 
-			final CPInfo fieldrefInfo = new CPInfo(InfoTag.FIELDREF,
+			final CPInfo fieldrefInfo = new CPInfo(ConstantPoolType.FIELDREF,
 					info.array());
 			entryList.add(fieldrefInfo);
 
@@ -490,7 +490,8 @@ public class ConstantPool {
 	short generateConstantNameAndTypeInfo(final String name,
 			final String descriptor) {
 		checkConstantPoolSize(1);
-		final String key = InfoTag.NAMEANDTYPE.name() + name + descriptor;
+		final String key = ConstantPoolType.NAMEANDTYPE.name() + name
+				+ descriptor;
 
 		// return existing entry's index, if it exists already
 		if (cpMapEntryExists(key)) {
@@ -498,7 +499,7 @@ public class ConstantPool {
 		}
 
 		// check, whether name exists already, else add it
-		final String nameKey = InfoTag.UTF8.name() + name;
+		final String nameKey = ConstantPoolType.UTF8.name() + name;
 		final short nameIndex;
 		if (cpMapEntryExists(nameKey)) {
 			nameIndex = getCPMapEntry(nameKey);
@@ -507,7 +508,7 @@ public class ConstantPool {
 		}
 
 		// check, whether descriptor exists already, else add it
-		final String descriptorKey = InfoTag.UTF8.name() + descriptor;
+		final String descriptorKey = ConstantPoolType.UTF8.name() + descriptor;
 		final short descriptorIndex;
 		if (cpMapEntryExists(descriptorKey)) {
 			descriptorIndex = getCPMapEntry(descriptorKey);
@@ -521,8 +522,8 @@ public class ConstantPool {
 			info.put(shortToByteArray(nameIndex));
 			info.put(shortToByteArray(descriptorIndex));
 
-			final CPInfo nameAndTypeInfo = new CPInfo(InfoTag.NAMEANDTYPE,
-					info.array());
+			final CPInfo nameAndTypeInfo = new CPInfo(
+					ConstantPoolType.NAMEANDTYPE, info.array());
 			entryList.add(nameAndTypeInfo);
 
 			// return index + 1
@@ -547,10 +548,10 @@ public class ConstantPool {
 	 * @param constantType
 	 *            InfoTag type of the constant
 	 * @return index of the constant in this constant pool
-	 * @see Classfile#getIndexOfConstantInConstantPool(swp_compiler_ss13.javabite.backend.classfile.IClassfile.InfoTag,
+	 * @see Classfile#getIndexOfConstantInConstantPool(swp_compiler_ss13.javabite.backend.classfile.ConstantPoolType.InfoTag,
 	 *      String)
 	 */
-	public short getIndexOfConstant(final InfoTag constantType,
+	public short getIndexOfConstant(final ConstantPoolType constantType,
 			final String constantName) {
 		final Short index = cpEntryMap.get(constantType.name() + constantName);
 		if (index != null) {

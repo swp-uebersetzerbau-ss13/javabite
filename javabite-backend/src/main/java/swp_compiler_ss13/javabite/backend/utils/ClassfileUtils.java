@@ -1,6 +1,6 @@
 package swp_compiler_ss13.javabite.backend.utils;
 
-public class ClassfileUtils {
+public final class ClassfileUtils {
 
 	/**
 	 * <h1>ClassfileAccessFlag</h1>
@@ -112,7 +112,7 @@ public class ClassfileUtils {
 	 * @author Eike
 	 * @since May 25, 2013 1:27:22 AM
 	 */
-	public enum InfoTag {
+	public enum ConstantPoolType {
 		NONE(0x00, false), UTF8(0x01, false), LONG(0x05, true), DOUBLE(0x06,
 				true), CLASS(0x07, false), STRING(0x08, false), METHODREF(0x0a,
 				false), NAMEANDTYPE(0x0c, false), FIELDREF(0x09, false);
@@ -120,7 +120,7 @@ public class ClassfileUtils {
 		final byte tag;
 		final boolean wide;
 
-		InfoTag(final int tag, final boolean wide) {
+		ConstantPoolType(final int tag, final boolean wide) {
 			this.tag = (byte) tag;
 			this.wide = wide;
 		}
@@ -170,6 +170,9 @@ public class ClassfileUtils {
 		public boolean isPrimitive() {
 			return value != 0;
 		}
+	}
+
+	private ClassfileUtils() {
 	}
 
 }

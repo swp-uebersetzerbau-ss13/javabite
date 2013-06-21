@@ -1,4 +1,9 @@
-package swp_compiler_ss13.javabite.backend;
+package swp_compiler_ss13.javabite.backend.translation;
+
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.convertBooleanConstant;
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isBooleanConstant;
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isConstant;
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.removeConstantSign;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
@@ -6,15 +11,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
-import java.util.regex.Pattern;
 
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.classfile.Classfile;
-import swp_compiler_ss13.javabite.backend.translation.Translator;
 import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ArrayType;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.InfoTag;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType;
+import swp_compiler_ss13.javabite.backend.utils.ConstantUtils;
 
 /**
  * <h1>Program</h1>
@@ -174,8 +178,6 @@ public class Program {
 	 */
 	public static class Builder {
 
-		private static final Pattern P_CONST_SIGN = Pattern.compile("^#(.*?)");
-
 		// the list of operations of this program
 		private final List<Operation> operations;
 		// the classfile instance of this program
@@ -270,21 +272,20 @@ public class Program {
 			return new Program(operations);
 		}
 
-		private static boolean isBoolean(final String s) {
-			return s.equalsIgnoreCase(Translator.CONST_TRUE)
-					|| s.equalsIgnoreCase(Translator.CONST_FALSE);
-		}
-
-		private static boolean isConstant(final String s) {
-			return s.startsWith(Translator.SYM_CONST);
-		}
-
-		private static String removeConstantSign(final String s) {
-			return P_CONST_SIGN.matcher(s).replaceAll("");
-		}
-
-		private static short convertBoolean(final String arg) {
-			return Translator.CONST_TRUE.equalsIgnoreCase(arg) ? (short) 1 : 0;
+		private static boolean hasArgsCount(final Quadruple q,
+				final int... argsCounts) {
+			int argc = 0;
+			if (!ConstantUtils.SYMBOL_IGNORE_PARAM.equals(q.getArgument1()))
+				argc++;
+			if (!ConstantUtils.SYMBOL_IGNORE_PARAM.equals(q.getArgument2()))
+				argc++;
+			if (!ConstantUtils.SYMBOL_IGNORE_PARAM.equals(q.getResult()))
+				argc++;
+			for (final int i : argsCounts) {
+				if (i == argc)
+					return true;
+			}
+			return false;
 		}
 
 		// INSTRUCTION CREATORS ------------------------------------------------
@@ -301,20 +302,12 @@ public class Program {
 		 * @param varLoadOp
 		 *            load operation to execute if arg1 is a variable
 		 */
-		private Instruction loadOp(final String arg1, final InfoTag constType,
-				final Mnemonic varLoadOp) {
-			if (isBoolean(arg1)) {
-				if (isConstant(arg1)) {
-					final short value = convertBoolean(arg1);
-					return new Instruction(
-							Mnemonic.getMnemonic("ICONST", value),
-							ByteUtils.shortToByteArray(value));
-				} else {
-					final byte index = classfile.getIndexOfVariableInMethod(
-							methodName, arg1);
-					return new Instruction(
-							Mnemonic.getMnemonic("ILOAD", index), index);
-				}
+		private Instruction loadInstruction(final String arg1,
+				final ConstantPoolType constType, final Mnemonic varLoadOp) {
+			if (isBooleanConstant(arg1)) {
+				final short value = convertBooleanConstant(arg1);
+				return new Instruction(Mnemonic.getMnemonic("ICONST", value),
+						ByteUtils.shortToByteArray(value));
 			} else if (isConstant(arg1)) {
 				assert constType != null;
 				final short index = classfile.getIndexOfConstantInConstantPool(
@@ -348,7 +341,8 @@ public class Program {
 		 *            operation to use for storing value
 		 * @return new instruction
 		 */
-		private Instruction storeOp(final String result, final Mnemonic storeOp) {
+		private Instruction storeInstruction(final String result,
+				final Mnemonic storeOp) {
 			final byte index = classfile.getIndexOfVariableInMethod(methodName,
 					result);
 			// return new Instruction(1, Mnemonic.getMnemonic(storeOp, index),
@@ -376,15 +370,16 @@ public class Program {
 		 *            operation to perform to store the number
 		 * @return this builders instance
 		 */
-		private Builder assign(final Quadruple q, final InfoTag constType,
-				final Mnemonic loadOp, final Mnemonic convertOp,
-				final Mnemonic storeOp) {
+		private Builder assignValue(final Quadruple q,
+				final ConstantPoolType constType, final Mnemonic loadOp,
+				final Mnemonic convertOp, final Mnemonic storeOp) {
+			assert hasArgsCount(q, 2);
 			final Operation.Builder op = Operation.Builder.newBuilder();
-			op.add(loadOp(q.getArgument1(), constType, loadOp));
+			op.add(loadInstruction(q.getArgument1(), constType, loadOp));
 			if (convertOp != null) {
 				op.add(convertOp);
 			}
-			op.add(storeOp(q.getResult(), storeOp));
+			op.add(storeInstruction(q.getResult(), storeOp));
 			return add(op.build());
 		}
 
@@ -405,13 +400,14 @@ public class Program {
 		 * @return this builders instance
 		 */
 		private Builder calculateNumber(final Quadruple q,
-				final InfoTag constType, final Mnemonic loadOp,
+				final ConstantPoolType constType, final Mnemonic loadOp,
 				final Mnemonic calcOp, final Mnemonic storeOp) {
+			assert hasArgsCount(q, 3);
 			final Operation.Builder op = Operation.Builder.newBuilder();
-			op.add(loadOp(q.getArgument1(), constType, loadOp));
-			op.add(loadOp(q.getArgument2(), constType, loadOp));
+			op.add(loadInstruction(q.getArgument1(), constType, loadOp));
+			op.add(loadInstruction(q.getArgument2(), constType, loadOp));
 			op.add(calcOp);
-			op.add(storeOp(q.getResult(), storeOp));
+			op.add(storeInstruction(q.getResult(), storeOp));
 			return add(op.build());
 		}
 
@@ -446,14 +442,15 @@ public class Program {
 		 *            the jump operation to perform after comparation.
 		 * @return this builder instance
 		 */
-		private Builder compareNumber(final Quadruple q, final InfoTag type,
-				final Mnemonic loadOp, final Mnemonic compareOp,
-				final Mnemonic jumpOp) {
+		private Builder compareNumber(final Quadruple q,
+				final ConstantPoolType type, final Mnemonic loadOp,
+				final Mnemonic compareOp, final Mnemonic jumpOp) {
+			assert hasArgsCount(q, 3);
 			final Operation.Builder op = Operation.Builder.newBuilder();
 			// 1: load first variable/constant
-			op.add(loadOp(q.getArgument1(), type, loadOp));
+			op.add(loadInstruction(q.getArgument1(), type, loadOp));
 			// 2: load second variable/constant
-			op.add(loadOp(q.getArgument2(), type, loadOp));
+			op.add(loadInstruction(q.getArgument2(), type, loadOp));
 			// 3: execute comparison (pushes -1/0/1 to the stack)
 			op.add(compareOp);
 			// 4: execute a conditional jump with target line 7
@@ -465,7 +462,8 @@ public class Program {
 			// 5: load 1 (true) onto the stack
 			op.add(Mnemonic.ICONST_1);
 			// 6: execute an unconditional jump with target line 8
-			final Instruction storeRes = storeOp(q.getResult(), Mnemonic.ISTORE);
+			final Instruction storeRes = storeInstruction(q.getResult(),
+					Mnemonic.ISTORE);
 			final JumpInstruction jumpStore = new JumpInstruction(
 					Mnemonic.GOTO, storeRes);
 			op.add(jumpStore);
@@ -487,11 +485,12 @@ public class Program {
 		 * @return this builder instance
 		 */
 		private Builder booleanOp(final Quadruple q, final Mnemonic mnemonic) {
+			assert hasArgsCount(q, 3);
 			final Operation.Builder op = Operation.Builder.newBuilder();
-			op.add(loadOp(q.getArgument1(), null, Mnemonic.ILOAD));
-			op.add(loadOp(q.getArgument2(), null, Mnemonic.ILOAD));
+			op.add(loadInstruction(q.getArgument1(), null, Mnemonic.ILOAD));
+			op.add(loadInstruction(q.getArgument2(), null, Mnemonic.ILOAD));
 			op.add(mnemonic);
-			op.add(storeOp(q.getResult(), Mnemonic.ISTORE));
+			op.add(storeInstruction(q.getResult(), Mnemonic.ISTORE));
 			return add(op.build());
 		}
 
@@ -500,42 +499,25 @@ public class Program {
 		 * the types string, long or double. Loads the System.out object and
 		 * calls the virtual method println
 		 * 
-		 * @param arg1
-		 *            constant or variable name to be printed
+		 * @param q
+		 *            quadruple of operation
 		 * @param type
 		 *            type of arg1
 		 * @param varLoadOp
 		 *            operation to use for loading arg1 as a variable
 		 * @return this builder instance
 		 */
-		private Builder print(final String arg1, final InfoTag type,
+		private Builder print(final Quadruple q, final ConstantPoolType type,
 				final String printMethodSignature, final Mnemonic varLoadOp) {
-			final short printIndex = addPrintMethodToClassfile(printMethodSignature);
+			assert hasArgsCount(q, 1);
 			final Operation.Builder op = Operation.Builder.newBuilder();
+			final short printIndex = addPrintMethodToConstantPool(printMethodSignature);
 			op.add(Mnemonic.GETSTATIC,
 					ByteUtils.shortToByteArray(systemOutIndex));
-			op.add(loadOp(arg1, type, varLoadOp));
+			op.add(loadInstruction(q.getArgument1(), type, varLoadOp));
 			op.add(Mnemonic.INVOKEVIRTUAL,
 					ByteUtils.shortToByteArray(printIndex));
 			return add(op.build());
-		}
-
-		/**
-		 * Adds a multiarray signature to the constant pool. The dimension of
-		 * the array corresponds to the number of open braces, followed by the
-		 * type of the array.
-		 * 
-		 * @param dimensions
-		 *            Number of dimensions of the reference to load
-		 * @param type
-		 *            data type of reference to load
-		 * @return index of reference in constant pool
-		 */
-		private short addMultiArraySignature(final byte dimensions,
-				final ArrayType type) {
-			final String classSignature = new String(new char[dimensions])
-					.replace("\0", "[") + type.getClassName();
-			return classfile.addClassConstantToConstantPool(classSignature);
 		}
 
 		/**
@@ -555,16 +537,16 @@ public class Program {
 
 			// add all dimensions to stack for array creation
 			while (!arrayDimensions.isEmpty()) {
-				op.add(loadOp(arrayDimensions.pop(), InfoTag.LONG,
-						Mnemonic.LLOAD));
+				op.add(loadInstruction(arrayDimensions.pop(),
+						ConstantPoolType.LONG, Mnemonic.LLOAD));
 				op.add(Mnemonic.L2I);
 			}
 
 			if (dimensions > 1) {
 				// if more than 1 dimension, create a multi dimensional array
 				// every multi dimensional array is an array of references
-				final short classIndex = addMultiArraySignature(dimensions,
-						type);
+				final short classIndex = addMultiArraySignatureToConstantPool(
+						dimensions, type);
 				final byte[] classIndexArray = ByteUtils
 						.shortToByteArray(classIndex);
 				assert classIndexArray.length == 2;
@@ -582,7 +564,7 @@ public class Program {
 						ByteUtils.shortToByteArray(classIndex));
 			}
 
-			op.add(storeOp(arrayName, Mnemonic.ASTORE));
+			op.add(storeInstruction(arrayName, Mnemonic.ASTORE));
 			return add(op.build());
 		}
 
@@ -602,14 +584,16 @@ public class Program {
 		 */
 		private Builder arrayGet(final Quadruple q, final Mnemonic loadOp,
 				final Mnemonic storeOp) {
+			assert hasArgsCount(q, 3);
 			final Operation.Builder op = Operation.Builder.newBuilder();
 			final byte arrayIndex = classfile.getIndexOfVariableInMethod(
 					methodName, q.getArgument1());
 			op.add(Mnemonic.getMnemonic("ALOAD", arrayIndex), arrayIndex);
-			op.add(loadOp(q.getArgument2(), InfoTag.LONG, Mnemonic.LLOAD));
+			op.add(loadInstruction(q.getArgument2(), ConstantPoolType.LONG,
+					Mnemonic.LLOAD));
 			op.add(Mnemonic.L2I);
 			op.add(loadOp);
-			op.add(storeOp(q.getResult(), storeOp));
+			op.add(storeInstruction(q.getResult(), storeOp));
 			return add(op.build());
 		}
 
@@ -629,15 +613,18 @@ public class Program {
 		 *            operation to use for storing into the array
 		 * @return this builders instance
 		 */
-		private Builder arraySet(final Quadruple q, final InfoTag constType,
-				final Mnemonic varLoadOp, final Mnemonic storeOp) {
+		private Builder arraySet(final Quadruple q,
+				final ConstantPoolType constType, final Mnemonic varLoadOp,
+				final Mnemonic storeOp) {
+			assert hasArgsCount(q, 3);
 			final Operation.Builder op = Operation.Builder.newBuilder();
 			final byte arrayIndex = classfile.getIndexOfVariableInMethod(
 					methodName, q.getArgument1());
 			op.add(Mnemonic.getMnemonic("ALOAD", arrayIndex), arrayIndex);
-			op.add(loadOp(q.getArgument2(), InfoTag.LONG, Mnemonic.LLOAD));
+			op.add(loadInstruction(q.getArgument2(), ConstantPoolType.LONG,
+					Mnemonic.LLOAD));
 			op.add(Mnemonic.L2I);
-			op.add(loadOp(q.getResult(), constType, varLoadOp));
+			op.add(loadInstruction(q.getResult(), constType, varLoadOp));
 			op.add(storeOp);
 			return add(op.build());
 		}
@@ -661,7 +648,6 @@ public class Program {
 		private short addSystemExitMethodToClassfile() {
 			if (!returnFlag) {
 				returnFlag = true;
-				// TODO externalize static strings
 				systemExitIndex = classfile.addMethodrefConstantToConstantPool(
 						"exit", "(I)V", "java/lang/System");
 			}
@@ -678,18 +664,34 @@ public class Program {
 		 * @author Marco
 		 * @since 30.05.2013
 		 */
-		private short addPrintMethodToClassfile(final String paramType) {
+		private short addPrintMethodToConstantPool(final String paramType) {
 			// add system.out fieldref info to constant pool, if necessary
 			if (systemOutIndex == 0) {
-				// TODO externalize static strings
 				systemOutIndex = classfile.addFieldrefConstantToConstantPool(
 						"out", "Ljava/io/PrintStream;", "java/lang/System");
 			}
 
 			// add print methodref info to constant pool, if necessary
-			// TODO externalize static strings
 			return classfile.addMethodrefConstantToConstantPool("print", "("
 					+ paramType + ")V", "java/io/PrintStream");
+		}
+
+		/**
+		 * Adds a multiarray signature to the constant pool. The dimension of
+		 * the array corresponds to the number of open braces, followed by the
+		 * type of the array.
+		 * 
+		 * @param dimensions
+		 *            Number of dimensions of the reference to load
+		 * @param type
+		 *            data type of reference to load
+		 * @return index of reference in constant pool
+		 */
+		private short addMultiArraySignatureToConstantPool(
+				final byte dimensions, final ArrayType type) {
+			final String classSignature = new String(new char[dimensions])
+					.replace("\0", "[") + type.getClassName();
+			return classfile.addClassConstantToConstantPool(classSignature);
 		}
 
 		/**
@@ -731,6 +733,7 @@ public class Program {
 		 */
 		public Builder declareLong(final Quadruple q) {
 			assert q.getOperator() == Operator.DECLARE_LONG;
+			assert hasArgsCount(q, 0, 1, 2);
 			if ("!".equals(q.getResult())) {
 				return arrayCreate(ArrayType.LONG);
 			}
@@ -751,6 +754,7 @@ public class Program {
 		 */
 		public Builder declareDouble(final Quadruple q) {
 			assert q.getOperator() == Operator.DECLARE_DOUBLE;
+			assert hasArgsCount(q, 0, 1, 2);
 			if ("!".equals(q.getResult())) {
 				return arrayCreate(ArrayType.DOUBLE);
 			}
@@ -771,6 +775,7 @@ public class Program {
 		 */
 		public Builder declareString(final Quadruple q) {
 			assert q.getOperator() == Operator.DECLARE_STRING;
+			assert hasArgsCount(q, 0, 1, 2);
 			if ("!".equals(q.getResult())) {
 				return arrayCreate(ArrayType.STRING);
 			}
@@ -791,6 +796,7 @@ public class Program {
 		 */
 		public Builder declareBoolean(final Quadruple q) {
 			assert q.getOperator() == Operator.DECLARE_BOOLEAN;
+			assert hasArgsCount(q, 0, 1, 2);
 			if ("!".equals(q.getResult())) {
 				return arrayCreate(ArrayType.BOOLEAN);
 			}
@@ -826,8 +832,9 @@ public class Program {
 		 */
 		public Builder longToDouble(final Quadruple q) {
 			assert q.getOperator() == Operator.LONG_TO_DOUBLE;
-			return assign(q, InfoTag.LONG, Mnemonic.LLOAD, Mnemonic.L2D,
-					Mnemonic.DSTORE);
+			assert hasArgsCount(q, 2);
+			return assignValue(q, ConstantPoolType.LONG, Mnemonic.LLOAD,
+					Mnemonic.L2D, Mnemonic.DSTORE);
 		}
 
 		/**
@@ -858,8 +865,9 @@ public class Program {
 		 */
 		public Builder doubleToLong(final Quadruple q) {
 			assert q.getOperator() == Operator.DOUBLE_TO_LONG;
-			return assign(q, InfoTag.DOUBLE, Mnemonic.DLOAD, Mnemonic.D2L,
-					Mnemonic.LSTORE);
+			assert hasArgsCount(q, 2);
+			return assignValue(q, ConstantPoolType.DOUBLE, Mnemonic.DLOAD,
+					Mnemonic.D2L, Mnemonic.LSTORE);
 		}
 
 		/**
@@ -890,7 +898,8 @@ public class Program {
 		 */
 		public Builder assignLong(final Quadruple q) {
 			assert q.getOperator() == Operator.ASSIGN_LONG;
-			return assign(q, InfoTag.LONG, Mnemonic.LLOAD, null,
+			assert hasArgsCount(q, 2);
+			return assignValue(q, ConstantPoolType.LONG, Mnemonic.LLOAD, null,
 					Mnemonic.LSTORE);
 		}
 
@@ -922,8 +931,9 @@ public class Program {
 		 */
 		public Builder assignDouble(final Quadruple q) {
 			assert q.getOperator() == Operator.ASSIGN_DOUBLE;
-			return assign(q, InfoTag.DOUBLE, Mnemonic.DLOAD, null,
-					Mnemonic.DSTORE);
+			assert hasArgsCount(q, 2);
+			return assignValue(q, ConstantPoolType.DOUBLE, Mnemonic.DLOAD,
+					null, Mnemonic.DSTORE);
 		}
 
 		/**
@@ -954,8 +964,9 @@ public class Program {
 		 */
 		public Builder assignString(final Quadruple q) {
 			assert q.getOperator() == Operator.ASSIGN_STRING;
-			return assign(q, InfoTag.STRING, Mnemonic.ALOAD, null,
-					Mnemonic.ASTORE);
+			assert hasArgsCount(q, 2);
+			return assignValue(q, ConstantPoolType.STRING, Mnemonic.ALOAD,
+					null, Mnemonic.ASTORE);
 		}
 
 		/**
@@ -986,9 +997,10 @@ public class Program {
 		 */
 		public Builder assignBoolean(final Quadruple q) {
 			assert q.getOperator() == Operator.ASSIGN_BOOLEAN;
+			assert hasArgsCount(q, 2);
 			final Operation.Builder op = Operation.Builder.newBuilder();
-			op.add(loadOp(q.getArgument1(), null, Mnemonic.ILOAD));
-			op.add(storeOp(q.getResult(), Mnemonic.ISTORE));
+			op.add(loadInstruction(q.getArgument1(), null, Mnemonic.ILOAD));
+			op.add(storeInstruction(q.getResult(), Mnemonic.ISTORE));
 			return add(op.build());
 		}
 
@@ -1020,7 +1032,8 @@ public class Program {
 		 */
 		public Builder addLong(final Quadruple q) {
 			assert q.getOperator() == Operator.ADD_LONG;
-			return calculateNumber(q, InfoTag.LONG, Mnemonic.LLOAD,
+			assert hasArgsCount(q, 3);
+			return calculateNumber(q, ConstantPoolType.LONG, Mnemonic.LLOAD,
 					Mnemonic.LADD, Mnemonic.LSTORE);
 		}
 
@@ -1052,7 +1065,8 @@ public class Program {
 		 */
 		public Builder addDouble(final Quadruple q) {
 			assert q.getOperator() == Operator.ADD_DOUBLE;
-			return calculateNumber(q, InfoTag.DOUBLE, Mnemonic.DLOAD,
+			assert hasArgsCount(q, 3);
+			return calculateNumber(q, ConstantPoolType.DOUBLE, Mnemonic.DLOAD,
 					Mnemonic.DADD, Mnemonic.DSTORE);
 		}
 
@@ -1084,7 +1098,8 @@ public class Program {
 		 */
 		public Builder subLong(final Quadruple q) {
 			assert q.getOperator() == Operator.SUB_LONG;
-			return calculateNumber(q, InfoTag.LONG, Mnemonic.LLOAD,
+			assert hasArgsCount(q, 3);
+			return calculateNumber(q, ConstantPoolType.LONG, Mnemonic.LLOAD,
 					Mnemonic.LSUB, Mnemonic.LSTORE);
 		}
 
@@ -1116,7 +1131,8 @@ public class Program {
 		 */
 		public Builder subDouble(final Quadruple q) {
 			assert q.getOperator() == Operator.SUB_DOUBLE;
-			return calculateNumber(q, InfoTag.DOUBLE, Mnemonic.DLOAD,
+			assert hasArgsCount(q, 3);
+			return calculateNumber(q, ConstantPoolType.DOUBLE, Mnemonic.DLOAD,
 					Mnemonic.DSUB, Mnemonic.DSTORE);
 		}
 
@@ -1148,7 +1164,8 @@ public class Program {
 		 */
 		public Builder mulLong(final Quadruple q) {
 			assert q.getOperator() == Operator.MUL_LONG;
-			return calculateNumber(q, InfoTag.LONG, Mnemonic.LLOAD,
+			assert hasArgsCount(q, 3);
+			return calculateNumber(q, ConstantPoolType.LONG, Mnemonic.LLOAD,
 					Mnemonic.LMUL, Mnemonic.LSTORE);
 		}
 
@@ -1180,7 +1197,8 @@ public class Program {
 		 */
 		public Builder mulDouble(final Quadruple q) {
 			assert q.getOperator() == Operator.MUL_DOUBLE;
-			return calculateNumber(q, InfoTag.DOUBLE, Mnemonic.DLOAD,
+			assert hasArgsCount(q, 3);
+			return calculateNumber(q, ConstantPoolType.DOUBLE, Mnemonic.DLOAD,
 					Mnemonic.DMUL, Mnemonic.DSTORE);
 		}
 
@@ -1212,7 +1230,8 @@ public class Program {
 		 */
 		public Builder divLong(final Quadruple q) {
 			assert q.getOperator() == Operator.DIV_LONG;
-			return calculateNumber(q, InfoTag.LONG, Mnemonic.LLOAD,
+			assert hasArgsCount(q, 3);
+			return calculateNumber(q, ConstantPoolType.LONG, Mnemonic.LLOAD,
 					Mnemonic.LDIV, Mnemonic.LSTORE);
 		}
 
@@ -1244,7 +1263,8 @@ public class Program {
 		 */
 		public Builder divDouble(final Quadruple q) {
 			assert q.getOperator() == Operator.DIV_DOUBLE;
-			return calculateNumber(q, InfoTag.DOUBLE, Mnemonic.DLOAD,
+			assert hasArgsCount(q, 3);
+			return calculateNumber(q, ConstantPoolType.DOUBLE, Mnemonic.DLOAD,
 					Mnemonic.DDIV, Mnemonic.DSTORE);
 		}
 
@@ -1276,10 +1296,12 @@ public class Program {
 		 */
 		public Builder returnLong(final Quadruple q) {
 			assert q.getOperator() == Operator.RETURN;
+			assert hasArgsCount(q, 1);
 			final short systemExitIndex = addSystemExitMethodToClassfile();
 
 			final Operation.Builder op = Operation.Builder.newBuilder();
-			op.add(loadOp(q.getArgument1(), InfoTag.LONG, Mnemonic.LLOAD));
+			op.add(loadInstruction(q.getArgument1(), ConstantPoolType.LONG,
+					Mnemonic.LLOAD));
 			op.add(Mnemonic.L2I);
 			op.add(Mnemonic.INVOKESTATIC,
 					ByteUtils.shortToByteArray(systemExitIndex));
@@ -1324,16 +1346,18 @@ public class Program {
 		 */
 		public Builder notBoolean(final Quadruple q) {
 			assert q.getOperator() == Operator.NOT_BOOLEAN;
+			assert hasArgsCount(q, 2);
 			final Operation.Builder op = Operation.Builder.newBuilder();
 
 			final Instruction falseOp = new Instruction(Mnemonic.ICONST_0);
-			final Instruction storeOp = storeOp(q.getResult(), Mnemonic.ISTORE);
+			final Instruction storeOp = storeInstruction(q.getResult(),
+					Mnemonic.ISTORE);
 			final JumpInstruction jumpFalse = new JumpInstruction(
 					Mnemonic.IFNE, falseOp);
 			final JumpInstruction jumpTrue = new JumpInstruction(Mnemonic.GOTO,
 					storeOp);
 
-			op.add(loadOp(q.getArgument1(), null, Mnemonic.ILOAD));
+			op.add(loadInstruction(q.getArgument1(), null, Mnemonic.ILOAD));
 			op.add(jumpFalse);
 			jumpInstructions.add(jumpFalse);
 			op.add(Mnemonic.ICONST_1);
@@ -1370,6 +1394,7 @@ public class Program {
 		 */
 		public Builder orBoolean(final Quadruple q) {
 			assert q.getOperator() == Operator.OR_BOOLEAN;
+			assert hasArgsCount(q, 3);
 			return booleanOp(q, Mnemonic.IOR);
 		}
 
@@ -1399,6 +1424,7 @@ public class Program {
 		 */
 		public Builder andBoolean(final Quadruple q) {
 			assert q.getOperator() == Operator.AND_BOOLEAN;
+			assert hasArgsCount(q, 3);
 			return booleanOp(q, Mnemonic.IAND);
 		}
 
@@ -1430,7 +1456,8 @@ public class Program {
 		 */
 		public Builder compareLongE(final Quadruple q) {
 			assert q.getOperator() == Operator.COMPARE_LONG_E;
-			return compareNumber(q, InfoTag.LONG, Mnemonic.LLOAD,
+			assert hasArgsCount(q, 3);
+			return compareNumber(q, ConstantPoolType.LONG, Mnemonic.LLOAD,
 					Mnemonic.LCMP, Mnemonic.IFNE);
 		}
 
@@ -1461,7 +1488,8 @@ public class Program {
 		 */
 		public Builder compareLongG(final Quadruple q) {
 			assert q.getOperator() == Operator.COMPARE_LONG_G;
-			return compareNumber(q, InfoTag.LONG, Mnemonic.LLOAD,
+			assert hasArgsCount(q, 3);
+			return compareNumber(q, ConstantPoolType.LONG, Mnemonic.LLOAD,
 					Mnemonic.LCMP, Mnemonic.IFLE);
 		}
 
@@ -1492,7 +1520,8 @@ public class Program {
 		 */
 		public Builder compareLongL(final Quadruple q) {
 			assert q.getOperator() == Operator.COMPARE_LONG_L;
-			return compareNumber(q, InfoTag.LONG, Mnemonic.LLOAD,
+			assert hasArgsCount(q, 3);
+			return compareNumber(q, ConstantPoolType.LONG, Mnemonic.LLOAD,
 					Mnemonic.LCMP, Mnemonic.IFGE);
 		}
 
@@ -1524,7 +1553,8 @@ public class Program {
 		 */
 		public Builder compareLongGE(final Quadruple q) {
 			assert q.getOperator() == Operator.COMPARE_LONG_GE;
-			return compareNumber(q, InfoTag.LONG, Mnemonic.LLOAD,
+			assert hasArgsCount(q, 3);
+			return compareNumber(q, ConstantPoolType.LONG, Mnemonic.LLOAD,
 					Mnemonic.LCMP, Mnemonic.IFLT);
 		}
 
@@ -1555,7 +1585,8 @@ public class Program {
 		 */
 		public Builder compareLongLE(final Quadruple q) {
 			assert q.getOperator() == Operator.COMPARE_LONG_LE;
-			return compareNumber(q, InfoTag.LONG, Mnemonic.LLOAD,
+			assert hasArgsCount(q, 3);
+			return compareNumber(q, ConstantPoolType.LONG, Mnemonic.LLOAD,
 					Mnemonic.LCMP, Mnemonic.IFGT);
 		}
 
@@ -1587,7 +1618,8 @@ public class Program {
 		 */
 		public Builder compareDoubleE(final Quadruple q) {
 			assert q.getOperator() == Operator.COMPARE_DOUBLE_E;
-			return compareNumber(q, InfoTag.DOUBLE, Mnemonic.DLOAD,
+			assert hasArgsCount(q, 3);
+			return compareNumber(q, ConstantPoolType.DOUBLE, Mnemonic.DLOAD,
 					Mnemonic.DCMPL, Mnemonic.IFNE);
 		}
 
@@ -1618,7 +1650,8 @@ public class Program {
 		 */
 		public Builder compareDoubleG(final Quadruple q) {
 			assert q.getOperator() == Operator.COMPARE_DOUBLE_G;
-			return compareNumber(q, InfoTag.DOUBLE, Mnemonic.DLOAD,
+			assert hasArgsCount(q, 3);
+			return compareNumber(q, ConstantPoolType.DOUBLE, Mnemonic.DLOAD,
 					Mnemonic.DCMPL, Mnemonic.IFLE);
 		}
 
@@ -1649,7 +1682,8 @@ public class Program {
 		 */
 		public Builder compareDoubleL(final Quadruple q) {
 			assert q.getOperator() == Operator.COMPARE_DOUBLE_L;
-			return compareNumber(q, InfoTag.DOUBLE, Mnemonic.DLOAD,
+			assert hasArgsCount(q, 3);
+			return compareNumber(q, ConstantPoolType.DOUBLE, Mnemonic.DLOAD,
 					Mnemonic.DCMPG, Mnemonic.IFGE);
 		}
 
@@ -1680,7 +1714,8 @@ public class Program {
 		 */
 		public Builder compareDoubleGE(final Quadruple q) {
 			assert q.getOperator() == Operator.COMPARE_DOUBLE_GE;
-			return compareNumber(q, InfoTag.DOUBLE, Mnemonic.DLOAD,
+			assert hasArgsCount(q, 3);
+			return compareNumber(q, ConstantPoolType.DOUBLE, Mnemonic.DLOAD,
 					Mnemonic.DCMPL, Mnemonic.IFLT);
 		}
 
@@ -1711,7 +1746,8 @@ public class Program {
 		 */
 		public Builder compareDoubleLE(final Quadruple q) {
 			assert q.getOperator() == Operator.COMPARE_DOUBLE_LE;
-			return compareNumber(q, InfoTag.DOUBLE, Mnemonic.DLOAD,
+			assert hasArgsCount(q, 3);
+			return compareNumber(q, ConstantPoolType.DOUBLE, Mnemonic.DLOAD,
 					Mnemonic.DCMPG, Mnemonic.IFGT);
 		}
 
@@ -1742,6 +1778,7 @@ public class Program {
 		 */
 		public Builder label(final Quadruple q) {
 			assert q.getOperator() == Operator.LABEL;
+			assert hasArgsCount(q, 1);
 			labelFlag = true;
 			labelNames.push(q.getArgument1());
 			return this;
@@ -1781,6 +1818,7 @@ public class Program {
 		 */
 		public Builder branch(final Quadruple q) {
 			assert q.getOperator() == Operator.BRANCH;
+			assert hasArgsCount(q, 1, 3);
 			final Operation.Builder op = Operation.Builder.newBuilder();
 			if ("!".equals(q.getResult())) {
 				// unconditional branch
@@ -1794,7 +1832,7 @@ public class Program {
 						Mnemonic.IFNE, q.getArgument1());
 				final JumpInstruction falseJump = new JumpInstruction(
 						Mnemonic.GOTO, q.getArgument2());
-				op.add(loadOp(q.getResult(), null, Mnemonic.ILOAD));
+				op.add(loadInstruction(q.getResult(), null, Mnemonic.ILOAD));
 				op.add(trueJump);
 				op.add(falseJump);
 				jumpInstructions.add(trueJump);
@@ -1830,11 +1868,12 @@ public class Program {
 		 */
 		public Builder printBoolean(final Quadruple q) {
 			assert q.getOperator() == Operator.PRINT_BOOLEAN;
-			final short printIndex = addPrintMethodToClassfile("Z");
+			assert hasArgsCount(q, 1);
+			final short printIndex = addPrintMethodToConstantPool("Z");
 			final Operation.Builder op = Operation.Builder.newBuilder();
 			op.add(Mnemonic.GETSTATIC,
 					ByteUtils.shortToByteArray(systemOutIndex));
-			op.add(loadOp(q.getArgument1(), null, Mnemonic.ILOAD));
+			op.add(loadInstruction(q.getArgument1(), null, Mnemonic.ILOAD));
 			op.add(Mnemonic.INVOKEVIRTUAL,
 					ByteUtils.shortToByteArray(printIndex));
 			return add(op.build());
@@ -1867,7 +1906,8 @@ public class Program {
 		 */
 		public Builder printLong(final Quadruple q) {
 			assert q.getOperator() == Operator.PRINT_LONG;
-			return print(q.getArgument1(), InfoTag.LONG, "J", Mnemonic.LLOAD);
+			assert hasArgsCount(q, 1);
+			return print(q, ConstantPoolType.LONG, "J", Mnemonic.LLOAD);
 		}
 
 		/**
@@ -1897,7 +1937,8 @@ public class Program {
 		 */
 		public Builder printDouble(final Quadruple q) {
 			assert q.getOperator() == Operator.PRINT_DOUBLE;
-			return print(q.getArgument1(), InfoTag.DOUBLE, "D", Mnemonic.DLOAD);
+			assert hasArgsCount(q, 1);
+			return print(q, ConstantPoolType.DOUBLE, "D", Mnemonic.DLOAD);
 		}
 
 		/**
@@ -1927,8 +1968,9 @@ public class Program {
 		 */
 		public Builder printString(final Quadruple q) {
 			assert q.getOperator() == Operator.PRINT_STRING;
-			return print(q.getArgument1(), InfoTag.STRING,
-					"Ljava/lang/String;", Mnemonic.ALOAD);
+			assert hasArgsCount(q, 1);
+			return print(q, ConstantPoolType.STRING, "Ljava/lang/String;",
+					Mnemonic.ALOAD);
 		}
 
 		/**
@@ -1958,6 +2000,7 @@ public class Program {
 		 */
 		public Builder declareArray(final Quadruple q) {
 			assert q.getOperator() == Operator.DECLARE_ARRAY;
+			assert hasArgsCount(q, 1, 2);
 			if (!"!".equals(q.getResult())) {
 				arrayName = q.getResult();
 			}
@@ -1992,6 +2035,7 @@ public class Program {
 		 */
 		public Builder arrayGetLong(final Quadruple q) {
 			assert q.getOperator() == Operator.ARRAY_GET_LONG;
+			assert hasArgsCount(q, 3);
 			return arrayGet(q, Mnemonic.LALOAD, Mnemonic.LSTORE);
 		}
 
@@ -2022,6 +2066,7 @@ public class Program {
 		 */
 		public Builder arrayGetDouble(final Quadruple q) {
 			assert q.getOperator() == Operator.ARRAY_GET_DOUBLE;
+			assert hasArgsCount(q, 3);
 			return arrayGet(q, Mnemonic.DALOAD, Mnemonic.DSTORE);
 		}
 
@@ -2052,6 +2097,7 @@ public class Program {
 		 */
 		public Builder arrayGetBoolean(final Quadruple q) {
 			assert q.getOperator() == Operator.ARRAY_GET_BOOLEAN;
+			assert hasArgsCount(q, 3);
 			return arrayGet(q, Mnemonic.BALOAD, Mnemonic.ISTORE);
 		}
 
@@ -2082,6 +2128,7 @@ public class Program {
 		 */
 		public Builder arrayGetString(final Quadruple q) {
 			assert q.getOperator() == Operator.ARRAY_GET_STRING;
+			assert hasArgsCount(q, 3);
 			return arrayGet(q, Mnemonic.AALOAD, Mnemonic.ASTORE);
 		}
 
@@ -2112,6 +2159,7 @@ public class Program {
 		 */
 		public Builder arrayGetReference(final Quadruple q) {
 			assert q.getOperator() == Operator.ARRAY_GET_REFERENCE;
+			assert hasArgsCount(q, 3);
 			return arrayGet(q, Mnemonic.AALOAD, Mnemonic.ASTORE);
 		}
 
@@ -2142,7 +2190,9 @@ public class Program {
 		 */
 		public Builder arraySetLong(final Quadruple q) {
 			assert q.getOperator() == Operator.ARRAY_SET_LONG;
-			return arraySet(q, InfoTag.LONG, Mnemonic.LDC2_W, Mnemonic.LASTORE);
+			assert hasArgsCount(q, 3);
+			return arraySet(q, ConstantPoolType.LONG, Mnemonic.LDC2_W,
+					Mnemonic.LASTORE);
 		}
 
 		/**
@@ -2172,7 +2222,8 @@ public class Program {
 		 */
 		public Builder arraySetDouble(final Quadruple q) {
 			assert q.getOperator() == Operator.ARRAY_SET_DOUBLE;
-			return arraySet(q, InfoTag.DOUBLE, Mnemonic.LDC2_W,
+			assert hasArgsCount(q, 3);
+			return arraySet(q, ConstantPoolType.DOUBLE, Mnemonic.LDC2_W,
 					Mnemonic.DASTORE);
 		}
 
@@ -2203,13 +2254,15 @@ public class Program {
 		 */
 		public Builder arraySetBoolean(final Quadruple q) {
 			assert q.getOperator() == Operator.ARRAY_SET_BOOLEAN;
+			assert hasArgsCount(q, 3);
 			final Operation.Builder op = Operation.Builder.newBuilder();
 			final byte arrayIndex = classfile.getIndexOfVariableInMethod(
 					methodName, q.getArgument1());
 			op.add(Mnemonic.getMnemonic("ALOAD", arrayIndex), arrayIndex);
-			op.add(loadOp(q.getArgument2(), InfoTag.LONG, Mnemonic.LLOAD));
+			op.add(loadInstruction(q.getArgument2(), ConstantPoolType.LONG,
+					Mnemonic.LLOAD));
 			op.add(Mnemonic.L2I);
-			op.add(loadOp(q.getResult(), null, Mnemonic.ILOAD));
+			op.add(loadInstruction(q.getResult(), null, Mnemonic.ILOAD));
 			op.add(Mnemonic.BASTORE);
 			return add(op.build());
 		}
@@ -2241,7 +2294,9 @@ public class Program {
 		 */
 		public Builder arraySetString(final Quadruple q) {
 			assert q.getOperator() == Operator.ARRAY_SET_STRING;
-			return arraySet(q, InfoTag.STRING, Mnemonic.LDC, Mnemonic.AASTORE);
+			assert hasArgsCount(q, 3);
+			return arraySet(q, ConstantPoolType.STRING, Mnemonic.LDC,
+					Mnemonic.AASTORE);
 		}
 
 		/**
@@ -2272,12 +2327,83 @@ public class Program {
 		 */
 		public Builder arraySetArray(final Quadruple q) {
 			assert q.getOperator() == Operator.ARRAY_SET_ARRAY;
+			assert hasArgsCount(q, 3);
 			return arraySet(q, null, Mnemonic.ALOAD, Mnemonic.AASTORE);
 		}
 
 		/*
 		 * === M3 === WORK IN PROGRESS
 		 */
+
+		public Builder booleanToString(final Quadruple q) {
+			// TODO implement
+			return this;
+		}
+
+		public Builder longToString(final Quadruple q) {
+			// TODO implement
+			return this;
+		}
+
+		public Builder doubleToString(final Quadruple q) {
+			// TODO implement
+			return this;
+		}
+
+		public Builder declareStruct(final Quadruple q) {
+			// TODO implement
+			return this;
+		}
+
+		public Builder structGetLong(final Quadruple q) {
+			// TODO implement
+			return this;
+		}
+
+		public Builder structGetDouble(final Quadruple q) {
+			// TODO implement
+			return this;
+		}
+
+		public Builder structGetBoolean(final Quadruple q) {
+			// TODO implement
+			return this;
+		}
+
+		public Builder structGetString(final Quadruple q) {
+			// TODO implement
+			return this;
+		}
+
+		public Builder structGetReference(final Quadruple q) {
+			// TODO implement
+			return this;
+		}
+
+		public Builder structSetLong(final Quadruple q) {
+			// TODO implement
+			return this;
+		}
+
+		public Builder structSetDouble(final Quadruple q) {
+			// TODO implement
+			return this;
+		}
+
+		public Builder structSetBoolean(final Quadruple q) {
+			// TODO implement
+			return this;
+		}
+
+		public Builder structSetString(final Quadruple q) {
+			// TODO implement
+			return this;
+		}
+
+		public Builder stringConcat(final Quadruple q) {
+			// TODO implement
+			return this;
+		}
 
 	}
 

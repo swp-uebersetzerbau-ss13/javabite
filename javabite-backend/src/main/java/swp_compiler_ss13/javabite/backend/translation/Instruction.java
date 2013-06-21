@@ -1,4 +1,4 @@
-package swp_compiler_ss13.javabite.backend;
+package swp_compiler_ss13.javabite.backend.translation;
 
 import java.io.DataOutputStream;
 import java.io.IOException;

@@ -9,7 +9,7 @@ import java.util.HashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import swp_compiler_ss13.javabite.backend.Instruction;
+import swp_compiler_ss13.javabite.backend.translation.Instruction;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodAccessFlag;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.VariableType;
 

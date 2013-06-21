@@ -1,0 +1,17 @@
+tac optimierung:
+
+konstanten müssen nicht in lokalen variablen gespeichert werden, wenn sie nicht verändert werden.
+z.b.
+DECLARE_STRING "#\"bla\"", "!", "s"
+PRINT_STRING "s", "!", "!"
+
+deklaration mit darauf folgender zuweisung ist überflüssig
+durch mechanik eingefügtes assign-default (ASSIGN "#\"\"", "!", "s") ist überflüssig
+z.b.
+DECLARE_STRING "!", "!", "s"
+ASSIGN_STRING "#\"bla\"", "!", "s"
+
+BRANCH mit zwei zielen, wovon eines direkt unter BRANCH liegt, ist überflüssig
+z.b.
+BRANCH t1 t2 b
+LABEL t1

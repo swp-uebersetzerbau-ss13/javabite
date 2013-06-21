@@ -14,7 +14,7 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ByteUtils {
+public final class ByteUtils {
 
 	private static final Pattern P_HEX_BYTES = Pattern.compile("(.{2})");
 
@@ -206,6 +206,9 @@ public class ByteUtils {
 			}
 			System.out.println(sb.toString());
 		}
+	}
+
+	private ByteUtils() {
 	}
 
 }

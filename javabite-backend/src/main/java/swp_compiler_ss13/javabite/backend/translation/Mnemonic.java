@@ -1,4 +1,4 @@
-package swp_compiler_ss13.javabite.backend;
+package swp_compiler_ss13.javabite.backend.translation;
 
 /**
  * <h1>Mnemonic</h1>

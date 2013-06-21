@@ -1,4 +1,4 @@
-package swp_compiler_ss13.javabite.backend;
+package swp_compiler_ss13.javabite.backend.translation;
 
 /**
  * Extension of Instruction-class. Instances of this class symbolize a jump
