@@ -15,5 +15,6 @@ build
 # Project-Specific
 javabite.properties
 *.log
+.idea
 *.iml
 *.xml
