@@ -69,7 +69,7 @@ import swp_compiler_ss13.javabite.parser.targetgrammar.TargetGrammar;
  * the reduction list used by this class has to meet the following format:
  * S->aABe, A->Abc, A->b, B->d
  * 
- * @TODO: remove string representation dependency 
+ * TODO: remove string representation dependency
  * @author Marco , Till
  * @since 11.05.2013
  * 
@@ -300,13 +300,13 @@ public class ASTGenerator {
 			break;
 		case "stmt -> RETURN loc SEMICOLON":
 			ReturnNodeJb returnNodeTwo = new ReturnNodeJb();
-			IdentifierNodeJb loc = (IdentifierNodeJb) this.useLocProduction();
+			IdentifierNodeJb loc = this.useLocProduction();
 			returnNodeTwo.setRightValue(loc);
 			stmt = returnNodeTwo;
 			break;
 		case "stmt -> PRINT loc SEMICOLON":
 			PrintNodeJb printNode = new PrintNodeJb();
-			IdentifierNodeJb loc2 = (IdentifierNodeJb) this.useLocProduction();
+			IdentifierNodeJb loc2 = this.useLocProduction();
 			printNode.setRightValue(loc2);		
 			stmt = printNode;
 			break;
@@ -329,7 +329,7 @@ public class ASTGenerator {
 			stmt= branchNode2;
 			break;
 		case "stmt -> BREAK SEMICOLON":
-			BreakNodeJb breakNode=new BreakNodeJb();
+            BreakNodeJb breakNode = new BreakNodeJb();
 			stmt=breakNode;
 			break;
 		case "stmt -> block":
@@ -413,7 +413,7 @@ public class ASTGenerator {
 		// use assign productions functions according to the specific production
 		switch (thisReduction.toString()) {
 		case "assign -> loc ASSIGNOP assign":
-			IdentifierNodeJb leftLoc = (IdentifierNodeJb) this.useLocProduction();
+			IdentifierNodeJb leftLoc = this.useLocProduction();
 			StatementNodeJb rightAssign = useAssignProduction();
 			AssignmentNodeJb assignNode = new AssignmentNodeJb();
 			assignNode.setLeftValue(leftLoc);
@@ -426,8 +426,8 @@ public class ASTGenerator {
 		default:
 			logger.error("[Assign] thisReduction : {} , matches no case",thisReduction);
 		}
-		assign.putAllTokens(thisReduction.getRightSide());;
-		return assign;
+		assign.putAllTokens(thisReduction.getRightSide());
+        return assign;
 	}
 
 	private ExpressionNodeJb useBoolProduction() {
@@ -456,8 +456,8 @@ public class ASTGenerator {
 		default:
 			logger.error("[Bool] thisReduction : {} , matches no case",thisReduction);
 		}
-		bool.putAllTokens(thisReduction.getRightSide());;
-		return bool;
+		bool.putAllTokens(thisReduction.getRightSide());
+        return bool;
 	}
 
 	private ExpressionNodeJb useJoinProduction() {
@@ -601,8 +601,8 @@ public class ASTGenerator {
 			expr = add;
 			break;
 		case "expr -> expr MINUS term":
-			ExpressionNodeJb expr2 = (ExpressionNodeJb) this.useExprProduction();
-			ExpressionNodeJb term2 = (ExpressionNodeJb) this.useTermProduction();
+			ExpressionNodeJb expr2 = this.useExprProduction();
+			ExpressionNodeJb term2 = this.useTermProduction();
 			ArithmeticBinaryExpressionNodeJb sub = 
 					new ArithmeticBinaryExpressionNodeJb();
 			sub.setLeftValue(expr2);

@@ -36,18 +36,18 @@ import swp_compiler_ss13.common.types.Type;
  * @author Till
  *
  */
-public class ASTTypeChecker {
-	AST ast;
-	BlockNode root;
-	ReportLog reportLog;
-	boolean use_coverage=true;
+class ASTTypeChecker {
+	private final AST ast;
+	private final BlockNode root;
+	private final ReportLog reportLog;
+	private boolean use_coverage=true;
 	
 	public ASTTypeChecker(AST ast_, BlockNode root_, ReportLog reportLog) {
 		this.ast=ast_;
 		this.root=root_;
 		this.reportLog=reportLog;
 	}
-	protected void disableCoverageUse(){
+	void disableCoverageUse(){
 		use_coverage=false;
 	}
 	
@@ -57,7 +57,7 @@ public class ASTTypeChecker {
 	}
 
 	// associates a Type with a Token
-	private Map<ASTNode,AlgebraType> types=new HashMap<>();
+	private final Map<ASTNode,AlgebraType> types=new HashMap<>();
 	
 	private void ensure(ASTNode node, AlgebraType type){
 		if (type(node)==type) return;
@@ -137,14 +137,13 @@ public class ASTTypeChecker {
 		return types.get(node);
 	}
 
-	/**
-	 * sets the type of the token to 
-	 * @param token
-	 */
+    /**
+     *
+     * @param node
+     */
 	private void setType(ASTNode node) {
 		AlgebraType type=null;
-		
-		// TODO: break
+
 		switch (node.getNodeType()){
 		case ArithmeticBinaryExpressionNode:
 			type = AlgebraType.ARITHMETIC;

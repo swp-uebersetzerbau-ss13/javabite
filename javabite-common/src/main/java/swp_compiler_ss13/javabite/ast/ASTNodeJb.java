@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Queue;
 import java.util.TreeMap;
+import java.util.jar.Attributes;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,7 @@ public abstract class ASTNodeJb implements ASTNode, Iterable<ASTNode>{
 	final private TreeMap<Integer,ASTNode> children=new TreeMap<>();
 	protected ASTNodeType astNodeType;
 	private Map<TokenType,List<Token>> typeTokenMap=new HashMap<>();
+    final private Attributes attributes=new Attributes();
 	Logger logger=LoggerFactory.getLogger(this.getClass());
 	
 	ASTNode parent;
@@ -181,7 +183,20 @@ public abstract class ASTNodeJb implements ASTNode, Iterable<ASTNode>{
 		
 		return res.get(0);
 	}
-	
 
-	
+    @Override
+    public void setAttributeValue(Object attribute, Object value) {
+        attributes.put(attribute,value);
+    }
+
+    @Override
+    public Map<?, ?> getAttributeValues() {
+        return attributes;
+    }
+
+    @Override
+    public Object getAttributeValue(Object attribute) {
+        return attributes.get(attribute);
+    }
 }
+
