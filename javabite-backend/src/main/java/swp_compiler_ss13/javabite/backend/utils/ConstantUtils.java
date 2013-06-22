@@ -23,6 +23,10 @@ public final class ConstantUtils {
 		return s != null && s.startsWith(ConstantUtils.SYMBOL_CONSTANT_VALUE);
 	}
 
+	public static boolean isIgnoreParam(final String s) {
+		return s != null && s.equals(SYMBOL_IGNORE_PARAM);
+	}
+
 	public static String removeConstantSign(final String s) {
 		return s.substring(1);
 	}

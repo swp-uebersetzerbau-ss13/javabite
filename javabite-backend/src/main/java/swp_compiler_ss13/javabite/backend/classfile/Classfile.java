@@ -99,8 +99,7 @@ public class Classfile {
 		attributesCount = 0;
 
 		for (final ClassfileAccessFlag accessFlag : accessFlags) {
-			this.accessFlags = (short) (this.accessFlags | accessFlag
-					.getValue());
+			this.accessFlags = (short) (this.accessFlags | accessFlag.value);
 		}
 
 		// instantiate constant pool, field area, method area and attribute area
@@ -478,12 +477,9 @@ public class Classfile {
 		final short nameIndex = addUTF8ConstantToConstantPool(methodName);
 		final short descriptorIndex = addUTF8ConstantToConstantPool(methodDescriptor);
 		final short codeIndex = addUTF8ConstantToConstantPool("Code");
-		final short stackMapTableIndex = addUTF8ConstantToConstantPool("StackMapTable");
-		final short localVariableTableIndex = addUTF8ConstantToConstantPool("LocalVariableTable");
 
 		methodArea.addMethod(methodName, nameIndex, descriptorIndex, codeIndex,
-				stackMapTableIndex, localVariableTableIndex, methodDescriptor,
-				accessFlags);
+				methodDescriptor, accessFlags);
 	}
 
 	/**

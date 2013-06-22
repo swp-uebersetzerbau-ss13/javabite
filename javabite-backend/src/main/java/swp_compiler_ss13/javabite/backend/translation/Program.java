@@ -289,7 +289,7 @@ public class Program {
 				final short index = classfile.getIndexOfConstantInConstantPool(
 						constType, removeConstantSign(arg1));
 				assert index > 0;
-				if (constType.isWide()) {
+				if (constType.wide) {
 					return new Instruction(Mnemonic.LDC2_W,
 							ByteUtils.shortToByteArray(index));
 				} else if (index >= 256) {
@@ -529,13 +529,13 @@ public class Program {
 				op.add(Mnemonic.MULTIANEWARRAY, classIndexArray[0],
 						classIndexArray[1], dimensions);
 			} else if (type.isPrimitive()) {
-				// if single dimensional and primitive, create with type tag
-				op.add(Mnemonic.NEWARRAY, type.getValue());
+				// if single dimensional and primitive, create with type tagByte
+				op.add(Mnemonic.NEWARRAY, type.value);
 			} else {
 				// if single dimensional and complex (object), create with
 				// class reference
 				final short classIndex = classfile
-						.addClassConstantToConstantPool(type.getClassName());
+						.addClassConstantToConstantPool(type.className);
 				op.add(Mnemonic.ANEWARRAY,
 						ByteUtils.shortToByteArray(classIndex));
 			}
@@ -664,7 +664,7 @@ public class Program {
 		private short addMultiArraySignatureToConstantPool(
 				final byte dimensions, final ArrayType type) {
 			final String classSignature = new String(new char[dimensions])
-					.replace("\0", "[") + type.getClassName();
+					.replace("\0", "[") + type.className;
 			return classfile.addClassConstantToConstantPool(classSignature);
 		}
 

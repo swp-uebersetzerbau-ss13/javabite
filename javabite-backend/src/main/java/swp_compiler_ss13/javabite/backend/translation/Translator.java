@@ -158,7 +158,6 @@ public class Translator {
 			if (operator.name().startsWith("ARRAY_SET")) {
 				// argument 2 is a long constant
 				if (isConstant(arg2)) {
-					// TODO remove substring, replace by method!
 					classFile.addLongConstantToConstantPool(Long
 							.parseLong(removeConstantSign(arg2)));
 				}
@@ -186,7 +185,8 @@ public class Translator {
 			}
 
 			// get expected type of constants
-			final ConstantPoolType type = getExpectedInfoTagOfConstantsByOperator(operator);
+			final ConstantPoolType type = ConstantPoolType
+					.getByOperator(operator);
 
 			/*
 			 * if type is equal to zero, there'll be no constants in this
@@ -244,71 +244,6 @@ public class Translator {
 	}
 
 	/**
-	 * <h1>getExpectedInfoTagOfConstantsByOperator</h1>
-	 * <p>
-	 * This method maps operators to the respective data types of which the
-	 * constants possibly being used in this operation are expected to be. For
-	 * instance: ASSIGN_LONG maps to InfoTag.LONG, because it assigns a long and
-	 * a possibly used constant is expected to be exactly of this type.
-	 * </p>
-	 * 
-	 * TODO: Expand operator by expected constant type or "multiple"?
-	 * 
-	 * @since 09.05.2013
-	 * 
-	 * @param operator
-	 *            the operator to be examined
-	 * @return InfoTag value which describes, of which type the operation
-	 *         constants are expected to be
-	 */
-	private static ConstantPoolType getExpectedInfoTagOfConstantsByOperator(
-			final Operator operator) {
-		switch (operator) {
-
-			case ASSIGN_LONG :
-			case ADD_LONG :
-			case SUB_LONG :
-			case MUL_LONG :
-			case DIV_LONG :
-			case DECLARE_ARRAY :
-			case ARRAY_GET_LONG :
-			case ARRAY_GET_DOUBLE :
-			case ARRAY_GET_BOOLEAN :
-			case ARRAY_GET_STRING :
-			case ARRAY_GET_ARRAY :
-			case ARRAY_GET_REFERENCE :
-			case COMPARE_LONG_E :
-			case COMPARE_LONG_G :
-			case COMPARE_LONG_L :
-			case COMPARE_LONG_GE :
-			case COMPARE_LONG_LE :
-			case PRINT_LONG :
-			case RETURN :
-				return ConstantPoolType.LONG;
-
-			case ASSIGN_DOUBLE :
-			case ADD_DOUBLE :
-			case SUB_DOUBLE :
-			case MUL_DOUBLE :
-			case DIV_DOUBLE :
-			case COMPARE_DOUBLE_E :
-			case COMPARE_DOUBLE_G :
-			case COMPARE_DOUBLE_L :
-			case COMPARE_DOUBLE_GE :
-			case COMPARE_DOUBLE_LE :
-			case PRINT_DOUBLE :
-				return ConstantPoolType.DOUBLE;
-
-			case ASSIGN_STRING :
-			case PRINT_STRING :
-				return ConstantPoolType.STRING;
-
-			default :
-				return null;
-		}
-	}
-
-	/**
 	 * <h1>addVariablesToLocalVariableSpace</h1>
 	 * <p>
 	 * This method "allocates" space in the local variable space of the provided
@@ -330,29 +265,50 @@ public class Translator {
 				.hasNext();) {
 
 			final Quadruple quad = tacIter.next();
-			final Operator op;
 			final String defValue;
-			final String arg1 = quad.getArgument1();
 			final String result = quad.getResult();
-			final Quadruple q;
-			final VariableType varType;
+			String arg1 = quad.getArgument1();
+			Operator op = quad.getOperator();
 
 			/*
 			 * While an array is declared, skip further checks until a basic
 			 * type is declared/ the array declaration is finished.
 			 */
 			if (arrayFlag) {
-				if (quad.getOperator().equals(Operator.DECLARE_STRING)
-						|| quad.getOperator().equals(Operator.DECLARE_BOOLEAN)
-						|| quad.getOperator().equals(Operator.DECLARE_LONG)
-						|| quad.getOperator().equals(Operator.DECLARE_DOUBLE)) {
+				if (op == Operator.DECLARE_STRING
+						|| op == Operator.DECLARE_BOOLEAN
+						|| op == Operator.DECLARE_LONG
+						|| op == Operator.DECLARE_DOUBLE) {
 					arrayFlag = false;
-					continue;
 				}
 				continue;
 			}
 
-			switch (quad.getOperator()) {
+			switch (op) {
+				case DECLARE_STRING :
+					op = Operator.ASSIGN_STRING;
+					defValue = ConstantUtils.DEFAULT_VALUE_STRING;
+					file.addVariableToMethodsCode(methodName, result,
+							VariableType.STRING);
+					break;
+				case DECLARE_LONG :
+					op = Operator.ASSIGN_LONG;
+					defValue = ConstantUtils.DEFAULT_VALUE_LONG;
+					file.addVariableToMethodsCode(methodName, result,
+							VariableType.LONG);
+					break;
+				case DECLARE_DOUBLE :
+					op = Operator.ASSIGN_DOUBLE;
+					defValue = ConstantUtils.DEFAULT_VALUE_DOUBLE;
+					file.addVariableToMethodsCode(methodName, result,
+							VariableType.DOUBLE);
+					break;
+				case DECLARE_BOOLEAN :
+					op = Operator.ASSIGN_BOOLEAN;
+					defValue = ConstantUtils.DEFAULT_VALUE_BOOLEAN;
+					file.addVariableToMethodsCode(methodName, result,
+							VariableType.BOOLEAN);
+					break;
 				case DECLARE_REFERENCE :
 					file.addVariableToMethodsCode(methodName, result,
 							VariableType.AREF);
@@ -362,47 +318,18 @@ public class Translator {
 					arrayFlag = true;
 					file.addVariableToMethodsCode(methodName, result,
 							VariableType.AREF);
-					continue;
-				case DECLARE_STRING :
-					op = Operator.ASSIGN_STRING;
-					defValue = ConstantUtils.DEFAULT_VALUE_STRING;
-					varType = VariableType.STRING;
-					break;
-				case DECLARE_LONG :
-					op = Operator.ASSIGN_LONG;
-					defValue = ConstantUtils.DEFAULT_VALUE_LONG;
-					varType = VariableType.LONG;
-					break;
-				case DECLARE_DOUBLE :
-					op = Operator.ASSIGN_DOUBLE;
-					defValue = ConstantUtils.DEFAULT_VALUE_DOUBLE;
-					varType = VariableType.DOUBLE;
-					break;
-				case DECLARE_BOOLEAN :
-					op = Operator.ASSIGN_BOOLEAN;
-					defValue = ConstantUtils.DEFAULT_VALUE_BOOLEAN;
-					varType = VariableType.BOOLEAN;
-					break;
 				default :
 					continue;
 			}
 
-			// "allocate" local variable space
-			file.addVariableToMethodsCode(methodName, result, varType);
-
 			// modify current quadruple
-			if (!ConstantUtils.SYMBOL_IGNORE_PARAM.equals(arg1)) {
-				// set provided value
-				q = new QuadrupleJb(op, arg1,
-						ConstantUtils.SYMBOL_IGNORE_PARAM, result);
-			} else {
-				// set default value
-				q = new QuadrupleJb(op, defValue,
-						ConstantUtils.SYMBOL_IGNORE_PARAM, result);
+			if (ConstantUtils.isIgnoreParam(arg1)) {
+				arg1 = defValue;
 			}
 
 			// replace current quadruple by modified one
-			tacIter.set(q);
+			tacIter.set(new QuadrupleJb(op, arg1,
+					ConstantUtils.SYMBOL_IGNORE_PARAM, result));
 		}
 
 		return tac;

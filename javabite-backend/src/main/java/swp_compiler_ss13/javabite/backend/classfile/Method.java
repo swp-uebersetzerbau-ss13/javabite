@@ -52,7 +52,7 @@ class Method {
 	 * </p>
 	 * 
 	 * @since 28.04.2013
-	 * @param accessFlags
+	 * @param fieldAccessFlags
 	 *            arbitrary amount of MethodAccessFlag
 	 * @see #accessFlags
 	 * @see Classfile#addUTF8ConstantToConstantPool(String)
@@ -83,16 +83,13 @@ class Method {
 
 	// TODO: UPDATE JAVADOC
 	Method(final short nameIndex, final short descriptorIndex,
-			final short codeIndex, final short stackMapTableIndex,
-			final short localVariableTableIndex,
-			final MethodAccessFlag... accessFlags) {
+			final short codeIndex, final MethodAccessFlag... fieldAccessFlags) {
 		this.nameIndex = nameIndex;
 		this.descriptorIndex = descriptorIndex;
-		codeAttribute = new Code(codeIndex, stackMapTableIndex,
-				localVariableTableIndex);
+		codeAttribute = new Code(codeIndex);
 
-		for (final MethodAccessFlag a : accessFlags) {
-			this.accessFlags = (short) (this.accessFlags | a.getValue());
+		for (final MethodAccessFlag faf : fieldAccessFlags) {
+			this.accessFlags = (short) (this.accessFlags | faf.value);
 		}
 
 	}

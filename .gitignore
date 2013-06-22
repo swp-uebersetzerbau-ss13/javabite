@@ -18,3 +18,4 @@ javabite.properties
 .idea
 *.iml
 *.xml
+classes/

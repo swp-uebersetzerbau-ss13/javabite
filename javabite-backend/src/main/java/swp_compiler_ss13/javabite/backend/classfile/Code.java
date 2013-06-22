@@ -205,7 +205,7 @@ class Code {
 
 		if (!variableMap.containsKey(variableName)) {
 			variableMap.put(variableName, (byte) maxLocals);
-			maxLocals += variableType.getLength();
+			maxLocals += variableType.length;
 		}
 	}
 

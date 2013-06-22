@@ -13,7 +13,7 @@ import java.io.IOException;
  * <p>
  * This class represents all information needed to create a JVM-Classfile
  * constant pool entry. The constant pool of a JVM-Classfile has entries of
- * different kinds, but every entry consists of a tag and of a Byte-List
+ * different kinds, but every entry consists of a tagByte and of a Byte-List
  * containing further information.
  * </p>
  * 
@@ -54,13 +54,13 @@ public class CPInfo {
 		// write only, if CPInfo is no dummy entry
 		if (info != null) {
 			try {
-				classfileDOS.writeByte(tag.getByte());
+				classfileDOS.writeByte(tag.tagByte);
 
 				classfileDOS.write(info);
 
 				if (logger.isDebugEnabled()) {
-					logger.debug("CPInfo tag");
-					logger.debug("{}", ByteUtils.byteToHexString(tag.getByte()));
+					logger.debug("CPInfo tagByte");
+					logger.debug("{}", ByteUtils.byteToHexString(tag.tagByte));
 					logger.debug("CPInfo info");
 					logger.debug("{}", ByteUtils.byteArrayToHexString(info));
 				}

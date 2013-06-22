@@ -69,7 +69,7 @@ public class ConstantPoolTest {
 	 * Valid index of a constant pool entry is >0 and <constant pool entries + 1
 	 * </p>
 	 * <p>
-	 * Constant pool tag (CONSTANT_LONG): 5
+	 * Constant pool tagByte (CONSTANT_LONG): 5
 	 * </p>
 	 * 
 	 * @throws Throwable
@@ -625,8 +625,8 @@ public class ConstantPoolTest {
 		assertTrue(
 				"CONSTANT_CLASS does not exists in constant pool map after adding",
 				(boolean) PrivateAccessor.invoke(cp, "cpMapEntryExists",
-                        new Class<?>[]{String.class}, new Object[]{""
-                        + ConstantPoolType.CLASS + "java/lang/String"}));
+						new Class<?>[]{String.class}, new Object[]{""
+								+ ConstantPoolType.CLASS + "java/lang/String"}));
 
 		assertTrue(
 				"CONSTANT_UTF8 does not exists in constant pool map after adding",

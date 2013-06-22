@@ -90,13 +90,11 @@ class MethodArea {
 	// TODO: UPDATE JAVADOC
 	void addMethod(final String methodName, final short nameIndex,
 			final short descriptorIndex, final short codeIndex,
-			final short stackMapTableIndex,
-			final short localVariableTableIndex, final String methodDescriptor,
+			final String methodDescriptor,
 			final MethodAccessFlag... accessFlags) {
 
 		final Method newMethod = new Method(nameIndex, descriptorIndex,
-				codeIndex, stackMapTableIndex, localVariableTableIndex,
-				accessFlags);
+				codeIndex, accessFlags);
 
 		methodMap.put(methodName, newMethod);
 	}

@@ -47,15 +47,16 @@ class FieldInfo {
 	 * @param descriptorIndex
 	 *            short index into this classfile's constant pool of field's
 	 *            string descriptor.
+	 * @param fieldAccessFlags
 	 */
 	FieldInfo(final short nameIndex, final short descriptorIndex,
-			final FieldAccessFlag... accessFlags) {
+			final FieldAccessFlag... fieldAccessFlags) {
 
 		this.nameIndex = nameIndex;
 		this.descriptorIndex = descriptorIndex;
 
-		for (final FieldAccessFlag a : accessFlags) {
-			this.accessFlags = (short) (this.accessFlags | a.getValue());
+		for (final FieldAccessFlag faf : fieldAccessFlags) {
+			this.accessFlags = (short) (this.accessFlags | faf.value);
 		}
 	}
 
