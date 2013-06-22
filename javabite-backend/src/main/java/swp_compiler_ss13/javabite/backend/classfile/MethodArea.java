@@ -3,8 +3,8 @@ package swp_compiler_ss13.javabite.backend.classfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import swp_compiler_ss13.javabite.backend.translation.Instruction;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodAccessFlag;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.VariableType;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -124,7 +124,7 @@ class MethodArea {
 	 * and adds a new variable to a methods code by allocating appropriate space
 	 * in the local variable table of the method using the looked up Method
 	 * object's method
-	 * {@link Method#addVariableToCodeAttribute(String, swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.VariableType)}
+	 * {@link Method#addVariableToCodeAttribute(String, swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType)}
 	 * .
 	 * </p>
 	 * 
@@ -133,17 +133,17 @@ class MethodArea {
 	 *            String name of the method
 	 * @param variableName
 	 *            String name of the variable
-	 * @param variableType
-	 *            VariableType variable type of the variable
+	 * @param localVariableType
+	 *            LocalVariableType variable type of the variable
 	 * @see Method
 	 * @see Method#addVariableToCodeAttribute(String,
-	 *      swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.VariableType)
+	 *      swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType)
 	 */
 	void addVariableToMethodsCode(final String methodName,
-			final String variableName, final VariableType variableType) {
+			final String variableName, final LocalVariableType localVariableType) {
 
 		final Method method = getMethodByMethodName(methodName);
-		method.addVariableToCodeAttribute(variableName, variableType);
+		method.addVariableToCodeAttribute(variableName, localVariableType);
 	}
 
 	/**

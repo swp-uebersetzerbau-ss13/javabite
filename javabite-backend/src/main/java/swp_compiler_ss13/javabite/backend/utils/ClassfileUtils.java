@@ -109,12 +109,12 @@ public final class ClassfileUtils {
 	 * @author Marco
 	 * @since 03.05.2013
 	 */
-	public enum VariableType {
+	public enum LocalVariableType {
 		LONG(2), DOUBLE(2), STRING(1), BOOLEAN(1), AREF(1);
 
 		public final short length;
 
-		VariableType(final int length) {
+		LocalVariableType(final int length) {
 			this.length = (short) length;
 		}
 	}
@@ -185,27 +185,27 @@ public final class ClassfileUtils {
 	 * @author eike
 	 * @since Jun 3, 2013 8:29:55 PM
 	 */
-	public enum ArrayType {
+	public enum JavaType {
 		BOOLEAN(0x04, "Z"), DOUBLE(0x07, "D"), LONG(0x0b, "J"), STRING(
 				"java/lang/String");
 
 		public final byte value;
 		public final String className;
 
-		ArrayType(final int value, final String className) {
+		JavaType(final int value, final String className) {
 			this.value = (byte) value;
 			this.className = className;
 		}
 
-		ArrayType(final String className) {
-			this(0, className);
+		JavaType(final String classEif) {
+			this(0, classEif);
 		}
 
 		public boolean isPrimitive() {
 			return value != 0;
 		}
 
-		public static ArrayType getByOperator(final Operator operator) {
+		public static JavaType getByOperator(final Operator operator) {
 			if (OPERATOR_LONG_TYPES.contains(operator))
 				return LONG;
 			if (OPERATOR_DOUBLE_TYPES.contains(operator))

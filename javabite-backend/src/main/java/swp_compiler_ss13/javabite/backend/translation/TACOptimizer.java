@@ -1,5 +1,9 @@
 package swp_compiler_ss13.javabite.backend.translation;
 
+import swp_compiler_ss13.common.backend.Quadruple;
+
+import java.util.List;
+
 /**
  * TACOptimizer class.
  * 
@@ -8,5 +12,9 @@ package swp_compiler_ss13.javabite.backend.translation;
  * 
  */
 public class TACOptimizer {
+
+	public void optimize(final List<Quadruple> tac) {
+
+	}
 
 }

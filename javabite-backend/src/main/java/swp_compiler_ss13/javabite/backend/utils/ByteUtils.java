@@ -24,7 +24,7 @@ public final class ByteUtils {
 	 * @return byte array
 	 */
 	public static byte[] shortToByteArray(final short x) {
-		return new byte[]{(byte) (x >> 8 & 0xff), (byte) (x & 0xff)};
+		return new byte[] { (byte) (x >> 8 & 0xff), (byte) (x & 0xff) };
 	}
 
 	/**
@@ -35,8 +35,8 @@ public final class ByteUtils {
 	 * @return byte array
 	 */
 	public static byte[] intToByteArray(final int x) {
-		return new byte[]{(byte) (x >> 24 & 0xff), (byte) (x >> 16 & 0xff),
-				(byte) (x >> 8 & 0xff), (byte) (x & 0xff)};
+		return new byte[] { (byte) (x >> 24 & 0xff), (byte) (x >> 16 & 0xff),
+				(byte) (x >> 8 & 0xff), (byte) (x & 0xff) };
 	}
 
 	/**
@@ -47,10 +47,10 @@ public final class ByteUtils {
 	 * @return byte array
 	 */
 	public static byte[] longToByteArray(final long x) {
-		return new byte[]{(byte) (x >> 56 & 0xff), (byte) (x >> 48 & 0xff),
+		return new byte[] { (byte) (x >> 56 & 0xff), (byte) (x >> 48 & 0xff),
 				(byte) (x >> 40 & 0xff), (byte) (x >> 32 & 0xff),
 				(byte) (x >> 24 & 0xff), (byte) (x >> 16 & 0xff),
-				(byte) (x >> 8 & 0xff), (byte) (x & 0xff)};
+				(byte) (x >> 8 & 0xff), (byte) (x & 0xff) };
 	}
 
 	/**

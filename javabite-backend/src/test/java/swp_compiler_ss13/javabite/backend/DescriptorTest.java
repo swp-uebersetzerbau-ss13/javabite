@@ -10,11 +10,9 @@ public class DescriptorTest {
 			final String leadin) {
 		if (clazz == null)
 			return;
-		final String type = clazz.isInterface() ? "interface" : clazz.isArray()
-				? "array"
-				: clazz.isPrimitive() ? "primitive" : clazz.isEnum()
-						? "enum"
-						: "class";
+		final String type = clazz.isInterface() ? "interface"
+				: clazz.isArray() ? "array" : clazz.isPrimitive() ? "primitive"
+						: clazz.isEnum() ? "enum" : "class";
 		System.out.printf("%s%s%s %s ( %s )%n", pad, leadin, type,
 				clazz.getSimpleName(), clazz.getName());
 		for (final Class<?> interfaze : clazz.getInterfaces()) {
@@ -72,7 +70,7 @@ public class DescriptorTest {
 		return sb.toString();
 	}
 
-	@Test
+	// @Test
 	public void testMethodDescriptor() {
 		System.out.println(getMethodDescriptor("<init>", Object.class, null,
 				"V"));
@@ -80,7 +78,7 @@ public class DescriptorTest {
 
 	@Test
 	public void testClassNames() {
-		Class<?> c = boolean[][].class;
+		Class<?> c = boolean[].class;
 		System.out.printf(
 				"getName(): %s%ngetCanonicalName(): %s%ngetSimpleName(): %s%n",
 				c.getName(), c.getCanonicalName(), c.getSimpleName());

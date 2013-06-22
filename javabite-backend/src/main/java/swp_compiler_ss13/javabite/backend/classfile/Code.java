@@ -3,7 +3,7 @@ package swp_compiler_ss13.javabite.backend.classfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import swp_compiler_ss13.javabite.backend.translation.Instruction;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.VariableType;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -196,16 +196,17 @@ class Code {
 	 * @since 29.04.2013
 	 * @param variableName
 	 *            String name of the variable to be added
-	 * @param variableType
-	 *            VariableType variable type of the variable to be added
-	 * @see VariableType
+	 * @param localVariableType
+	 *            LocalVariableType variable type of the variable to be added
+	 * @see swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType
 	 * @see #variableMap
 	 */
-	void addVariable(final String variableName, final VariableType variableType) {
+	void addVariable(final String variableName,
+			final LocalVariableType localVariableType) {
 
 		if (!variableMap.containsKey(variableName)) {
 			variableMap.put(variableName, (byte) maxLocals);
-			maxLocals += variableType.length;
+			maxLocals += localVariableType.length;
 		}
 	}
 

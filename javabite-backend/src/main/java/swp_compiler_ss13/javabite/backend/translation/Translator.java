@@ -3,10 +3,11 @@ package swp_compiler_ss13.javabite.backend.translation;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.classfile.Classfile;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ClassfileAccessFlag;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodAccessFlag;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.VariableType;
 import swp_compiler_ss13.javabite.backend.utils.ConstantUtils;
 import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
 
@@ -164,21 +165,21 @@ public class Translator {
 				// result can be a cnstant of different types
 				if (isConstant(result)) {
 					switch (operator) {
-						case ARRAY_SET_LONG :
-							classFile.addLongConstantToConstantPool(Long
-									.parseLong(removeConstantSign(result)));
-							break;
-						case ARRAY_SET_DOUBLE :
-							final String resMod = removeConstantSign(result);
-							classFile.addDoubleConstantToConstantPool(
-									Double.parseDouble(resMod), resMod);
-							break;
-						case ARRAY_SET_STRING :
-							classFile
-									.addStringConstantToConstantPool(removeConstantSign(result));
-							break;
-						default :
-							break;
+					case ARRAY_SET_LONG:
+						classFile.addLongConstantToConstantPool(Long
+								.parseLong(removeConstantSign(result)));
+						break;
+					case ARRAY_SET_DOUBLE:
+						final String resMod = removeConstantSign(result);
+						classFile.addDoubleConstantToConstantPool(
+								Double.parseDouble(resMod), resMod);
+						break;
+					case ARRAY_SET_STRING:
+						classFile
+								.addStringConstantToConstantPool(removeConstantSign(result));
+						break;
+					default:
+						break;
 					}
 				}
 				continue;
@@ -202,43 +203,43 @@ public class Translator {
 			 */
 
 			switch (type) {
-				case LONG :
-					if (isConstant(arg1)) {
-						classFile.addLongConstantToConstantPool(Long
-								.parseLong(removeConstantSign(arg1)));
-					}
-					if (isConstant(arg2)) {
-						classFile.addLongConstantToConstantPool(Long
-								.parseLong(removeConstantSign(arg2)));
-					}
-					break;
+			case LONG:
+				if (isConstant(arg1)) {
+					classFile.addLongConstantToConstantPool(Long
+							.parseLong(removeConstantSign(arg1)));
+				}
+				if (isConstant(arg2)) {
+					classFile.addLongConstantToConstantPool(Long
+							.parseLong(removeConstantSign(arg2)));
+				}
+				break;
 
-				case DOUBLE :
-					if (isConstant(arg1)) {
-						final String arg1Mod = removeConstantSign(arg1);
-						classFile.addDoubleConstantToConstantPool(
-								Double.parseDouble(arg1Mod), arg1Mod);
-					}
-					if (isConstant(arg2)) {
-						final String arg2Mod = removeConstantSign(arg2);
-						classFile.addDoubleConstantToConstantPool(
-								Double.parseDouble(arg2Mod), arg2Mod);
-					}
-					break;
+			case DOUBLE:
+				if (isConstant(arg1)) {
+					final String arg1Mod = removeConstantSign(arg1);
+					classFile.addDoubleConstantToConstantPool(
+							Double.parseDouble(arg1Mod), arg1Mod);
+				}
+				if (isConstant(arg2)) {
+					final String arg2Mod = removeConstantSign(arg2);
+					classFile.addDoubleConstantToConstantPool(
+							Double.parseDouble(arg2Mod), arg2Mod);
+				}
+				break;
 
-				case STRING :
-					if (type == ConstantPoolType.STRING && isConstant(arg1)) {
-						classFile
-								.addStringConstantToConstantPool(removeConstantSign(arg1));
-					}
-					if (type == ConstantPoolType.STRING && isConstant(arg2)) {
-						classFile
-								.addStringConstantToConstantPool(removeConstantSign(arg2));
-					}
-					break;
+			case STRING:
+				if (type == ConstantPoolType.STRING && isConstant(arg1)) {
+					classFile
+							.addStringConstantToConstantPool(removeConstantSign(arg1));
+				}
+				if (type == ConstantPoolType.STRING && isConstant(arg2)) {
+					classFile
+							.addStringConstantToConstantPool(removeConstantSign(arg2));
+				}
+				break;
 
-				default :
-					break;
+			default:
+				break;
 			}
 		}
 	}
@@ -285,41 +286,41 @@ public class Translator {
 			}
 
 			switch (op) {
-				case DECLARE_STRING :
-					op = Operator.ASSIGN_STRING;
-					defValue = ConstantUtils.DEFAULT_VALUE_STRING;
-					file.addVariableToMethodsCode(methodName, result,
-							VariableType.STRING);
-					break;
-				case DECLARE_LONG :
-					op = Operator.ASSIGN_LONG;
-					defValue = ConstantUtils.DEFAULT_VALUE_LONG;
-					file.addVariableToMethodsCode(methodName, result,
-							VariableType.LONG);
-					break;
-				case DECLARE_DOUBLE :
-					op = Operator.ASSIGN_DOUBLE;
-					defValue = ConstantUtils.DEFAULT_VALUE_DOUBLE;
-					file.addVariableToMethodsCode(methodName, result,
-							VariableType.DOUBLE);
-					break;
-				case DECLARE_BOOLEAN :
-					op = Operator.ASSIGN_BOOLEAN;
-					defValue = ConstantUtils.DEFAULT_VALUE_BOOLEAN;
-					file.addVariableToMethodsCode(methodName, result,
-							VariableType.BOOLEAN);
-					break;
-				case DECLARE_REFERENCE :
-					file.addVariableToMethodsCode(methodName, result,
-							VariableType.AREF);
-					tacIter.remove();
-					continue;
-				case DECLARE_ARRAY :
-					arrayFlag = true;
-					file.addVariableToMethodsCode(methodName, result,
-							VariableType.AREF);
-				default :
-					continue;
+			case DECLARE_STRING:
+				op = Operator.ASSIGN_STRING;
+				defValue = ConstantUtils.DEFAULT_VALUE_STRING;
+				file.addVariableToMethodsCode(methodName, result,
+						LocalVariableType.STRING);
+				break;
+			case DECLARE_LONG:
+				op = Operator.ASSIGN_LONG;
+				defValue = ConstantUtils.DEFAULT_VALUE_LONG;
+				file.addVariableToMethodsCode(methodName, result,
+						LocalVariableType.LONG);
+				break;
+			case DECLARE_DOUBLE:
+				op = Operator.ASSIGN_DOUBLE;
+				defValue = ConstantUtils.DEFAULT_VALUE_DOUBLE;
+				file.addVariableToMethodsCode(methodName, result,
+						ClassfileUtils.LocalVariableType.DOUBLE);
+				break;
+			case DECLARE_BOOLEAN:
+				op = Operator.ASSIGN_BOOLEAN;
+				defValue = ConstantUtils.DEFAULT_VALUE_BOOLEAN;
+				file.addVariableToMethodsCode(methodName, result,
+						LocalVariableType.BOOLEAN);
+				break;
+			case DECLARE_REFERENCE:
+				file.addVariableToMethodsCode(methodName, result,
+						ClassfileUtils.LocalVariableType.AREF);
+				tacIter.remove();
+				continue;
+			case DECLARE_ARRAY:
+				arrayFlag = true;
+				file.addVariableToMethodsCode(methodName, result,
+						ClassfileUtils.LocalVariableType.AREF);
+			default:
+				continue;
 			}
 
 			// modify current quadruple
@@ -356,155 +357,155 @@ public class Translator {
 		for (final Quadruple quad : tac) {
 
 			switch (quad.getOperator()) {
-				case ADD_DOUBLE :
-					pb.addDouble(quad);
-					break;
-				case ADD_LONG :
-					pb.addLong(quad);
-					break;
-				case ASSIGN_BOOLEAN :
-					pb.assignBoolean(quad);
-					break;
-				case ASSIGN_DOUBLE :
-					pb.assignDouble(quad);
-					break;
-				case ASSIGN_LONG :
-					pb.assignLong(quad);
-					break;
-				case ASSIGN_STRING :
-					pb.assignString(quad);
-					break;
-				case DECLARE_BOOLEAN :
-					pb.declareBoolean(quad);
-					break;
-				case DECLARE_DOUBLE :
-					pb.declareDouble(quad);
-					break;
-				case DECLARE_LONG :
-					pb.declareLong(quad);
-					break;
-				case DECLARE_STRING :
-					pb.declareString(quad);
-					break;
-				case DIV_DOUBLE :
-					pb.divDouble(quad);
-					break;
-				case DIV_LONG :
-					pb.divLong(quad);
-					break;
-				case DOUBLE_TO_LONG :
-					pb.doubleToLong(quad);
-					break;
-				case LONG_TO_DOUBLE :
-					pb.longToDouble(quad);
-					break;
-				case MUL_DOUBLE :
-					pb.mulDouble(quad);
-					break;
-				case MUL_LONG :
-					pb.mulLong(quad);
-					break;
-				case RETURN :
-					pb.returnLong(quad);
-					break;
-				case SUB_DOUBLE :
-					pb.subDouble(quad);
-					break;
-				case SUB_LONG :
-					pb.subLong(quad);
-					break;
-				case AND_BOOLEAN :
-					pb.andBoolean(quad);
-					break;
-				case OR_BOOLEAN :
-					pb.orBoolean(quad);
-					break;
-				case NOT_BOOLEAN :
-					pb.notBoolean(quad);
-					break;
-				case COMPARE_LONG_E :
-					pb.compareLongE(quad);
-					break;
-				case COMPARE_LONG_G :
-					pb.compareLongG(quad);
-					break;
-				case COMPARE_LONG_L :
-					pb.compareLongL(quad);
-					break;
-				case COMPARE_LONG_GE :
-					pb.compareLongGE(quad);
-					break;
-				case COMPARE_LONG_LE :
-					pb.compareLongLE(quad);
-					break;
-				case COMPARE_DOUBLE_E :
-					pb.compareDoubleE(quad);
-					break;
-				case COMPARE_DOUBLE_G :
-					pb.compareDoubleG(quad);
-					break;
-				case COMPARE_DOUBLE_L :
-					pb.compareDoubleL(quad);
-					break;
-				case COMPARE_DOUBLE_GE :
-					pb.compareDoubleGE(quad);
-					break;
-				case COMPARE_DOUBLE_LE :
-					pb.compareDoubleLE(quad);
-					break;
-				case LABEL :
-					pb.label(quad);
-					break;
-				case BRANCH :
-					pb.branch(quad);
-					break;
-				case PRINT_BOOLEAN :
-					pb.printBoolean(quad);
-					break;
-				case PRINT_DOUBLE :
-					pb.printDouble(quad);
-					break;
-				case PRINT_LONG :
-					pb.printLong(quad);
-					break;
-				case PRINT_STRING :
-					pb.printString(quad);
-					break;
-				case DECLARE_ARRAY :
-					pb.declareArray(quad);
-					break;
-				case ARRAY_GET_LONG :
-					pb.arrayGetLong(quad);
-					break;
-				case ARRAY_GET_DOUBLE :
-					pb.arrayGetDouble(quad);
-					break;
-				case ARRAY_GET_BOOLEAN :
-					pb.arrayGetBoolean(quad);
-					break;
-				case ARRAY_GET_STRING :
-					pb.arrayGetString(quad);
-					break;
-				case ARRAY_GET_REFERENCE :
-					pb.arrayGetReference(quad);
-					break;
-				case ARRAY_SET_LONG :
-					pb.arraySetLong(quad);
-					break;
-				case ARRAY_SET_DOUBLE :
-					pb.arraySetDouble(quad);
-					break;
-				case ARRAY_SET_BOOLEAN :
-					pb.arraySetBoolean(quad);
-					break;
-				case ARRAY_SET_STRING :
-					pb.arraySetString(quad);
-					break;
-				case ARRAY_SET_ARRAY :
-					pb.arraySetArray(quad);
-					break;
-				default :
-					break;
+			case ADD_DOUBLE:
+				pb.addDouble(quad);
+				break;
+			case ADD_LONG:
+				pb.addLong(quad);
+				break;
+			case ASSIGN_BOOLEAN:
+				pb.assignBoolean(quad);
+				break;
+			case ASSIGN_DOUBLE:
+				pb.assignDouble(quad);
+				break;
+			case ASSIGN_LONG:
+				pb.assignLong(quad);
+				break;
+			case ASSIGN_STRING:
+				pb.assignString(quad);
+				break;
+			case DECLARE_BOOLEAN:
+				pb.declareBoolean(quad);
+				break;
+			case DECLARE_DOUBLE:
+				pb.declareDouble(quad);
+				break;
+			case DECLARE_LONG:
+				pb.declareLong(quad);
+				break;
+			case DECLARE_STRING:
+				pb.declareString(quad);
+				break;
+			case DIV_DOUBLE:
+				pb.divDouble(quad);
+				break;
+			case DIV_LONG:
+				pb.divLong(quad);
+				break;
+			case DOUBLE_TO_LONG:
+				pb.doubleToLong(quad);
+				break;
+			case LONG_TO_DOUBLE:
+				pb.longToDouble(quad);
+				break;
+			case MUL_DOUBLE:
+				pb.mulDouble(quad);
+				break;
+			case MUL_LONG:
+				pb.mulLong(quad);
+				break;
+			case RETURN:
+				pb.returnLong(quad);
+				break;
+			case SUB_DOUBLE:
+				pb.subDouble(quad);
+				break;
+			case SUB_LONG:
+				pb.subLong(quad);
+				break;
+			case AND_BOOLEAN:
+				pb.andBoolean(quad);
+				break;
+			case OR_BOOLEAN:
+				pb.orBoolean(quad);
+				break;
+			case NOT_BOOLEAN:
+				pb.notBoolean(quad);
+				break;
+			case COMPARE_LONG_E:
+				pb.compareLongE(quad);
+				break;
+			case COMPARE_LONG_G:
+				pb.compareLongG(quad);
+				break;
+			case COMPARE_LONG_L:
+				pb.compareLongL(quad);
+				break;
+			case COMPARE_LONG_GE:
+				pb.compareLongGE(quad);
+				break;
+			case COMPARE_LONG_LE:
+				pb.compareLongLE(quad);
+				break;
+			case COMPARE_DOUBLE_E:
+				pb.compareDoubleE(quad);
+				break;
+			case COMPARE_DOUBLE_G:
+				pb.compareDoubleG(quad);
+				break;
+			case COMPARE_DOUBLE_L:
+				pb.compareDoubleL(quad);
+				break;
+			case COMPARE_DOUBLE_GE:
+				pb.compareDoubleGE(quad);
+				break;
+			case COMPARE_DOUBLE_LE:
+				pb.compareDoubleLE(quad);
+				break;
+			case LABEL:
+				pb.label(quad);
+				break;
+			case BRANCH:
+				pb.branch(quad);
+				break;
+			case PRINT_BOOLEAN:
+				pb.printBoolean(quad);
+				break;
+			case PRINT_DOUBLE:
+				pb.printDouble(quad);
+				break;
+			case PRINT_LONG:
+				pb.printLong(quad);
+				break;
+			case PRINT_STRING:
+				pb.printString(quad);
+				break;
+			case DECLARE_ARRAY:
+				pb.declareArray(quad);
+				break;
+			case ARRAY_GET_LONG:
+				pb.arrayGetLong(quad);
+				break;
+			case ARRAY_GET_DOUBLE:
+				pb.arrayGetDouble(quad);
+				break;
+			case ARRAY_GET_BOOLEAN:
+				pb.arrayGetBoolean(quad);
+				break;
+			case ARRAY_GET_STRING:
+				pb.arrayGetString(quad);
+				break;
+			case ARRAY_GET_REFERENCE:
+				pb.arrayGetReference(quad);
+				break;
+			case ARRAY_SET_LONG:
+				pb.arraySetLong(quad);
+				break;
+			case ARRAY_SET_DOUBLE:
+				pb.arraySetDouble(quad);
+				break;
+			case ARRAY_SET_BOOLEAN:
+				pb.arraySetBoolean(quad);
+				break;
+			case ARRAY_SET_STRING:
+				pb.arraySetString(quad);
+				break;
+			case ARRAY_SET_ARRAY:
+				pb.arraySetArray(quad);
+				break;
+			default:
+				break;
 			}
 		}
 

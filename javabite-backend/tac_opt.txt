@@ -19,3 +19,7 @@ LABEL t1
 Mehrere String concatenations verketten
 STRING_CONCAT "#\" bla\"", "!", "s"
 STRING_CONCAT "#\" mehr bla\"", "!", "s"
+
+String convertion vor String concat kann weggelassen werden, da der StringBuilder alle primitiven datentypen unterstützt
+LONG_TO_STRING "l", "!", "s"
+STRING_CONCAT "s", "x", "s"

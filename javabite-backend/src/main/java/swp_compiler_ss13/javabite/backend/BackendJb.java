@@ -70,12 +70,14 @@ public class BackendJb implements Backend {
 		baseFileName = rectifyJavaIdentifier(baseFileName);
 
 		// TAC Optimizer
-		// ### currently empty ###
+		tacOptimizer.optimize(tac);
+
 		// Translator
 		final Collection<Classfile> classfiles = translator.translate(
 				baseFileName, tac);
+
 		// Target Code Optimizer
-		// ### currently empty ###
+		targetCodeOptimizer.optimize(classfiles);
 
 		final Map<String, InputStream> targetCodeS = createTargetCodeStreams(classfiles);
 

@@ -5,10 +5,10 @@ import org.slf4j.LoggerFactory;
 import swp_compiler_ss13.javabite.backend.translation.Instruction;
 import swp_compiler_ss13.javabite.backend.translation.Mnemonic;
 import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ClassfileAccessFlag;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodAccessFlag;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.VariableType;
 
 import java.io.*;
 
@@ -26,9 +26,9 @@ import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToHexStrin
  */
 public class Classfile {
 
-	public static final byte[] MAJOR_VERSION_J2SE_7 = {(byte) 0, (byte) 51};
-	public static final byte[] MAJOR_VERSION_J2SE_6 = {(byte) 0, (byte) 50};
-	public static final byte[] MAJOR_VERSION_J2SE_5 = {(byte) 0, (byte) 49};
+	public static final byte[] MAJOR_VERSION_J2SE_7 = { (byte) 0, (byte) 51 };
+	public static final byte[] MAJOR_VERSION_J2SE_6 = { (byte) 0, (byte) 50 };
+	public static final byte[] MAJOR_VERSION_J2SE_5 = { (byte) 0, (byte) 49 };
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(Classfile.class);
@@ -44,9 +44,9 @@ public class Classfile {
 	private final String superClassNameEIF;
 
 	// general classfile structure information
-	private final byte[] magic = {(byte) 0xca, (byte) 0xfe, (byte) 0xba,
-			(byte) 0xbe};
-	private final byte[] minorVersion = {(byte) 0x00, (byte) 0x00};
+	private final byte[] magic = { (byte) 0xca, (byte) 0xfe, (byte) 0xba,
+			(byte) 0xbe };
+	private final byte[] minorVersion = { (byte) 0x00, (byte) 0x00 };
 	private final byte[] majorVersion = MAJOR_VERSION_J2SE_5;
 	protected ConstantPool constantPool;
 	private short accessFlags;
@@ -494,14 +494,15 @@ public class Classfile {
 	 *            String name of the method
 	 * @param variableName
 	 *            String name of the variable
-	 * @param variableType
-	 *            VariableType variable type of the variable
+	 * @param localVariableType
+	 *            LocalVariableType variable type of the variable
 	 */
 	public void addVariableToMethodsCode(final String methodName,
-			final String variableName, final VariableType variableType) {
+			final String variableName,
+			final ClassfileUtils.LocalVariableType localVariableType) {
 
 		methodArea.addVariableToMethodsCode(methodName, variableName,
-				variableType);
+				localVariableType);
 	}
 
 	/**
@@ -517,12 +518,14 @@ public class Classfile {
 	 *            String name of the method
 	 * @param variableName
 	 *            String name of the variable
-	 * @see Classfile#addVariableToMethodsCode(String, String, VariableType)
+	 * @see Classfile#addVariableToMethodsCode(String, String,
+	 *      swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType)
 	 */
 	public void addLongVariableToMethodsCode(final String methodName,
 			final String variableName) {
 
-		addVariableToMethodsCode(methodName, variableName, VariableType.LONG);
+		addVariableToMethodsCode(methodName, variableName,
+				ClassfileUtils.LocalVariableType.LONG);
 	}
 
 	/**
@@ -538,12 +541,14 @@ public class Classfile {
 	 *            String name of the method
 	 * @param variableName
 	 *            String name of the variable
-	 * @see Classfile#addVariableToMethodsCode(String, String, VariableType)
+	 * @see Classfile#addVariableToMethodsCode(String, String,
+	 *      swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType)
 	 */
 	public void addDoubleVariableToMethodsCode(final String methodName,
 			final String variableName) {
 
-		addVariableToMethodsCode(methodName, variableName, VariableType.DOUBLE);
+		addVariableToMethodsCode(methodName, variableName,
+				ClassfileUtils.LocalVariableType.DOUBLE);
 	}
 
 	/**
@@ -559,12 +564,14 @@ public class Classfile {
 	 *            String name of the method
 	 * @param variableName
 	 *            String name of the variable
-	 * @see Classfile#addVariableToMethodsCode(String, String, VariableType)
+	 * @see Classfile#addVariableToMethodsCode(String, String,
+	 *      swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType)
 	 */
 	public void addStringVariableToMethodsCode(final String methodName,
 			final String variableName) {
 
-		addVariableToMethodsCode(methodName, variableName, VariableType.STRING);
+		addVariableToMethodsCode(methodName, variableName,
+				ClassfileUtils.LocalVariableType.STRING);
 	}
 
 	/**
@@ -580,12 +587,14 @@ public class Classfile {
 	 *            String name of the method
 	 * @param variableName
 	 *            String name of the variable
-	 * @see Classfile#addVariableToMethodsCode(String, String, VariableType)
+	 * @see Classfile#addVariableToMethodsCode(String, String,
+	 *      swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType)
 	 */
 	public void addBooleanVariableToMethodsCode(final String methodName,
 			final String variableName) {
 
-		addVariableToMethodsCode(methodName, variableName, VariableType.BOOLEAN);
+		addVariableToMethodsCode(methodName, variableName,
+				ClassfileUtils.LocalVariableType.BOOLEAN);
 	}
 
 	/**
