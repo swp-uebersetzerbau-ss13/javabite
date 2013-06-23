@@ -3,13 +3,9 @@ package swp_compiler_ss13.javabite.compiler.jb.misc;
 import java.io.File;
 import java.util.List;
 
-import org.junit.Ignore;
-
 import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.javabite.compiler.AbstractCompilerTest;
 
-//TODO: activate test for m3
-@Ignore
 public class FibonacciTest extends AbstractCompilerTest {
 
 	@Override

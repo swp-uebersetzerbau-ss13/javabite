@@ -63,6 +63,7 @@ import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.common.report.ReportLog;
 import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.javabite.compiler.AbstractJavabiteCompiler;
+import swp_compiler_ss13.javabite.config.Configurable;
 import swp_compiler_ss13.javabite.config.JavabiteConfig;
 import swp_compiler_ss13.javabite.gui.ast.ASTVisualizerJb;
 import swp_compiler_ss13.javabite.gui.ast.fitted.KhaledGraphFrame;
@@ -70,7 +71,7 @@ import swp_compiler_ss13.javabite.gui.config.SettingsPanel;
 import swp_compiler_ss13.javabite.gui.tac.TacVisualizerJb;
 import swp_compiler_ss13.javabite.runtime.JavaClassProcess;
 
-public class MainFrame extends JFrame implements ReportLog {
+public class MainFrame extends JFrame implements ReportLog, Configurable {
 	
 	private static final long serialVersionUID = 1673088367851101738L;
 	
@@ -127,6 +128,7 @@ public class MainFrame extends JFrame implements ReportLog {
 	private GuiCompiler guiCompiler;
 	
 	private String lastTooltipStr;
+	private JScrollPane scrollPaneReportLogs;
 	/**
 	 * Reads current editor code and writes it into given file
 	 * */
@@ -592,14 +594,19 @@ public class MainFrame extends JFrame implements ReportLog {
 		tabbedPaneLog.addTab("Compiler Log", null, textPaneLogs, null);
 		
 		modelReportLogs = new DefaultTableModel();
+		
+		scrollPaneReportLogs = new JScrollPane();
+		tabbedPaneLog.addTab("Report Log", null, scrollPaneReportLogs, null);
+		
 		tableReportLogs = new JTable(modelReportLogs);
 		tableReportLogs.setEnabled(false);
-		tabbedPaneLog.addTab("Report Log", null, tableReportLogs, null);
 		modelReportLogs.addColumn("");
 		modelReportLogs.addColumn("Type");
 		modelReportLogs.addColumn("Line");
 		modelReportLogs.addColumn("Column");
 		modelReportLogs.addColumn("Message");
+		tableReportLogs.setFillsViewportHeight(true);
+		scrollPaneReportLogs.setViewportView(tableReportLogs);
 		
 		scrollPane = new JScrollPane();
 		splitPane.setLeftComponent(scrollPane);
@@ -729,7 +736,7 @@ public class MainFrame extends JFrame implements ReportLog {
 		properties.getProperty("syntaxHighlighting.comment", "#3F7F5F");
 		properties.getProperty("syntaxHighlighting.not_a_token", "#FF0000");
 		
-		reloadConfig();
+		JavabiteConfig.registerConfigurable(this);
 	}
 	
 	public MainFrame(File file) {
@@ -750,8 +757,9 @@ public class MainFrame extends JFrame implements ReportLog {
 			line = tokens.get(0).getLine();
 			column = tokens.get(0).getColumn();
 		}
+		
 		modelReportLogs.addRow(new Object[] { "Warning", type, line, column, message });
-		underlineToken(line, column, Color.YELLOW);
+		underlineToken(tokens, line, column, Color.YELLOW);
 	}
 	
 	@Override
@@ -763,8 +771,9 @@ public class MainFrame extends JFrame implements ReportLog {
 			line = tokens.get(0).getLine();
 			column = tokens.get(0).getColumn();
 		}
+		
 		modelReportLogs.addRow(new Object[] { "Error", type, line, column, message });
-		underlineToken(line, column, Color.RED);
+		underlineToken(tokens, line, column, Color.RED);
 	}
 	
 	public static int getRow(int pos, JTextComponent editor) {
@@ -943,6 +952,7 @@ public class MainFrame extends JFrame implements ReportLog {
 			
 			if (canCompiled) {
 				textPaneLogs.setText("Compiler started.");
+				textPaneConsole.setText(textPaneConsole.getText() + "[Compiler] started");
 				progressBar.setValue(0);
 				progressBar.setEnabled(true);
 				errorReported = false;
@@ -961,13 +971,14 @@ public class MainFrame extends JFrame implements ReportLog {
 					progressBar.setEnabled(false);
 					return;
 				}
-	
+				
 				textPaneLogs.setText(textPaneLogs.getText() + "\nExecute program...");
+				textPaneConsole.setText(textPaneConsole.getText() + "\n[Compiler] execute program...");
 				toolBarLabel.setText("Execute program...");
 				Long startTime = System.currentTimeMillis();
 				JavaClassProcess p = guiCompiler.execute(mainFile);
 				Long stopTime = System.currentTimeMillis();
-				textPaneConsole.setText(p.getProcessOutput());
+				textPaneConsole.setText(textPaneConsole.getText() + "\n" + p.getProcessOutput());
 				textPaneConsole.setText(textPaneConsole.getText() + "\nReturn value: " + p.getReturnValue() + "\nExecution time: " + (stopTime - startTime) + "ms");
 				
 				toolBarLabel.setText("Execute program finished.");
@@ -994,7 +1005,7 @@ public class MainFrame extends JFrame implements ReportLog {
 	/**
 	 * Underlines wrongly typed tokens
 	 * */
-	private void underlineToken(int line, int column, Color color) {
+	private void underlineToken(List<Token> tokens, int line, int column, Color color) {
 		line = line - 1;
 		String code = editorPaneSourcecode.getText();
 		String[] lines = code.split(System.getProperty("line.separator"));
@@ -1061,15 +1072,16 @@ public class MainFrame extends JFrame implements ReportLog {
 		toolBarLabel.setText("Rendered AST.");
 	}
 	
-	public void reloadConfig() {
-		properties = JavabiteConfig.getDefaultConfig();
+
+
+	@Override
+	public void onConfigChanges(JavabiteConfig config) {
 		Integer fontSize = Integer.parseInt(properties.getProperty("font.size","18"));
 		editorPaneSourcecode.setFont(new Font(Font.MONOSPACED, 0, fontSize));
-	
-		
 	}
+
 	private void showSettingsPanel() {
-		new SettingsPanel(this).setVisible(true);
+		new SettingsPanel().setVisible(true);
 	}
 	
 	class GuiCompiler extends AbstractJavabiteCompiler {
@@ -1090,7 +1102,9 @@ public class MainFrame extends JFrame implements ReportLog {
 		protected boolean afterPreprocessing(String targetClassName) {
 			progressBar.setValue(20);
 			textPaneLogs.setText(textPaneLogs.getText() + "\nCompile File: " + targetClassName + ".prog");
+			textPaneConsole.setText(textPaneConsole.getText() + "\n[Compiler] compile file " + targetClassName + ".prog");
 			textPaneLogs.setText(textPaneLogs.getText() + "\nGenerating AST for source file...");
+			textPaneConsole.setText(textPaneConsole.getText() + "\n[Compiler] generate AST for source file");
 			toolBarLabel.setText("Compiling...");
 			return true;
 		}
@@ -1100,7 +1114,7 @@ public class MainFrame extends JFrame implements ReportLog {
 			if (errorReported) {
 				if (astVisualizationRequested)
 					showAstVisualization(ast);
-				reportFailure();
+				return reportFailure();
 			}
 
 			progressBar.setValue(40);
@@ -1113,16 +1127,17 @@ public class MainFrame extends JFrame implements ReportLog {
 			if (errorReported) {
 				if (astVisualizationRequested)
 					showAstVisualization(ast);
-				reportFailure();
+				return reportFailure();
 			}
-
+			
 			if (astVisualizationRequested) {
 				showAstVisualization(ast);
 				return false;
 			}
-
+			
 			progressBar.setValue(60);
 			textPaneLogs.setText(textPaneLogs.getText() + "\nGenerate TAC...");
+			textPaneConsole.setText(textPaneConsole.getText() + "\n[Compiler] generate TAC");
 			return true;
 		}
 
@@ -1131,7 +1146,7 @@ public class MainFrame extends JFrame implements ReportLog {
 			if (errorReported) {
 				if (tacVisualizationRequested)
 					showTacVisualization(tac);
-				reportFailure();
+				return reportFailure();
 			}
 
 			if (tacVisualizationRequested) {
@@ -1141,13 +1156,14 @@ public class MainFrame extends JFrame implements ReportLog {
 			
 			progressBar.setValue(80);
 			textPaneLogs.setText(textPaneLogs.getText() + "\nGenerate target code...");
+			textPaneConsole.setText(textPaneConsole.getText() + "\n[Compiler] generate target code");
 			return true;
 		}
 
 		@Override
 		protected boolean afterTargetCodeGeneration(File mainClassFile) {
 			if (errorReported) {
-				reportFailure();
+				return reportFailure();
 			}
 
 			progressBar.setValue(90);

@@ -1,5 +1,6 @@
 package swp_compiler_ss13.javabite.parser.astGenerator;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
@@ -18,6 +19,9 @@ import swp_compiler_ss13.common.lexer.RealToken;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.parser.SymbolTable;
 import swp_compiler_ss13.common.types.Type;
+import swp_compiler_ss13.common.types.derived.ArrayType;
+import swp_compiler_ss13.common.types.derived.Member;
+import swp_compiler_ss13.common.types.derived.StructType;
 import swp_compiler_ss13.common.types.primitive.BooleanType;
 import swp_compiler_ss13.common.types.primitive.DoubleType;
 import swp_compiler_ss13.common.types.primitive.LongType;
@@ -29,18 +33,22 @@ import swp_compiler_ss13.javabite.ast.nodes.IdentifierNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.StatementNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.binary.ArithmeticBinaryExpressionNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.binary.AssignmentNodeJb;
+import swp_compiler_ss13.javabite.ast.nodes.binary.DoWhileNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.binary.LogicBinaryExpressionNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.binary.RelationExpressionNodeJb;
+import swp_compiler_ss13.javabite.ast.nodes.binary.WhileNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.leaf.BasicIdentifierNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.leaf.BreakNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.leaf.LiteralNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.marynary.BlockNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.ternary.BranchNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.unary.ArithmeticUnaryExpressionNodeJb;
+import swp_compiler_ss13.javabite.ast.nodes.unary.ArrayIdentifierNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.unary.DeclarationNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.unary.LogicUnaryExpressionNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.unary.PrintNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.unary.ReturnNodeJb;
+import swp_compiler_ss13.javabite.ast.nodes.unary.StructIdentifierNodeJb;
 import swp_compiler_ss13.javabite.parser.targetgrammar.TargetGrammar;
 
 /**
@@ -61,7 +69,7 @@ import swp_compiler_ss13.javabite.parser.targetgrammar.TargetGrammar;
  * the reduction list used by this class has to meet the following format:
  * S->aABe, A->Abc, A->b, B->d
  * 
- * @TODO: remove string representation dependency 
+ * TODO: remove string representation dependency
  * @author Marco , Till
  * @since 11.05.2013
  * 
@@ -71,8 +79,10 @@ public class ASTGenerator {
 	boolean debug=false;
 	
 	Logger logger=LoggerFactory.getLogger(ASTGenerator.class);
+	
 	// reduction list meeting the appropriate format
 	List<TargetGrammar.Reduction> reductions;
+	
 	// stack holding blocknodes, top: current block
 	Stack<BlockNodeJb> currentBlocks;
 
@@ -85,13 +95,9 @@ public class ASTGenerator {
 		// generate AST
 		ASTJb ast = new ASTJb();
 
-		// MS1 version
-		if (reductions != null) {
-			// if this is null there was a earlier error in parser 
-			// TODO secure call to ASTGenerator against empty input
-			BlockNode rootNode = this.useBlockProduction();
-			ast.setRootNode(rootNode);
-		}
+		BlockNode rootNode = this.useBlockProduction();
+		ast.setRootNode(rootNode);
+	
 		
 		return ast;
 	}
@@ -121,6 +127,29 @@ public class ASTGenerator {
 
 		return this.currentBlocks.pop();
 	}
+	
+	private BlockNodeJb useBlockProductionDeclarationsOnly() {
+		if (debug){
+			logger.info("process \"programmDeclarationsOnly\" \treduction on reductions {}",reductions);
+		}
+		
+		// get parent-scope
+		SymbolTableJb newSymbolTable=new SymbolTableJb();
+		if (currentBlocks.size()>=1){
+			SymbolTable parentSymbolTable=currentBlocks.peek().getSymbolTable();
+			newSymbolTable.setParentSymbolTable(parentSymbolTable);
+		}
+		
+		// Generate new Block
+		BlockNodeJb root = new BlockNodeJb();
+		currentBlocks.push(root);
+		root.setSymbolTable(newSymbolTable);
+
+		// use program productions functions
+		this.useDeclsProduction();
+
+		return this.currentBlocks.pop();
+	}
 
 	private void useDeclsProduction() {
 		if (debug){
@@ -135,17 +164,16 @@ public class ASTGenerator {
 		case "decls -> decls decl":
 			this.useDeclsProduction();
 			DeclarationNode decl = this.useDeclProduction();
-			BlockNodeJb currentBlock = this.currentBlocks.pop();
+			BlockNodeJb currentBlock = this.currentBlocks.peek();
 			currentBlock.addDeclaration(decl);
-			this.currentBlocks.add(currentBlock);
 			break;
 		case "decls ->":
 			break
 			;
 		default:
-			logger.error("thisReduction : {} , matches no case",thisReduction);	
+			logger.error("[Decls] thisReduction : {} , matches no case",thisReduction);	
 		}
-		
+		logger.info("done with decls production");
 	}
 
 	private DeclarationNode useDeclProduction() {
@@ -161,15 +189,12 @@ public class ASTGenerator {
 		switch (thisReduction.toString()) {
 		case "decl -> type ID SEMICOLON":
 			decl=new DeclarationNodeJb();
-			// catch token before it's lost
-			Token t=(Token)this.reductions.get(0).getRightSide().get(0);
 			decl.setType(useTypeProduction());
 			String id=(((Token)thisReduction.getRightSide().get(1)).getValue());
-			decl.associateTypeWith(t);			
 			decl.setIdentifier(id);
 			break;
 		default:
-			logger.error("thisReduction : {} , matches no case",thisReduction);
+			logger.error("[Decl] thisReduction : {} , matches no case",thisReduction);
 			
 		}
 		decl.putAllTokens(thisReduction.getRightSide());
@@ -187,6 +212,7 @@ public class ASTGenerator {
 		
 		// use decl productions functions according to the specific production
 		switch (thisReduction.toString()) {
+		// primitive "basic" cases
 		case "type -> LONG_SYMBOL":
 			type=new LongType();
 			break;
@@ -200,9 +226,28 @@ public class ASTGenerator {
 		case "type -> BOOL_SYMBOL":
 			type=new BooleanType();
 			break;
-		
+		case "type -> type LEFT_BRACKET NUM RIGHT_BRACKET":
+			Type arrayType=useTypeProduction();
+			NumToken num=(NumToken)thisReduction.getRightSide().get(2);
+			
+			LiteralNodeJb numNode = new LiteralNodeJb();
+			numNode.setLiteral(num.getValue());
+			numNode.setLiteralType(new LongType());
+			
+			type=new ArrayType(arrayType, Integer.parseInt(numNode.getLiteral()));
+			break;
+		case "type -> RECORD_SYMBOL LEFT_BRACE decls RIGHT_BRACE":
+			// delegate to blockProduction to avoid code redundancy
+			BlockNodeJb recordDecls=useBlockProductionDeclarationsOnly();
+			ArrayList<Member> membersList=new ArrayList<>();
+			// extract member types and fill membersList
+			for (DeclarationNode decl : recordDecls.getDeclarationList()){
+				membersList.add(new Member(decl.getIdentifier(),decl.getType()));
+			}
+			type=new StructType("Struct is not reusable, why should it have a name?!",membersList.toArray(new Member[membersList.size()]));
+			break;
 		default:
-			logger.error("thisReduction : {} , matches no case",thisReduction);
+			logger.error("[Type] thisReduction : {} , matches no case",thisReduction);
 			
 		}
 
@@ -229,7 +274,8 @@ public class ASTGenerator {
 		case "stmts ->":
 			break;
 		default:
-			logger.error("thisReduction : {} , matches no case",thisReduction);
+			logger.error("[Stmts] thisReduction : {} , matches no case",thisReduction);
+			throw new RuntimeException();
 		}
 	}
 
@@ -254,13 +300,13 @@ public class ASTGenerator {
 			break;
 		case "stmt -> RETURN loc SEMICOLON":
 			ReturnNodeJb returnNodeTwo = new ReturnNodeJb();
-			IdentifierNodeJb loc = (IdentifierNodeJb) this.useLocProduction();
+			IdentifierNodeJb loc = this.useLocProduction();
 			returnNodeTwo.setRightValue(loc);
 			stmt = returnNodeTwo;
 			break;
 		case "stmt -> PRINT loc SEMICOLON":
 			PrintNodeJb printNode = new PrintNodeJb();
-			IdentifierNodeJb loc2 = (IdentifierNodeJb) this.useLocProduction();
+			IdentifierNodeJb loc2 = this.useLocProduction();
 			printNode.setRightValue(loc2);		
 			stmt = printNode;
 			break;
@@ -283,21 +329,37 @@ public class ASTGenerator {
 			stmt= branchNode2;
 			break;
 		case "stmt -> BREAK SEMICOLON":
-			BreakNodeJb breakNode=new BreakNodeJb();
+            BreakNodeJb breakNode = new BreakNodeJb();
 			stmt=breakNode;
 			break;
 		case "stmt -> block":
 			BlockNodeJb blockNode=useBlockProduction();
 			stmt=blockNode;
 			break;
+		case "stmt -> WHILE LEFT_PARAN assign RIGHT_PARAN stmt":
+			WhileNodeJb whileNode=new WhileNodeJb();
+			ExpressionNodeJb whileCondition=useAssignProduction();
+			StatementNodeJb whileStatement=useStmtProduction();
+			whileNode.setCondition(whileCondition);
+			whileNode.setLoopBody_(whileStatement);
+			stmt=whileNode;
+			break;
+		case "stmt -> DO stmt WHILE LEFT_PARAN assign RIGHT_PARAN SEMICOLON":
+			DoWhileNodeJb doWhileNode=new DoWhileNodeJb();
+			StatementNodeJb doWhileStatement=useStmtProduction();
+			ExpressionNodeJb doWhileCondition=useAssignProduction();
+			doWhileNode.setCondition(doWhileCondition);
+			doWhileNode.setLoopBody_(doWhileStatement);
+			stmt=doWhileNode;
+			break;
 		default:
-			logger.error("thisReduction : {} , matches no case",thisReduction);
+			logger.error("[Stmts] thisReduction : {} , matches no case",thisReduction);
 		}
 		stmt.putAllTokens(thisReduction.getRightSide());
 		return stmt;
 	}
 
-	private ExpressionNodeJb useLocProduction() {
+	private IdentifierNodeJb useLocProduction() {
 		if (debug){
 			logger.info("process \"loc\" \treduction on reductions {}",reductions);
 		}
@@ -308,13 +370,32 @@ public class ASTGenerator {
 
 		// use loc productions functions according to the specific production
 		switch (thisReduction.toString()) {
+		
 		case "loc -> ID":
 			BasicIdentifierNodeJb basicId = new BasicIdentifierNodeJb();
 			basicId.setIdentifier(((Token)thisReduction.getRightSide().get(0)).getValue());
 			loc = basicId;
 			break;
+		case "loc -> loc LEFT_BRACKET assign RIGHT_BRACKET":
+			ArrayIdentifierNodeJb arrayId = new ArrayIdentifierNodeJb();
+			IdentifierNodeJb arrayLoc=useLocProduction();
+			ExpressionNodeJb indexNode=useAssignProduction();
+			arrayId.setIdentifierNode(arrayLoc);
+			arrayId.setIndexNode(indexNode);
+			loc = arrayId;
+			break;
+		case "loc -> loc DOT ID":
+			StructIdentifierNodeJb structIdentifier=new StructIdentifierNodeJb();
+			IdentifierNodeJb structLoc = useLocProduction();
+			BasicIdentifierNodeJb structId= new BasicIdentifierNodeJb();
+			structId.setIdentifier(((Token)thisReduction.getRightSide().get(2)).getValue());
+			structIdentifier.setIdentifierNode(structLoc);
+			structIdentifier.setFieldName(structId.getIdentifier());
+			loc = structIdentifier;
+			break;
+			
 		default:
-			logger.error("thisReduction : {} , matches no case",thisReduction);
+			logger.error("[Loc] thisReduction : {} , matches no case",thisReduction);
 		}
 		loc.putAllTokens(thisReduction.getRightSide());
 		return loc;
@@ -332,7 +413,7 @@ public class ASTGenerator {
 		// use assign productions functions according to the specific production
 		switch (thisReduction.toString()) {
 		case "assign -> loc ASSIGNOP assign":
-			IdentifierNodeJb leftLoc = (IdentifierNodeJb) this.useLocProduction();
+			IdentifierNodeJb leftLoc = this.useLocProduction();
 			StatementNodeJb rightAssign = useAssignProduction();
 			AssignmentNodeJb assignNode = new AssignmentNodeJb();
 			assignNode.setLeftValue(leftLoc);
@@ -343,10 +424,10 @@ public class ASTGenerator {
 			assign = this.useBoolProduction();
 			break;
 		default:
-			logger.error("thisReduction : {} , matches no case",thisReduction);
+			logger.error("[Assign] thisReduction : {} , matches no case",thisReduction);
 		}
-		assign.putAllTokens(thisReduction.getRightSide());;
-		return assign;
+		assign.putAllTokens(thisReduction.getRightSide());
+        return assign;
 	}
 
 	private ExpressionNodeJb useBoolProduction() {
@@ -373,10 +454,10 @@ public class ASTGenerator {
 			bool=lben;
 			break;
 		default:
-			logger.error("thisReduction : {} , matches no case",thisReduction);
+			logger.error("[Bool] thisReduction : {} , matches no case",thisReduction);
 		}
-		bool.putAllTokens(thisReduction.getRightSide());;
-		return bool;
+		bool.putAllTokens(thisReduction.getRightSide());
+        return bool;
 	}
 
 	private ExpressionNodeJb useJoinProduction() {
@@ -403,7 +484,7 @@ public class ASTGenerator {
 			join=lben;
 			break;
 		default:
-			logger.error("thisReduction : {} , matches no case",thisReduction);
+			logger.error("[Join] thisReduction : {} , matches no case",thisReduction);
 		}
 		join.putAllTokens(thisReduction.getRightSide());
 		return join;
@@ -425,7 +506,7 @@ public class ASTGenerator {
 			equality = this.useRelProduction();
 			break;
 		case "equality -> equality EQUALS rel":
-			LogicBinaryExpressionNodeJb equalNode=new LogicBinaryExpressionNodeJb();
+			RelationExpressionNodeJb equalNode=new RelationExpressionNodeJb();
 			equalNode.setOperator(BinaryOperator.EQUAL);
 			ExpressionNodeJb exp1=useEqualityProduction();
 			ExpressionNodeJb rel1=useRelProduction();
@@ -434,7 +515,7 @@ public class ASTGenerator {
 			equality=equalNode;
 			break;
 		case "equality -> equality NOT_EQUALS rel":
-			LogicBinaryExpressionNodeJb equalNode1=new LogicBinaryExpressionNodeJb();
+			RelationExpressionNodeJb equalNode1=new RelationExpressionNodeJb();
 			equalNode1.setOperator(BinaryOperator.INEQUAL);
 			ExpressionNodeJb exp2=useEqualityProduction();
 			ExpressionNodeJb rel2=useRelProduction();
@@ -443,7 +524,7 @@ public class ASTGenerator {
 			equality=equalNode1;
 			break;
 		default:
-			logger.error("thisReduction : {} , matches no case",thisReduction);
+			logger.error("[Equality] thisReduction : {} , matches no case",thisReduction);
 		}
 		equality.putAllTokens(thisReduction.getRightSide());
 		return equality;	
@@ -492,7 +573,7 @@ public class ASTGenerator {
 			rel=lben4;
 			break;
 		default:
-			logger.error("thisReduction : {} , matches no case",thisReduction);
+			logger.error("[Rel] thisReduction : {} , matches no case",thisReduction);
 		}
 		rel.putAllTokens(thisReduction.getRightSide());
 		return rel;
@@ -520,8 +601,8 @@ public class ASTGenerator {
 			expr = add;
 			break;
 		case "expr -> expr MINUS term":
-			ExpressionNodeJb expr2 = (ExpressionNodeJb) this.useExprProduction();
-			ExpressionNodeJb term2 = (ExpressionNodeJb) this.useTermProduction();
+			ExpressionNodeJb expr2 = this.useExprProduction();
+			ExpressionNodeJb term2 = this.useTermProduction();
 			ArithmeticBinaryExpressionNodeJb sub = 
 					new ArithmeticBinaryExpressionNodeJb();
 			sub.setLeftValue(expr2);
@@ -533,7 +614,7 @@ public class ASTGenerator {
 			expr = this.useTermProduction();
 			break;
 		default:
-			logger.error("thisReduction : {} , matches no case",thisReduction);
+			logger.error("[Expr] thisReduction : {} , matches no case",thisReduction);
 		}
 		expr.putAllTokens(thisReduction.getRightSide());
 		return expr;
@@ -574,7 +655,7 @@ public class ASTGenerator {
 			term = this.useUnaryProduction();
 			break;
 		default:
-			logger.error("thisReduction : {} , matches no case",thisReduction);
+			logger.error("[Term] thisReduction : {} , matches no case",thisReduction);
 		}
 		term.putAllTokens(thisReduction.getRightSide());
 		return term;
@@ -610,7 +691,7 @@ public class ASTGenerator {
 			unary = this.useFactorProduction();
 			break;
 		default:
-			logger.error("thisReduction : {} , matches no case",thisReduction);
+			logger.error("[Unary] thisReduction : {} , matches no case",thisReduction);
 		}
 		unary.putAllTokens(thisReduction.getRightSide());
 		return unary;
@@ -678,7 +759,7 @@ public class ASTGenerator {
 			factor = string;
 			break;
 		default:
-			logger.error("thisReduction : {} , matches no case",thisReduction);
+			logger.error("[Factor] thisReduction : {} , matches no case",thisReduction);
 		}
 		factor.putAllTokens(thisReduction.getRightSide());
 		return factor;

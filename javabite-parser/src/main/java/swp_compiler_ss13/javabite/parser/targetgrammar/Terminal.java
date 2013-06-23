@@ -28,10 +28,8 @@ public class Terminal implements Symbol{
 		if (getClass() != obj.getClass())
 			return false;
 		Terminal other = (Terminal) obj;
-		if (type != other.type)
-			return false;
-		return true;
-	}
+        return type == other.type;
+    }
 	TokenType type;
 	Token token;
 	String str;

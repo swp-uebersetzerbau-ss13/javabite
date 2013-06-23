@@ -3,10 +3,15 @@
 
 *.cs     text diff=csharp
 *.java   text diff=java
+*.gradle text diff=java
 *.html   text diff=html
+*.xml    text diff=html
+*.tex	 text diff=tex
 *.css    text
 *.js     text
 *.sql    text
+*.properties text
+*.bat	 text eol=crlf
 
 *.csproj text merge=union
 *.sln    text merge=union eol=crlf
