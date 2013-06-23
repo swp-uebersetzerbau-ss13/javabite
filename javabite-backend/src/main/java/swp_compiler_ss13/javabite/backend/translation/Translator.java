@@ -459,15 +459,6 @@ public class Translator {
 			case BRANCH:
 				pb.branch(quad);
 				break;
-			case PRINT_BOOLEAN:
-				pb.printBoolean(quad);
-				break;
-			case PRINT_DOUBLE:
-				pb.printDouble(quad);
-				break;
-			case PRINT_LONG:
-				pb.printLong(quad);
-				break;
 			case PRINT_STRING:
 				pb.printString(quad);
 				break;
@@ -501,8 +492,44 @@ public class Translator {
 			case ARRAY_SET_STRING:
 				pb.arraySetString(quad);
 				break;
-			case ARRAY_SET_ARRAY:
-				pb.arraySetArray(quad);
+			case BOOLEAN_TO_STRING:
+				pb.booleanToString(quad);
+				break;
+			case LONG_TO_STRING:
+				pb.longToString(quad);
+				break;
+			case DOUBLE_TO_STRING:
+				pb.doubleToString(quad);
+				break;
+			case STRUCT_GET_LONG:
+				pb.structGetLong(quad);
+				break;
+			case STRUCT_GET_DOUBLE:
+				pb.structGetDouble(quad);
+				break;
+			case STRUCT_GET_BOOLEAN:
+				pb.structGetBoolean(quad);
+				break;
+			case STRUCT_GET_STRING:
+				pb.structGetString(quad);
+				break;
+			case STRUCT_GET_REFERENCE:
+				pb.structGetReference(quad);
+				break;
+			case STRUCT_SET_LONG:
+				pb.structSetLong(quad);
+				break;
+			case STRUCT_SET_DOUBLE:
+				pb.structSetDouble(quad);
+				break;
+			case STRUCT_SET_BOOLEAN:
+				pb.structSetBoolean(quad);
+				break;
+			case STRUCT_SET_STRING:
+				pb.structSetString(quad);
+				break;
+			case CONCAT_STRING:
+				pb.concatString(quad);
 				break;
 			default:
 				break;

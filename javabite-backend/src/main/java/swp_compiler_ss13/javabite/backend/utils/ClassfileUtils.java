@@ -12,23 +12,24 @@ public final class ClassfileUtils {
 			Operator.MUL_LONG, Operator.DIV_LONG, Operator.DECLARE_ARRAY,
 			Operator.ARRAY_GET_LONG, Operator.ARRAY_GET_DOUBLE,
 			Operator.ARRAY_GET_BOOLEAN, Operator.ARRAY_GET_STRING,
-			Operator.ARRAY_GET_ARRAY, Operator.ARRAY_GET_REFERENCE,
-			Operator.COMPARE_LONG_E, Operator.COMPARE_LONG_G,
-			Operator.COMPARE_LONG_L, Operator.COMPARE_LONG_GE,
-			Operator.COMPARE_LONG_LE, Operator.PRINT_LONG, Operator.RETURN);
+			Operator.ARRAY_GET_REFERENCE, Operator.COMPARE_LONG_E,
+			Operator.COMPARE_LONG_G, Operator.COMPARE_LONG_L,
+			Operator.COMPARE_LONG_GE, Operator.COMPARE_LONG_LE,
+			Operator.RETURN, Operator.STRUCT_GET_LONG);
 
 	public static final EnumSet<Operator> OPERATOR_DOUBLE_TYPES = EnumSet.of(
 			Operator.ASSIGN_DOUBLE, Operator.ADD_DOUBLE, Operator.SUB_DOUBLE,
 			Operator.MUL_DOUBLE, Operator.DIV_DOUBLE,
 			Operator.COMPARE_DOUBLE_E, Operator.COMPARE_DOUBLE_G,
 			Operator.COMPARE_DOUBLE_L, Operator.COMPARE_DOUBLE_GE,
-			Operator.COMPARE_DOUBLE_LE, Operator.PRINT_DOUBLE);
+			Operator.COMPARE_DOUBLE_LE, Operator.STRUCT_GET_DOUBLE);
 
 	public static final EnumSet<Operator> OPERATOR_STRING_TYPES = EnumSet.of(
-			Operator.ASSIGN_STRING, Operator.PRINT_STRING);
+			Operator.ASSIGN_STRING, Operator.PRINT_STRING,
+			Operator.CONCAT_STRING, Operator.STRUCT_GET_STRING);
 
 	public static final EnumSet<Operator> OPERATOR_BOOLEAN_TYPES = EnumSet.of(
-			Operator.ASSIGN_BOOLEAN, Operator.PRINT_BOOLEAN);
+			Operator.ASSIGN_BOOLEAN, Operator.STRUCT_GET_BOOLEAN);
 
 	/**
 	 * <h1>ClassfileAccessFlag</h1>

@@ -411,40 +411,6 @@ public class Program {
 		}
 
 		/**
-		 * Operation to printOp a constant value or the content of a variable of
-		 * the types string, long or double. Loads the System.out object and
-		 * calls the virtual method println
-		 * 
-		 * @param q
-		 *            quadruple of operation
-		 * @param variableType
-		 *            type of variable/constant to load
-		 * @return new operation instance
-		 */
-		private Operation printOp(final Quadruple q,
-				final LocalVariableType variableType,
-				final String printMethodParamType) {
-			final Operation.Builder op = Operation.Builder.newBuilder();
-
-			final short systemOutIndex = classfile
-					.addFieldrefConstantToConstantPool("out",
-							"Ljava/io/PrintStream;", "java/lang/System");
-
-			// add printOp methodref info to constant pool, if necessary
-			final short printIndex = classfile
-					.addMethodrefConstantToConstantPool("printOp", "("
-							+ printMethodParamType + ")V",
-							"java/io/PrintStream");
-
-			op.add(Mnemonic.GETSTATIC,
-					ByteUtils.shortToByteArray(systemOutIndex));
-			op.add(loadInstruction(q.getArgument1(), variableType));
-			op.add(Mnemonic.INVOKEVIRTUAL,
-					ByteUtils.shortToByteArray(printIndex));
-			return op.build();
-		}
-
-		/**
 		 * Creates a new array. There are three types of arrays: single
 		 * dimension primitive type, single dimension object type, multi
 		 * dimension object type. Because multi dimensional arrays contain
@@ -1772,107 +1738,6 @@ public class Program {
 		 * </tr>
 		 * </thead> <tbody>
 		 * <tr>
-		 * <td>PRINT_BOOLEAN</td>
-		 * <td>value</td>
-		 * <td></td>
-		 * <td></td>
-		 * <td></td>
-		 * </tr>
-		 * </tbody>
-		 * </table>
-		 * 
-		 * @param q
-		 *            the operation quadruple
-		 * @return this program builders instance
-		 */
-		public Builder printBoolean(final Quadruple q) {
-			assert q.getOperator() == Operator.PRINT_BOOLEAN;
-			assert hasArgsCount(q, 1);
-			return add(printOp(q, LocalVariableType.BOOLEAN, "Z"));
-			// final short printIndex = addPrintMethodToConstantPool("Z");
-			// final Operation.Builder op = Operation.Builder.newBuilder();
-			// op.add(Mnemonic.GETSTATIC,
-			// ByteUtils.shortToByteArray(systemOutIndex));
-			// op.add(loadInstruction(q.getArgument1(), null, Mnemonic.ILOAD));
-			// op.add(Mnemonic.INVOKEVIRTUAL,
-			// ByteUtils.shortToByteArray(printIndex));
-			// return add(op.build());
-		}
-
-		/**
-		 * <table>
-		 * <thead>
-		 * <tr>
-		 * <th>Operator</th>
-		 * <th>Argument 1</th>
-		 * <th>Argument 2</th>
-		 * <th>Result</th>
-		 * <th>Remarks</th>
-		 * </tr>
-		 * </thead> <tbody>
-		 * <tr>
-		 * <td>PRINT_LONG</td>
-		 * <td>value</td>
-		 * <td></td>
-		 * <td></td>
-		 * <td></td>
-		 * </tr>
-		 * </tbody>
-		 * </table>
-		 * 
-		 * @param q
-		 *            the operation quadruple
-		 * @return this program builders instance
-		 */
-		public Builder printLong(final Quadruple q) {
-			assert q.getOperator() == Operator.PRINT_LONG;
-			assert hasArgsCount(q, 1);
-			return add(printOp(q, LocalVariableType.LONG, "J"));
-		}
-
-		/**
-		 * <table>
-		 * <thead>
-		 * <tr>
-		 * <th>Operator</th>
-		 * <th>Argument 1</th>
-		 * <th>Argument 2</th>
-		 * <th>Result</th>
-		 * <th>Remarks</th>
-		 * </tr>
-		 * </thead> <tbody>
-		 * <tr>
-		 * <td>PRINT_DOUBLE</td>
-		 * <td>value</td>
-		 * <td></td>
-		 * <td></td>
-		 * <td></td>
-		 * </tr>
-		 * </tbody>
-		 * </table>
-		 * 
-		 * @param q
-		 *            the operation quadruple
-		 * @return this program builders instance
-		 */
-		public Builder printDouble(final Quadruple q) {
-			assert q.getOperator() == Operator.PRINT_DOUBLE;
-			assert hasArgsCount(q, 1);
-			return add(printOp(q, LocalVariableType.DOUBLE, "D"));
-		}
-
-		/**
-		 * <table>
-		 * <thead>
-		 * <tr>
-		 * <th>Operator</th>
-		 * <th>Argument 1</th>
-		 * <th>Argument 2</th>
-		 * <th>Result</th>
-		 * <th>Remarks</th>
-		 * </tr>
-		 * </thead> <tbody>
-		 * <tr>
 		 * <td>PRINT_STRING</td>
 		 * <td>value</td>
 		 * <td></td>
@@ -1889,8 +1754,23 @@ public class Program {
 		public Builder printString(final Quadruple q) {
 			assert q.getOperator() == Operator.PRINT_STRING;
 			assert hasArgsCount(q, 1);
-			return add(printOp(q, LocalVariableType.STRING,
-					"Ljava/lang/String;"));
+			final Operation.Builder op = Operation.Builder.newBuilder();
+
+			final short systemOutIndex = classfile
+					.addFieldrefConstantToConstantPool("out",
+							"Ljava/io/PrintStream;", "java/lang/System");
+
+			// add printOp methodref info to constant pool, if necessary
+			final short printIndex = classfile
+					.addMethodrefConstantToConstantPool("printOp",
+							"(Ljava/lang/String)V", "java/io/PrintStream");
+
+			op.add(Mnemonic.GETSTATIC,
+					ByteUtils.shortToByteArray(systemOutIndex));
+			op.add(loadInstruction(q.getArgument1(), LocalVariableType.STRING));
+			op.add(Mnemonic.INVOKEVIRTUAL,
+					ByteUtils.shortToByteArray(printIndex));
+			return add(op.build());
 		}
 
 		/**
@@ -2207,6 +2087,10 @@ public class Program {
 			return add(arraySetOp(q, LocalVariableType.STRING));
 		}
 
+		/*
+		 * === M3 === WORK IN PROGRESS
+		 */
+
 		/**
 		 * <table>
 		 * <thead>
@@ -2219,12 +2103,11 @@ public class Program {
 		 * </tr>
 		 * </thead> <tbody>
 		 * <tr>
-		 * <td>ARRAY_SET_ARRAY</td>
-		 * <td>array name or reference</td>
-		 * <td>element index</td>
-		 * <td>source</td>
-		 * <td>source may be an identifier for either an array or an array
-		 * reference</td>
+		 * <td>BOOLEAN_TO_STRING</td>
+		 * <td>source name</td>
+		 * <td></td>
+		 * <td>destination name</td>
+		 * <td></td>
 		 * </tr>
 		 * </tbody>
 		 * </table>
@@ -2233,104 +2116,416 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder arraySetArray(final Quadruple q) {
-			assert q.getOperator() == Operator.ARRAY_SET_ARRAY;
-			assert hasArgsCount(q, 3);
-			return add(arraySetOp(q, LocalVariableType.AREF));
-		}
-
-		/*
-		 * === M3 === WORK IN PROGRESS
-		 */
-
 		public Builder booleanToString(final Quadruple q) {
-			// assert q.getOperator == Operator.BOOLEAN_TO_STRING
+			assert q.getOperator() == Operator.BOOLEAN_TO_STRING;
 			assert hasArgsCount(q, 2);
 			return add(toStringOp(q, "Z", "java/lang/Boolean",
 					LocalVariableType.BOOLEAN));
 		}
 
+		/**
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>LONG_TO_STRING</td>
+		 * <td>source name</td>
+		 * <td></td>
+		 * <td>destination name</td>
+		 * <td></td>
+		 * </tr>
+		 * </tbody>
+		 * </table>
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public Builder longToString(final Quadruple q) {
-			// assert q.getOperator == Operator.LONG_TO_STRING
+			assert q.getOperator() == Operator.LONG_TO_STRING;
 			assert hasArgsCount(q, 2);
 			return add(toStringOp(q, "J", "java/lang/Long",
 					LocalVariableType.LONG));
 		}
 
+		/**
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>DOUBLE_TO_STRING</td>
+		 * <td>source name</td>
+		 * <td></td>
+		 * <td>destination name</td>
+		 * <td></td>
+		 * </tr>
+		 * </tbody>
+		 * </table>
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public Builder doubleToString(final Quadruple q) {
-			// assert q.getOperator == Operator.DOUBLE_TO_STRING
+			assert q.getOperator() == Operator.DOUBLE_TO_STRING;
 			assert hasArgsCount(q, 2);
 			return add(toStringOp(q, "D", "java/lang/Double",
 					LocalVariableType.DOUBLE));
 		}
 
+		/**
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>DECLARE_STRUCT</td>
+		 * <td>size</td>
+		 * <td></td>
+		 * <td>name</td>
+		 * <td></td>
+		 * </tr>
+		 * </tbody>
+		 * </table>
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public Builder declareStruct(final Quadruple q) {
 			// TODO implement
-			// assert q.getOperator() == Operator.DECLARE_STRUCT
+			assert q.getOperator() == Operator.DECLARE_STRUCT;
 			assert hasArgsCount(q, 2);
 			return this;
 		}
 
+		/**
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>STRUCT_GET_LONG</td>
+		 * <td>struct name or reference</td>
+		 * <td>member name</td>
+		 * <td>destination name</td>
+		 * <td></td>
+		 * </tr>
+		 * </tbody>
+		 * </table>
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public Builder structGetLong(final Quadruple q) {
-			// assert q.getOperator() == Operator.STRUCT_GET_LONG
+			assert q.getOperator() == Operator.STRUCT_GET_LONG;
 			assert hasArgsCount(q, 3);
 			return add(structGetOp(q, LocalVariableType.LONG));
 		}
 
+		/**
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>STRUCT_GET_DOUBLE</td>
+		 * <td>struct name or reference</td>
+		 * <td>member name</td>
+		 * <td>destination name</td>
+		 * <td></td>
+		 * </tr>
+		 * </tbody>
+		 * </table>
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public Builder structGetDouble(final Quadruple q) {
-			// assert q.getOperator() == Operator.STRUCT_GET_DOUBLE
+			assert q.getOperator() == Operator.STRUCT_GET_DOUBLE;
 			assert hasArgsCount(q, 3);
 			return add(structGetOp(q, LocalVariableType.DOUBLE));
 		}
 
+		/**
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>STRUCT_GET_BOOLEAN</td>
+		 * <td>struct name or reference</td>
+		 * <td>member name</td>
+		 * <td>destination name</td>
+		 * <td></td>
+		 * </tr>
+		 * </tbody>
+		 * </table>
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public Builder structGetBoolean(final Quadruple q) {
-			// assert q.getOperator() == Operator.STRUCT_GET_BOOLEAN
+			assert q.getOperator() == Operator.STRUCT_GET_BOOLEAN;
 			assert hasArgsCount(q, 3);
 			return add(structGetOp(q, LocalVariableType.BOOLEAN));
 		}
 
+		/**
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>STRUCT_GET_STRING</td>
+		 * <td>struct name or reference</td>
+		 * <td>member name</td>
+		 * <td>destination name</td>
+		 * <td></td>
+		 * </tr>
+		 * </tbody>
+		 * </table>
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public Builder structGetString(final Quadruple q) {
-			// assert q.getOperator() == Operator.STRUCT_GET_STRING
+			assert q.getOperator() == Operator.STRUCT_GET_STRING;
 			assert hasArgsCount(q, 3);
 			return add(structGetOp(q, LocalVariableType.STRING));
 		}
 
+		/**
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>STRUCT_GET_REFERENCE</td>
+		 * <td>struct name or reference</td>
+		 * <td>member name</td>
+		 * <td>destination name</td>
+		 * <td>destination will contain a reference to the array or struct that
+		 * is the member</td>
+		 * </tr>
+		 * </tbody>
+		 * </table>
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public Builder structGetReference(final Quadruple q) {
-			// assert q.getOperator() == Operator.STRUCT_GET_REFERENCE
+			assert q.getOperator() == Operator.STRUCT_GET_REFERENCE;
 			assert hasArgsCount(q, 3);
 			return add(structGetOp(q, LocalVariableType.AREF));
 		}
 
+		/**
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>STRUCT_SET_LONG</td>
+		 * <td>struct name or reference</td>
+		 * <td>member name</td>
+		 * <td>source</td>
+		 * <td>source must be either an identifier or a Long constant</td>
+		 * </tr>
+		 * </tbody>
+		 * </table>
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public Builder structSetLong(final Quadruple q) {
-			// TODO implement
-			// assert q.getOperator() == Operator.STRUCT_SET_LONG
+			assert q.getOperator() == Operator.STRUCT_SET_LONG;
 			assert hasArgsCount(q, 3);
 			return add(structSetOp(q, LocalVariableType.LONG));
 		}
 
+		/**
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>STRUCT_SET_DOUBLE</td>
+		 * <td>struct name or reference</td>
+		 * <td>member name</td>
+		 * <td>source</td>
+		 * <td>source must be either an identifier or a Double constant</td>
+		 * </tr>
+		 * </tbody>
+		 * </table>
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public Builder structSetDouble(final Quadruple q) {
-			// TODO implement
-			// assert q.getOperator() == Operator.STRUCT_SET_DOUBLE
+			assert q.getOperator() == Operator.STRUCT_SET_DOUBLE;
 			assert hasArgsCount(q, 3);
 			return add(structSetOp(q, LocalVariableType.DOUBLE));
 		}
 
+		/**
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>STRUCT_SET_BOOLEAN</td>
+		 * <td>struct name or reference</td>
+		 * <td>member name</td>
+		 * <td>source</td>
+		 * <td>source must be either an identifier or a Boolean constant</td>
+		 * </tr>
+		 * </tbody>
+		 * </table>
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public Builder structSetBoolean(final Quadruple q) {
-			// TODO implement
-			// assert q.getOperator() == Operator.STRUCT_SET_BOOLEAN
+			assert q.getOperator() == Operator.STRUCT_SET_BOOLEAN;
 			assert hasArgsCount(q, 3);
 			return add(structSetOp(q, LocalVariableType.BOOLEAN));
 		}
 
+		/**
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>STRUCT_SET_STRING</td>
+		 * <td>struct name or reference</td>
+		 * <td>member name</td>
+		 * <td>source</td>
+		 * <td>source must be either an identifier or a String constant</td>
+		 * </tr>
+		 * </tbody>
+		 * </table>
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public Builder structSetString(final Quadruple q) {
-			// TODO implement
-			// assert q.getOperator() == Operator.STRUCT_SET_STRING
+			assert q.getOperator() == Operator.STRUCT_SET_STRING;
 			assert hasArgsCount(q, 3);
 			return add(structSetOp(q, LocalVariableType.STRING));
 		}
 
+		/**
+		 * <table>
+		 * <thead>
+		 * <tr>
+		 * <th>Operator</th>
+		 * <th>Argument 1</th>
+		 * <th>Argument 2</th>
+		 * <th>Result</th>
+		 * <th>Remarks</th>
+		 * </tr>
+		 * </thead> <tbody>
+		 * <tr>
+		 * <td>CONCAT_STRING</td>
+		 * <td>lhs</td>
+		 * <td>rhs</td>
+		 * <td>destination</td>
+		 * <td>destination := lhs concatenated with rhs</td>
+		 * </tr>
+		 * </tbody>
+		 * </table>
+		 * 
+		 * @param q
+		 *            the operation quadruple
+		 * @return this program builders instance
+		 */
 		public Builder concatString(final Quadruple q) {
-			// assert q.getOperator() == Operator.CONCAT_STRING
+			assert q.getOperator() == Operator.CONCAT_STRING;
 			assert hasArgsCount(q, 3);
 			final Operation.Builder op = Operation.Builder.newBuilder();
 			final short appendMethod = classfile

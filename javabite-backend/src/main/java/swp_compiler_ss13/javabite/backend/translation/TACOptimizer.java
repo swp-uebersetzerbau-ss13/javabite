@@ -123,7 +123,7 @@ public class TACOptimizer {
 						: q.getArgument2(), res != null ? res : q.getResult());
 	}
 
-	private class TacIterator implements ListIterator<Quadruple>,
+	private static class TacIterator implements ListIterator<Quadruple>,
 			Iterable<Quadruple> {
 
 		private ListIterator<Quadruple> iter;
