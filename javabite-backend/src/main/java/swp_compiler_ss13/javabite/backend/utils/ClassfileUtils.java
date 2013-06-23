@@ -1,6 +1,7 @@
 package swp_compiler_ss13.javabite.backend.utils;
 
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
+import swp_compiler_ss13.javabite.backend.translation.Mnemonic;
 
 import java.util.EnumSet;
 
@@ -110,12 +111,38 @@ public final class ClassfileUtils {
 	 * @since 03.05.2013
 	 */
 	public enum LocalVariableType {
-		LONG(2), DOUBLE(2), STRING(1), BOOLEAN(1), AREF(1);
+		LONG(2, ConstantPoolType.LONG, Mnemonic.LDC2_W, Mnemonic.LLOAD,
+				Mnemonic.LALOAD, Mnemonic.LSTORE, Mnemonic.LASTORE), DOUBLE(2,
+				ConstantPoolType.DOUBLE, Mnemonic.LDC2_W, Mnemonic.DLOAD,
+				Mnemonic.DALOAD, Mnemonic.DSTORE, Mnemonic.DASTORE), STRING(1,
+				ConstantPoolType.STRING, Mnemonic.LDC, Mnemonic.ALOAD,
+				Mnemonic.AALOAD, Mnemonic.ASTORE, Mnemonic.AASTORE), BOOLEAN(1,
+				null, null, Mnemonic.ILOAD, Mnemonic.IALOAD, Mnemonic.ISTORE,
+				Mnemonic.IASTORE), AREF(1, null, null, Mnemonic.ALOAD,
+				Mnemonic.AALOAD, Mnemonic.ASTORE, Mnemonic.AASTORE);
 
 		public final short length;
+		public final boolean wide;
+		public final ConstantPoolType constantPoolType;
+		public final Mnemonic constantLoadOp;
+		public final Mnemonic varLoadOp;
+		public final Mnemonic arrayLoadOp;
+		public final Mnemonic varStoreOp;
+		public final Mnemonic arrayStoreOp;
 
-		LocalVariableType(final int length) {
+		LocalVariableType(final int length,
+				final ConstantPoolType constantPoolType,
+				final Mnemonic constantLoadOp, final Mnemonic varLoadOp,
+				final Mnemonic arrayLoadOp, final Mnemonic varStoreOp,
+				final Mnemonic arrayStoreOp) {
 			this.length = (short) length;
+			this.wide = length == 2;
+			this.constantPoolType = constantPoolType;
+			this.constantLoadOp = constantLoadOp;
+			this.varLoadOp = varLoadOp;
+			this.arrayLoadOp = arrayLoadOp;
+			this.varStoreOp = varStoreOp;
+			this.arrayStoreOp = arrayStoreOp;
 		}
 	}
 
@@ -130,20 +157,13 @@ public final class ClassfileUtils {
 	 * @since May 25, 2013 1:27:22 AM
 	 */
 	public enum ConstantPoolType {
-		NONE(0x00), UTF8(0x01), LONG(0x05, true), DOUBLE(0x06, true), CLASS(
-				0x07), STRING(0x08), METHODREF(0x0a), NAMEANDTYPE(0x0c), FIELDREF(
-				0x09);
+		NONE(0x00), UTF8(0x01), LONG(0x05), DOUBLE(0x06), CLASS(0x07), STRING(
+				0x08), METHODREF(0x0a), NAMEANDTYPE(0x0c), FIELDREF(0x09);
 
 		public final byte tagByte;
-		public final boolean wide;
-
-		ConstantPoolType(final int tagByte, final boolean wide) {
-			this.tagByte = (byte) tagByte;
-			this.wide = wide;
-		}
 
 		ConstantPoolType(final int tagByte) {
-			this(tagByte, false);
+			this.tagByte = (byte) tagByte;
 		}
 
 		/**

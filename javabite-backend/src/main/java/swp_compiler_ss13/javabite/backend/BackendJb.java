@@ -70,14 +70,14 @@ public class BackendJb implements Backend {
 		baseFileName = rectifyJavaIdentifier(baseFileName);
 
 		// TAC Optimizer
-		//tacOptimizer.optimize(tac);
+		// tacOptimizer.optimize(tac);
 
 		// Translator
 		final Collection<Classfile> classfiles = translator.translate(
 				baseFileName, tac);
 
 		// Target Code Optimizer
-		//targetCodeOptimizer.optimize(classfiles);
+		// targetCodeOptimizer.optimize(classfiles);
 
 		final Map<String, InputStream> targetCodeS = createTargetCodeStreams(classfiles);
 
@@ -95,7 +95,7 @@ public class BackendJb implements Backend {
 	 * @return map of classfile names as keys, with their target code streams as
 	 *         values
 	 */
-	private Map<String, InputStream> createTargetCodeStreams(
+	private static Map<String, InputStream> createTargetCodeStreams(
 			final Collection<Classfile> classfiles) {
 		final Map<String, InputStream> targetCodeIS = new HashMap<>();
 

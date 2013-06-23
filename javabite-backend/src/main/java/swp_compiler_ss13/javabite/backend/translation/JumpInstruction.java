@@ -40,40 +40,37 @@ public class JumpInstruction extends Instruction {
 		return targetInstruction;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result
-				+ (targetLabel == null ? 0 : targetLabel.hashCode());
-		return result;
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+		if (!super.equals(o))
+			return false;
+
+		JumpInstruction that = (JumpInstruction) o;
+
+		if (targetInstruction != null ? !targetInstruction
+				.equals(that.targetInstruction)
+				: that.targetInstruction != null)
+			return false;
+		if (targetLabel != null ? !targetLabel.equals(that.targetLabel)
+				: that.targetLabel != null)
+			return false;
+
+		return true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
-	public boolean equals(final Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (!(obj instanceof JumpInstruction))
-			return false;
-		final JumpInstruction other = (JumpInstruction) obj;
-		if (targetLabel == null) {
-			if (other.targetLabel != null)
-				return false;
-		} else if (!targetLabel.equals(other.targetLabel))
-			return false;
-		return true;
+	public int hashCode() {
+		int result = super.hashCode();
+		result = 31
+				* result
+				+ (targetInstruction != null ? targetInstruction.hashCode() : 0);
+		result = 31 * result
+				+ (targetLabel != null ? targetLabel.hashCode() : 0);
+		return result;
 	}
 
 }

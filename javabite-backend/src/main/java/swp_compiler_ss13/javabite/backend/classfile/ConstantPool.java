@@ -335,10 +335,6 @@ public class ConstantPool {
 			}
 		}
 
-		// /////////////////////////////////
-		// from DataOutputStream.writeUtf()
-		// /////////////////////////////////
-
 		final CPInfo utf8Info = new CPInfo(ConstantPoolType.UTF8, bytearr);
 		entryList.add(utf8Info);
 

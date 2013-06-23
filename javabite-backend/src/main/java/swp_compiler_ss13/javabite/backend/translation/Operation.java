@@ -93,41 +93,28 @@ public class Operation {
 		return sb.toString();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result
-				+ (instructions == null ? 0 : Arrays.hashCode(instructions));
-		result = prime * result + size;
-		return result;
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+
+		Operation operation = (Operation) o;
+
+		if (size != operation.size)
+			return false;
+		if (!Arrays.equals(instructions, operation.instructions))
+			return false;
+
+		return true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
-	public boolean equals(final Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (!(obj instanceof Operation))
-			return false;
-		final Operation other = (Operation) obj;
-		if (instructions == null) {
-			if (other.instructions != null)
-				return false;
-		} else if (!Arrays.equals(instructions, other.instructions))
-			return false;
-		return size == other.size;
+	public int hashCode() {
+		int result = instructions != null ? Arrays.hashCode(instructions) : 0;
+		result = 31 * result + size;
+		return result;
 	}
 
 	/**

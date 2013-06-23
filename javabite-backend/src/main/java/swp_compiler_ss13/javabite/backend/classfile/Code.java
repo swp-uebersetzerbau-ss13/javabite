@@ -53,7 +53,6 @@ class Code {
 	 */
 	private final List<Instruction> codeArea;
 	private final short exceptionTableLength;
-	private List<Attribute> attributes;
 
 	/**
 	 * <h1>CodeAttribute</h1>
@@ -125,16 +124,6 @@ class Code {
 
 			// exception table attribute (unused)
 			attributesDOS.writeShort(exceptionTableLength);
-
-			// attributes attribute
-			if (attributes != null) {
-				attributesDOS.writeShort(attributes.size());
-				for (final Attribute ca : attributes) {
-					ca.writeTo(attributesDOS);
-				}
-			} else {
-				attributesDOS.writeShort(0);
-			}
 
 			classfileDOS.writeShort(codeIndex);
 			classfileDOS.writeInt(attributesDOS.size());

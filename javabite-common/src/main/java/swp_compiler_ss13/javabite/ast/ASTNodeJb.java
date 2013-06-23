@@ -184,17 +184,14 @@ public abstract class ASTNodeJb implements ASTNode, Iterable<ASTNode>{
 		return res.get(0);
 	}
 
-    @Override
     public void setAttributeValue(Object attribute, Object value) {
         attributes.put(attribute,value);
     }
 
-    @Override
     public Map<?, ?> getAttributeValues() {
         return attributes;
     }
 
-    @Override
     public Object getAttributeValue(Object attribute) {
         return attributes.get(attribute);
     }

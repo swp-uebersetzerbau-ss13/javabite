@@ -284,13 +284,23 @@ public enum Mnemonic {
 		return byteCode;
 	}
 
-	public static Mnemonic getMnemonic(final String prefix, final int value) {
+	public static Mnemonic getMnemonicx(final String prefix, final int value) {
 		try {
 			final String name = prefix + "_" + (value < 0 ? "M" : "")
 					+ Integer.toString(Math.abs(value));
 			return valueOf(name);
 		} catch (final IllegalArgumentException e) {
 			return valueOf(prefix);
+		}
+	}
+
+	public Mnemonic withIndex(final int index) {
+		try {
+			final String name = name() + "_" + (index < 0 ? "M" : "")
+					+ Integer.toString(Math.abs(index));
+			return valueOf(name);
+		} catch (final IllegalArgumentException e) {
+			return this;
 		}
 	}
 

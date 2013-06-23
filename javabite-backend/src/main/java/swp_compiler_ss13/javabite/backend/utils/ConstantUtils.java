@@ -1,10 +1,13 @@
 package swp_compiler_ss13.javabite.backend.utils;
 
+import swp_compiler_ss13.common.backend.Quadruple;
+import swp_compiler_ss13.javabite.backend.translation.Mnemonic;
+
 public final class ConstantUtils {
 
 	// necessary string constants
 	public static final String SYMBOL_CONSTANT_VALUE = "#";
-	public static final String SYMBOL_IGNORE_PARAM = "!";
+	public static final String SYMBOL_IGNORE_PARAM = Quadruple.EmptyArgument;
 
 	public static final String CONSTANT_VALUE_FALSE = "#FALSE";
 	public static final String CONSTANT_VALUE_TRUE = "#TRUE";
@@ -31,8 +34,9 @@ public final class ConstantUtils {
 		return s.substring(1);
 	}
 
-	public static short convertBooleanConstant(final String arg) {
-		return CONSTANT_VALUE_TRUE.equalsIgnoreCase(arg) ? (short) 1 : 0;
+	public static Mnemonic convertBooleanConstant(final String arg) {
+		return CONSTANT_VALUE_TRUE.equalsIgnoreCase(arg) ? Mnemonic.ICONST_1
+				: Mnemonic.ICONST_0;
 	}
 
 	private ConstantUtils() {

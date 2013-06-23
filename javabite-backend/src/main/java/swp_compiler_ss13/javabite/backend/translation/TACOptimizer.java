@@ -5,9 +5,7 @@ import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.utils.ConstantUtils;
 import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * TACOptimizer class.
@@ -19,19 +17,16 @@ import java.util.Set;
 public class TACOptimizer {
 
 	private Set<String> jumpTargets;
-	private List<Quadruple> tac;
-	private int index;
-
-    private int removed = 0;
+	private TacIterator iter;
 
 	public void optimize(final List<Quadruple> tac) {
 
 		this.jumpTargets = new HashSet<>();
-		this.tac = tac;
+		this.iter = new TacIterator(tac);
 
 		// loop 1
-		for (index = 0; index < tac.size(); index++) {
-			final Quadruple quad = tac.get(index);
+		// perform primary analysis
+		for (final Quadruple quad : iter) {
 			switch (quad.getOperator()) {
 			case BRANCH:
 				checkBranch(quad);
@@ -42,30 +37,23 @@ public class TACOptimizer {
 		}
 
 		// loop 2
-		for (index = 0; index < tac.size(); index++) {
-			final Quadruple quad = tac.get(index);
-            if(quad == null)
-                continue;
-			if (quad.getOperator() == Operator.LABEL) {
+		// perform secondary analysis (requires loop 1 to gather information)
+		for (final Quadruple quad : iter) {
+			switch (quad.getOperator()) {
+			case LABEL:
 				if (!jumpTargets.contains(quad.getArgument1())) {
-					remove();
+					iter.remove();
 				}
-			}
-		}
-
-		// loop 3
-		for (index = tac.size() - 1; index >= 0; index--) {
-			final Quadruple quad = tac.get(index);
-			if (quad == null) {
-				tac.remove(index);
-                removed++;
+				break;
+			default:
+				break;
 			}
 		}
 
 	}
 
 	private void checkBranch(final Quadruple quad) {
-		final Quadruple next = peek();
+		final Quadruple next = iter.peek();
 		String arg1 = null;
 		String arg2 = null;
 		String result = null;
@@ -89,18 +77,18 @@ public class TACOptimizer {
 		}
 		if ((arg1 != null && arg2 != null)) {
 			// if both targets point to the next operation, remove jump
-			remove();
+			iter.remove();
 			return;
-        } else if (quad.getArgument1().equals(quad.getArgument2())) {
-            // if both targets are the same, remove second target
-            arg2 = ConstantUtils.SYMBOL_IGNORE_PARAM;
-            result = ConstantUtils.SYMBOL_IGNORE_PARAM;
-            replace = true;
+		} else if (quad.getArgument1().equals(quad.getArgument2())) {
+			// if both targets are the same, remove second target
+			arg2 = ConstantUtils.SYMBOL_IGNORE_PARAM;
+			result = ConstantUtils.SYMBOL_IGNORE_PARAM;
+			replace = true;
 		} else if (quad.getResult().equals(ConstantUtils.CONSTANT_VALUE_TRUE)) {
 			// condition is constantly true
 			if (arg1 != null) {
 				// jump is always to next operation, remove jump
-				remove();
+				iter.remove();
 				return;
 			} else {
 				// convert to unconditional jump
@@ -112,7 +100,7 @@ public class TACOptimizer {
 			// condition is constantly false
 			if (arg2 != null) {
 				// jump is always to next operation, remove jump
-				remove();
+				iter.remove();
 				return;
 			} else {
 				// convert to unconditional jump
@@ -123,23 +111,8 @@ public class TACOptimizer {
 			}
 		}
 		if (replace) {
-			replace(copyQuadruple(quad, null, arg1, arg2, result));
+			iter.set(copyQuadruple(quad, null, arg1, arg2, result));
 		}
-	}
-
-	private void remove() {
-		replace(null);
-	}
-
-	private void replace(final Quadruple quad) {
-		tac.set(index, quad);
-	}
-
-	private Quadruple peek() {
-		if (index + 1 < tac.size()) {
-			return tac.get(index + 1);
-		}
-		return null;
 	}
 
 	private static Quadruple copyQuadruple(final Quadruple q,
@@ -148,6 +121,86 @@ public class TACOptimizer {
 		return new QuadrupleJb(op != null ? op : q.getOperator(),
 				arg1 != null ? arg1 : q.getArgument1(), arg2 != null ? arg2
 						: q.getArgument2(), res != null ? res : q.getResult());
+	}
+
+	private class TacIterator implements ListIterator<Quadruple>,
+			Iterable<Quadruple> {
+
+		private ListIterator<Quadruple> iter;
+		private List<Quadruple> tac;
+		private int index;
+
+		public TacIterator(final List<Quadruple> tac) {
+			this.iter = tac.listIterator();
+			this.tac = tac;
+			index = 0;
+		}
+
+		@Override
+		public boolean hasNext() {
+			return iter.hasNext();
+		}
+
+		@Override
+		public Quadruple next() {
+			index++;
+			return iter.next();
+		}
+
+		@Override
+		public boolean hasPrevious() {
+			return iter.hasPrevious();
+		}
+
+		@Override
+		public Quadruple previous() {
+			index--;
+			return iter.previous();
+		}
+
+		@Override
+		public int nextIndex() {
+			return iter.nextIndex();
+		}
+
+		@Override
+		public int previousIndex() {
+			return iter.previousIndex();
+		}
+
+		@Override
+		public void remove() {
+			iter.remove();
+		}
+
+		@Override
+		public void set(Quadruple quadruple) {
+			iter.set(quadruple);
+		}
+
+		@Override
+		public void add(Quadruple quadruple) {
+			iter.add(quadruple);
+		}
+
+		public Quadruple peek() {
+			if (hasNext()) {
+				return tac.get(nextIndex());
+			}
+			return null;
+		}
+
+		public Quadruple current() {
+			return tac.get(index);
+		}
+
+		@Override
+		public Iterator<Quadruple> iterator() {
+			this.index = 0;
+			this.iter = tac.listIterator();
+			return this;
+		}
+
 	}
 
 }
