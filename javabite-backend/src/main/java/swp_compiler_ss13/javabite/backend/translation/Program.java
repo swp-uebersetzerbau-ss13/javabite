@@ -2332,8 +2332,34 @@ public class Program {
 			// assert q.getOperator() == Operator.CONCAT_STRING
 			assert hasArgsCount(q, 3);
 			final Operation.Builder op = Operation.Builder.newBuilder();
+			final short appendMethod = classfile
+					.addMethodrefConstantToConstantPool("append",
+							"(Ljava/lang/String;)Ljava/lang/StringBuilder",
+							"java/lang/StringBuilder");
 			final short stringBuilderClassIndex = classfile
 					.addClassConstantToConstantPool("java/lang/StringBuilder");
+			final short stringBuilderCstr = classfile
+					.addMethodrefConstantToConstantPool("<init>", "()V",
+							"java/lang/StringBuilder");
+			final short stringBuilderToString = classfile
+					.addMethodrefConstantToConstantPool("toString",
+							"()Ljava/lang/String", "java/lang/StringBuilder");
+			op.add(Mnemonic.NEW,
+					ByteUtils.shortToByteArray(stringBuilderClassIndex));
+			op.add(Mnemonic.DUP);
+			op.add(Mnemonic.INVOKESPECIAL,
+					ByteUtils.shortToByteArray(stringBuilderCstr));
+			op.add(loadInstruction(q.getArgument1(), ConstantPoolType.STRING,
+					Mnemonic.ALOAD));
+			op.add(Mnemonic.INVOKEVIRTUAL,
+					ByteUtils.shortToByteArray(appendMethod));
+			op.add(loadInstruction(q.getArgument2(), ConstantPoolType.STRING,
+					Mnemonic.ALOAD));
+			op.add(Mnemonic.INVOKEVIRTUAL,
+					ByteUtils.shortToByteArray(appendMethod));
+			op.add(Mnemonic.INVOKEVIRTUAL,
+					ByteUtils.shortToByteArray(stringBuilderToString));
+			op.add(storeInstruction(q.getResult(), Mnemonic.ASTORE));
 			return add(op.build());
 		}
 
