@@ -45,7 +45,8 @@ import swp_compiler_ss13.javabite.gui.ast.fitted.KhaledGraphFrame;
 import com.mxgraph.layout.mxGraphLayout;
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
 import com.mxgraph.model.mxCell;
-import com.mxgraph.model.mxICell;
+import com.mxgraph.model.mxCell;
+import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxGraph;
@@ -62,8 +63,8 @@ public class ASTVisualizerJb implements ASTVisualization {
 	Queue<Object> toVisit_celledCopy;
 	int x, y;
 	int i=1;
-	private Set<mxICell> visitedSet = new HashSet<mxICell>();
-    List<mxICell> queueSubTree = new ArrayList<mxICell>();
+	private Set<mxCell> visitedSet = new HashSet<mxCell>();
+    List<mxCell> queueSubTree = new ArrayList<mxCell>();
 
 	String[] operation = { "ADDITION", "SUBSTRACTION", "MULTIPLICATION",
 			"DIVISION", "LESSTHAN", "LESSTHANEQUAL", "GREATERTHAN",
@@ -104,27 +105,27 @@ public class ASTVisualizerJb implements ASTVisualization {
 				Object cell = ((mxGraphComponent) frame).getCellAt(e.getX(), e.getY());
 				if (cell != null)
 				{
-					breadthFirstSearch((mxICell) cell);
+					breadthFirstSearch((mxCell) cell);
 					Object[] edges = graph.getOutgoingEdges(cell); // remove edges
 					graph.removeCells(edges);
 					System.out.println(queueSubTree.size());
-					for (mxICell k: queueSubTree){
-						Object[] edges1 = graph.getOutgoingEdges(k);
+					
+				for (mxCell k: queueSubTree){
+						Object[] edges1 = graph.getOutgoingEdges((mxCell) k);
 						graph.removeCells(edges1);		
 					}
-					
 				}
 			}
 		});
 	}
 	
 	
-	private void breadthFirstSearch(mxICell parent) {
+	private void breadthFirstSearch(mxCell parent) {
 
         // clear marker set
-        visitedSet = new HashSet<mxICell>();
+        visitedSet = new HashSet<mxCell>();
         // create a queue Q
-        List<mxICell> queue = new ArrayList<mxICell>();
+        List<mxCell> queue = new ArrayList<mxCell>();
         // enqueue v onto Q
         queue.add(parent);
         // mark v
@@ -132,7 +133,7 @@ public class ASTVisualizerJb implements ASTVisualization {
         // while Q is not empty:
         while (!queue.isEmpty()) {
         	// t <- Q.dequeue()
-            mxICell cell = queue.get(0);
+            mxCell cell = queue.get(0);
             queue.remove(cell);
 
             // if t is what we are looking for: 
@@ -146,7 +147,7 @@ public class ASTVisualizerJb implements ASTVisualization {
 
                 // o <- G.opposite(t,e)
                 // get node from edge
-                mxICell target = (mxICell) graph.getView().getVisibleTerminal(edge, false);
+                mxCell target = (mxCell) graph.getView().getVisibleTerminal(edge, false);
 
                 // if o is not marked:
                 if (!isVisited(target)) {
@@ -157,19 +158,18 @@ public class ASTVisualizerJb implements ASTVisualization {
                     // enqueue o onto Q
                     queue.add(target);
                     queueSubTree.add(target);
-                    target.removeFromParent();
-
-                }
+                   target.removeFromParent(); //here there is problem
+               }
             }
         }
 
     }
 
-    private void visit(mxICell what) {
+    private void visit(mxCell what) {
         visitedSet.add(what);
     }
 
-    private boolean isVisited(mxICell what) {
+    private boolean isVisited(mxCell what) {
         return visitedSet.contains(what);
     }
 
