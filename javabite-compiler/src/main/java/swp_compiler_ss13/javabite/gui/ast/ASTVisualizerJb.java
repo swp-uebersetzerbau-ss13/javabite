@@ -3,6 +3,8 @@ package swp_compiler_ss13.javabite.gui.ast;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Queue;
@@ -43,6 +45,7 @@ import swp_compiler_ss13.javabite.gui.ast.fitted.KhaledGraphFrame;
 import com.mxgraph.layout.mxGraphLayout;
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
 import com.mxgraph.model.mxCell;
+import com.mxgraph.model.mxICell;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxGraph;
@@ -58,6 +61,9 @@ public class ASTVisualizerJb implements ASTVisualization {
 	JScrollPane frame;
 	Queue<Object> toVisit_celledCopy;
 	int x, y;
+	int i=1;
+	private Set<mxICell> visitedSet = new HashSet<mxICell>();
+    List<mxICell> queueSubTree = new ArrayList<mxICell>();
 
 	String[] operation = { "ADDITION", "SUBSTRACTION", "MULTIPLICATION",
 			"DIVISION", "LESSTHAN", "LESSTHANEQUAL", "GREATERTHAN",
@@ -100,21 +106,75 @@ public class ASTVisualizerJb implements ASTVisualization {
 		layout.setIntraCellSpacing(5);
 		layout.execute(graph.getDefaultParent());
 		frame = new mxGraphComponent(graph);
-		
 		((mxGraphComponent) frame).getGraphControl().addMouseListener(new MouseAdapter()
 		{
-			public void mouseReleased(MouseEvent e)
-			{
+			public void mouseReleased(MouseEvent e){
 				Object cell = ((mxGraphComponent) frame).getCellAt(e.getX(), e.getY());
-
 				if (cell != null)
 				{
-					System.out.println("cell="+graph.getLabel(cell));
+					breadthFirstSearch((mxICell) cell);
+					Object[] edges = graph.getOutgoingEdges(cell); // remove edges
+					graph.removeCells(edges);
+					System.out.println(queueSubTree.size());
+					
+					}
 				}
-			}
-		});
 			
-		}
+		});
+	}
+	
+	private void breadthFirstSearch(mxICell parent) {
+
+        // clear marker set
+        visitedSet = new HashSet<mxICell>();
+        // create a queue Q
+        List<mxICell> queue = new ArrayList<mxICell>();
+        // enqueue v onto Q
+        queue.add(parent);
+        // mark v
+        visit(parent);
+        // while Q is not empty:
+        while (!queue.isEmpty()) {
+        	// t <- Q.dequeue()
+            mxICell cell = queue.get(0);
+            queue.remove(cell);
+
+            // if t is what we are looking for: 
+            //   return t
+            // TODO: add handling code if you search something
+            System.out.println("BFS visiting: " + cell.getValue());
+            // for all edges e in G.incidentEdges(t) do
+            Object[] edges = graph.getOutgoingEdges(cell);
+
+            for (Object edge : edges) {
+
+                // o <- G.opposite(t,e)
+                // get node from edge
+                mxICell target = (mxICell) graph.getView().getVisibleTerminal(edge, false);
+
+                // if o is not marked:
+                if (!isVisited(target)) {
+
+                    // mark o
+                    visit(target);
+
+                    // enqueue o onto Q
+                    queue.add(target);
+                    queueSubTree.add(target);
+
+                }
+            }
+        }
+
+    }
+
+    private void visit(mxICell what) {
+        visitedSet.add(what);
+    }
+
+    private boolean isVisited(mxICell what) {
+        return visitedSet.contains(what);
+    }
 
 	
 
@@ -169,6 +229,7 @@ public class ASTVisualizerJb implements ASTVisualization {
 				// this is the line which do the necessary stuff.
 				// inserts a edge to every children
 				graph.insertEdge(parent, null, "", current_cell, child_as_cell);
+				
 
 			}
 
