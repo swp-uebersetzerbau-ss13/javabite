@@ -116,6 +116,10 @@ public class ASTVisualizerJb implements ASTVisualization {
 					Object[] edges = graph.getOutgoingEdges(cell); // remove edges
 					graph.removeCells(edges);
 					System.out.println(queueSubTree.size());
+					for (mxICell k: queueSubTree){
+						Object[] edges1 = graph.getOutgoingEdges(k);
+						graph.removeCells(edges1);
+					}
 					
 					}
 				}
