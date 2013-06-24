@@ -110,12 +110,14 @@ public class ASTVisualizerJb implements ASTVisualization {
 					System.out.println(queueSubTree.size());
 					for (mxICell k: queueSubTree){
 						Object[] edges1 = graph.getOutgoingEdges(k);
-						graph.removeCells(edges1);
+						graph.removeCells(edges1);		
 					}
+					
 				}
 			}
 		});
 	}
+	
 	
 	private void breadthFirstSearch(mxICell parent) {
 
@@ -155,6 +157,7 @@ public class ASTVisualizerJb implements ASTVisualization {
                     // enqueue o onto Q
                     queue.add(target);
                     queueSubTree.add(target);
+                    target.removeFromParent();
 
                 }
             }
