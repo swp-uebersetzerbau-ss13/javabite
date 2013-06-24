@@ -8,6 +8,7 @@ import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ClassfileAccessFlag;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.FieldAccessFlag;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodAccessFlag;
 
 import java.io.*;
@@ -662,5 +663,29 @@ public class Classfile {
 		for (final Instruction instruction : instructions) {
 			methodArea.addInstructionToMethodsCode(methodName, instruction);
 		}
+	}
+
+	/**
+	 * <h1>addFieldToFieldArea</h1>
+	 * <p>
+	 * This method adds new field to this classfile's field area using the field
+	 * area's method addField.
+	 * </p>
+	 * 
+	 * @since 24.06.2013
+	 * @param fieldName
+	 *            String name of the field
+	 * @param fieldDescriptor
+	 *            String descriptor of the field
+	 * @param accessFlags
+	 *            list of access flags for the field
+	 */
+	public void addFieldToFieldArea(final String fieldName,
+			final String fieldDescriptor, final FieldAccessFlag... accessFlags) {
+		// first generate appropriate constants in the constant pool
+		short fieldNameIndex = this.constantPool.generateConstantUTF8Info(fieldName);
+		short fieldDescriptorIndex = this.constantPool.generateConstantUTF8Info(fieldDescriptor);
+		// add fields
+		this.fieldArea.addField(fieldNameIndex, fieldDescriptorIndex, accessFlags);
 	}
 }

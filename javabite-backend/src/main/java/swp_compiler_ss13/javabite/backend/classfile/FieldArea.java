@@ -86,7 +86,7 @@ class FieldArea {
 	 *            short index into this classfile's constant pool of field's
 	 *            string descriptor.
 	 */
-	void addFieldToFieldArea(final short nameIndex,
+	void addField(final short nameIndex,
 			final short descriptorIndex, final FieldAccessFlag... accessFlags) {
 
 		final FieldInfo fieldInfo = new FieldInfo(nameIndex, descriptorIndex,

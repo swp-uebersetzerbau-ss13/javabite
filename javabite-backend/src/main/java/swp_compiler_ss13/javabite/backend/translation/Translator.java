@@ -6,6 +6,7 @@ import swp_compiler_ss13.javabite.backend.classfile.Classfile;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ClassfileAccessFlag;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.FieldAccessFlag;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodAccessFlag;
 import swp_compiler_ss13.javabite.backend.utils.ConstantUtils;
@@ -37,6 +38,12 @@ public class Translator {
 	public static final String METHOD_DESCRIPTOR_MAIN = "([Ljava/lang/String;)V";
 	public static final String OBJECT_CLASSNAME_EIF = "java/lang/Object";
 
+	Collection<Classfile> classfiles;
+
+	public Translator() {
+		this.classfiles = new ArrayList<>();
+	}
+
 	/**
 	 * BOOLEAN <h1>generateNewFile</h1>
 	 * <p>
@@ -59,8 +66,10 @@ public class Translator {
 	private Classfile generateClassfile(final String name,
 			final String thisClassNameEIF, final String superClassNameEIF,
 			final ClassfileAccessFlag... accessFlags) {
-		return new Classfile(name, thisClassNameEIF, superClassNameEIF,
-				accessFlags);
+		Classfile classfile = new Classfile(name, thisClassNameEIF,
+				superClassNameEIF, accessFlags);
+		this.classfiles.add(classfile);
+		return classfile;
 	}
 
 	/**
@@ -69,7 +78,7 @@ public class Translator {
 	 * This method translates the provided tac into target bytecode, which can
 	 * be executed by a jvm. Therefore it generates appropriate classfile
 	 * bytecode meeting the jvm classfile specification and translates the tac
-	 * statements into byecde instructions meeting the jvm instructions
+	 * statements into bytecode instructions meeting the jvm instructions
 	 * specification.
 	 * </p>
 	 * 
@@ -86,9 +95,8 @@ public class Translator {
 
 		// some initialization
 		final String classFileName = mainClassName + FILE_EXTENSION_CLASS;
-		final Collection<Classfile> classfiles = new ArrayList<>();
 
-		// create a new (main)classfile/ classfile with main method
+		// create a new (main)classfile / classfile with main method
 		final Classfile mainClassfile = generateClassfile(classFileName,
 				mainClassName, OBJECT_CLASSNAME_EIF,
 				ClassfileAccessFlag.ACC_PUBLIC, ClassfileAccessFlag.ACC_SUPER);
@@ -99,7 +107,8 @@ public class Translator {
 				MethodAccessFlag.ACC_STATIC);
 
 		// parse tac for struct declarations and create classfiles for them
-		classfiles.addAll(generateClassfilesForStructsInTAC(tac));
+		// TODO einkommentieren, wenn es geht
+		// generateClassfilesForStructsInTAC(tac, mainClassName);
 
 		// translate tac/program into the main method's code
 		if (tac != null) {
@@ -110,25 +119,250 @@ public class Translator {
 					tac);
 		}
 
-		// add final (main)classfile to the translator's classfile list
-		classfiles.add(mainClassfile);
-
 		return classfiles;
 	}
 
 	/**
+	 * <h1>generateClassfilesForStructsInTAC</h1>
+	 * 
 	 * TODO implementation and javadoc - search for structs in tac and build new
-	 * classes use new translate method or change trnaslate method to
+	 * classes use new translate method or change translate method to
 	 * translate(...,..., false)
+	 * 
+	 * @since 24.06.2013
+	 * @author Marco
 	 */
-	private Collection<Classfile> generateClassfilesForStructsInTAC(
-			final List<Quadruple> tac) {
+	private void generateClassfilesForStructsInTAC(
+			final List<Quadruple> tac, final String basicClassName) {
+
+		// classfile list
 		final Collection<Classfile> classfiles = new ArrayList<>();
-		return classfiles;
+
+		// search for struct declarations
+		for (final ListIterator<Quadruple> tacIter = tac.listIterator(); tacIter
+				.hasNext();) {
+
+			// get the quadruple parts
+			Quadruple quad = tacIter.next();
+			Quadruple.Operator operator = quad.getOperator();
+			String structName = quad.getResult();
+			String arg1 = quad.getArgument1();
+
+			// temp variable for found structs' tac
+			List<Quadruple> structTAC = new ArrayList<Quadruple>();
+
+			/*
+			 * if the operator is an DECLARE_STRUCT-operator, a new classfile
+			 * has to be generated
+			 */
+			if (operator.equals(Operator.DECLARE_STRUCT)) {
+				// get struct's tac
+				long memberVarsCount = Long.parseLong(removeConstantSign(arg1));
+				structTAC.addAll(getStructsTac(tacIter, memberVarsCount));
+
+				// generate appropriate classfile
+				String className = basicClassName + "$" + structName;
+				translateStructIntoClassfile(structTAC, className);
+			}
+		}
+		
+		// TODO DELETE TAC of structs???
 	}
 
 	/**
-	 * <h1>addTACConstantsToConstantPool</h1>
+	 * <h1>getStructsTac</h1>
+	 * 
+	 * getStructsTac TODO javadoc
+	 * 
+	 * @since 24.06.2013
+	 * @author Marco
+	 */
+	private List<Quadruple> getStructsTac(ListIterator<Quadruple> tacIter,
+			long memberVarsCount) {
+
+		// temp variable for found structs' tac
+		List<Quadruple> structTAC = new ArrayList<Quadruple>();
+
+		// get tac
+		for (int i = 0; i < memberVarsCount; i++) {
+			Quadruple structQuad = tacIter.next();
+			Operator operator = structQuad.getOperator();
+
+			switch (operator) {
+			case DECLARE_ARRAY:
+				structTAC.add(structQuad);
+				structQuad = tacIter.next();
+				while (structQuad.getOperator() == Operator.DECLARE_ARRAY) {
+					structTAC.add(structQuad);
+					structQuad = tacIter.next();
+				}
+				if (structQuad.getOperator() == Operator.DECLARE_STRUCT) {
+					structTAC.add(structQuad);
+					// get struct's tac
+					long structMemberVarsCount = Long
+							.parseLong(removeConstantSign(structQuad
+									.getArgument1()));
+					structTAC.addAll(getStructsTac(tacIter,
+							structMemberVarsCount));
+				} else {
+					structTAC.add(structQuad);
+				}
+				break;
+			case DECLARE_STRUCT:
+				structTAC.add(structQuad);
+				// get struct's tac
+				long structMemberVarsCount = Long
+						.parseLong(removeConstantSign(structQuad.getArgument1()));
+				structTAC.addAll(getStructsTac(tacIter, structMemberVarsCount));
+				break;
+			default:
+				structTAC.add(structQuad);
+			}
+		}
+
+		return structTAC;
+	}
+
+	/**
+	 * <h1>translateStructIntoClassfile</h1>
+	 * 
+	 * translateStructIntoClassfile TODO javadoc
+	 * 
+	 * @since 24.06.2013
+	 * @author Marco
+	 */
+	private void translateStructIntoClassfile(
+			final List<Quadruple> structTac, final String className) {
+		// generate classfile
+		final String classFileName = className + FILE_EXTENSION_CLASS;
+
+		// create a new (main)classfile / classfile with main method
+		Classfile structClassfile = generateClassfile(classFileName, className,
+				OBJECT_CLASSNAME_EIF, ClassfileAccessFlag.ACC_PUBLIC,
+				ClassfileAccessFlag.ACC_SUPER);
+
+		// add constants to constant pool
+		addConstantsToConstantPool(structClassfile, structTac);
+
+		// generate field info structures
+		if (structTac != null) {
+			for (final ListIterator<Quadruple> tacIter = structTac
+					.listIterator(); tacIter.hasNext();) {
+
+				final Quadruple quad = tacIter.next();
+				final String name = quad.getResult();
+				String arg1 = quad.getArgument1();
+				Operator op = quad.getOperator();
+
+				String descriptor;
+
+				switch (op) {
+				case DECLARE_ARRAY:
+					// temp variable for found array's tac
+					List<Quadruple> arrayTAC = new ArrayList<Quadruple>();
+					arrayTAC.add(quad);
+					// get rest of arrays tac
+					Quadruple arrayQuad = tacIter.next();
+					while (arrayQuad.getOperator() == Operator.DECLARE_ARRAY) {
+						arrayTAC.add(arrayQuad);
+						arrayQuad = tacIter.next();
+					}
+					if (arrayQuad.getOperator() == Operator.DECLARE_STRUCT) {
+						arrayTAC.add(arrayQuad);
+						List<Quadruple> structTACwithoutFirstDecl = new ArrayList<Quadruple>();
+
+						// get struct's tac
+						long structMemberVarsCount = Long
+								.parseLong(removeConstantSign(arrayQuad
+										.getArgument1()));
+
+						structTACwithoutFirstDecl = getStructsTac(tacIter,
+								structMemberVarsCount);
+						arrayTAC.addAll(structTACwithoutFirstDecl);
+
+						// generate classfile for structTACwithoutFirstDecl
+						String structClassName = className + "$" + name;
+						translateStructIntoClassfile(structTACwithoutFirstDecl,
+								structClassName);
+					} else {
+						arrayTAC.add(arrayQuad);
+					}
+
+					// TODO getDescriptor using arrayTAC
+					descriptor = "Array";
+					structClassfile.addFieldToFieldArea(name, descriptor,
+							FieldAccessFlag.ACC_PUBLIC);
+					/*
+					 * generate field reference info structure in the constant
+					 * pool, which will be used in the constructor for
+					 * initialization
+					 */
+					structClassfile.addFieldrefConstantToConstantPool(name,
+							descriptor, className);
+					break;
+				case DECLARE_STRUCT:
+					// temp variables for found struct's tac
+					List<Quadruple> structTAC = new ArrayList<Quadruple>();
+					List<Quadruple> structTACwithoutFirstDecl = new ArrayList<Quadruple>();
+
+					structTAC.add(quad);
+					// get struct's tac
+					long structMemberVarsCount = Long
+							.parseLong(removeConstantSign(quad.getArgument1()));
+					structTACwithoutFirstDecl = getStructsTac(tacIter,
+							structMemberVarsCount);
+					structTAC.addAll(structTACwithoutFirstDecl);
+
+					// generate classfile for structTACwithoutFirstDecl
+					String structClassName = className + "$" + name;
+					translateStructIntoClassfile(structTACwithoutFirstDecl,
+							structClassName);
+
+					// TODO getDescriptor using structTAC
+					descriptor = "Struct";
+					structClassfile.addFieldToFieldArea(name, descriptor,
+							FieldAccessFlag.ACC_PUBLIC);
+
+					/*
+					 * generate field reference info structure in the constant
+					 * pool, which will be used in the constructor for
+					 * initialization
+					 */
+					structClassfile.addFieldrefConstantToConstantPool(name,
+							descriptor, className);
+					break;
+				default:
+					// TODO getDescriptor using quad
+					descriptor = "descriptor";
+					// add field to field area
+					structClassfile.addFieldToFieldArea(name, descriptor,
+							FieldAccessFlag.ACC_PUBLIC);
+					/*
+					 * generate field reference info structure in the constant
+					 * pool, which will be used in the constructor for
+					 * initialization
+					 */
+					structClassfile.addFieldrefConstantToConstantPool(name,
+							descriptor, className);
+				}
+			}
+		}
+
+		// set constructor
+		structClassfile = translateStructTacIntoConstructorCode(
+				structClassfile, structTac);
+	}
+
+	/**
+	 * <h1>translateStructIntoConstructorCode</h1> TODO EIke
+	 */
+	private Classfile translateStructTacIntoConstructorCode(
+			Classfile structClassfile, final List<Quadruple> structTac) {
+		return structClassfile;
+	}
+
+	/**
+	 * <h1>addConstantsToConstantPool</h1>
 	 * <p>
 	 * This method parses the tac and adds all constants to the provided
 	 * classfile's constant pool.
@@ -260,8 +494,6 @@ public class Translator {
 			final Classfile file, final String methodName,
 			final List<Quadruple> tac) {
 
-		// is set, while array is declared
-		boolean arrayFlag = false;
 		for (final ListIterator<Quadruple> tacIter = tac.listIterator(); tacIter
 				.hasNext();) {
 
@@ -270,20 +502,6 @@ public class Translator {
 			final String result = quad.getResult();
 			String arg1 = quad.getArgument1();
 			Operator op = quad.getOperator();
-
-			/*
-			 * While an array is declared, skip further checks until a basic
-			 * type is declared/ the array declaration is finished.
-			 */
-			if (arrayFlag) {
-				if (op == Operator.DECLARE_STRING
-						|| op == Operator.DECLARE_BOOLEAN
-						|| op == Operator.DECLARE_LONG
-						|| op == Operator.DECLARE_DOUBLE) {
-					arrayFlag = false;
-				}
-				continue;
-			}
 
 			switch (op) {
 			case DECLARE_STRING:
@@ -316,9 +534,16 @@ public class Translator {
 				tacIter.remove();
 				continue;
 			case DECLARE_ARRAY:
-				arrayFlag = true;
 				file.addVariableToMethodsCode(methodName, result,
 						ClassfileUtils.LocalVariableType.AREF);
+				/*
+				 * during array declaration, skip further checks until a basic
+				 * type is declared/ the array declaration is finished.
+				 */
+				while (tacIter.next().getOperator() == Operator.DECLARE_ARRAY) {
+				}
+				// TODO Structs
+				continue;
 			default:
 				continue;
 			}
