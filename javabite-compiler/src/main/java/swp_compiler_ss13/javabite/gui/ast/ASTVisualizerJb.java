@@ -1,5 +1,7 @@
 package swp_compiler_ss13.javabite.gui.ast;
 
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayDeque;
 import java.util.Hashtable;
 import java.util.List;
@@ -98,8 +100,23 @@ public class ASTVisualizerJb implements ASTVisualization {
 		layout.setIntraCellSpacing(5);
 		layout.execute(graph.getDefaultParent());
 		frame = new mxGraphComponent(graph);
+		
+		((mxGraphComponent) frame).getGraphControl().addMouseListener(new MouseAdapter()
+		{
+			public void mouseReleased(MouseEvent e)
+			{
+				Object cell = ((mxGraphComponent) frame).getCellAt(e.getX(), e.getY());
 
-	}
+				if (cell != null)
+				{
+					System.out.println("cell="+graph.getLabel(cell));
+				}
+			}
+		});
+			
+		}
+
+	
 
 	public JScrollPane getFrame() {
 		return frame;
