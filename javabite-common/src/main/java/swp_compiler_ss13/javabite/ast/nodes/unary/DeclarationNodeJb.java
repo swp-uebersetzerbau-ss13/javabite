@@ -29,20 +29,23 @@ public class DeclarationNodeJb extends ASTNodeJb implements DeclarationNode {
 
 	protected String identifier;
 	protected Type type;
-	
+
 	public DeclarationNodeJb() {
 		super(ASTNodeType.DeclarationNode);
 	}
+
 	@Override
 	protected void fillNodeProperties(Properties props) {
-		props.put("id",identifier);
+		props.put("id", identifier);
 		props.put("type", type);
 	}
 
 	@Override
 	public List<Token> coverage() {
-		List<Token> res=new LinkedList<>();
-		res.add(getAssociatedTokenListFromTypeUnique(TokenType.BOOL_SYMBOL,TokenType.DOUBLE_SYMBOL,TokenType.LONG_SYMBOL,TokenType.STRING_SYMBOL));
+		List<Token> res = new LinkedList<>();
+		res.add(getAssociatedTokenListFromTypeUnique(TokenType.BOOL_SYMBOL,
+				TokenType.DOUBLE_SYMBOL, TokenType.LONG_SYMBOL,
+				TokenType.STRING_SYMBOL));
 		res.add(getAssociatedTokenListFromTypeUnique(TokenType.ID));
 		res.add(getAssociatedTokenListFromTypeUnique(TokenType.SEMICOLON));
 		return res;

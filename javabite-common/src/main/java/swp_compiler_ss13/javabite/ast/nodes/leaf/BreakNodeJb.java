@@ -13,10 +13,10 @@ public class BreakNodeJb extends ExpressionNodeJb implements BreakNode {
 	public BreakNodeJb() {
 		super(ASTNodeType.BreakNode);
 	}
-	
+
 	@Override
 	public List<Token> nestedCoverage() {
-		List<Token> res=new LinkedList<>();
+		List<Token> res = new LinkedList<>();
 		res.add(getAssociatedTokenListFromTypeUnique(TokenType.BREAK));
 		return res;
 	}

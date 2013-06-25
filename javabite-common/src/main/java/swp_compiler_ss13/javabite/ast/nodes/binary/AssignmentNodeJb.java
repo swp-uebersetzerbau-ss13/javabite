@@ -10,7 +10,8 @@ import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.javabite.ast.nodes.ExpressionNodeJb;
 
-public class AssignmentNodeJb extends ExpressionNodeJb implements AssignmentNode {
+public class AssignmentNodeJb extends ExpressionNodeJb implements
+		AssignmentNode {
 	public IdentifierNode getLeftValue() {
 		return leftValue;
 	}
@@ -26,7 +27,7 @@ public class AssignmentNodeJb extends ExpressionNodeJb implements AssignmentNode
 
 	public void setRightValue(ExpressionNode rightValue) {
 		this.rightValue = rightValue;
-		addChild(rightValue,1);
+		addChild(rightValue, 1);
 	}
 
 	protected IdentifierNode leftValue;
@@ -38,7 +39,7 @@ public class AssignmentNodeJb extends ExpressionNodeJb implements AssignmentNode
 
 	@Override
 	public List<Token> nestedCoverage() {
-		List<Token> res=new LinkedList<>();
+		List<Token> res = new LinkedList<>();
 		res.addAll(leftValue.coverage());
 		res.add(getAssociatedTokenListFromTypeUnique(TokenType.ASSIGNOP));
 		res.addAll(rightValue.coverage());

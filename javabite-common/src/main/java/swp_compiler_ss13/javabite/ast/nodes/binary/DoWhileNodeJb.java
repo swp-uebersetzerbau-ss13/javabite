@@ -12,22 +12,22 @@ public class DoWhileNodeJb extends LoopNodeJb implements DoWhileNode {
 	public DoWhileNodeJb() {
 		super(ASTNodeType.DoWhileNode);
 	}
-	
+
 	@Override
 	public void setCondition(ExpressionNode condition) {
 		super.setCondition(condition);
 		addChild(condition, 1);
 	}
-	
+
 	@Override
 	public void setLoopBody(StatementNode loopBody) {
 		super.setLoopBody(loopBody);
-		addChild(loopBody,0);
+		addChild(loopBody, 0);
 	}
 
 	@Override
 	public List<Token> coverage() {
-		//TODO implement
+		// TODO implement
 		throw new RuntimeException("not requested for MS2");
 	}
 }

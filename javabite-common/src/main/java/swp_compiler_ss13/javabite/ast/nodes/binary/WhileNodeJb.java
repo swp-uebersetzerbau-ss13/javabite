@@ -12,20 +12,22 @@ public class WhileNodeJb extends LoopNodeJb implements WhileNode {
 	public WhileNodeJb() {
 		super(ASTNodeType.WhileNode);
 	}
+
 	@Override
 	public void setCondition(ExpressionNode condition) {
 		super.setCondition(condition);
 		addChild(condition, 0);
 	}
-	
+
 	@Override
 	public void setLoopBody(StatementNode loopBody) {
 		super.setLoopBody(loopBody);
-		addChild(loopBody,1);
+		addChild(loopBody, 1);
 	}
+
 	@Override
 	public List<Token> coverage() {
-		//TODO implement
+		// TODO implement
 		throw new RuntimeException("not requested for MS2");
 	}
 }
