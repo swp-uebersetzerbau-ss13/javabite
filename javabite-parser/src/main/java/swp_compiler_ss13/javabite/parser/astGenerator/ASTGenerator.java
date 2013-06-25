@@ -341,7 +341,7 @@ public class ASTGenerator {
 			ExpressionNodeJb whileCondition=useAssignProduction();
 			StatementNodeJb whileStatement=useStmtProduction();
 			whileNode.setCondition(whileCondition);
-			whileNode.setLoopBody_(whileStatement);
+			whileNode.setLoopBody(whileStatement);
 			stmt=whileNode;
 			break;
 		case "stmt -> DO stmt WHILE LEFT_PARAN assign RIGHT_PARAN SEMICOLON":
@@ -349,7 +349,7 @@ public class ASTGenerator {
 			StatementNodeJb doWhileStatement=useStmtProduction();
 			ExpressionNodeJb doWhileCondition=useAssignProduction();
 			doWhileNode.setCondition(doWhileCondition);
-			doWhileNode.setLoopBody_(doWhileStatement);
+			doWhileNode.setLoopBody(doWhileStatement);
 			stmt=doWhileNode;
 			break;
 		default:

@@ -3,8 +3,8 @@ package swp_compiler_ss13.javabite.ast.nodes.binary;
 import java.util.List;
 
 import swp_compiler_ss13.common.ast.nodes.ExpressionNode;
+import swp_compiler_ss13.common.ast.nodes.StatementNode;
 import swp_compiler_ss13.common.ast.nodes.binary.DoWhileNode;
-import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
 import swp_compiler_ss13.common.lexer.Token;
 
 public class DoWhileNodeJb extends LoopNodeJb implements DoWhileNode {
@@ -20,7 +20,7 @@ public class DoWhileNodeJb extends LoopNodeJb implements DoWhileNode {
 	}
 	
 	@Override
-	public void setLoopBody(BlockNode loopBody) {
+	public void setLoopBody(StatementNode loopBody) {
 		super.setLoopBody(loopBody);
 		addChild(loopBody,0);
 	}
