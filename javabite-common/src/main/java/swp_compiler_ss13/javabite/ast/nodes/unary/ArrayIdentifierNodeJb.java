@@ -1,5 +1,6 @@
 package swp_compiler_ss13.javabite.ast.nodes.unary;
 
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Properties;
 
@@ -7,6 +8,7 @@ import swp_compiler_ss13.common.ast.nodes.ExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.IdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ArrayIdentifierNode;
 import swp_compiler_ss13.common.lexer.Token;
+import swp_compiler_ss13.common.lexer.TokenType;
 import swp_compiler_ss13.javabite.ast.nodes.IdentifierNodeJb;
 
 public class ArrayIdentifierNodeJb extends IdentifierNodeJb implements
@@ -14,9 +16,6 @@ public class ArrayIdentifierNodeJb extends IdentifierNodeJb implements
 	public ArrayIdentifierNodeJb() {
 		super(ASTNodeType.ArrayIdentifierNode);
 	}
-
-	@Deprecated
-	protected Integer index_depr;
 
 	protected ExpressionNode indexNode;
 	protected IdentifierNode identifierNode;
@@ -27,16 +26,6 @@ public class ArrayIdentifierNodeJb extends IdentifierNodeJb implements
 
 	public void setIndexNode(ExpressionNode indexNode) {
 		this.indexNode = indexNode;
-	}
-
-	@Deprecated
-	public Integer getIndex() {
-		return index_depr;
-	}
-
-	@Deprecated
-	public void setIndex(Integer index) {
-		this.index_depr = index;
 	}
 
 	public IdentifierNode getIdentifierNode() {
@@ -53,7 +42,13 @@ public class ArrayIdentifierNodeJb extends IdentifierNodeJb implements
 
 	@Override
 	public List<Token> nestedCoverage() {
-		// TODO implement
-		throw new RuntimeException("not requested for MS2");
+		List<Token> res = new LinkedList<>();
+		
+		res.addAll(identifierNode.coverage());
+		res.add(getAssociatedTokenListFromTypeUnique(TokenType.LEFT_BRACKET));
+		res.addAll(indexNode.coverage());
+		res.add(getAssociatedTokenListFromTypeUnique(TokenType.RIGHT_BRACKET));
+		
+		return res;
 	}
 }
