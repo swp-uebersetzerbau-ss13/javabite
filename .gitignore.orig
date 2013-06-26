@@ -15,8 +15,11 @@ build
 # Project-Specific
 javabite.properties
 *.log
+<<<<<<< HEAD
 .idea
 *.iml
 *.xml
 classes/
+=======
 fuc
+>>>>>>> a005d07cc02f6b8ec69ba863c306ac7cad16ab33

@@ -112,19 +112,22 @@ public final class ClassfileUtils {
 	 * @since 03.05.2013
 	 */
 	public enum LocalVariableType {
-		LONG(2, ConstantPoolType.LONG, Mnemonic.LDC2_W, Mnemonic.LLOAD,
-				Mnemonic.LALOAD, Mnemonic.LSTORE, Mnemonic.LASTORE), DOUBLE(2,
-				ConstantPoolType.DOUBLE, Mnemonic.LDC2_W, Mnemonic.DLOAD,
+		LONG(2, ConstantPoolType.LONG, JavaType.LONG, Mnemonic.LDC2_W,
+				Mnemonic.LLOAD, Mnemonic.LALOAD, Mnemonic.LSTORE,
+				Mnemonic.LASTORE), DOUBLE(2, ConstantPoolType.DOUBLE,
+				JavaType.DOUBLE, Mnemonic.LDC2_W, Mnemonic.DLOAD,
 				Mnemonic.DALOAD, Mnemonic.DSTORE, Mnemonic.DASTORE), STRING(1,
-				ConstantPoolType.STRING, Mnemonic.LDC, Mnemonic.ALOAD,
-				Mnemonic.AALOAD, Mnemonic.ASTORE, Mnemonic.AASTORE), BOOLEAN(1,
-				null, null, Mnemonic.ILOAD, Mnemonic.IALOAD, Mnemonic.ISTORE,
-				Mnemonic.IASTORE), AREF(1, null, null, Mnemonic.ALOAD,
+				ConstantPoolType.STRING, JavaType.STRING, Mnemonic.LDC,
+				Mnemonic.ALOAD, Mnemonic.AALOAD, Mnemonic.ASTORE,
+				Mnemonic.AASTORE), BOOLEAN(1, null, JavaType.BOOLEAN, null,
+				Mnemonic.ILOAD, Mnemonic.IALOAD, Mnemonic.ISTORE,
+				Mnemonic.IASTORE), AREF(1, null, null, null, Mnemonic.ALOAD,
 				Mnemonic.AALOAD, Mnemonic.ASTORE, Mnemonic.AASTORE);
 
 		public final short length;
 		public final boolean wide;
 		public final ConstantPoolType constantPoolType;
+		public final JavaType javaType;
 		public final Mnemonic constantLoadOp;
 		public final Mnemonic varLoadOp;
 		public final Mnemonic arrayLoadOp;
@@ -133,12 +136,13 @@ public final class ClassfileUtils {
 
 		LocalVariableType(final int length,
 				final ConstantPoolType constantPoolType,
-				final Mnemonic constantLoadOp, final Mnemonic varLoadOp,
-				final Mnemonic arrayLoadOp, final Mnemonic varStoreOp,
-				final Mnemonic arrayStoreOp) {
+				final JavaType javaType, final Mnemonic constantLoadOp,
+				final Mnemonic varLoadOp, final Mnemonic arrayLoadOp,
+				final Mnemonic varStoreOp, final Mnemonic arrayStoreOp) {
 			this.length = (short) length;
 			this.wide = length == 2;
 			this.constantPoolType = constantPoolType;
+			this.javaType = javaType;
 			this.constantLoadOp = constantLoadOp;
 			this.varLoadOp = varLoadOp;
 			this.arrayLoadOp = arrayLoadOp;

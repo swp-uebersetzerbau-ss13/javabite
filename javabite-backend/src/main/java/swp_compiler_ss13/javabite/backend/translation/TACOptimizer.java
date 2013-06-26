@@ -30,6 +30,8 @@ public class TACOptimizer {
 			switch (quad.getOperator()) {
 			case BRANCH:
 				checkBranch(quad);
+			case CONCAT_STRING:
+				checkConcatString(quad);
 				break;
 			default:
 				break;
@@ -112,6 +114,19 @@ public class TACOptimizer {
 		}
 		if (replace) {
 			iter.set(copyQuadruple(quad, null, arg1, arg2, result));
+		}
+	}
+
+	private void checkConcatString(final Quadruple quad) {
+		final Quadruple next = iter.peek();
+		final String result = quad.getResult();
+		if (next.getResult().equals(result)) {
+			if (next.getArgument1().equals(result)) {
+
+			}
+			if (next.getArgument2().equals(result)) {
+
+			}
 		}
 	}
 

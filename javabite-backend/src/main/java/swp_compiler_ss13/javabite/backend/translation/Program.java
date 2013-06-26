@@ -549,9 +549,10 @@ public class Program {
 		 */
 		private Operation structGetOp(final Quadruple q,
 				final LocalVariableType variableType) {
+
 			final Operation.Builder op = Operation.Builder.newBuilder();
 			op.add(loadInstruction(q.getArgument1(), LocalVariableType.AREF));
-			// getfield
+            // TODO getfield
 			op.add(storeInstruction(q.getResult(), variableType));
 			return op.build();
 		}
@@ -570,7 +571,7 @@ public class Program {
 			final Operation.Builder op = Operation.Builder.newBuilder();
 			op.add(loadInstruction(q.getArgument1(), LocalVariableType.AREF));
 			op.add(loadInstruction(q.getResult(), variableType));
-			// putfield
+            // TODO putfield
 			return op.build();
 		}
 
@@ -2545,15 +2546,26 @@ public class Program {
 			op.add(Mnemonic.DUP);
 			op.add(Mnemonic.INVOKESPECIAL,
 					ByteUtils.shortToByteArray(stringBuilderCstr));
-			op.add(loadInstruction(q.getArgument1(), LocalVariableType.STRING));
-			op.add(Mnemonic.INVOKEVIRTUAL,
-					ByteUtils.shortToByteArray(appendMethod));
-			op.add(loadInstruction(q.getArgument2(), LocalVariableType.STRING));
-			op.add(Mnemonic.INVOKEVIRTUAL,
-					ByteUtils.shortToByteArray(appendMethod));
-			op.add(Mnemonic.INVOKEVIRTUAL,
-					ByteUtils.shortToByteArray(stringBuilderToString));
-			op.add(storeInstruction(q.getResult(), LocalVariableType.STRING));
+
+			if (!isIgnoreParam(q.getArgument1())) {
+				op.add(loadInstruction(q.getArgument1(),
+						LocalVariableType.STRING));
+				op.add(Mnemonic.INVOKEVIRTUAL,
+						ByteUtils.shortToByteArray(appendMethod));
+			}
+
+			if (!isIgnoreParam(q.getArgument2())) {
+				op.add(loadInstruction(q.getArgument2(),
+						LocalVariableType.STRING));
+				op.add(Mnemonic.INVOKEVIRTUAL,
+						ByteUtils.shortToByteArray(appendMethod));
+			}
+
+			if (!isIgnoreParam(q.getResult())) {
+				op.add(Mnemonic.INVOKEVIRTUAL,
+						ByteUtils.shortToByteArray(stringBuilderToString));
+				op.add(storeInstruction(q.getResult(), LocalVariableType.STRING));
+			}
 			return add(op.build());
 		}
 
