@@ -136,7 +136,7 @@ task runAllModules(type: JavaExec, dependsOn: buildCompiler) {
 }
 
 def javabiteProjects() {
-	subprojects
+	subprojects.findAll { it.name != 'fuc' && it.name != 'crosstest' }
 }
 
 def fucJarFiles() {
@@ -145,32 +145,5 @@ def fucJarFiles() {
 		'../fuc/code/dist/FUC-Semantic-Analyser.jar','../fuc/code/dist/FUC-IRGen.jar',
 		'../fuc/code/dist/FUC-Backend.jar','../fuc/code/dist/lib/log4j-1.2.17.jar',
 		'../fuc/code/dist/FUC-Backend.jar')
-}
-
-task testAll(type: TestReport,dependsOn: javabiteProjects().test) {
-	evaluationDependsOnChildren()
-	testResultDirs = files(project.tasks.withType(Test)*.binResultsDir)
-	destinationDir = file("${buildDir}/test-results")
-}
-project.gradle.taskGraph.whenReady { taskGraph ->
-	if ( taskGraph.allTasks.find { it.name == "testAll" } != null) {
-		javabiteProjects().each { it.tasks.findAll({it instanceof Test}).each { Test test ->
-				println test.toString()
-				test.ignoreFailures=true
-				test.afterSuite { td, tr ->
-					if ( td.getParent() == null ) {
-						project.ext.testFailures=tr.getFailedTestCount()
-					}
-				}
-			}
-		}
-		project.tasks.getByName("testAll") {
-			doLast {
-				if ( testFailures ) {
-				   throw new Exception("There were ${testFailures} test failures")
-				  }
-			}
-		}
-	}
 }
 
