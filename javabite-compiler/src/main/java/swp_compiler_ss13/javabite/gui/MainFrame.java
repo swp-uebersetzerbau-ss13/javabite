@@ -207,19 +207,7 @@ public class MainFrame extends JFrame implements ReportLog {
 				// file was changed, ask what to do
 				else {
 					if (openedFile != null || fileChanged == true) {
-						JFrame frame = new JFrame("Save");
-						Object[] options = {"Cancel", "No", "Yes"};
-						String fileName = (openedFile == null) ? "New File.prog" : openedFile.getName();
-						int n = JOptionPane.showOptionDialog (
-							frame,
-							"Save file \"" + fileName + "\"?\n",
-							"Save",
-							JOptionPane.YES_NO_CANCEL_OPTION,
-							JOptionPane.QUESTION_MESSAGE,
-							null,
-							options,
-							options[2]
-						);
+						int n = fileManager.saveOrNotDialog(openedFile);
 						
 						if (n == 2) { // "Yes" was selected
 							if (openedFile == null) {
@@ -271,17 +259,8 @@ public class MainFrame extends JFrame implements ReportLog {
 							}
 						} else if (n == 1) { // "No" was selected
 							// display file chooser
-							JFileChooser chooser = new JFileChooser();
-							chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
-							chooser.setFileFilter(filter);
-							int returnVal = chooser.showOpenDialog(null);
-							if (returnVal == JFileChooser.APPROVE_OPTION) {
-								openedFile = chooser.getSelectedFile();
-								setTitle("Javabite Compiler - " + openedFile.getName());
-								saveFileContentIntoEditor(openedFile);
-								toolBarLabel.setText("Document opened.");
-								fileChanged = false;
-							}
+							fileManager.openFileDialog(openedFile);
+							fileChanged = false;
 						} else { // "Cancel" was selected
 							return;
 						}
