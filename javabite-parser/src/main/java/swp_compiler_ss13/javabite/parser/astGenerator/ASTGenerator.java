@@ -172,7 +172,6 @@ public class ASTGenerator {
 		default:
 			logger.error("[Decls] thisReduction : {} , matches no case",thisReduction);	
 		}
-		logger.info("done with decls production");
 	}
 
 	private DeclarationNode useDeclProduction() {
