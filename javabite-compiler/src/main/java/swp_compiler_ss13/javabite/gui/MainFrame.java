@@ -110,6 +110,7 @@ public class MainFrame extends JFrame implements ReportLog {
 	File openedFile = null;
 	boolean fileChanged = false;
 	SourecodeDocumentListener sourceCodeListener;
+	FileManager fileManager;
 	FileNameExtensionFilter filter = new FileNameExtensionFilter("Sourcecode (.prog)", "prog");
 	
 	// undo and redo
@@ -131,7 +132,7 @@ public class MainFrame extends JFrame implements ReportLog {
 	/**
 	 * Reads current editor code and writes it into given file
 	 * */
-	private void saveEditorContentIntoFile(File file) {
+	public void saveEditorContentIntoFile(File file) {
 		BufferedWriter bw;
 		try {
 			bw = new BufferedWriter(new FileWriter(file));
@@ -145,7 +146,7 @@ public class MainFrame extends JFrame implements ReportLog {
 	/**
 	 * Reads current file content and writes it into sourcecode editor
 	 * */
-	private void saveFileContentIntoEditor(File file) {
+	public void saveFileContentIntoEditor(File file) {
 		// read out lines
 		BufferedReader in = null;
 		String line = null;
@@ -184,6 +185,8 @@ public class MainFrame extends JFrame implements ReportLog {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		getContentPane().setLayout(new BorderLayout(0, 0));
 		
+		fileManager = new FileManager(this);
+		
 		menuBar = new JMenuBar();
 		getContentPane().add(menuBar, BorderLayout.NORTH);
 		
@@ -199,22 +202,7 @@ public class MainFrame extends JFrame implements ReportLog {
 				
 				// file was not changed, thus just open new file
 				if (!fileChanged) {
-					
-					// open file chooser
-					JFileChooser chooser = new JFileChooser();
-					if (openedFile != null)
-						chooser.setCurrentDirectory(openedFile.getParentFile());
-					else
-						chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
-					chooser.setFileFilter(filter);
-					int returnVal = chooser.showOpenDialog(null);
-					if (returnVal == JFileChooser.APPROVE_OPTION) {
-						openedFile = chooser.getSelectedFile();
-						String fileName = openedFile.getName();
-						setTitle("Javabite Compiler - " + fileName);
-						saveFileContentIntoEditor(openedFile);
-						toolBarLabel.setText("Document opened.");
-					}
+					int returnVal = fileManager.openFileDialog(openedFile);
 				} 
 				// file was changed, ask what to do
 				else {
