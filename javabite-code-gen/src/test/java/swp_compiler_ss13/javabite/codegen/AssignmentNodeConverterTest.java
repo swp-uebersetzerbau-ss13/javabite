@@ -18,7 +18,12 @@ import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.types.derived.ArrayType;
+import swp_compiler_ss13.common.types.derived.Member;
+import swp_compiler_ss13.common.types.derived.StructType;
+import swp_compiler_ss13.common.types.primitive.BooleanType;
+import swp_compiler_ss13.common.types.primitive.DoubleType;
 import swp_compiler_ss13.common.types.primitive.LongType;
+import swp_compiler_ss13.common.types.primitive.StringType;
 import swp_compiler_ss13.javabite.codegen.converters.AssignmentNodeConverter;
 import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
 
@@ -38,116 +43,340 @@ public class AssignmentNodeConverterTest {
 	 * Test for an AssignmentNode, which has the type Long.
 	 */
 	@Test
-	public void testAssignmentNodeConverter_Long(){
+	public void testAssignmentNodeConverter_LongLong(){
 		try {
 			AssignmentNode node = Mockito.mock(AssignmentNode.class);
+
+			IdentifierData leftData = new IdentifierData("testLeft", new LongType());
+			when(converter.icg.popIdentifierData()).thenReturn(
+                    new IdentifierData("testRight", new LongType()) ,
+                    leftData);
+			converter.convert(node);
+			verify(converter.icg).addQuadruple(new QuadrupleJb(Operator.ASSIGN_LONG, "testRight",
+					Quadruple.EmptyArgument, "testLeft"));
 			
-			when(node.getRightValue()).thenReturn(any(ExpressionNode.class));
-			
-	
-			verify(converter.icg).processNode(any(AssignmentNode.class));
-			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test1", new ArrayType(new LongType(), 0)));
-			
-			when(node.getLeftValue()).thenReturn(any(IdentifierNode.class));
-			
-			verify(converter.icg).processNode(any(ArithmeticBinaryExpressionNode.class));
-			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test2", new ArrayType(new LongType(), 0)));
-			
-			verify(converter).convert(node);
-			verify(converter.icg).addQuadruple(new QuadrupleJb(Operator.ASSIGN_LONG,
-					"test2", Quadruple.EmptyArgument,
-					"test1"));
-			verify(converter.icg).pushIdentifierData(new IdentifierData("test1", new LongType()));
+			verify(converter.icg).pushIdentifierData(leftData);
 		}catch(IntermediateCodeGeneratorException e) {
 			fail();
 		}
 	}
 	
+	/**
+	 * Test for an AssignmentNode, which has the left type Long and right type Double.
+	 */
+	@Test
+	public void testAssignmentNodeConverter_LongDouble(){
+		try {
+			AssignmentNode node = Mockito.mock(AssignmentNode.class);
+
+			IdentifierData leftData = new IdentifierData("testLeft", new LongType());
+			when(converter.icg.popIdentifierData()).thenReturn(
+                    new IdentifierData("testRight", new DoubleType()) ,
+                    leftData);
+			IdentifierData tmp = new IdentifierData("tmp", new LongType());
+			when(converter.icg.generateTempIdentifier(any(LongType.class)))
+	            .thenReturn(tmp);
+			converter.convert(node);
+			verify(converter.icg).addQuadruple(new QuadrupleJb(Operator.ASSIGN_LONG, "tmp",
+					Quadruple.EmptyArgument, "testLeft"));
+			
+			verify(converter.icg).pushIdentifierData(leftData);
+		}catch(IntermediateCodeGeneratorException e) {
+			fail();
+		}
+	}
+	
+	/**
+	 * Test for an AssignmentNode, which has the left type Long and right type Boolean.
+	 */
+	@Test
+	public void testAssignmentNodeConverter_LongBoolean(){
+		try {
+			AssignmentNode node = Mockito.mock(AssignmentNode.class);
+
+			IdentifierData leftData = new IdentifierData("testLeft", new LongType());
+			when(converter.icg.popIdentifierData()).thenReturn(
+                    new IdentifierData("testRight", new BooleanType()) ,
+                    leftData);
+			IdentifierData tmp = new IdentifierData("tmp", new LongType());
+			when(converter.icg.generateTempIdentifier(any(LongType.class)))
+	            .thenReturn(tmp);
+			converter.convert(node);
+			fail();
+		}catch(IntermediateCodeGeneratorException e) {
+			
+		}
+	}
+	
+	/**
+	 * Test for an AssignmentNode, which has the left type Long and right type String.
+	 */
+	@Test
+	public void testAssignmentNodeConverter_LongString(){
+		try {
+			AssignmentNode node = Mockito.mock(AssignmentNode.class);
+
+			IdentifierData leftData = new IdentifierData("testLeft", new LongType());
+			when(converter.icg.popIdentifierData()).thenReturn(
+                    new IdentifierData("testRight", new StringType(0l)) ,
+                    leftData);
+			IdentifierData tmp = new IdentifierData("tmp", new LongType());
+			when(converter.icg.generateTempIdentifier(any(LongType.class)))
+	            .thenReturn(tmp);
+			converter.convert(node);
+			fail();
+		}catch(IntermediateCodeGeneratorException e) {
+			
+		}
+	}
+	
+	/**
+	 * Test for an AssignmentNode, which has the left type Long and right type Array.
+	 */
+	@Test
+	public void testAssignmentNodeConverter_LongArray(){
+		try {
+			AssignmentNode node = Mockito.mock(AssignmentNode.class);
+
+			IdentifierData leftData = new IdentifierData("testLeft", new LongType());
+			when(converter.icg.popIdentifierData()).thenReturn(
+                    new IdentifierData("testRight", new ArrayType(new LongType(), 0)) ,
+                    leftData);
+			IdentifierData tmp = new IdentifierData("tmp", new LongType());
+			when(converter.icg.generateTempIdentifier(any(LongType.class)))
+	            .thenReturn(tmp);
+			converter.convert(node);
+			fail();
+		}catch(IntermediateCodeGeneratorException e) {
+			
+		}
+	}
+	
+	/**
+	 * Test for an AssignmentNode, which has the left type Long and right type Struct.
+	 */
+	@Test
+	public void testAssignmentNodeConverter_LongStruct(){
+		try {
+			AssignmentNode node = Mockito.mock(AssignmentNode.class);
+
+			IdentifierData leftData = new IdentifierData("testLeft", new LongType());
+			when(converter.icg.popIdentifierData()).thenReturn(
+                    new IdentifierData("testRight", new StructType(null,
+                            new Member[] { new Member("",
+                                    new DoubleType()) })) ,
+                    leftData);
+			IdentifierData tmp = new IdentifierData("tmp", new LongType());
+			when(converter.icg.generateTempIdentifier(any(LongType.class)))
+	            .thenReturn(tmp);
+			converter.convert(node);
+			fail();
+		}catch(IntermediateCodeGeneratorException e) {
+			
+		}
+	}
 	
 	/**
 	 * Test for an AssignmentNode, which has the type Double.
 	 */
 	@Test
-	public void testAssignmentNodeConverter_Double(){
+	public void testAssignmentNodeConverter_DoubleDouble(){
 		try {
 			AssignmentNode node = Mockito.mock(AssignmentNode.class);
-	
-			when(node.getRightValue()).thenReturn(any(ExpressionNode.class));
+
+			IdentifierData leftData = new IdentifierData("testLeft", new DoubleType());
+			when(converter.icg.popIdentifierData()).thenReturn(
+                    new IdentifierData("testRight", new DoubleType()) ,
+                    leftData);
+			converter.convert(node);
+			verify(converter.icg).addQuadruple(new QuadrupleJb(Operator.ASSIGN_DOUBLE, "testRight",
+					Quadruple.EmptyArgument, "testLeft"));
 			
-			verify(converter.icg).processNode(any(ASTNode.class));
-			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test1", new ArrayType(new LongType(), 0)));
-			
-			when(node.getLeftValue()).thenReturn(any(IdentifierNode.class));			
-			verify(converter.icg).processNode(any(ASTNode.class));
-			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test2", new ArrayType(new LongType(), 0)));
-			
-			
-			
-			verify(converter).convert(node);
-			verify(converter.icg).addQuadruple(new QuadrupleJb(Operator.ASSIGN_DOUBLE,
-					"test2", Quadruple.EmptyArgument,
-					"test1"));
-			verify(converter.icg).pushIdentifierData(new IdentifierData("test1", new LongType()));
+			verify(converter.icg).pushIdentifierData(leftData);
 		}catch(IntermediateCodeGeneratorException e) {
 			fail();
 		}
 	}
+	
+	/**
+	 * Test for an AssignmentNode, which has the left type Double and right type Long.
+	 */
+	@Test
+	public void testAssignmentNodeConverter_DoubleLong(){
+		try {
+			AssignmentNode node = Mockito.mock(AssignmentNode.class);
+
+			IdentifierData leftData = new IdentifierData("testLeft", new DoubleType());
+			when(converter.icg.popIdentifierData()).thenReturn(
+                    new IdentifierData("testRight", new LongType()) ,
+                    leftData);
+			IdentifierData tmp = new IdentifierData("tmp", new DoubleType());
+			when(converter.icg.generateTempIdentifier(any(DoubleType.class)))
+	            .thenReturn(tmp);
+			converter.convert(node);
+			verify(converter.icg).addQuadruple(new QuadrupleJb(Operator.ASSIGN_DOUBLE, "tmp",
+					Quadruple.EmptyArgument, "testLeft"));
+			
+			verify(converter.icg).pushIdentifierData(leftData);
+		}catch(IntermediateCodeGeneratorException e) {
+			fail();
+		}
+	}
+	
+	/**
+	 * Test for an AssignmentNode, which has the left type Double and right type Boolean.
+	 */
+	@Test
+	public void testAssignmentNodeConverter_DoubleBoolean(){
+		try {
+			AssignmentNode node = Mockito.mock(AssignmentNode.class);
+
+			IdentifierData leftData = new IdentifierData("testLeft", new DoubleType());
+			when(converter.icg.popIdentifierData()).thenReturn(
+                    new IdentifierData("testRight", new BooleanType()) ,
+                    leftData);
+			IdentifierData tmp = new IdentifierData("tmp", new DoubleType());
+			when(converter.icg.generateTempIdentifier(any(DoubleType.class)))
+	            .thenReturn(tmp);
+			converter.convert(node);
+			fail();
+		}catch(IntermediateCodeGeneratorException e) {
+			
+		}
+	}
+	
+	/**
+	 * Test for an AssignmentNode, which has the left type Double and right type String.
+	 */
+	@Test
+	public void testAssignmentNodeConverter_DoubleString(){
+		try {
+			AssignmentNode node = Mockito.mock(AssignmentNode.class);
+
+			IdentifierData leftData = new IdentifierData("testLeft", new DoubleType());
+			when(converter.icg.popIdentifierData()).thenReturn(
+                    new IdentifierData("testRight", new StringType(0l)) ,
+                    leftData);
+			IdentifierData tmp = new IdentifierData("tmp", new DoubleType());
+			when(converter.icg.generateTempIdentifier(any(DoubleType.class)))
+	            .thenReturn(tmp);
+			converter.convert(node);
+			fail();
+		}catch(IntermediateCodeGeneratorException e) {
+			
+		}
+	}
+	
+	/**
+	 * Test for an AssignmentNode, which has the left type Double and right type Array.
+	 */
+	@Test
+	public void testAssignmentNodeConverter_DoubleArray(){
+		try {
+			AssignmentNode node = Mockito.mock(AssignmentNode.class);
+
+			IdentifierData leftData = new IdentifierData("testLeft", new DoubleType());
+			when(converter.icg.popIdentifierData()).thenReturn(
+                    new IdentifierData("testRight", new ArrayType(new LongType(), 0)) ,
+                    leftData);
+			IdentifierData tmp = new IdentifierData("tmp", new DoubleType());
+			when(converter.icg.generateTempIdentifier(any(DoubleType.class)))
+	            .thenReturn(tmp);
+			converter.convert(node);
+			fail();
+		}catch(IntermediateCodeGeneratorException e) {
+			
+		}
+	}
+	
+	/**
+	 * Test for an AssignmentNode, which has the left type Double and right type Struct.
+	 */
+	@Test
+	public void testAssignmentNodeConverter_DoubleStruct(){
+		try {
+			AssignmentNode node = Mockito.mock(AssignmentNode.class);
+
+			IdentifierData leftData = new IdentifierData("testLeft", new DoubleType());
+			when(converter.icg.popIdentifierData()).thenReturn(
+                    new IdentifierData("testRight", new StructType(null,
+                            new Member[] { new Member("",
+                                    new DoubleType()) })) ,
+                    leftData);
+			IdentifierData tmp = new IdentifierData("tmp", new DoubleType());
+			when(converter.icg.generateTempIdentifier(any(DoubleType.class)))
+	            .thenReturn(tmp);
+			converter.convert(node);
+			fail();
+		}catch(IntermediateCodeGeneratorException e) {
+			
+		}
+	}
+
 	
 	/**
 	 * Test for an AssignmentNode, which has the type Boolean.
 	 */
 	@Test
-	public void testAssignmentNodeConverter_Boolean(){
+	public void testAssignmentNodeConverter_BooleanBoolean(){
 		try {
 			AssignmentNode node = Mockito.mock(AssignmentNode.class);
-	
-			when(node.getRightValue()).thenReturn(any(ExpressionNode.class));
+
+			IdentifierData leftData = new IdentifierData("testLeft", new BooleanType());
+			when(converter.icg.popIdentifierData()).thenReturn(
+                    new IdentifierData("testRight", new BooleanType()) ,
+                    leftData);
+			converter.convert(node);
+			verify(converter.icg).addQuadruple(new QuadrupleJb(Operator.ASSIGN_BOOLEAN, "testRight",
+					Quadruple.EmptyArgument, "testLeft"));
 			
-			
-			verify(converter.icg).processNode(any(AssignmentNode.class));
-			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test1", new ArrayType(new LongType(), 0)));
-			
-			when(node.getLeftValue()).thenReturn(any(IdentifierNode.class));
-			
-			verify(converter.icg).processNode(any(ArithmeticBinaryExpressionNode.class));
-			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test2", new ArrayType(new LongType(), 0)));
-			
-			verify(converter).convert(node);
-			verify(converter.icg).addQuadruple(new QuadrupleJb(Operator.ASSIGN_BOOLEAN,
-					"test2", Quadruple.EmptyArgument,
-					"test1"));
-			verify(converter.icg).pushIdentifierData(new IdentifierData("test1", new LongType()));
+			verify(converter.icg).pushIdentifierData(leftData);
 		}catch(IntermediateCodeGeneratorException e) {
 			fail();
 		}
 	}
 	
+	/**
+	 * Test for an AssignmentNode, which left type Boolean and right type Long.
+	 */
+	@Test
+	public void testAssignmentNodeConverter_BooleanLong(){
+		try {
+			AssignmentNode node = Mockito.mock(AssignmentNode.class);
+
+			IdentifierData leftData = new IdentifierData("testLeft", new BooleanType());
+			when(converter.icg.popIdentifierData()).thenReturn(
+                    new IdentifierData("testRight", new LongType()) ,
+                    leftData);
+			IdentifierData tmp = new IdentifierData("tmp", new BooleanType());
+			when(converter.icg.generateTempIdentifier(any(BooleanType.class)))
+	            .thenReturn(tmp);
+			converter.convert(node);
+			fail();
+		}catch(IntermediateCodeGeneratorException e) {
+			
+		}
+	}
 	
 	/**
 	 * Test for an AssignmentNode, which has the type String.
 	 */
 	@Test
-	public void testAssignmentNodeConverter_String(){
+	public void testAssignmentNodeConverter_StringString(){
 		try {
 			AssignmentNode node = Mockito.mock(AssignmentNode.class);
-	
-			when(node.getRightValue()).thenReturn(any(ExpressionNode.class));
+
+			IdentifierData leftData = new IdentifierData("testLeft", new StringType(0l));
+			when(converter.icg.popIdentifierData()).thenReturn(
+                    new IdentifierData("testRight", new StringType(0l)) ,
+                    leftData);
+			converter.convert(node);
+			verify(converter.icg).addQuadruple(new QuadrupleJb(Operator.ASSIGN_STRING, "testRight",
+					Quadruple.EmptyArgument, "testLeft"));
 			
-			
-			verify(converter.icg).processNode(any(AssignmentNode.class));
-			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test1", new ArrayType(new LongType(), 0)));
-			
-			when(node.getLeftValue()).thenReturn(any(IdentifierNode.class));			
-			verify(converter.icg).processNode(any(ArithmeticBinaryExpressionNode.class));
-			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test2", new ArrayType(new LongType(), 0)));
-			
-			verify(converter).convert(node);
-			verify(converter.icg).addQuadruple(new QuadrupleJb(Operator.ASSIGN_STRING,
-					"test2", Quadruple.EmptyArgument,
-					"test1"));
-			verify(converter.icg).pushIdentifierData(new IdentifierData("test1", new LongType()));
+			verify(converter.icg).pushIdentifierData(leftData);
 		}catch(IntermediateCodeGeneratorException e) {
-			fail();
+			
 		}
 	}
 	
@@ -155,22 +384,17 @@ public class AssignmentNodeConverterTest {
 	 * Test for an AssignmentNode, which has the type Array.
 	 */
 	@Test
-	public void testAssignmentNodeConverter_Array(){
+	public void testAssignmentNodeConverter_ArrayArray(){
 		try {
 			AssignmentNode node = Mockito.mock(AssignmentNode.class);
-	
-			when(node.getRightValue()).thenReturn(any(ExpressionNode.class));
-			
-			
-			verify(converter.icg).processNode(any(AssignmentNode.class));
-			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test1", new ArrayType(new LongType(), 0)));
-			
-			when(node.getLeftValue()).thenReturn(any(IdentifierNode.class));
-			verify(converter.icg).processNode(any(ArithmeticBinaryExpressionNode.class));
-			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test2", new ArrayType(new LongType(), 0)));
-			
-			verify(converter).convert(node);
+
+			IdentifierData leftData = new IdentifierData("testLeft", new ArrayType(new LongType(), 0));
+			when(converter.icg.popIdentifierData()).thenReturn(
+                    new IdentifierData("testRight", new ArrayType(new LongType(), 0)) ,
+                    leftData);
+			converter.convert(node);
 			fail();
+			
 		}catch(IntermediateCodeGeneratorException e) {
 			
 		}
@@ -180,21 +404,19 @@ public class AssignmentNodeConverterTest {
 	 * Test for an AssignmentNode, which has the type Struct.
 	 */
 	@Test
-	public void testAssignmentNodeConverter_Struct(){
+	public void testAssignmentNodeConverter_StructStruct(){
 		try {
 			AssignmentNode node = Mockito.mock(AssignmentNode.class);
-	
-			when(node.getRightValue()).thenReturn(any(ExpressionNode.class));
-			
-			
-			verify(converter.icg).processNode(any(AssignmentNode.class));
-			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test1", new ArrayType(new LongType(), 0)));
-			
-			when(node.getLeftValue()).thenReturn(any(IdentifierNode.class));
-			verify(converter.icg).processNode(any(ArithmeticBinaryExpressionNode.class));
-			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test2", new ArrayType(new LongType(), 0)));
-			
-			verify(converter).convert(node);
+
+			IdentifierData leftData = new IdentifierData("testLeft", new StructType(null,
+                    new Member[] { new Member("",
+                            new DoubleType()) }));
+			when(converter.icg.popIdentifierData()).thenReturn(
+                    new IdentifierData("testRight", new StructType(null,
+                            new Member[] { new Member("",
+                                    new DoubleType()) })) ,
+                    leftData);
+			converter.convert(node);
 			fail();
 		}catch(IntermediateCodeGeneratorException e) {
 			
