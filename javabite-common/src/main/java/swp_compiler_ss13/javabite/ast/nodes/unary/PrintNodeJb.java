@@ -27,11 +27,11 @@ public class PrintNodeJb extends StatementNodeJb implements PrintNode {
 
 	@Override
 	public List<Token> coverage() {
-		List<Token> res=new LinkedList<>();
+		List<Token> res = new LinkedList<>();
 		res.add(getAssociatedTokenListFromTypeUnique(TokenType.PRINT));
 		res.addAll(rightValue.coverage());
 		res.add(getAssociatedTokenListFromTypeUnique(TokenType.SEMICOLON));
 		return res;
 	}
-	
+
 }

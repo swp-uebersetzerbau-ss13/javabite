@@ -69,7 +69,6 @@ import swp_compiler_ss13.javabite.parser.targetgrammar.TargetGrammar;
  * the reduction list used by this class has to meet the following format:
  * S->aABe, A->Abc, A->b, B->d
  * 
- * TODO: remove string representation dependency
  * @author Marco , Till
  * @since 11.05.2013
  * 
@@ -220,8 +219,7 @@ public class ASTGenerator {
 			type=new DoubleType();
 			break;
 		case "type -> STRING_SYMBOL":
-			// TODO: define length ... more smart
-			type=new StringType(42L);
+			type=new StringType(-1l);
 			break;
 		case "type -> BOOL_SYMBOL":
 			type=new BooleanType();
@@ -341,7 +339,7 @@ public class ASTGenerator {
 			ExpressionNodeJb whileCondition=useAssignProduction();
 			StatementNodeJb whileStatement=useStmtProduction();
 			whileNode.setCondition(whileCondition);
-			whileNode.setLoopBody_(whileStatement);
+			whileNode.setLoopBody(whileStatement);
 			stmt=whileNode;
 			break;
 		case "stmt -> DO stmt WHILE LEFT_PARAN assign RIGHT_PARAN SEMICOLON":
@@ -349,7 +347,7 @@ public class ASTGenerator {
 			StatementNodeJb doWhileStatement=useStmtProduction();
 			ExpressionNodeJb doWhileCondition=useAssignProduction();
 			doWhileNode.setCondition(doWhileCondition);
-			doWhileNode.setLoopBody_(doWhileStatement);
+			doWhileNode.setLoopBody(doWhileStatement);
 			stmt=doWhileNode;
 			break;
 		default:
@@ -754,8 +752,7 @@ public class ASTGenerator {
 			
 			LiteralNodeJb string = new LiteralNodeJb();
 			string.setLiteral(token.getValue());
-			// TODO: define length ... more smart
-			string.setLiteralType(new StringType(42L));
+			string.setLiteralType(new StringType(-1L));
 			factor = string;
 			break;
 		default:

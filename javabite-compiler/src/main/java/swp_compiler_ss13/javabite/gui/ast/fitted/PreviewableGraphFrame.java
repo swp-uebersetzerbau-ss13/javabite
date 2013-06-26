@@ -13,6 +13,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import sun.font.GraphicComponent;
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.javabite.ast.ASTSource;
 import swp_compiler_ss13.javabite.gui.ast.ASTVisualizerJb;
@@ -43,7 +44,7 @@ public class PreviewableGraphFrame extends GraphFrame {
 		buttonBar.setLayout(new FlowLayout());
 
 		// zoom to fit
-		JButton btZoomToFit = new JButton("Zoom To Fit ViewPort");
+		JButton btZoomToFit = new JButton("Zoom in");
 		btZoomToFit.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent arg0) {
@@ -64,7 +65,7 @@ public class PreviewableGraphFrame extends GraphFrame {
 					newScale = Math.min((double) w / gw, (double) h / gh);
 				}
 
-				graphComponent.zoom(newScale);
+				graphComponent.zoomIn();
 
 			}
 		});
@@ -93,7 +94,7 @@ public class PreviewableGraphFrame extends GraphFrame {
 		buttonBar.add(btCenter);
 
 		// Zoom outside
-		JButton btZoomOut = new JButton("Zoom Out");
+		JButton btZoomToFit1 = new JButton("Zoom Out To fit");
 		btCenter.addActionListener(new ActionListener() {
 
 			public void actionPerformed(ActionEvent e) {
@@ -101,25 +102,27 @@ public class PreviewableGraphFrame extends GraphFrame {
 				Dimension graphSize = graphComponent.getGraphControl()
 						.getSize();
 				Dimension viewPortSize = graphComponent.getViewport().getSize();
-				
-				//hier will sub the view from the windows size and the graph and then will will add it
-				
+
+				// hier will sub the view from the windows size and the graph
+				// and then will will add it
+
 				int x = (int) viewPortSize.width;
 				int y = (int) viewPortSize.height;
-				int w = (int) graphSize.width ;
+				int w = (int) graphSize.width;
 				int v = (int) graphSize.height;
-				
+
 				int z = x - w;
 				int l = y - v;
-				
-				int neww= (int) graphSize.height + z;
-				int newv= (int) graphSize.width + l;
+
+				int neww = (int) graphSize.height + z;
+				int newv = (int) graphSize.width + l;
 
 				graphComponent.getGraphControl().scrollRectToVisible(
-						new Rectangle(neww, newv));
+						new Rectangle(z, l, neww, newv));
 			}
+
 		});
-		buttonBar.add(btZoomOut);
+		buttonBar.add(btZoomToFit1);
 
 		// put components on frame
 		toolBar.add(buttonBar, BorderLayout.CENTER);

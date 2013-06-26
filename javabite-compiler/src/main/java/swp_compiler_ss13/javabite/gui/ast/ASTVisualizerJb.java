@@ -1,6 +1,10 @@
 package swp_compiler_ss13.javabite.gui.ast;
 
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Queue;
@@ -41,6 +45,8 @@ import swp_compiler_ss13.javabite.gui.ast.fitted.KhaledGraphFrame;
 import com.mxgraph.layout.mxGraphLayout;
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
 import com.mxgraph.model.mxCell;
+import com.mxgraph.model.mxCell;
+import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxGraph;
@@ -56,6 +62,9 @@ public class ASTVisualizerJb implements ASTVisualization {
 	JScrollPane frame;
 	Queue<Object> toVisit_celledCopy;
 	int x, y;
+	int i=1;
+	private Set<mxCell> visitedSet = new HashSet<mxCell>();
+    List<mxCell> queueSubTree = new ArrayList<mxCell>();
 
 	String[] operation = { "ADDITION", "SUBSTRACTION", "MULTIPLICATION",
 			"DIVISION", "LESSTHAN", "LESSTHANEQUAL", "GREATERTHAN",
@@ -81,16 +90,8 @@ public class ASTVisualizerJb implements ASTVisualization {
 
 		initTree(ast);
 		KhaledGraphFrame k = new KhaledGraphFrame();
-
-		this.x = 170 * k.levelsCounter(ast);
-		this.y = 50 * k.maximumOfNodesInLevels();
-
 		this.x = 167 * k.levelsCounter(ast);
 		this.y = 47 * k.maximumOfNodesInLevels();
-
-		this.x = 167 * k.levelsCounter(ast);
-		this.y = 47 * k.maximumOfNodesInLevels();
-
 		mxHierarchicalLayout layout = new mxHierarchicalLayout(graph);
 		layout.setOrientation(SwingConstants.WEST);
 		layout.setInterRankCellSpacing(80);
@@ -98,8 +99,81 @@ public class ASTVisualizerJb implements ASTVisualization {
 		layout.setIntraCellSpacing(5);
 		layout.execute(graph.getDefaultParent());
 		frame = new mxGraphComponent(graph);
-
+		((mxGraphComponent) frame).getGraphControl().addMouseListener(new MouseAdapter()
+		{
+			public void mouseReleased(MouseEvent e){
+				Object cell = ((mxGraphComponent) frame).getCellAt(e.getX(), e.getY());
+				if (cell != null)
+				{
+					breadthFirstSearch((mxCell) cell);
+					Object[] edges = graph.getOutgoingEdges(cell); // remove edges
+					graph.removeCells(edges);
+					System.out.println(queueSubTree.size());
+					
+				for (mxCell k: queueSubTree){
+						Object[] edges1 = graph.getOutgoingEdges((mxCell) k);
+						graph.removeCells(edges1);		
+					}
+				}
+			}
+		});
 	}
+	
+	
+	private void breadthFirstSearch(mxCell parent) {
+
+        // clear marker set
+        visitedSet = new HashSet<mxCell>();
+        // create a queue Q
+        List<mxCell> queue = new ArrayList<mxCell>();
+        // enqueue v onto Q
+        queue.add(parent);
+        // mark v
+        visit(parent);
+        // while Q is not empty:
+        while (!queue.isEmpty()) {
+        	// t <- Q.dequeue()
+            mxCell cell = queue.get(0);
+            queue.remove(cell);
+
+            // if t is what we are looking for: 
+            //   return t
+            // TODO: add handling code if you search something
+            System.out.println("BFS visiting: " + cell.getValue());
+            // for all edges e in G.incidentEdges(t) do
+            Object[] edges = graph.getOutgoingEdges(cell);
+
+            for (Object edge : edges) {
+
+                // o <- G.opposite(t,e)
+                // get node from edge
+                mxCell target = (mxCell) graph.getView().getVisibleTerminal(edge, false);
+
+                // if o is not marked:
+                if (!isVisited(target)) {
+
+                    // mark o
+                    visit(target);
+
+                    // enqueue o onto Q
+                    queue.add(target);
+                    queueSubTree.add(target);
+                   target.removeFromParent(); //here there is problem
+               }
+            }
+        }
+
+    }
+
+    private void visit(mxCell what) {
+        visitedSet.add(what);
+    }
+
+    private boolean isVisited(mxCell what) {
+        return visitedSet.contains(what);
+    }
+
+	
 
 	public JScrollPane getFrame() {
 		return frame;
@@ -152,6 +226,7 @@ public class ASTVisualizerJb implements ASTVisualization {
 				// this is the line which do the necessary stuff.
 				// inserts a edge to every children
 				graph.insertEdge(parent, null, "", current_cell, child_as_cell);
+				
 
 			}
 
