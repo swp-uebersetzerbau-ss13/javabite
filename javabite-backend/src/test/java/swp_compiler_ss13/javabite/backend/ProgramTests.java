@@ -17,7 +17,7 @@ public class ProgramTests {
 	static final String methodName = "main";
 
 	Classfile classfile;
-	Program.Builder pb;
+	Program.MainBuilder pb;
 
 	@Rule
 	public TestName name = new TestName();
@@ -64,7 +64,7 @@ public class ProgramTests {
 		}
 	}
 
-	private void makeAssertions(final Program.Builder pb, final String sExpected) {
+	private void makeAssertions(final Program.MainBuilder pb, final String sExpected) {
 		final Program p = pb.build();
 		Assert.assertTrue(p.toString().matches(sExpected));
 	}
@@ -76,7 +76,7 @@ public class ProgramTests {
 				ClassfileAccessFlag.ACC_SUPER);
 		classfile.addMethodToMethodArea(methodName, "([Ljava/lang/String;])V",
 				MethodAccessFlag.ACC_PUBLIC, MethodAccessFlag.ACC_STATIC);
-		pb = new Program.Builder(classfile, methodName);
+		pb = new Program.MainBuilder(classfile, methodName);
 	}
 
 	public static String NL = "\\\n";

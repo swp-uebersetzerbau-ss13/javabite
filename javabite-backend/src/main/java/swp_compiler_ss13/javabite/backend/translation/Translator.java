@@ -592,7 +592,7 @@ public class Translator {
 	private static void extractInstructionsFromOperations(
 			final Classfile classfile, final String methodName,
 			final List<Quadruple> tac) {
-		final Program.Builder pb = new Program.Builder(classfile, methodName);
+		final Program.MainBuilder pb = new Program.MainBuilder(classfile, methodName);
 
 		for (final Quadruple quad : tac) {
 
