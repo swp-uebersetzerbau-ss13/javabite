@@ -65,14 +65,17 @@ public class BackendTest {
 			Operator.RETURN, "l", "!", "!"));
 
 	static final List<Quadruple> tac4 = asList(new QuadrupleJb(
-			Operator.DECLARE_BOOLEAN, "#false", "!", "b"), new QuadrupleJb(
-			Operator.PRINT_BOOLEAN, "b", "!", "!"), new QuadrupleJb(
 			Operator.DECLARE_STRING, "#\"hello world\"", "!", "s"),
 			new QuadrupleJb(Operator.PRINT_STRING, "s", "!", "!"),
+			new QuadrupleJb(Operator.DECLARE_BOOLEAN, "#false", "!", "b"),
+			new QuadrupleJb(Operator.BOOLEAN_TO_STRING, "b", "!", "s"),
+			new QuadrupleJb(Operator.PRINT_STRING, "s", "!", "!"),
 			new QuadrupleJb(Operator.DECLARE_LONG, "#123456", "!", "l"),
-			new QuadrupleJb(Operator.PRINT_LONG, "l", "!", "!"),
+			new QuadrupleJb(Operator.LONG_TO_STRING, "l", "!", "s"),
+			new QuadrupleJb(Operator.PRINT_STRING, "s", "!", "!"),
 			new QuadrupleJb(Operator.DECLARE_DOUBLE, "#123.456", "!", "d"),
-			new QuadrupleJb(Operator.PRINT_DOUBLE, "d", "!", "!"));
+			new QuadrupleJb(Operator.DOUBLE_TO_STRING, "d", "!", "s"),
+			new QuadrupleJb(Operator.PRINT_STRING, "s", "!", "!"));
 
 	static final List<Quadruple> tac5 = asList(new QuadrupleJb(
 			Operator.DECLARE_ARRAY, "#3", "!", "anArray"), new QuadrupleJb(
@@ -80,7 +83,9 @@ public class BackendTest {
 			Operator.ARRAY_SET_LONG, "anArray", "#0", "#1234"),
 			new QuadrupleJb(Operator.DECLARE_LONG, "!", "!", "l"),
 			new QuadrupleJb(Operator.ARRAY_GET_LONG, "anArray", "#0", "l"),
-			new QuadrupleJb(Operator.PRINT_LONG, "l", "!", "!"));
+			new QuadrupleJb(Operator.DECLARE_STRING, "!", "!", "s"),
+			new QuadrupleJb(Operator.LONG_TO_STRING, "l", "!", "s"),
+			new QuadrupleJb(Operator.PRINT_STRING, "s", "!", "!"));
 
 	static final List<Quadruple> tac6 = asList(new QuadrupleJb(
 			Operator.DECLARE_ARRAY, "#3", "!", "anArray"), new QuadrupleJb(
@@ -91,7 +96,9 @@ public class BackendTest {
 			new QuadrupleJb(Operator.ARRAY_SET_LONG, "r", "#0", "#1234"),
 			new QuadrupleJb(Operator.DECLARE_LONG, "!", "!", "l"),
 			new QuadrupleJb(Operator.ARRAY_GET_LONG, "r", "#0", "l"),
-			new QuadrupleJb(Operator.PRINT_LONG, "l", "!", "!"));
+			new QuadrupleJb(Operator.DECLARE_STRING, "!", "!", "s"),
+			new QuadrupleJb(Operator.LONG_TO_STRING, "l", "!", "s"),
+			new QuadrupleJb(Operator.PRINT_STRING, "s", "!", "!"));
 
 	static final List<Quadruple> tac7 = asList(new QuadrupleJb(
 			Operator.DECLARE_BOOLEAN, "!", "!", "b"), new QuadrupleJb(
@@ -102,7 +109,9 @@ public class BackendTest {
 	static final List<Quadruple> tac8 = asList(new QuadrupleJb(
 			Operator.DECLARE_BOOLEAN, "!", "!", "b"), new QuadrupleJb(
 			Operator.COMPARE_LONG_E, "#1", "#2", "b"), new QuadrupleJb(
-			Operator.PRINT_BOOLEAN, "b", "!", "!"));
+			Operator.DECLARE_STRING, "!", "!", "s"), new QuadrupleJb(
+			Operator.BOOLEAN_TO_STRING, "b", "!", "s"), new QuadrupleJb(
+			Operator.PRINT_STRING, "s", "!", "!"));
 
 	static final List<Quadruple> tac9 = asList(new QuadrupleJb(Operator.BRANCH,
 			"lbl", "!", "!"), new QuadrupleJb(Operator.PRINT_STRING,
@@ -163,97 +172,99 @@ public class BackendTest {
 			new QuadrupleJb(Operator.ASSIGN_LONG, "#18121313223", "!", "l"),
 			new QuadrupleJb(Operator.ASSIGN_DOUBLE, "#-23.23e-100", "!", "d"),
 			new QuadrupleJb(Operator.ASSIGN_STRING, "#\"jagÄrEttString\"\n\"",
-					"!", "s"), new QuadrupleJb(Operator.PRINT_BOOLEAN, "b",
-					"!", "!"), new QuadrupleJb(Operator.PRINT_STRING,
-					"linebreak", "!", "!"), new QuadrupleJb(
-					Operator.PRINT_LONG, "l", "!", "!"), new QuadrupleJb(
-					Operator.PRINT_STRING, "linebreak", "!", "!"),
-			new QuadrupleJb(Operator.PRINT_DOUBLE, "d", "!", "!"),
-			new QuadrupleJb(Operator.PRINT_STRING, "linebreak", "!", "!"),
-			new QuadrupleJb(Operator.PRINT_STRING, "s", "!", "!"),
-			new QuadrupleJb(Operator.RETURN, "#0", "!", "!"));
+					"!", "s"), new QuadrupleJb(Operator.BOOLEAN_TO_STRING, "b",
+					"!", "s"), new QuadrupleJb(Operator.PRINT_STRING, "s", "!",
+					"!"), new QuadrupleJb(Operator.PRINT_STRING, "linebreak",
+					"!", "!"), new QuadrupleJb(Operator.LONG_TO_STRING, "l",
+					"!", "s"), new QuadrupleJb(Operator.PRINT_STRING, "s", "!",
+					"!"), new QuadrupleJb(Operator.PRINT_STRING, "linebreak",
+					"!", "!"), new QuadrupleJb(Operator.DOUBLE_TO_STRING, "d",
+					"!", "s"), new QuadrupleJb(Operator.PRINT_STRING, "s", "!",
+					"!"), new QuadrupleJb(Operator.PRINT_STRING, "linebreak",
+					"!", "!"), new QuadrupleJb(Operator.PRINT_STRING, "s", "!",
+					"!"), new QuadrupleJb(Operator.RETURN, "#0", "!", "!"));
 
 	@Before
 	public void setup() {
 		backend = new BackendJb();
 	}
 
-//	@Test
-//	public void testTac1ReturnVal() throws BackendException {
-//		assertEquals(
-//				"Generated target code returns unexpected value while execution",
-//				27, testToReturnValueOfTac(tac1, 1));
-//	}
-//
-//	@Test
-//	public void testSimpleAddTacTranslation() throws BackendException {
-//		assertEquals(
-//				"Generated target code returns unexpected value while execution",
-//				6, testToReturnValueOfTac(tac2, 1));
-//	}
-//
-//	@Test
-//	public void testSimpleMulTacTranslation() throws BackendException {
-//		assertEquals(
-//				"Generated target code returns unexpected value while execution",
-//				9, testToReturnValueOfTac(tac3, 1));
-//	}
-//
-//	@Test
-//	public void testTac4ReturnVal() throws BackendException {
-//		assertEquals(
-//				"Generated target code returns unexpected value while execution",
-//				0, testToReturnValueOfTac(tac4, 1));
-//	}
-//
-//	@Test
-//	public void testTac5ReturnVal() throws BackendException {
-//		assertEquals(
-//				"Generated target code returns unexpected value while execution",
-//				0, testToReturnValueOfTac(tac5, 1));
-//	}
-//
-//	@Test
-//	public void testTac6ReturnVal() throws BackendException {
-//		assertEquals(
-//				"Generated target code returns unexpected value while execution",
-//				0, testToReturnValueOfTac(tac6, 1));
-//	}
-//
-//	@Test
-//	public void testTac7ReturnVal() throws BackendException {
-//		assertEquals(
-//				"Generated target code returns unexpected value while execution",
-//				0, testToReturnValueOfTac(tac7, 1));
-//	}
-//
-//	@Test
-//	public void testTac8ReturnVal() throws BackendException {
-//		assertEquals(
-//				"Generated target code returns unexpected value while execution",
-//				0, testToReturnValueOfTac(tac8, 1));
-//	}
-//
-//	@Test
-//	public void testTac9ReturnVal() throws BackendException {
-//		assertEquals(
-//				"Generated target code returns unexpected value while execution",
-//				0, testToReturnValueOfTac(tac9, 1));
-//	}
-//
-//	@Test
-//	public void testTac10ReturnVal() throws BackendException {
-//		assertEquals(
-//				"Generated target code returns unexpected value while execution",
-//				0, testToReturnValueOfTac(tac10, 1));
-//	}
-//
-//	@Test
-//	public void testTac11ReturnVal() throws BackendException {
-//		assertEquals(
-//				"Generated target code returns unexpected value while execution",
-//				10, testToReturnValueOfTac(tac11, 1));
-//	}
+	// @Test
+	// public void testTac1ReturnVal() throws BackendException {
+	// assertEquals(
+	// "Generated target code returns unexpected value while execution",
+	// 27, testToReturnValueOfTac(tac1, 1));
+	// }
+	//
+	// @Test
+	// public void testSimpleAddTacTranslation() throws BackendException {
+	// assertEquals(
+	// "Generated target code returns unexpected value while execution",
+	// 6, testToReturnValueOfTac(tac2, 1));
+	// }
+	//
+	// @Test
+	// public void testSimpleMulTacTranslation() throws BackendException {
+	// assertEquals(
+	// "Generated target code returns unexpected value while execution",
+	// 9, testToReturnValueOfTac(tac3, 1));
+	// }
+	//
+	// @Test
+	// public void testTac4ReturnVal() throws BackendException {
+	// assertEquals(
+	// "Generated target code returns unexpected value while execution",
+	// 0, testToReturnValueOfTac(tac4, 1));
+	// }
+	//
+	// @Test
+	// public void testTac5ReturnVal() throws BackendException {
+	// assertEquals(
+	// "Generated target code returns unexpected value while execution",
+	// 0, testToReturnValueOfTac(tac5, 1));
+	// }
+	//
+	// @Test
+	// public void testTac6ReturnVal() throws BackendException {
+	// assertEquals(
+	// "Generated target code returns unexpected value while execution",
+	// 0, testToReturnValueOfTac(tac6, 1));
+	// }
+	//
+	// @Test
+	// public void testTac7ReturnVal() throws BackendException {
+	// assertEquals(
+	// "Generated target code returns unexpected value while execution",
+	// 0, testToReturnValueOfTac(tac7, 1));
+	// }
+	//
+	// @Test
+	// public void testTac8ReturnVal() throws BackendException {
+	// assertEquals(
+	// "Generated target code returns unexpected value while execution",
+	// 0, testToReturnValueOfTac(tac8, 1));
+	// }
+	//
+	// @Test
+	// public void testTac9ReturnVal() throws BackendException {
+	// assertEquals(
+	// "Generated target code returns unexpected value while execution",
+	// 0, testToReturnValueOfTac(tac9, 1));
+	// }
+	//
+	// @Test
+	// public void testTac10ReturnVal() throws BackendException {
+	// assertEquals(
+	// "Generated target code returns unexpected value while execution",
+	// 0, testToReturnValueOfTac(tac10, 1));
+	// }
+	//
+	// @Test
+	// public void testTac11ReturnVal() throws BackendException {
+	// assertEquals(
+	// "Generated target code returns unexpected value while execution",
+	// 10, testToReturnValueOfTac(tac11, 1));
+	// }
 
 	@Test
 	public void testTac12ReturnVal() throws BackendException {
@@ -262,12 +273,12 @@ public class BackendTest {
 				5, testToReturnValueOfTac(tac12, 1));
 	}
 
-//	@Test
-//	public void testTac13ReturnVal() throws BackendException {
-//		assertEquals(
-//				"Generated target code returns unexpected value while execution",
-//				0, testToReturnValueOfTac(tac13, 1));
-//	}
+	// @Test
+	// public void testTac13ReturnVal() throws BackendException {
+	// assertEquals(
+	// "Generated target code returns unexpected value while execution",
+	// 0, testToReturnValueOfTac(tac13, 1));
+	// }
 
 	public long testToReturnValueOfTac(final List<Quadruple> tac,
 			final int fileamount) throws BackendException {
