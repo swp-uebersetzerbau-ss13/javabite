@@ -86,7 +86,15 @@ public class SettingsPanel extends JFrame {
 					formPanel.add(p);
 					formInputs.add(ckfi);
 				}
-				SpringUtilities.makeCompactGrid(formPanel, configKeys.size(), 2, 6, 6, 6, 6);
+				
+				for (int i = configKeys.size(); i < 12; i++) {
+					JLabel dummyLabel = new JLabel(" ");
+					formPanel.add(dummyLabel);
+					JLabel labeledLabel = new JLabel(" ");
+					dummyLabel.setLabelFor(labeledLabel);
+					formPanel.add(labeledLabel);
+				}
+				SpringUtilities.makeCompactGrid(formPanel, (configKeys.size() > 12)?configKeys.size():12, 2, 6, 6, 6, 6);
 				formPanel.updateUI();
 			}
 		});
