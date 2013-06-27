@@ -60,7 +60,7 @@ import com.mxgraph.view.mxStylesheet;
 
 public class ASTVisualizerJb implements ASTVisualization {
 	public mxGraph graph;
-	JScrollPane frame;
+	mxGraphComponent frame;
 	Queue<Object> toVisit_celledCopy;
 	int x, y;
 	int i=1;
@@ -100,19 +100,12 @@ public class ASTVisualizerJb implements ASTVisualization {
 		layout.setInterHierarchySpacing(20);
 		layout.setIntraCellSpacing(5);
 		layout.execute(graph.getDefaultParent());
-		frame = new TooltipMxGraphComponent(graph);
-		ToolTipManager.sharedInstance().registerComponent(frame);
-		
-		
-		((mxGraphComponent) frame).getGraphControl().addMouseListener(new MouseAdapter()
-		{
-			 public void mouseEntered(MouseEvent e) {
-				 Object cell = ((mxGraphComponent) frame).getCellAt(e.getX(), e.getY());
-				 if (cell != null)
-					{
-					 frame.getToolTipText(e);
-					}
-			 }
+		frame = new mxGraphComponent(graph);
+		frame.setToolTips(true);
+		//ToolTipManager.sharedInstance().registerComponent(frame);
+		frame.getGraphControl().addMouseListener(new MouseAdapter()
+		{ 
+			
 			public void mouseClicked(MouseEvent e){
 				
 				
