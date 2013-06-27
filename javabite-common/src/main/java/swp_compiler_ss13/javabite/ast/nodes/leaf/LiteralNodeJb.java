@@ -29,26 +29,23 @@ public class LiteralNodeJb extends ExpressionNodeJb implements LiteralNode {
 
 	protected String literal;
 	protected Type literalType;
-	
+
 	public LiteralNodeJb() {
 		super(ASTNodeType.LiteralNode);
 	}
+
 	@Override
 	protected void fillNodeProperties(Properties props) {
-		props.put("literal",literal);
-		props.put("type",literalType);
-		
+		props.put("literal", literal);
+		props.put("type", literalType);
+
 	}
+
 	@Override
 	public List<Token> nestedCoverage() {
-		List<Token> res=new LinkedList<>();
-		res.add(getAssociatedTokenListFromTypeUnique(
-				TokenType.STRING,
-				TokenType.NUM,
-				TokenType.REAL,
-				TokenType.FALSE,
-				TokenType.TRUE	
-				));
+		List<Token> res = new LinkedList<>();
+		res.add(getAssociatedTokenListFromTypeUnique(TokenType.STRING,
+				TokenType.NUM, TokenType.REAL, TokenType.FALSE, TokenType.TRUE));
 		return res;
 	}
 

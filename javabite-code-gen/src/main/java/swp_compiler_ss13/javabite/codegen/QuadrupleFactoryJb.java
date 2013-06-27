@@ -70,6 +70,23 @@ public class QuadrupleFactoryJb {
 			default:
 				break;
 			}
+		} else if (newId.getType().getKind() == Kind.STRING) {
+			switch (oldId.getType().getKind()) {
+			case LONG:
+				return new QuadrupleJb(Operator.LONG_TO_STRING,
+						oldId.getIdentifier(), Quadruple.EmptyArgument,
+						newId.getIdentifier());
+			case DOUBLE:
+				return new QuadrupleJb(Operator.DOUBLE_TO_STRING,
+						oldId.getIdentifier(), Quadruple.EmptyArgument,
+						newId.getIdentifier());
+			case BOOLEAN:
+				return new QuadrupleJb(Operator.BOOLEAN_TO_STRING,
+						oldId.getIdentifier(), Quadruple.EmptyArgument,
+						newId.getIdentifier());
+			default:
+				break;
+			}
 		}
 
 		throw new IntermediateCodeGeneratorException(
@@ -193,7 +210,15 @@ public class QuadrupleFactoryJb {
 			default:
 				break;
 			}
-
+		} else if (newData.getType().getKind() == Kind.STRING) {
+			switch (binaryOperator) {
+			case ADDITION:
+				return new QuadrupleJb(Operator.CONCAT_STRING,
+						leftData.getIdentifier(), rightData.getIdentifier(),
+						newData.getIdentifier());
+			default:
+				break;
+			}
 		}
 
 		throw new IntermediateCodeGeneratorException(
@@ -300,16 +325,6 @@ public class QuadrupleFactoryJb {
 	public static Quadruple generatePrint(IdentifierData data)
 			throws IntermediateCodeGeneratorException {
 		switch (data.getType().getKind()) {
-		case LONG:
-			return new QuadrupleJb(Operator.PRINT_LONG, data.getIdentifier(),
-					Quadruple.EmptyArgument, Quadruple.EmptyArgument);
-		case DOUBLE:
-			return new QuadrupleJb(Operator.PRINT_DOUBLE, data.getIdentifier(),
-					Quadruple.EmptyArgument, Quadruple.EmptyArgument);
-		case BOOLEAN:
-			return new QuadrupleJb(Operator.PRINT_BOOLEAN,
-					data.getIdentifier(), Quadruple.EmptyArgument,
-					Quadruple.EmptyArgument);
 		case STRING:
 			return new QuadrupleJb(Operator.PRINT_STRING, data.getIdentifier(),
 					Quadruple.EmptyArgument, Quadruple.EmptyArgument);

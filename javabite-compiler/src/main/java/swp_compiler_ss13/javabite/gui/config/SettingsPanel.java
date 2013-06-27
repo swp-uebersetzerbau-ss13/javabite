@@ -10,11 +10,15 @@ import java.util.List;
 
 import javax.swing.AbstractListModel;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.ListSelectionModel;
+import javax.swing.SpringLayout;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -22,15 +26,13 @@ import swp_compiler_ss13.javabite.config.ConfigCategory;
 import swp_compiler_ss13.javabite.config.ConfigKey;
 import swp_compiler_ss13.javabite.config.JavabiteConfig;
 import swp_compiler_ss13.javabite.gui.ConfigFormFieldFactory;
-import swp_compiler_ss13.javabite.gui.MainFrame;
 
 public class SettingsPanel extends JFrame {
 	private static final long serialVersionUID = 1L;
 	final JavabiteConfig config = JavabiteConfig.getDefaultConfig();
 	List<ConfigFormField> formInputs = new ArrayList<>();
-	static MainFrame mainframe;
-	public SettingsPanel(MainFrame mainframe) {
-		this.mainframe = mainframe;
+	
+	public SettingsPanel() {
 		this.setMinimumSize(new Dimension(600, 400));
 		getContentPane().setLayout(new BorderLayout(0, 0));
 
@@ -64,9 +66,8 @@ public class SettingsPanel extends JFrame {
 			}
 		});
 		buttonPanel.add(btnClose);
-
 		final JPanel formPanel = new JPanel();
-		panel.add(formPanel, BorderLayout.CENTER);
+		panel.add(new JScrollPane(formPanel,JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,JScrollPane.HORIZONTAL_SCROLLBAR_NEVER), BorderLayout.CENTER);
 		final JList<ConfigCategory> list = new JList<ConfigCategory>();
 		list.addListSelectionListener(new ListSelectionListener() {
 			public void valueChanged(ListSelectionEvent evt) {
@@ -75,11 +76,25 @@ public class SettingsPanel extends JFrame {
 						.getConfigKeys(cc));
 				formPanel.removeAll();
 				formInputs.clear();
+				formPanel.setLayout(new SpringLayout());
 				for (ConfigKey ck : configKeys) {
 					ConfigFormField ckfi = ConfigFormFieldFactory.generateField(ck);
-					formPanel.add(ckfi.getPanel());
+					JLabel l = ckfi.getLabel();
+					formPanel.add(l);
+					JComponent p = ckfi.getComponent();
+					l.setLabelFor(p);
+					formPanel.add(p);
 					formInputs.add(ckfi);
 				}
+				
+				for (int i = configKeys.size(); i < 12; i++) {
+					JLabel dummyLabel = new JLabel(" ");
+					formPanel.add(dummyLabel);
+					JLabel labeledLabel = new JLabel(" ");
+					dummyLabel.setLabelFor(labeledLabel);
+					formPanel.add(labeledLabel);
+				}
+				SpringUtilities.makeCompactGrid(formPanel, (configKeys.size() > 12)?configKeys.size():12, 2, 6, 6, 6, 6);
 				formPanel.updateUI();
 			}
 		});
@@ -97,13 +112,13 @@ public class SettingsPanel extends JFrame {
 			}
 		});
 		list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		list.setSelectedIndex(0);
 		splitPane.setLeftComponent(list);
 
 		pack();
 	}
 
 	public void closeWindow() {
-		mainframe.reloadConfig();
 		this.dispose();
 	}
 
@@ -119,7 +134,7 @@ public class SettingsPanel extends JFrame {
 		config.getProperty("comp.key1", "default1");
 		config.getProperty("comp.key2", "default1");
 		config.getProperty("comp.key3", "default1");
-		new SettingsPanel(mainframe).setVisible(true);
+		new SettingsPanel().setVisible(true);
 	}
 
 }

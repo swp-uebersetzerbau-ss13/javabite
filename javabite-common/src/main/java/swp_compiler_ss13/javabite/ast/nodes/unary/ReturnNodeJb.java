@@ -22,14 +22,16 @@ public class ReturnNodeJb extends StatementNodeJb implements ReturnNode {
 
 	public void setRightValue(IdentifierNode rightValue) {
 		this.rightValue = rightValue;
-		if (rightValue!=null) addChild(rightValue,0);
+		if (rightValue != null)
+			addChild(rightValue, 0);
 	}
 
 	@Override
 	public List<Token> coverage() {
-		List<Token> res=new LinkedList<>();
+		List<Token> res = new LinkedList<>();
 		res.add(getAssociatedTokenListFromTypeUnique(TokenType.RETURN));
-		if (rightValue!=null) res.addAll(rightValue.coverage());
+		if (rightValue != null)
+			res.addAll(rightValue.coverage());
 		res.add(getAssociatedTokenListFromTypeUnique(TokenType.SEMICOLON));
 		return res;
 	}

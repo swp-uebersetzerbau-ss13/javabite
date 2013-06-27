@@ -76,6 +76,27 @@ project(':javabite-compiler') {
 		compile 'org.tinyjee.jgraphx:jgraphx:1.10.4.1'
 		compile project(':javabite-common'), project(':javabite-lexer'), project(':javabite-parser'), project(':javabite-code-gen'), project(':javabite-backend'), project(':javabite-semantic')
 	}
+	
+	sourceSets {
+		// Note that just declaring this sourceset creates two configurations.
+		crossTest {
+				java {
+					srcDir 'src/cross-test/java'
+				}
+				resources {
+					srcDir 'src/test/resources'
+				}
+				compileClasspath += sourceSets.main.runtimeClasspath
+				compileClasspath += sourceSets.test.runtimeClasspath
+		}
+	}
+	
+	task crossTest(type:Test){
+		description = "Run cross tests"
+		testClassesDir = project.sourceSets.crossTest.output.classesDir
+		classpath += project.sourceSets.crossTest.runtimeClasspath
+		classpath += fucJarFiles()
+	}
 }
 
 project(':javabite-lexer') {

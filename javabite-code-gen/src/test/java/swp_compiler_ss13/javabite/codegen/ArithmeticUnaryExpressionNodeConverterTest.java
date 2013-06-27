@@ -9,7 +9,9 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import swp_compiler_ss13.common.ast.ASTNode;
+import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
 import swp_compiler_ss13.common.ast.nodes.unary.ArithmeticUnaryExpressionNode;
+import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode.UnaryOperator;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.types.derived.ArrayType;
@@ -41,12 +43,14 @@ public class ArithmeticUnaryExpressionNodeConverterTest {
 	@Test
 	public void testArithmeticUnaryExpressionLong(){
 		try {
-			ASTNode node = Mockito.mock(ArithmeticUnaryExpressionNode.class);
+			ArithmeticUnaryExpressionNode node = Mockito.mock(ArithmeticUnaryExpressionNode.class);
 			//verify(converter.icg).processNode(any(ArithmeticUnaryExpressionNode.class));
 			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test", new LongType()));
 			when(converter.icg.generateTempIdentifier(any(LongType.class)))
 			.thenReturn(new IdentifierData("tmp", new LongType()));
+			when(node.getOperator()).thenReturn(UnaryOperator.MINUS);
 			converter.convert(node);
+			
 			verify(converter.icg).addQuadruple(new QuadrupleJb(Operator.SUB_LONG, "#0",
 					"test", "tmp"));
 		}catch(IntermediateCodeGeneratorException e) {
@@ -61,14 +65,16 @@ public class ArithmeticUnaryExpressionNodeConverterTest {
 	@Test
 	public void testArithmeticUnaryExpressionDouble(){
 		try {
-			ASTNode node = Mockito.mock(ArithmeticUnaryExpressionNode.class);
+			ArithmeticUnaryExpressionNode node = Mockito.mock(ArithmeticUnaryExpressionNode.class);
 			//verify(converter.icg).processNode(any(ArithmeticUnaryExpressionNode.class));
-			IdentifierData oldData = new IdentifierData("test", new DoubleType());
-			when(converter.icg.popIdentifierData()).thenReturn(oldData);
+			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test", new DoubleType()));
 			when(converter.icg.generateTempIdentifier(any(DoubleType.class)))
 			.thenReturn(new IdentifierData("tmp", new DoubleType()));
+			when(node.getOperator()).thenReturn(UnaryOperator.MINUS);
 			converter.convert(node);
-			verify(converter.icg).addQuadruple(new QuadrupleJb(Operator.SUB_DOUBLE, "#0", "test", "tmp"));
+			
+			verify(converter.icg).addQuadruple(new QuadrupleJb(Operator.SUB_DOUBLE, "#0.0",
+					"test", "tmp"));
 			
 		}catch(IntermediateCodeGeneratorException e) {
 			fail();
@@ -82,12 +88,13 @@ public class ArithmeticUnaryExpressionNodeConverterTest {
 	@Test
 	public void testArithmeticUnaryExpressionBoolean(){
 		try {
-			ASTNode node = Mockito.mock(ArithmeticUnaryExpressionNode.class);
+			ArithmeticUnaryExpressionNode node = Mockito.mock(ArithmeticUnaryExpressionNode.class);
 			//verify(converter.icg).processNode(any(ArithmeticUnaryExpressionNode.class));
 			IdentifierData oldData = new IdentifierData("test", new BooleanType());
 			when(converter.icg.popIdentifierData()).thenReturn(oldData);
 			when(converter.icg.generateTempIdentifier(any(BooleanType.class)))
 			.thenReturn(new IdentifierData("tmp", new BooleanType()));
+			when(node.getOperator()).thenReturn(UnaryOperator.MINUS);
 			converter.convert(node);
 			fail();
 		}catch(IntermediateCodeGeneratorException e) {
@@ -102,15 +109,19 @@ public class ArithmeticUnaryExpressionNodeConverterTest {
 	@Test
 	public void testArithmeticUnaryExpressionStruct(){
 		try {
-			ASTNode node = Mockito.mock(ArithmeticUnaryExpressionNode.class);
+			ArithmeticUnaryExpressionNode node = Mockito.mock(ArithmeticUnaryExpressionNode.class);
 			//verify(converter.icg).processNode(any(ArithmeticUnaryExpressionNode.class));
 			IdentifierData oldData = new IdentifierData("test", new StructType(
 					null,
 					new Member[] { new Member("",
 							new LongType()) }));
 			when(converter.icg.popIdentifierData()).thenReturn(oldData);
-			when(converter.icg.generateTempIdentifier(any(DoubleType.class)))
-			.thenReturn(new IdentifierData("tmp", new DoubleType()));
+			when(converter.icg.generateTempIdentifier(any(StructType.class)))
+			.thenReturn(new IdentifierData("tmp", new StructType(
+					null,
+					new Member[] { new Member("",
+							new LongType()) })));
+			when(node.getOperator()).thenReturn(UnaryOperator.MINUS);
 			converter.convert(node);
 			fail();
 			
@@ -126,12 +137,13 @@ public class ArithmeticUnaryExpressionNodeConverterTest {
 	@Test
 	public void testArithmeticUnaryExpressionArray(){
 		try {
-			ASTNode node = Mockito.mock(ArithmeticUnaryExpressionNode.class);
+			ArithmeticUnaryExpressionNode node = Mockito.mock(ArithmeticUnaryExpressionNode.class);
 			//verify(converter.icg).processNode(any(ArithmeticUnaryExpressionNode.class));
 			IdentifierData oldData = new IdentifierData("test", new ArrayType(new LongType(), 0));
 			when(converter.icg.popIdentifierData()).thenReturn(oldData);
 			when(converter.icg.generateTempIdentifier(any(ArrayType.class)))
 			.thenReturn(new IdentifierData("tmp", new ArrayType(new LongType(), 0)));
+			when(node.getOperator()).thenReturn(UnaryOperator.MINUS);
 			converter.convert(node);
 			fail();
 			

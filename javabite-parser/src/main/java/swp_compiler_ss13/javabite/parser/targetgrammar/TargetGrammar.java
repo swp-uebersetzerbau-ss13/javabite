@@ -103,16 +103,15 @@ public class TargetGrammar {
 		
 		// type -> type [*num*] | *basic* | *record* {decls}
 		grammar.addProduction(type,
-				// type [*num*]
-				// Much less powerful than type [ assign ]... change possible? :/ 
-				list(type,t(TokenType.LEFT_BRACKET),t(TokenType.NUM),t(TokenType.RIGHT_BRACKET)),
 				// *basic*
 				list(t(TokenType.DOUBLE_SYMBOL)),
 				list(t(TokenType.LONG_SYMBOL)),
 				list(t(TokenType.STRING_SYMBOL)),
-				list(t(TokenType.BOOL_SYMBOL))
-				// *record {decls}*
-				// TODO: record symbol does not exist
+				list(t(TokenType.BOOL_SYMBOL)),
+				// *record {decls}
+				list(t(TokenType.RECORD_SYMBOL),t(TokenType.LEFT_BRACE),decls,t(TokenType.RIGHT_BRACE)),
+				// type [*num*]
+				list(type,t(TokenType.LEFT_BRACKET),t(TokenType.NUM),t(TokenType.RIGHT_BRACKET))
 				);
 		
 		// stmts -> stmts stmt | \epsilon
@@ -157,8 +156,8 @@ public class TargetGrammar {
 		// loc -> loc [assign] | *id* | loc.*id*
 		grammar.addProduction(loc,
 				list(loc,t(TokenType.LEFT_BRACKET),assign,t(TokenType.RIGHT_BRACKET)),
-				list(t(TokenType.ID))
-				// TODO: loc.*id* 
+				list(t(TokenType.ID)),
+				list(loc,t(TokenType.DOT),t(TokenType.ID))
 				);
 		
 		// assign -> loc=assign | bool

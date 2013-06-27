@@ -31,7 +31,7 @@ import swp_compiler_ss13.javabite.ast.nodes.leaf.LiteralNodeJb;
 
 public class SemanticAnalyserJb implements SemanticAnalyser {
 	Logger log = LoggerFactory.getLogger(SemanticAnalyserJb.class);
-	AST ast;
+	private AST ast;
 	
 	private ReportLog reportLog;
 
@@ -91,7 +91,7 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 		}
 	}
 		
-	public void checkBreakDeclaration(){
+	void checkBreakDeclaration(){
 		//get all break statements
 		Set<ASTNode> breakNodes=getAllOfType(ASTNodeType.BreakNode);
 		// check condition for every breakNode
@@ -110,14 +110,13 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 		}
 	}
 	
-	public void checkReturnDeclaration(){
+	void checkReturnDeclaration(){
 		//get all return statements
 		Set<ASTNode> returnNodes=getAllOfType(ASTNodeType.ReturnNode);
 		// check condition for every breakNode
 		for (ASTNode rawNode : returnNodes){
 			// cast is valid by token-convection
-			ReturnNode returnNode=(ReturnNode)rawNode;
-			ASTNode returnNodeParent=returnNode;
+            ASTNode returnNodeParent= (ReturnNode)rawNode;
 			boolean conditional=false;
 			// TODO: implement:)
 		}

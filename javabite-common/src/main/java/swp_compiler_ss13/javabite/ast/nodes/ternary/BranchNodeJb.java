@@ -20,7 +20,6 @@ public class BranchNodeJb extends StatementNodeJb implements BranchNode {
 	protected StatementNode statementNodeOnTrue;
 	protected StatementNode statementNodeOnFalse;
 
-	
 	public ExpressionNode getCondition() {
 		return condition;
 	}
@@ -30,11 +29,10 @@ public class BranchNodeJb extends StatementNodeJb implements BranchNode {
 		addChild(condition, 0);
 	}
 
-	
 	public StatementNode getStatementNodeOnTrue() {
 		return statementNodeOnTrue;
 	}
-	
+
 	public void setStatementNodeOnTrue(StatementNode statementNodeOnTrue) {
 		this.statementNodeOnTrue = statementNodeOnTrue;
 		addChild(this.statementNodeOnTrue, 1);
@@ -43,20 +41,21 @@ public class BranchNodeJb extends StatementNodeJb implements BranchNode {
 	public StatementNode getStatementNodeOnFalse() {
 		return statementNodeOnFalse;
 	}
-	
+
 	public void setStatementNodeOnFalse(StatementNode statementNodeOnFalse) {
 		this.statementNodeOnFalse = statementNodeOnFalse;
 		addChild(this.statementNodeOnFalse, 2);
 	}
+
 	@Override
 	public List<Token> coverage() {
-		List<Token> res=new LinkedList<Token>();
+		List<Token> res = new LinkedList<Token>();
 		res.add(getAssociatedTokenListFromTypeUnique(TokenType.IF));
 		res.add(getAssociatedTokenListFromTypeUnique(TokenType.LEFT_PARAN));
 		res.addAll(condition.coverage());
 		res.add(getAssociatedTokenListFromTypeUnique(TokenType.RIGHT_PARAN));
 		res.addAll(statementNodeOnTrue.coverage());
-		if (this.statementNodeOnFalse!=null){
+		if (this.statementNodeOnFalse != null) {
 			// is with else
 			res.add(getAssociatedTokenListFromTypeUnique(TokenType.ELSE));
 			res.addAll(statementNodeOnFalse.coverage());
