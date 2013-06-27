@@ -4,6 +4,8 @@ import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.ASTNode.ASTNodeType;
 import swp_compiler_ss13.common.ast.nodes.unary.PrintNode;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
+import swp_compiler_ss13.common.types.Type.Kind;
+import swp_compiler_ss13.common.types.primitive.StringType;
 import swp_compiler_ss13.javabite.codegen.CastingAst2CodeConverter;
 import swp_compiler_ss13.javabite.codegen.IdentifierData;
 import swp_compiler_ss13.javabite.codegen.QuadrupleFactoryJb;
@@ -18,6 +20,10 @@ public class PrintNodeConverter extends CastingAst2CodeConverter {
 
 		icg.processNode(printNode.getRightValue());
 		IdentifierData rightData = icg.popIdentifierData();
+		if (rightData.getType().getKind() != Kind.STRING ) {
+			rightData = cast(new StringType(0L), rightData);
+		}
+		
 		icg.addQuadruple(QuadrupleFactoryJb.generatePrint(rightData));
 	}
 
