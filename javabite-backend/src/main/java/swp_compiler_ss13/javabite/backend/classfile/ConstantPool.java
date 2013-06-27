@@ -410,14 +410,15 @@ public class ConstantPool {
 	 *            short index of a CLASS info entry in this constant pool
 	 * @param nameAndTypeIndex
 	 *            short index of a NameAndType entry in this constant pool
+	 * @param fieldName
+	 *            string name of the field
 	 * @return short index of a Fieldref info entry in the constant pool of this
 	 *         classfile meeting the parameters.
 	 */
 	short generateConstantFieldrefInfo(final short classIndex,
-			final short nameAndTypeIndex) {
+			final short nameAndTypeIndex, final String fieldName) {
 		checkConstantPoolSize(1);
-		final String key = ConstantPoolType.FIELDREF.name() + classIndex + "."
-				+ nameAndTypeIndex;
+		final String key = ConstantPoolType.FIELDREF.name() + fieldName;
 
 		// return existing entry's index, if it exists already
 		if (cpMapEntryExists(key)) {
@@ -523,6 +524,7 @@ public class ConstantPool {
 	 * @return index of the constant in this constant pool
 	 * @see Classfile#getIndexOfConstantInConstantPool(swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType,
 	 *      String)
+	 * TODO constantName umbenennen, teilweise constants, teilweise names
 	 */
 	public short getIndexOfConstant(final ConstantPoolType constantType,
 			final String constantName) {

@@ -429,7 +429,7 @@ public class Classfile {
 		final short natIndex = constantPool.generateConstantNameAndTypeInfo(
 				fieldName, fieldNameDescriptor);
 		// add fieldref
-		return constantPool.generateConstantFieldrefInfo(classIndex, natIndex);
+		return constantPool.generateConstantFieldrefInfo(classIndex, natIndex, fieldName);
 	}
 
 	/**
