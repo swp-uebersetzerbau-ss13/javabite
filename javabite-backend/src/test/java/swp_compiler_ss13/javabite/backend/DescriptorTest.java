@@ -33,7 +33,7 @@ public class DescriptorTest {
 		System.out.println();
 	}
 
-	// @Test
+	@Test
 	public void testDescribe() {
 		describe(boolean[][].class);
 		describe(java.math.RoundingMode.class);
@@ -76,13 +76,13 @@ public class DescriptorTest {
 		return sb.toString();
 	}
 
-	// @Test
+	@Test
 	public void testMethodDescriptor() {
 		System.out.println(getMethodDescriptor("<init>", Object.class, null,
 				"V"));
 	}
 
-	// @Test
+	@Test
 	public void testClassNames() {
 		Class<?> c = boolean[].class;
 		System.out.printf(
@@ -102,24 +102,52 @@ public class DescriptorTest {
 
 	@Test
 	public void testUtilsDescriptor() {
-        Assert.assertEquals("Z", ClassfileUtils.getByQuadruples(new QuadrupleJb(
-                Quadruple.Operator.DECLARE_BOOLEAN, "!", "!", "!")));
+		Assert.assertEquals("Z", ClassfileUtils
+				.getByQuadruples(new QuadrupleJb(
+						Quadruple.Operator.DECLARE_BOOLEAN, "!", "!", "!")));
 
-        final List<Quadruple> tac1 = new ArrayList<>();
-        tac1.add(new QuadrupleJb(Quadruple.Operator.DECLARE_ARRAY, "!", "!", "!"));
-        tac1.add(new QuadrupleJb(Quadruple.Operator.DECLARE_ARRAY, "!", "!", "!"));
-        tac1.add(new QuadrupleJb(Quadruple.Operator.DECLARE_ARRAY, "!", "!", "!"));
-        tac1.add(new QuadrupleJb(Quadruple.Operator.DECLARE_ARRAY, "!", "!", "!"));
-        tac1.add(new QuadrupleJb(Quadruple.Operator.DECLARE_ARRAY, "!", "!", "!"));
-        tac1.add(new QuadrupleJb(Quadruple.Operator.DECLARE_BOOLEAN, "!", "!", "!"));
+		final List<Quadruple> tac1 = new ArrayList<>();
+		tac1.add(new QuadrupleJb(Quadruple.Operator.DECLARE_ARRAY, "!", "!",
+				"!"));
+		tac1.add(new QuadrupleJb(Quadruple.Operator.DECLARE_ARRAY, "!", "!",
+				"!"));
+		tac1.add(new QuadrupleJb(Quadruple.Operator.DECLARE_ARRAY, "!", "!",
+				"!"));
+		tac1.add(new QuadrupleJb(Quadruple.Operator.DECLARE_ARRAY, "!", "!",
+				"!"));
+		tac1.add(new QuadrupleJb(Quadruple.Operator.DECLARE_ARRAY, "!", "!",
+				"!"));
+		tac1.add(new QuadrupleJb(Quadruple.Operator.DECLARE_BOOLEAN, "!", "!",
+				"!"));
 
-        Assert.assertEquals("[[[[[Z", ClassfileUtils.getByQuadruples(tac1));
+		Assert.assertEquals("[[[[[Z", ClassfileUtils.getByQuadruples(tac1));
 
-        final List<Quadruple> tac2 = new ArrayList<>();
-        tac2.add(new QuadrupleJb(Quadruple.Operator.DECLARE_ARRAY, "!", "!", "!"));
-        tac2.add(new QuadrupleJb(Quadruple.Operator.DECLARE_STRING, "!", "!", "!"));
+		final List<Quadruple> tac2 = new ArrayList<>();
+		tac2.add(new QuadrupleJb(Quadruple.Operator.DECLARE_ARRAY, "!", "!",
+				"!"));
+		tac2.add(new QuadrupleJb(Quadruple.Operator.DECLARE_STRING, "!", "!",
+				"!"));
 
-        Assert.assertEquals("[java/lang/String", ClassfileUtils.getByQuadruples(tac2));
+		Assert.assertEquals("[java/lang/String",
+				ClassfileUtils.getByQuadruples(tac2));
+
+		final List<Quadruple> tac3 = new ArrayList<>();
+		tac3.add(new QuadrupleJb(Quadruple.Operator.DECLARE_STRUCT, "!", "!",
+				"someStruct"));
+		tac3.add(new QuadrupleJb(Quadruple.Operator.DECLARE_ARRAY, "!", "!",
+				"!"));
+		tac3.add(new QuadrupleJb(Quadruple.Operator.DECLARE_ARRAY, "!", "!",
+				"!"));
+		tac3.add(new QuadrupleJb(Quadruple.Operator.DECLARE_BOOLEAN, "!", "!",
+				"!"));
+		tac3.add(new QuadrupleJb(Quadruple.Operator.DECLARE_STRING, "!", "!",
+				"!"));
+		tac3.add(new QuadrupleJb(Quadruple.Operator.DECLARE_STRING, "!", "!",
+				"!"));
+		tac3.add(new QuadrupleJb(Quadruple.Operator.DECLARE_STRING, "!", "!",
+				"!"));
+
+		Assert.assertEquals("someStruct", ClassfileUtils.getByQuadruples(tac3));
 	}
 
 }
