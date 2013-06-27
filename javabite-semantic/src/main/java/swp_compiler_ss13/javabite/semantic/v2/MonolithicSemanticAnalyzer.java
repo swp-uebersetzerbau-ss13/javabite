@@ -304,6 +304,55 @@ public class MonolithicSemanticAnalyzer implements SemanticAnalyser {
 			wrongType(n);
 			set(n, INTEGER, SYNTHESIZED);
 		}
+		ValueAttribute val_right = get(n.getRightValue(), ValueAttribute.class,
+				SYNTHESIZED, true);
+		ValueAttribute val_left = get(n.getLeftValue(), ValueAttribute.class,
+				SYNTHESIZED, true);
+
+		if (val_left != null && val_right != null) {
+			switch (n.getOperator()) {
+			case ADDITION:
+				set(n, val_left.add(val_right), SYNTHESIZED);
+				errorLog.reportWarning(
+						ReportType.UNDEFINED,
+						n.coverage(),
+						"expression can be simplified to "
+								+ val_left.add(val_right).getNumber());
+				break;
+			case SUBSTRACTION:
+				set(n, val_left.sub(val_right), SYNTHESIZED);
+				errorLog.reportWarning(
+						ReportType.UNDEFINED,
+						n.coverage(),
+						"expression can be simplified to "
+								+ val_left.sub(val_right).getNumber());
+				break;
+			case MULTIPLICATION:
+				set(n, val_left.mul(val_right), SYNTHESIZED);
+				errorLog.reportWarning(
+						ReportType.UNDEFINED,
+						n.coverage(),
+						"expression can be simplified to "
+								+ val_left.mul(val_right).getNumber());
+				break;
+			case DIVISION:
+				if (val_right.isZero()) {
+					errorLog.reportError(ReportType.DIVISION_BY_ZERO, n
+							.getRightValue().coverage(),
+							"this value may not be zero");
+				} else {
+					set(n, val_left.div(val_right), SYNTHESIZED);
+					errorLog.reportWarning(
+							ReportType.UNDEFINED,
+							n.coverage(),
+							"expression can be simplified to "
+									+ val_left.div(val_right).getNumber());
+				}
+				break;
+			}
+
+		}
+
 	}
 
 	private void evalInheritedAttributes(ArithmeticBinaryExpressionNode n) {
@@ -317,6 +366,13 @@ public class MonolithicSemanticAnalyzer implements SemanticAnalyser {
 	private void evalSynthesizedAttributes(ArithmeticUnaryExpressionNode n) {
 		if (is(n.getRightValue(), FLOAT, SYNTHESIZED)) {
 			set(n, FLOAT, SYNTHESIZED);
+			ValueAttribute val = get(n.getRightValue(), ValueAttribute.class,
+					SYNTHESIZED, true);
+			if (val != null) {
+				set(n, val.mul(new ValueAttribute(-1L)), SYNTHESIZED);
+				errorLog.reportWarning(ReportType.UNDEFINED, n.coverage(),
+						"expression can be simplified to " + val.getNumber());
+			}
 		} else if (is(n.getRightValue(), INTEGER, SYNTHESIZED)) {
 			set(n, INTEGER, SYNTHESIZED);
 		} else {
@@ -470,10 +526,10 @@ public class MonolithicSemanticAnalyzer implements SemanticAnalyser {
 					break;
 				}
 			}
-			copyAttributeFromTo(CodeFlowAttribute.class, last_statement, n, SYNTHESIZED);
-		}
-		else{
-			set(n,FLOW_CONTINUE,SYNTHESIZED);
+			copyAttributeFromTo(CodeFlowAttribute.class, last_statement, n,
+					SYNTHESIZED);
+		} else {
+			set(n, FLOW_CONTINUE, SYNTHESIZED);
 		}
 	}
 
@@ -571,9 +627,13 @@ public class MonolithicSemanticAnalyzer implements SemanticAnalyser {
 			break;
 		case DOUBLE:
 			set(n, FLOAT, SYNTHESIZED);
+			set(n, new ValueAttribute(Double.parseDouble(n.getLiteral())),
+					SYNTHESIZED);
 			break;
 		case LONG:
 			set(n, INTEGER, SYNTHESIZED);
+			set(n, new ValueAttribute(Long.parseLong(n.getLiteral())),
+					SYNTHESIZED);
 			break;
 		case STRING:
 			set(n, STRING, SYNTHESIZED);
@@ -622,7 +682,7 @@ public class MonolithicSemanticAnalyzer implements SemanticAnalyser {
 	}
 
 	private void evalIntermediateAttributes(PrintNode n) {
-		set(n,FLOW_CONTINUE,SYNTHESIZED);
+		set(n, FLOW_CONTINUE, SYNTHESIZED);
 	}
 
 	private void evalSynthesizedAttributes(PrintNode n) {
@@ -726,16 +786,22 @@ public class MonolithicSemanticAnalyzer implements SemanticAnalyser {
 		return ast;
 	}
 
-	private <A> A get(ASTNode n, Class<A> at_class, AttributingAttribute fashion) {
+	private <A> A get(ASTNode n, Class<A> at_class,
+			AttributingAttribute fashion, boolean null_expectable) {
 		String id = at_class.getSimpleName() + "|" + fashion;
 		A res = ((A) n.getAttributeValue(id));
 		if (res == null) {
-			internal_logger.error("res s null\nrequest for " + at_class
-					+ "\nparams at node are "
-					+ new HashMap<>(n.getAttributeValues())
-					+ "\nclass of node: " + n.getClass().getSimpleName());
+			if (!null_expectable)
+				internal_logger.error("res s null\nrequest for " + at_class
+						+ "\nparams at node are "
+						+ new HashMap<>(n.getAttributeValues())
+						+ "\nclass of node: " + n.getClass().getSimpleName());
 		}
 		return res;
+	}
+
+	private <A> A get(ASTNode n, Class<A> at_class, AttributingAttribute fashion) {
+		return get(n, at_class, fashion, false);
 	}
 
 	private <A> void set(ASTNode n, A attribute, AttributingAttribute fashion) {
