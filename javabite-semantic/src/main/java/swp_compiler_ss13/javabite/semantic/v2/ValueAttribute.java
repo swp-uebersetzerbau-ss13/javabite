@@ -3,6 +3,12 @@ package swp_compiler_ss13.javabite.semantic.v2;
 public class ValueAttribute{
 	Long val_int;
 	Double val_float;
+	Boolean val_bool;
+	
+	
+	public ValueAttribute(boolean b){
+		this.val_bool=b;
+	}
 	public ValueAttribute(long i) {
 		this.val_int=i;
 	}
@@ -21,6 +27,17 @@ public class ValueAttribute{
 	double getDoubleVal(){
 		return val_float;
 	}
+	boolean getBooleanVal(){
+		return val_bool;
+	}
+	ValueAttribute and(ValueAttribute right){
+		return new ValueAttribute(this.getBooleanVal() && right.getBooleanVal());
+	}
+	
+	ValueAttribute or(ValueAttribute right){
+		return new ValueAttribute(this.getBooleanVal() || right.getBooleanVal());
+	}
+	
 	ValueAttribute add(ValueAttribute right){
 		if (this.isFloat() || right.isFloat()){
 			double ret;

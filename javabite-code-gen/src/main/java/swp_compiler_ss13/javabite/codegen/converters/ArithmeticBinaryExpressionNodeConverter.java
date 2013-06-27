@@ -6,6 +6,7 @@ import swp_compiler_ss13.common.ast.ASTNode.ASTNodeType;
 import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.types.Type.Kind;
+import swp_compiler_ss13.common.types.primitive.StringType;
 import swp_compiler_ss13.javabite.codegen.CastingAst2CodeConverter;
 import swp_compiler_ss13.javabite.codegen.IdentifierData;
 import swp_compiler_ss13.javabite.codegen.QuadrupleFactoryJb;
@@ -28,8 +29,16 @@ public class ArithmeticBinaryExpressionNodeConverter extends CastingAst2CodeConv
 		icg.processNode(binaryNode.getRightValue());
 		IdentifierData rightData = icg.popIdentifierData();
 		
-		// check if types matches
-		if (leftData.getType().getKind() != rightData.getType().getKind()) {
+		// first check if any of the types is a string and cast the other to string
+		// if non is a string it has to be LONG or DOUBLE if the arn't both of same
+		// type we have to cast to double
+		if (leftData.getType().getKind() == Kind.STRING || rightData.getType().getKind() == Kind.STRING) {
+			if (leftData.getType().getKind() != Kind.STRING)
+				leftData = cast(new StringType(0L), leftData);
+
+			if (rightData.getType().getKind() != Kind.STRING)
+				rightData = cast(new StringType(0L), rightData);
+		} else if (leftData.getType().getKind() != rightData.getType().getKind()) {
 			// cast is needed -> its arithmetic so one has to be double and one long
 			// we always upcast to double
 			if (leftData.getType().getKind() == Kind.LONG) {

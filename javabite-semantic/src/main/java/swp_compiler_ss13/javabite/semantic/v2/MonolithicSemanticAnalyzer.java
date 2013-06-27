@@ -11,13 +11,9 @@ import static swp_compiler_ss13.javabite.semantic.v2.BreakValidness.NOT_IN_LOOP;
 import static swp_compiler_ss13.javabite.semantic.v2.CodeFlowAttribute.FLOW_CONTINUE;
 import static swp_compiler_ss13.javabite.semantic.v2.CodeFlowAttribute.FLOW_INTERRUPT;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,8 +41,6 @@ import swp_compiler_ss13.common.ast.nodes.unary.LogicUnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.PrintNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.ast.nodes.unary.StructIdentifierNode;
-import swp_compiler_ss13.common.lexer.Lexer;
-import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.parser.SymbolTable;
 import swp_compiler_ss13.common.report.ReportLog;
 import swp_compiler_ss13.common.report.ReportType;
@@ -56,8 +50,6 @@ import swp_compiler_ss13.common.types.Type.Kind;
 import swp_compiler_ss13.common.types.derived.ArrayType;
 import swp_compiler_ss13.common.types.derived.Member;
 import swp_compiler_ss13.common.types.derived.StructType;
-import swp_compiler_ss13.javabite.lexer.LexerJb;
-import swp_compiler_ss13.javabite.parser.ParserJb;
 
 /**
  * This class is a preliminary solution to handle the semantic analysis. The
@@ -854,6 +846,7 @@ public class MonolithicSemanticAnalyzer implements SemanticAnalyser {
 
 	// ----------------------------------------------------------------------------------
 
+	/* JUST FOR DIRTY TESTING
 	public static void main(String[] args) throws FileNotFoundException {
 		File f = new File("/Users/Till/Desktop/test.prog");
 		Lexer lex = new LexerJb();
@@ -890,5 +883,5 @@ public class MonolithicSemanticAnalyzer implements SemanticAnalyser {
 		sa.setReportLog(reportLog);
 		sa.analyse(ast);
 	}
-
+	*/
 }

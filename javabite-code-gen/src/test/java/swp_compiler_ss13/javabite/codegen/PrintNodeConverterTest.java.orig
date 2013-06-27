@@ -33,6 +33,10 @@ public class PrintNodeConverterTest {
 	}
 
 	/**
+<<<<<<< HEAD
+	 * Test for any PrintNode, which has the type String.
+	 * Pop the IdentifierData, verify the converter and add the Quadruple.
+=======
 	 * Test for any PrintNode, which has the type Long. Pop the IdentifierData,
 	 * verify the converter and add the Quadruple.
 	 */
@@ -125,6 +129,7 @@ public class PrintNodeConverterTest {
 	/**
 	 * Test for any PrintNode, which has the type String. Pop the
 	 * IdentifierData, verify the converter and add the Quadruple.
+>>>>>>> 83b94d415828ec635817af1d24ee99dce90e436e
 	 */
 	@Test
 	public void testPrintStringConverter()
