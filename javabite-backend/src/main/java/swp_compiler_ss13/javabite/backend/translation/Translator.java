@@ -307,8 +307,8 @@ public class Translator {
 						constructorTAC.add(arrayQuad);
 					}
 
-					// TODO getDescriptor using arrayTAC
-					descriptor = "Array";
+					// getDescriptor using arrayTAC
+					descriptor = ClassfileUtils.getByQuadruples(arrayTAC);
 					structClassfile.addFieldToFieldArea(name, descriptor,
 							FieldAccessFlag.ACC_PUBLIC);
 					/*
@@ -339,8 +339,8 @@ public class Translator {
 					translateStructIntoClassfile(structTACwithoutFirstDecl,
 							structClassName);
 
-					// TODO getDescriptor using structTAC
-					descriptor = "Struct";
+					// getDescriptor using structTAC
+					descriptor = ClassfileUtils.getByQuadruples(structTAC);
 					structClassfile.addFieldToFieldArea(name, descriptor,
 							FieldAccessFlag.ACC_PUBLIC);
 
@@ -355,8 +355,8 @@ public class Translator {
 				default:
 					constructorTAC.add(quad);
 
-					// TODO getDescriptor using quad
-					descriptor = "descriptor";
+					// getDescriptor using quad
+					descriptor = ClassfileUtils.getByQuadruples(quad);
 					// add field to field area
 					structClassfile.addFieldToFieldArea(name, descriptor,
 							FieldAccessFlag.ACC_PUBLIC);
