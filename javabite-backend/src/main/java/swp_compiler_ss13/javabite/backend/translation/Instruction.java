@@ -1,13 +1,12 @@
-package swp_compiler_ss13.javabite.backend;
+package swp_compiler_ss13.javabite.backend.translation;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
 
 /**
  * <h1>Instruction</h1>
@@ -50,8 +49,6 @@ public class Instruction {
 	/**
 	 * Create a new instruction class instance
 	 * 
-	 * @param size
-	 *            byte size
 	 * @param mnemonic
 	 *            mnemonic of opcode
 	 */
@@ -97,6 +94,7 @@ public class Instruction {
 	 * 
 	 * @return the mnemonic
 	 */
+	@SuppressWarnings("unused")
 	public Mnemonic getMnemonic() {
 		return mnemonic;
 	}
@@ -182,43 +180,35 @@ public class Instruction {
 		return sb.toString();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + Arrays.hashCode(arguments);
-		result = prime * result + (mnemonic == null ? 0 : mnemonic.hashCode());
-		result = prime * result + byteCount;
-		result = prime * result + mnemonic.getStackChange();
-		return result;
+	public boolean equals(Object o) {
+		if (this == o)
+			return true;
+		if (o == null || getClass() != o.getClass())
+			return false;
+
+		Instruction that = (Instruction) o;
+
+		if (byteCount != that.byteCount)
+			return false;
+		if (offset != that.offset)
+			return false;
+		if (!Arrays.equals(arguments, that.arguments))
+			return false;
+		if (mnemonic != that.mnemonic)
+			return false;
+
+		return true;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
-	public boolean equals(final Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (!(obj instanceof Instruction))
-			return false;
-		final Instruction other = (Instruction) obj;
-		if (!Arrays.equals(arguments, other.arguments))
-			return false;
-		if (mnemonic != other.mnemonic)
-			return false;
-		if (byteCount != other.byteCount)
-			return false;
-		return true;
+	public int hashCode() {
+		int result = byteCount;
+		result = 31 * result + (mnemonic != null ? mnemonic.hashCode() : 0);
+		result = 31 * result
+				+ (arguments != null ? Arrays.hashCode(arguments) : 0);
+		result = 31 * result + offset;
+		return result;
 	}
 
 }

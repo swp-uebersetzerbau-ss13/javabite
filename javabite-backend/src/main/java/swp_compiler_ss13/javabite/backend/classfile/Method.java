@@ -1,16 +1,15 @@
 package swp_compiler_ss13.javabite.backend.classfile;
 
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToHexString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import swp_compiler_ss13.javabite.backend.translation.Instruction;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodAccessFlag;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import swp_compiler_ss13.javabite.backend.Instruction;
-import swp_compiler_ss13.javabite.backend.classfile.IClassfile.MethodAccessFlag;
-import swp_compiler_ss13.javabite.backend.classfile.IClassfile.VariableType;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToHexString;
 
 /**
  * <h1>Method</h1>
@@ -36,7 +35,7 @@ class Method {
 	 */
 	private final short attributesCount = 1;
 	// Attributes
-	private final CodeAttribute codeAttribute;
+	private final Code codeAttribute;
 
 	/**
 	 * <h1>Method</h1>
@@ -52,13 +51,8 @@ class Method {
 	 * according to the parameters.
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 28.04.2013
-	 * @param methodName
-	 *            String name of the method to be instantiated
-	 * @param methodDescriptor
-	 *            String descriptor of the method to be instantiated
-	 * @param accessFlags
+	 * @param fieldAccessFlags
 	 *            arbitrary amount of MethodAccessFlag
 	 * @see #accessFlags
 	 * @see Classfile#addUTF8ConstantToConstantPool(String)
@@ -89,13 +83,13 @@ class Method {
 
 	// TODO: UPDATE JAVADOC
 	Method(final short nameIndex, final short descriptorIndex,
-			final short codeIndex, final MethodAccessFlag... accessFlags) {
+			final short codeIndex, final MethodAccessFlag... fieldAccessFlags) {
 		this.nameIndex = nameIndex;
 		this.descriptorIndex = descriptorIndex;
-		codeAttribute = new CodeAttribute(codeIndex);
+		codeAttribute = new Code(codeIndex);
 
-		for (final MethodAccessFlag a : accessFlags) {
-			this.accessFlags = (short) (this.accessFlags | a.getValue());
+		for (final MethodAccessFlag faf : fieldAccessFlags) {
+			this.accessFlags = (short) (this.accessFlags | faf.value);
 		}
 
 	}
@@ -109,7 +103,6 @@ class Method {
 	 * variables and the writeTo methods of its member objects.
 	 * </p>
 	 * 
-	 * @author Robert, Marco
 	 * @param classfileDOS
 	 *            DataOutputStream to which the bytes are written
 	 */
@@ -141,24 +134,23 @@ class Method {
 	 * This method adds a new variable to a methods code attribute by allocating
 	 * appropriate space in the local variable table of the method using the
 	 * CodeAttribute method
-	 * {@link CodeAttribute#addVariable(String, swp_compiler_ss13.javabite.backend.classfile.IClassfile.VariableType)}
+	 * {@link Code#addVariable(String, swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType)}
 	 * .
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 29.04.2013
 	 * @param variableName
 	 *            String name of the variable
-	 * @param variableType
-	 *            VariableType variable type of the variable
-	 * @see VariableType
-	 * @see CodeAttribute
-	 * @see CodeAttribute#addVariable(String,
-	 *      swp_compiler_ss13.javabite.backend.classfile.IClassfile.VariableType)
+	 * @param localVariableType
+	 *            LocalVariableType variable type of the variable
+	 * @see swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType
+	 * @see Code
+	 * @see Code#addVariable(String,
+	 *      swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType)
 	 */
 	void addVariableToCodeAttribute(final String variableName,
-			final VariableType variableType) {
-		codeAttribute.addVariable(variableName, variableType);
+			final ClassfileUtils.LocalVariableType localVariableType) {
+		codeAttribute.addVariable(variableName, localVariableType);
 	}
 
 	/**
@@ -166,16 +158,15 @@ class Method {
 	 * <p>
 	 * This method looks up the index of a variable name in the code attribute
 	 * of this method using the CodeAttribute's method
-	 * {@link CodeAttribute#getIndexOfVariable(String)}.
+	 * {@link Code#getIndexOfVariable(String)}.
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 30.04.2013
 	 * @param variableName
 	 *            String name of the variable
 	 * @return index of the variable in local variable space of this method.
-	 * @see CodeAttribute
-	 * @see CodeAttribute#getIndexOfVariable(String)
+	 * @see Code
+	 * @see Code#getIndexOfVariable(String)
 	 */
 	byte getIndexOfVariable(final String variableName) {
 		return codeAttribute.getIndexOfVariable(variableName);
@@ -186,15 +177,14 @@ class Method {
 	 * <p>
 	 * This method adds a new Instruction object to the code area of the code
 	 * attribute of this method using the CodeAttribute's method
-	 * {@link CodeAttribute#addInstruction(Instruction)}.
+	 * {@link Code#addInstruction(Instruction)}.
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 30.04.2013
 	 * @param instruction
 	 *            instance of class Instruction
-	 * @see CodeAttribute
-	 * @see CodeAttribute#addInstruction(Instruction)
+	 * @see Code
+	 * @see Code#addInstruction(Instruction)
 	 * @see Instruction
 	 */
 	void addInstructionToCodeAttribute(final Instruction instruction) {

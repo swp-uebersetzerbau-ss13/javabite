@@ -1,20 +1,18 @@
 package swp_compiler_ss13.javabite.backend.classfile;
 
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.byteArrayToHexString;
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.intToHexString;
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToHexString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import swp_compiler_ss13.javabite.backend.translation.Instruction;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import swp_compiler_ss13.javabite.backend.Instruction;
-import swp_compiler_ss13.javabite.backend.classfile.IClassfile.VariableType;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.*;
 
 /**
  * <h1>CodeAttribute</h1>
@@ -29,7 +27,7 @@ import swp_compiler_ss13.javabite.backend.classfile.IClassfile.VariableType;
  * @author Marco
  * @since 28.04.2013
  */
-public class CodeAttribute {
+class Code {
 
 	Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -53,9 +51,8 @@ public class CodeAttribute {
 	 * 
 	 * @see Instruction </p>
 	 */
-	private final ArrayList<Instruction> codeArea;
+	private final List<Instruction> codeArea;
 	private final short exceptionTableLength;
-	private final short attributesCount;
 
 	/**
 	 * <h1>CodeAttribute</h1>
@@ -69,22 +66,20 @@ public class CodeAttribute {
 	 * The constructor initializes the CodeAttribute object.
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 28.04.2013
 	 * @param codeIndex
 	 *            short index into this classfile's constant pool of string
 	 *            "Code".
 	 */
-	public CodeAttribute(final short codeIndex) {
+	public Code(final short codeIndex) {
 		this.codeIndex = codeIndex;
-		variableMap = new HashMap<String, Byte>();
-		codeArea = new ArrayList<Instruction>();
+		variableMap = new HashMap<>();
+		codeArea = new ArrayList<>();
 
 		maxStack = 1;
 		maxLocals = 1;
 		exceptionTableLength = 0;
-		attributesCount = 0;
-	};
+	}
 
 	/**
 	 * <h1>writeTo</h1>
@@ -95,12 +90,12 @@ public class CodeAttribute {
 	 * information in its member variables.
 	 * </p>
 	 * 
-	 * @author Robert, Marco
 	 * @param classfileDOS
 	 *            DataOutputStream to which the bytes are written
 	 */
 	void writeTo(final DataOutputStream classfileDOS) {
 
+		// TODO use bytebuffer or classfileDOS directly?
 		final ByteArrayOutputStream attributesBAOS = new ByteArrayOutputStream();
 		final DataOutputStream attributesDOS = new DataOutputStream(
 				attributesBAOS);
@@ -111,20 +106,24 @@ public class CodeAttribute {
 		maxStack = calculateMaxStack();
 
 		try {
-			attributesDOS.writeShort(maxStack);
 			logger.debug("MAX_STACK: " + maxStack);
+
+			// maximal stack size
+			attributesDOS.writeShort(maxStack);
+
+			// maximal local variable count
 			attributesDOS.writeShort(maxLocals);
 
+			// code attribute
 			for (final Instruction instruction : codeArea) {
 				instruction.writeTo(codeDOS);
 			}
-
+			// TODO why use codeDOS for size() and codeBAOS for toByteArray() ?
 			attributesDOS.writeInt(codeDOS.size());
-
 			attributesDOS.write(codeBAOS.toByteArray());
 
+			// exception table attribute (unused)
 			attributesDOS.writeShort(exceptionTableLength);
-			attributesDOS.writeShort(attributesCount);
 
 			classfileDOS.writeShort(codeIndex);
 			classfileDOS.writeInt(attributesDOS.size());
@@ -157,7 +156,6 @@ public class CodeAttribute {
 	 * objects' methods {@link Instruction#getStackChange()}.
 	 * </p>
 	 * 
-	 * @author Eike
 	 * @since 13.05.2013
 	 * @return short max stack size that can be reached
 	 * @see #codeArea
@@ -184,20 +182,20 @@ public class CodeAttribute {
 	 * happen.maxLocals
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 29.04.2013
 	 * @param variableName
 	 *            String name of the variable to be added
-	 * @param variableType
-	 *            VariableType variable type of the variable to be added
-	 * @see VariableType
+	 * @param localVariableType
+	 *            LocalVariableType variable type of the variable to be added
+	 * @see swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType
 	 * @see #variableMap
 	 */
-	void addVariable(final String variableName, final VariableType variableType) {
+	void addVariable(final String variableName,
+			final LocalVariableType localVariableType) {
 
 		if (!variableMap.containsKey(variableName)) {
 			variableMap.put(variableName, (byte) maxLocals);
-			maxLocals += variableType.getLength();
+			maxLocals += localVariableType.length;
 		}
 	}
 
@@ -208,7 +206,6 @@ public class CodeAttribute {
 	 * this code attribute.
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 30.04.2013
 	 * @param variableName
 	 *            String name of the variable
@@ -233,7 +230,6 @@ public class CodeAttribute {
 	 * attribute
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 30.04.2013
 	 * @param instruction
 	 *            instance of class Instruction
@@ -243,4 +239,5 @@ public class CodeAttribute {
 	void addInstruction(final Instruction instruction) {
 		codeArea.add(instruction);
 	}
+
 }

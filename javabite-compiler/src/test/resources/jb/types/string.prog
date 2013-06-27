@@ -1,0 +1,3 @@
+string s;
+s = "abcdefghijklmnopqrstuvxyzABCDEFGHIJKLMNOPQRSTUVXYZ1234567890!";
+print s;

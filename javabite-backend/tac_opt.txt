@@ -1,0 +1,25 @@
+tac optimierung:
+
+konstanten müssen nicht in lokalen variablen gespeichert werden, wenn sie nicht verändert werden.
+z.b.
+DECLARE_STRING "#\"bla\"", "!", "s"
+PRINT_STRING "s", "!", "!"
+
+deklaration mit darauf folgender zuweisung ist überflüssig
+durch mechanik eingefügtes assign-default (ASSIGN "#\"\"", "!", "s") ist überflüssig
+z.b.
+DECLARE_STRING "!", "!", "s"
+ASSIGN_STRING "#\"bla\"", "!", "s"
+
+BRANCH mit zwei zielen, wovon eines direkt unter BRANCH liegt, ist überflüssig
+z.b.
+BRANCH t1 t2 b
+LABEL t1
+
+Mehrere String concatenations verketten
+STRING_CONCAT "#\" bla\"", "!", "s"
+STRING_CONCAT "#\" mehr bla\"", "!", "s"
+
+String convertion vor String concat kann weggelassen werden, da der StringBuilder alle primitiven datentypen unterstützt
+LONG_TO_STRING "l", "!", "s"
+STRING_CONCAT "s", "x", "s"

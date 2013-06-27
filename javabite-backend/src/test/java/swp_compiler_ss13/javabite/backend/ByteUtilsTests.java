@@ -1,13 +1,14 @@
 package swp_compiler_ss13.javabite.backend;
 
-import java.util.regex.Pattern;
-
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.TestName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.regex.Pattern;
 
 public class ByteUtilsTests {
 
@@ -20,15 +21,15 @@ public class ByteUtilsTests {
 	}
 
 	private static String toHexString(final int i) {
-		return splitHexBytes(String.format("%08x", Integer.valueOf(i)));
+		return splitHexBytes(String.format("%08x", i));
 	}
 
 	private static String toHexString(final short i) {
-		return splitHexBytes(String.format("%08x", Short.valueOf(i)));
+		return splitHexBytes(String.format("%08x", i));
 	}
 
 	private static String toHexString(final byte i) {
-		return splitHexBytes(String.format("%08x", Byte.valueOf(i)));
+		return splitHexBytes(String.format("%08x", i));
 	}
 
 	@Rule
@@ -44,7 +45,7 @@ public class ByteUtilsTests {
 		log.info("===");
 	}
 
-	// @Test
+	@Test
 	public void testHexFromInt2() {
 		final int posInt = Integer.MAX_VALUE;
 		final int negInt = Integer.MIN_VALUE;
@@ -54,7 +55,7 @@ public class ByteUtilsTests {
 		log.info("mine neg {}", toHexString(negInt));
 	}
 
-	// @Test
+	@Test
 	public void testHexFromShort() {
 		final short posShort = Short.MAX_VALUE;
 		final short negShort = Short.MIN_VALUE;
@@ -64,7 +65,7 @@ public class ByteUtilsTests {
 		log.info("mine neg {}", toHexString(negShort));
 	}
 
-	// @Test
+	@Test
 	public void testHexFromByte() {
 		final byte posByte = Byte.MAX_VALUE;
 		final byte negByte = Byte.MIN_VALUE;

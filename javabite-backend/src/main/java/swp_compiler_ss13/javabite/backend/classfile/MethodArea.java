@@ -1,17 +1,16 @@
 package swp_compiler_ss13.javabite.backend.classfile;
 
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToHexString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import swp_compiler_ss13.javabite.backend.translation.Instruction;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodAccessFlag;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import swp_compiler_ss13.javabite.backend.Instruction;
-import swp_compiler_ss13.javabite.backend.classfile.IClassfile.MethodAccessFlag;
-import swp_compiler_ss13.javabite.backend.classfile.IClassfile.VariableType;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToHexString;
 
 /**
  * <h1>MethodArea</h1>
@@ -23,7 +22,7 @@ import swp_compiler_ss13.javabite.backend.classfile.IClassfile.VariableType;
  * @author Marco
  * @since 28.04.2013
  */
-public class MethodArea {
+class MethodArea {
 
 	Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -38,7 +37,7 @@ public class MethodArea {
 	private final HashMap<String, Method> methodMap;
 
 	MethodArea() {
-		methodMap = new HashMap<String, Method>();
+		methodMap = new HashMap<>();
 	}
 
 	/**
@@ -50,7 +49,6 @@ public class MethodArea {
 	 * writeTo methods of its member objects.
 	 * </p>
 	 * 
-	 * @author Robert, Marco
 	 * @param classfileDOS
 	 *            DataOutputStream to which the bytes are written
 	 */
@@ -80,7 +78,6 @@ public class MethodArea {
 	 * of this method area.
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 29.04.2013
 	 * @param methodName
 	 *            String name of the method
@@ -109,7 +106,6 @@ public class MethodArea {
 	 * methodName.
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 29.04.2013
 	 * @param methodName
 	 *            String name of method which is supposed to be returned
@@ -128,27 +124,26 @@ public class MethodArea {
 	 * and adds a new variable to a methods code by allocating appropriate space
 	 * in the local variable table of the method using the looked up Method
 	 * object's method
-	 * {@link Method#addVariableToCodeAttribute(String, swp_compiler_ss13.javabite.backend.classfile.IClassfile.VariableType)}
+	 * {@link Method#addVariableToCodeAttribute(String, swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType)}
 	 * .
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 29.04.2013
 	 * @param methodName
 	 *            String name of the method
 	 * @param variableName
 	 *            String name of the variable
-	 * @param variableType
-	 *            VariableType variable type of the variable
+	 * @param localVariableType
+	 *            LocalVariableType variable type of the variable
 	 * @see Method
 	 * @see Method#addVariableToCodeAttribute(String,
-	 *      swp_compiler_ss13.javabite.backend.classfile.IClassfile.VariableType)
+	 *      swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType)
 	 */
 	void addVariableToMethodsCode(final String methodName,
-			final String variableName, final VariableType variableType) {
+			final String variableName, final LocalVariableType localVariableType) {
 
 		final Method method = getMethodByMethodName(methodName);
-		method.addVariableToCodeAttribute(variableName, variableType);
+		method.addVariableToCodeAttribute(variableName, localVariableType);
 	}
 
 	/**
@@ -160,7 +155,6 @@ public class MethodArea {
 	 * object using the specified variable name.
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 30.04.2013
 	 * @param methodName
 	 *            String name of the method
@@ -188,7 +182,6 @@ public class MethodArea {
 	 * {@link Method#addInstructionToCodeAttribute(Instruction)}.
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 30.04.2013
 	 * @param methodName
 	 *            String name of the method

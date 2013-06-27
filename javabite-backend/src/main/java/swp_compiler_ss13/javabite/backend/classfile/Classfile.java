@@ -1,21 +1,20 @@
 package swp_compiler_ss13.javabite.backend.classfile;
 
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.byteArrayToHexString;
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToHexString;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import swp_compiler_ss13.javabite.backend.Instruction;
-import swp_compiler_ss13.javabite.backend.Mnemonic;
+import swp_compiler_ss13.javabite.backend.translation.Instruction;
+import swp_compiler_ss13.javabite.backend.translation.Mnemonic;
 import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ClassfileAccessFlag;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.FieldAccessFlag;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodAccessFlag;
+
+import java.io.*;
+
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.byteArrayToHexString;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToHexString;
 
 /**
  * <h1>Classfile</h1>
@@ -26,7 +25,7 @@ import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
  * @author Marco
  * @since 27.04.2013
  */
-public class Classfile implements IClassfile {
+public class Classfile {
 
 	public static final byte[] MAJOR_VERSION_J2SE_7 = { (byte) 0, (byte) 51 };
 	public static final byte[] MAJOR_VERSION_J2SE_6 = { (byte) 0, (byte) 50 };
@@ -49,7 +48,7 @@ public class Classfile implements IClassfile {
 	private final byte[] magic = { (byte) 0xca, (byte) 0xfe, (byte) 0xba,
 			(byte) 0xbe };
 	private final byte[] minorVersion = { (byte) 0x00, (byte) 0x00 };
-	private final byte[] majorVersion = MAJOR_VERSION_J2SE_7;
+	private final byte[] majorVersion = MAJOR_VERSION_J2SE_5;
 	protected ConstantPool constantPool;
 	private short accessFlags;
 	private short thisClassIndex;
@@ -57,7 +56,7 @@ public class Classfile implements IClassfile {
 	private final short interfaceCount;
 	// interface area left out
 	private final short fieldsCount;
-	// field area left out
+	protected FieldArea fieldArea;
 	protected MethodArea methodArea;
 	private final short attributesCount;
 
@@ -75,7 +74,6 @@ public class Classfile implements IClassfile {
 	 * method area and attribute area and sets basic classfile information.
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 27.04.2013
 	 * @param name
 	 *            string describing the classfile's name being used when the
@@ -102,13 +100,13 @@ public class Classfile implements IClassfile {
 		attributesCount = 0;
 
 		for (final ClassfileAccessFlag accessFlag : accessFlags) {
-			this.accessFlags = (short) (this.accessFlags | accessFlag
-					.getValue());
+			this.accessFlags = (short) (this.accessFlags | accessFlag.value);
 		}
 
 		// instantiate constant pool, field area, method area and attribute area
 		constantPool = new ConstantPool();
 		methodArea = new MethodArea();
+		fieldArea = new FieldArea();
 
 		// initialize classfile
 		initializeClassfile();
@@ -121,7 +119,6 @@ public class Classfile implements IClassfile {
 	 * and creates an init method (constructor).
 	 * </p>
 	 * 
-	 * @author Marco
 	 * @since 28.04.2013
 	 */
 	private void initializeClassfile() {
@@ -143,8 +140,7 @@ public class Classfile implements IClassfile {
 		 * parameter
 		 */
 		// TODO externalize static strings
-		addMethodToMethodArea("<init>", "()V",
-				Classfile.MethodAccessFlag.ACC_PUBLIC);
+		addMethodToMethodArea("<init>", "()V", MethodAccessFlag.ACC_PUBLIC);
 		// TODO replace with addMethodref
 		final short initNATIndex = constantPool
 				.generateConstantNameAndTypeInfo("<init>", "()V");
@@ -170,22 +166,43 @@ public class Classfile implements IClassfile {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * <h1>generateInputstream</h1>
+	 * <p>
+	 * This method generates an Inputstream containing all information of the
+	 * classfile, which can be obtained by using the classfile's method
+	 * "writeTo(OutputStream os)".
+	 * </p>
+	 * 
+	 * @since 27.04.2013
+	 * @see #writeTo(OutputStream)
 	 */
-	@Override
 	public InputStream generateInputstream() {
 		final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		final DataOutputStream classfileDOS = new DataOutputStream(baos);
 
 		writeTo(classfileDOS);
 
+		// final ClassReader cr = new ClassReader(baos.toByteArray());
+		// final ClassWriter cw = new ClassWriter(cr,
+		// ClassWriter.COMPUTE_FRAMES);
+
 		return new ByteArrayInputStream(baos.toByteArray());
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * <h1>writeTo</h1>
+	 * <p>
+	 * This method uses an output stream and adds all bytes of the classfile
+	 * meeting the jvm standard for javabyte classfiles. To do this, it uses the
+	 * information in its member variables and the writeTo methods of its member
+	 * objects.
+	 * </p>
+	 * 
+	 * @param classfileOS
+	 *            the output stream to which the bytes are written
+	 * @see ConstantPool#writeTo(java.io.DataOutputStream)
+	 * @see MethodArea#writeTo(java.io.DataOutputStream)
 	 */
-	@Override
 	public void writeTo(final OutputStream classfileOS) {
 		try {
 			if (logger.isDebugEnabled()) {
@@ -235,106 +252,224 @@ public class Classfile implements IClassfile {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * <h1>getName</h1>
+	 * <p>
+	 * This method returns the classfile's name.
+	 * </p>
+	 * 
+	 * @since 27.04.2013
 	 */
-	@Override
 	public String getName() {
 		return name;
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * <h1>addLongConstantToConstantPool</h1>
+	 * <p>
+	 * This method creates an longInfo-entry meeting the jvm classfile constant
+	 * pool CONSTANT_LONG_info standard in the constantPool of this classfile.
+	 * The generated entry is appended to the existing list, if it is not
+	 * already in it. The entry's index is returned.
+	 * </p>
+	 * 
+	 * @since 26.05.2013
+	 * @param value
+	 *            long value of the value which is to be generated
+	 * @return short index of a long info entry in the constant pool of this
+	 *         classfile meeting the parameters.
 	 */
-	@Override
 	public short addLongConstantToConstantPool(final long value) {
 		return constantPool.generateConstantLongInfo(value);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * <h1>addDoubleConstantToConstantPool</h1>
+	 * <p>
+	 * This method creates an doubleInfo-entry meeting the jvm classfile
+	 * constant pool CONSTANT_DOUBLE_info standard in the constantPool of this
+	 * classfile. The generated entry is appended to the existing list, if it is
+	 * not already in it. The entry's index is returned.
+	 * </p>
+	 * 
+	 * @since 26.05.2013
+	 * @param value
+	 *            double value of the value which is to be generated
+	 * @param keyValue
+	 *            original (unparsed) double value as string to assemble map key
+	 * @return short index of a double info entry in the constant pool of this
+	 *         classfile meeting the parameters.
 	 */
-	@Override
 	public short addDoubleConstantToConstantPool(final double value,
 			final String keyValue) {
 		return constantPool.generateConstantDoubleInfo(value, keyValue);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * <h1>addStringConstantToConstantPool</h1>
+	 * <p>
+	 * This method creates an stringInfo-entry meeting the jvm classfile
+	 * constant pool CONSTANT_STRING_info standard in the constantPool of this
+	 * classfile. The generated entry is appended to the existing list, if it is
+	 * not already in it. The entry's index is returned.
+	 * </p>
+	 * 
+	 * @since 26.05.2013
+	 * @param value
+	 *            string value of the value which is to be generated
+	 * @return short index of a string info entry in the constant pool of this
+	 *         classfile meeting the parameters.
 	 */
-	@Override
 	public short addStringConstantToConstantPool(final String value) {
 		return constantPool.generateConstantStringInfo(value);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * <h1>addUTF8ConstantToConstantPool</h1>
+	 * <p>
+	 * This method creates an utf8Info-entry meeting the jvm classfile constant
+	 * pool CONSTANT_UTF8_info standard in the constantPool of this classfile.
+	 * The generated entry is appended to the existing list, if it is not
+	 * already in it. The entry's index is returned.
+	 * </p>
+	 * 
+	 * @since 26.05.2013
+	 * @param value
+	 *            string value of the value which is to be generated
+	 * @return short index of a utf8 info entry in the constant pool of this
+	 *         classfile meeting the parameters.
 	 */
-	@Override
 	public short addUTF8ConstantToConstantPool(final String value) {
 		return constantPool.generateConstantUTF8Info(value);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * <h1>addClassConstantToConstantPool</h1>
+	 * <p>
+	 * This method creates an classInfo-entry meeting the jvm classfile constant
+	 * pool CONSTANT_CLASS_info standard in the constantPool of this classfile.
+	 * The generated entry is appended to the existing list, if it is not
+	 * already in it. The entry's index is returned.
+	 * </p>
+	 * 
+	 * @since 26.05.2013
+	 * @param value
+	 *            string value of the value which is to be generated
+	 * @return short index of a class info entry in the constant pool of this
+	 *         classfile meeting the parameters.
 	 */
-	@Override
 	public short addClassConstantToConstantPool(final String value) {
 		return constantPool.generateConstantClassInfo(value);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * <h1>addMethodrefConstantToConstantPool</h1>
+	 * <p>
+	 * This method creates an methodrefInfo-entry meeting the jvm classfile
+	 * constant pool CONSTANT_Methodref_info standard in the constantPool of
+	 * this classfile. The generated entry is appended to the existing list, if
+	 * it is not already in it. The entry's index is returned. Therefore this
+	 * method adds all necessary data to the constant pool needed to call the
+	 * defined method via the instruction invokestatic.
+	 * </p>
+	 * 
+	 * @since 13.05.2013
+	 * @param methodName
+	 *            string name of the method
+	 * @param methodNameDescriptor
+	 *            string method descriptor as specified by the jvm specification
+	 * @param classNameEIF
+	 *            string describing the method's class' class name encoded in
+	 *            internal form according to the jvm specification
+	 * @return short index of a methodref info entry in the constant pool of
+	 *         this classfile meeting the parameters.
 	 */
-	@Override
 	public short addMethodrefConstantToConstantPool(final String methodName,
 			final String methodNameDescriptor, final String classNameEIF) {
-
 		// add class
 		final short classIndex = addClassConstantToConstantPool(classNameEIF);
 		// add NAT
 		final short natIndex = constantPool.generateConstantNameAndTypeInfo(
 				methodName, methodNameDescriptor);
 		// add methodref
-		final short methodrefIndex = constantPool
-				.generateConstantMethodrefInfo(classIndex, natIndex);
-
-		return methodrefIndex;
+		return constantPool.generateConstantMethodrefInfo(classIndex, natIndex);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * <h1>addFieldrefConstantToConstantPool</h1>
+	 * <p>
+	 * This method creates a fieldrefInfo-entry meeting the jvm classfile
+	 * constant pool CONSTANT_Fieldref_info standard in the constantPool of this
+	 * classfile. The generated entry is appended to the existing list, if it is
+	 * not already in it. The entry's index is returned. Therefore this method
+	 * adds all necessary data to the constant pool needed to get data from
+	 * another class via the instruction getstatic.
+	 * </p>
+	 * 
+	 * @since 30.05.2013
+	 * @param fieldName
+	 *            string name of the field
+	 * @param fieldNameDescriptor
+	 *            string field descriptor as specified by the jvm specification
+	 * @param classNameEIF
+	 *            string describing the method's class' class name encoded in
+	 *            internal form according to the jvm specification
+	 * @return short index of a fieldref info entry in the constant pool of this
+	 *         classfile meeting the parameters.
 	 */
-	@Override
 	public short addFieldrefConstantToConstantPool(final String fieldName,
 			final String fieldNameDescriptor, final String classNameEIF) {
-
 		// add class
 		final short classIndex = addClassConstantToConstantPool(classNameEIF);
 		// add NAT
 		final short natIndex = constantPool.generateConstantNameAndTypeInfo(
 				fieldName, fieldNameDescriptor);
 		// add fieldref
-		final short fieldrefIndex = constantPool.generateConstantFieldrefInfo(
-				classIndex, natIndex);
-
-		return fieldrefIndex;
+		return constantPool.generateConstantFieldrefInfo(classIndex, natIndex);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * <h1>getIndexOfConstantInConstantPool</h1>
+	 * <p>
+	 * This method looks up the index of a constant in the constant pool of this
+	 * classfile.<br/>
+	 * <br/>
+	 * The constant name (key) must be in an appropriate format:<br/>
+	 * LONG - {long value}<br/>
+	 * DOUBLE - {double value}<br/>
+	 * STRING - {string value}<br/>
+	 * CLASS - {class description}<br/>
+	 * UTF8 - {utf8 value}<br/>
+	 * Methodref - {class index}.{nameAndType index}<br/>
+	 * NameAndType - {method name}{method descriptor}
+	 * </p>
+	 * 
+	 * @since 30.04.2013
+	 * @param constantType
+	 *            InfoTag type of the constant
+	 * @param constantName
+	 *            String name of the constant
+	 * @return index of the constant in the constant pool of this classfile.
 	 */
-	@Override
-	public short getIndexOfConstantInConstantPool(final InfoTag constantType,
-			final String constantName) {
+	public short getIndexOfConstantInConstantPool(
+			final ConstantPoolType constantType, final String constantName) {
 		return constantPool.getIndexOfConstant(constantType, constantName);
-	};
+	}
 
 	/**
-	 * {@inheritDoc}
+	 * <h1>addMethodToMethodArea</h1>
+	 * <p>
+	 * This method calls the addMethod method of the classfile's method area to
+	 * add and initialize a new method.
+	 * </p>
+	 * 
+	 * @since 29.04.2013
+	 * @param methodName
+	 *            String name of the method
+	 * @param methodDescriptor
+	 *            String method descriptor as specified by jvm specification
+	 * @param accessFlags
+	 *            arbitrary amount of method access flags
 	 */
-	// TODO: UPDATE JAVADOC
-	@Override
 	public void addMethodToMethodArea(final String methodName,
 			final String methodDescriptor,
 			final MethodAccessFlag... accessFlags) {
@@ -349,60 +484,136 @@ public class Classfile implements IClassfile {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * <h1>addVariableToMethodsCode</h1>
+	 * <p>
+	 * This method adds a new variable to a methods code by allocating
+	 * appropriate space in the local variable table of the method.
+	 * </p>
+	 * 
+	 * @since 29.04.2013
+	 * @param methodName
+	 *            String name of the method
+	 * @param variableName
+	 *            String name of the variable
+	 * @param localVariableType
+	 *            LocalVariableType variable type of the variable
 	 */
-	@Override
 	public void addVariableToMethodsCode(final String methodName,
-			final String variableName, final VariableType variableType) {
+			final String variableName,
+			final ClassfileUtils.LocalVariableType localVariableType) {
 
 		methodArea.addVariableToMethodsCode(methodName, variableName,
-				variableType);
+				localVariableType);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * <h1>addLongVariableToMethodsCode</h1>
+	 * <p>
+	 * This method adds explicitly a LONG variable to a methods code using the
+	 * Classfile method addVariableToMethodsCode with an appropriate variable
+	 * type.
+	 * </p>
+	 * 
+	 * @since 25.05.2013
+	 * @param methodName
+	 *            String name of the method
+	 * @param variableName
+	 *            String name of the variable
+	 * @see Classfile#addVariableToMethodsCode(String, String,
+	 *      swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType)
 	 */
-	@Override
 	public void addLongVariableToMethodsCode(final String methodName,
 			final String variableName) {
 
-		addVariableToMethodsCode(methodName, variableName, VariableType.LONG);
+		addVariableToMethodsCode(methodName, variableName,
+				ClassfileUtils.LocalVariableType.LONG);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * <h1>addDoubleVariableToMethodsCode</h1>
+	 * <p>
+	 * This method adds explicitly a DOUBLE variable to a methods code using the
+	 * Classfile method addVariableToMethodsCode with an appropriate variable
+	 * type.
+	 * </p>
+	 * 
+	 * @since 25.05.2013
+	 * @param methodName
+	 *            String name of the method
+	 * @param variableName
+	 *            String name of the variable
+	 * @see Classfile#addVariableToMethodsCode(String, String,
+	 *      swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType)
 	 */
-	@Override
 	public void addDoubleVariableToMethodsCode(final String methodName,
 			final String variableName) {
 
-		addVariableToMethodsCode(methodName, variableName, VariableType.DOUBLE);
+		addVariableToMethodsCode(methodName, variableName,
+				ClassfileUtils.LocalVariableType.DOUBLE);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * <h1>addStringVariableToMethodsCode</h1>
+	 * <p>
+	 * This method adds explicitly a STRING variable to a methods code using the
+	 * Classfile method addVariableToMethodsCode with an appropriate variable
+	 * type.
+	 * </p>
+	 * 
+	 * @since 25.05.2013
+	 * @param methodName
+	 *            String name of the method
+	 * @param variableName
+	 *            String name of the variable
+	 * @see Classfile#addVariableToMethodsCode(String, String,
+	 *      swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType)
 	 */
-	@Override
 	public void addStringVariableToMethodsCode(final String methodName,
 			final String variableName) {
 
-		addVariableToMethodsCode(methodName, variableName, VariableType.STRING);
+		addVariableToMethodsCode(methodName, variableName,
+				ClassfileUtils.LocalVariableType.STRING);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * <h1>addBooleanVariableToMethodsCode</h1>
+	 * <p>
+	 * This method adds explicitly a BOOLEAN variable to a methods code using
+	 * the Classfile method addVariableToMethodsCode with an appropriate
+	 * variable type.
+	 * </p>
+	 * 
+	 * @since 25.05.2013
+	 * @param methodName
+	 *            String name of the method
+	 * @param variableName
+	 *            String name of the variable
+	 * @see Classfile#addVariableToMethodsCode(String, String,
+	 *      swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType)
 	 */
-	@Override
 	public void addBooleanVariableToMethodsCode(final String methodName,
 			final String variableName) {
 
-		addVariableToMethodsCode(methodName, variableName, VariableType.BOOLEAN);
+		addVariableToMethodsCode(methodName, variableName,
+				ClassfileUtils.LocalVariableType.BOOLEAN);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * <h1>getIndexOfVariableInMethod</h1>
+	 * <p>
+	 * This method looks up the index of a variable in the local variable space
+	 * of the code attribute of the specified method and returns it.
+	 * </p>
+	 * 
+	 * @since 30.04.2013
+	 * @param methodName
+	 *            String name of the method
+	 * @param variableName
+	 *            String name of the variable
+	 * @return index of the variable in local variable space of the code
+	 *         attribute of the specified method. variable space has a size of 1
+	 *         byte
 	 */
-	@Override
 	public byte getIndexOfVariableInMethod(final String methodName,
 			final String variableName) {
 
@@ -410,22 +621,71 @@ public class Classfile implements IClassfile {
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * <h1>addInstructionToMethodsCode</h1>
+	 * <p>
+	 * This method adds a new Instruction to the code area of the code attribute
+	 * of the provided method of the method area of this classfile using the
+	 * method
+	 * {@link MethodArea#addInstructionToMethodsCode(String, Instruction)} .
+	 * </p>
+	 * 
+	 * @since 30.04.2013
+	 * @param methodName
+	 *            String name of the method
+	 * @param instruction
+	 *            instance of class Instruction
+	 * @see MethodArea
+	 * @see MethodArea#addInstructionToMethodsCode(String, Instruction)
+	 * @see Instruction
 	 */
-	@Override
 	public void addInstructionToMethodsCode(final String methodName,
 			final Instruction instruction) {
 		methodArea.addInstructionToMethodsCode(methodName, instruction);
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * <h1>addInstructionsToMethodsCode</h1>
+	 * <p>
+	 * This method adds new Instructions to the code area of the code attribute
+	 * of the provided method of the method area of this classfile using the
+	 * Classfile method addInstructionToMethodsCode.
+	 * </p>
+	 * 
+	 * @since 09.05.2013
+	 * @param methodName
+	 *            String name of the method
+	 * @param instructions
+	 *            Collection of instances of class Instruction
+	 * @see Classfile#addInstructionToMethodsCode(String, Instruction)
 	 */
-	@Override
 	public void addInstructionsToMethodsCode(final String methodName,
 			final Instruction[] instructions) {
 		for (final Instruction instruction : instructions) {
 			methodArea.addInstructionToMethodsCode(methodName, instruction);
 		}
+	}
+
+	/**
+	 * <h1>addFieldToFieldArea</h1>
+	 * <p>
+	 * This method adds new field to this classfile's field area using the field
+	 * area's method addField.
+	 * </p>
+	 * 
+	 * @since 24.06.2013
+	 * @param fieldName
+	 *            String name of the field
+	 * @param fieldDescriptor
+	 *            String descriptor of the field
+	 * @param accessFlags
+	 *            list of access flags for the field
+	 */
+	public void addFieldToFieldArea(final String fieldName,
+			final String fieldDescriptor, final FieldAccessFlag... accessFlags) {
+		// first generate appropriate constants in the constant pool
+		short fieldNameIndex = this.constantPool.generateConstantUTF8Info(fieldName);
+		short fieldDescriptorIndex = this.constantPool.generateConstantUTF8Info(fieldDescriptor);
+		// add fields
+		this.fieldArea.addField(fieldNameIndex, fieldDescriptorIndex, accessFlags);
 	}
 }

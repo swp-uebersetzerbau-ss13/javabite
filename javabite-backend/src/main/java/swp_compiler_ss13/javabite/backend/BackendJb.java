@@ -1,18 +1,18 @@
 package swp_compiler_ss13.javabite.backend;
 
+import swp_compiler_ss13.common.backend.Backend;
+import swp_compiler_ss13.common.backend.BackendException;
+import swp_compiler_ss13.common.backend.Quadruple;
+import swp_compiler_ss13.javabite.backend.classfile.Classfile;
+import swp_compiler_ss13.javabite.backend.translation.TACOptimizer;
+import swp_compiler_ss13.javabite.backend.translation.TargetCodeOptimizer;
+import swp_compiler_ss13.javabite.backend.translation.Translator;
+
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import swp_compiler_ss13.common.backend.Backend;
-import swp_compiler_ss13.common.backend.BackendException;
-import swp_compiler_ss13.common.backend.Quadruple;
-import swp_compiler_ss13.javabite.backend.classfile.IClassfile;
-import swp_compiler_ss13.javabite.backend.translation.TACOptimizer;
-import swp_compiler_ss13.javabite.backend.translation.TargetCodeOptimizer;
-import swp_compiler_ss13.javabite.backend.translation.Translator;
 
 /**
  * BackendImpl class. Implementation of the interface "Backend".
@@ -70,12 +70,14 @@ public class BackendJb implements Backend {
 		baseFileName = rectifyJavaIdentifier(baseFileName);
 
 		// TAC Optimizer
-		// ### currently empty ###
+		// tacOptimizer.optimize(tac);
+
 		// Translator
-		final Collection<IClassfile> classfiles = translator.translate(
+		final Collection<Classfile> classfiles = translator.translate(
 				baseFileName, tac);
+
 		// Target Code Optimizer
-		// ### currently empty ###
+		// targetCodeOptimizer.optimize(classfiles);
 
 		final Map<String, InputStream> targetCodeS = createTargetCodeStreams(classfiles);
 
@@ -89,13 +91,15 @@ public class BackendJb implements Backend {
 	 * TODO javadoc
 	 * 
 	 * @param classfiles
-	 * @return
+	 *            list of classfiles to create target code streams from
+	 * @return map of classfile names as keys, with their target code streams as
+	 *         values
 	 */
-	private Map<String, InputStream> createTargetCodeStreams(
-			final Collection<IClassfile> classfiles) {
+	private static Map<String, InputStream> createTargetCodeStreams(
+			final Collection<Classfile> classfiles) {
 		final Map<String, InputStream> targetCodeIS = new HashMap<>();
 
-		for (final IClassfile classfile : classfiles) {
+		for (final Classfile classfile : classfiles) {
 			targetCodeIS.put(classfile.getName(),
 					classfile.generateInputstream());
 		}

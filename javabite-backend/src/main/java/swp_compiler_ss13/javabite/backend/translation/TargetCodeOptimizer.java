@@ -1,5 +1,9 @@
 package swp_compiler_ss13.javabite.backend.translation;
 
+import swp_compiler_ss13.javabite.backend.classfile.Classfile;
+
+import java.util.Collection;
+
 /**
  * TargetCodeOptimizer class.
  * 
@@ -8,5 +12,9 @@ package swp_compiler_ss13.javabite.backend.translation;
  * 
  */
 public class TargetCodeOptimizer {
+
+	public void optimize(final Collection<Classfile> classfiles) {
+
+	}
 
 }

@@ -1,10 +1,9 @@
-package swp_compiler_ss13.javabite.backend;
+package swp_compiler_ss13.javabite.backend.translation;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-
-import swp_compiler_ss13.common.backend.Quadruple.Operator;
 
 /**
  * <h1>Operation</h1>
@@ -22,7 +21,6 @@ public class Operation {
 
 	private final Instruction[] instructions;
 	private final int size;
-	private Operator operator;
 
 	private Operation(final List<Instruction> instructions, final int size) {
 		this.instructions = instructions.toArray(new Instruction[instructions
@@ -48,15 +46,6 @@ public class Operation {
 	 */
 	public Instruction getInstruction(final int index) {
 		return instructions[index];
-	}
-
-	/**
-	 * Returns this operations operator
-	 * 
-	 * @return the operator
-	 */
-	public Operator getOperator() {
-		return operator;
 	}
 
 	/**
@@ -104,50 +93,32 @@ public class Operation {
 		return sb.toString();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result
-				+ (instructions == null ? 0 : instructions.hashCode());
-		result = prime * result + (operator == null ? 0 : operator.hashCode());
-		result = prime * result + size;
-		return result;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(final Object obj) {
-		if (this == obj)
+	public boolean equals(Object o) {
+		if (this == o)
 			return true;
-		if (obj == null)
+		if (o == null || getClass() != o.getClass())
 			return false;
-		if (!(obj instanceof Operation))
+
+		Operation operation = (Operation) o;
+
+		if (size != operation.size)
 			return false;
-		final Operation other = (Operation) obj;
-		if (instructions == null) {
-			if (other.instructions != null)
-				return false;
-		} else if (!instructions.equals(other.instructions))
+		if (!Arrays.equals(instructions, operation.instructions))
 			return false;
-		if (operator != other.operator)
-			return false;
-		if (size != other.size)
-			return false;
+
 		return true;
 	}
 
+	@Override
+	public int hashCode() {
+		int result = instructions != null ? Arrays.hashCode(instructions) : 0;
+		result = 31 * result + size;
+		return result;
+	}
+
 	/**
-	 * <h1>Builder</h1>
+	 * <h1>MainBuilder</h1>
 	 * <p>
 	 * This class provides the builder pattern to create new instances of the
 	 * Operation-class.
@@ -217,8 +188,7 @@ public class Operation {
 		 * @return new object, created by this builder
 		 */
 		public Operation build() {
-			final Operation op = new Operation(instructions, size);
-			return op;
+			return new Operation(instructions, size);
 		}
 
 	}

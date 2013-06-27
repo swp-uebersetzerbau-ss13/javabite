@@ -1,20 +1,15 @@
 package swp_compiler_ss13.javabite.backend.utils;
 
-import java.io.ByteArrayInputStream;
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.ByteBuffer;
-import java.util.Map;
-import java.util.regex.Pattern;
-
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ByteUtils {
+import java.io.*;
+import java.nio.ByteBuffer;
+import java.util.Map;
+import java.util.regex.Pattern;
+
+public final class ByteUtils {
 
 	private static final Pattern P_HEX_BYTES = Pattern.compile("(.{2})");
 
@@ -91,7 +86,7 @@ public class ByteUtils {
 	 * @return hex string
 	 */
 	public static String intToHexString(final int i) {
-		return splitHexBytes(String.format("%08x", Integer.valueOf(i)));
+		return splitHexBytes(String.format("%08x", i));
 	}
 
 	/**
@@ -102,7 +97,7 @@ public class ByteUtils {
 	 * @return hex string
 	 */
 	public static String shortToHexString(final short i) {
-		return splitHexBytes(String.format("%04x", Short.valueOf(i)));
+		return splitHexBytes(String.format("%04x", i));
 	}
 
 	/**
@@ -113,7 +108,7 @@ public class ByteUtils {
 	 * @return hex string
 	 */
 	public static String byteToHexString(final byte i) {
-		return String.format("%02x", Byte.valueOf(i));
+		return String.format("%02x", i);
 	}
 
 	/**
@@ -152,8 +147,8 @@ public class ByteUtils {
 		for (final String classname : targetCodeIS.keySet()) {
 
 			final StringBuilder sb = new StringBuilder();
-			sb.append("Classname : " + classname + "\n");
-			sb.append("Content : \n\n");
+			sb.append("Classname : ").append(classname).append("\n")
+					.append("Content : \n\n");
 
 			final ByteArrayInputStream is = (ByteArrayInputStream) targetCodeIS
 					.get(classname);
@@ -198,6 +193,9 @@ public class ByteUtils {
 			}
 			System.out.println(sb.toString());
 		}
+	}
+
+	private ByteUtils() {
 	}
 
 }
