@@ -129,6 +129,7 @@ public class MainFrame extends JFrame implements ReportLog {
 	
 	private String lastTooltipStr;
 	private JScrollPane scrollPaneReportLogs;
+	
 	/**
 	 * Reads current editor code and writes it into given file
 	 * */
@@ -141,7 +142,13 @@ public class MainFrame extends JFrame implements ReportLog {
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
-		setTitle("Javabite Compiler - " + openedFile.getName());
+		String fileName = "";
+		if (openedFile == null) {
+			fileName = "New Program.prog";
+		} else {
+			fileName = openedFile.getName();
+		}
+		setTitle("Javabite Compiler - " + fileName);
 		toolBarLabel.setText("Document saved.");
 	}
 	
@@ -198,22 +205,12 @@ public class MainFrame extends JFrame implements ReportLog {
 		menuFileOpen = new JMenuItem("Open");
 		menuFileOpen.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
-				// unregister source code change listener
 				editorPaneSourcecode.getDocument().removeDocumentListener(sourceCodeListener);
-				
-				// file was not changed, thus just open new file
-				if (!fileChanged) {
-					int returnVal = fileManager.openFileDialog(openedFile, false);
-				} 
-				// file was changed, ask what to do
+				if (!fileChanged) { fileManager.openFileDialog(openedFile, false); }
 				else {
 					if (openedFile != null || fileChanged == true) {
-						
 						int n = fileManager.saveOrNotDialog(openedFile);
-						
-						if (n == 2) { 
-							// "Yes" was selected
+						if (n == 2) {
 							if (openedFile == null) {
 								int returnValue = fileManager.saveFileDialog(openedFile);
 								fileChanged = false;
@@ -222,17 +219,14 @@ public class MainFrame extends JFrame implements ReportLog {
 									fileChanged = false;
 								}
 							} else {
-								// firstly save file
 								saveEditorContentIntoFile(openedFile);
 								fileManager.openFileDialog(openedFile, false);
 								fileChanged = false;
 							}
-						} else if (n == 1) { 
-							// "No" was selected
+						} else if (n == 1) {
 							fileManager.openFileDialog(openedFile, false);
 							fileChanged = false;
-						} else { 
-							// "Cancel" was selected
+						} else {
 							return;
 						}
 					}
@@ -248,8 +242,7 @@ public class MainFrame extends JFrame implements ReportLog {
 				if (fileChanged) {
 					int n = fileManager.saveOrNotDialog(openedFile);
 					
-					if (n == 2) { 
-						// "Yes" was selected
+					if (n == 2) {
 						if (openedFile == null) {
 							int returnValue = fileManager.saveFileDialog(openedFile);
 							fileChanged = false;
@@ -264,12 +257,10 @@ public class MainFrame extends JFrame implements ReportLog {
 							fileManager.openNewFile(openedFile);
 							fileChanged = false;
 						}
-					} else if (n == 1) { 
-						// "No" was selected
+					} else if (n == 1) {
 						fileManager.openNewFile(openedFile);
 						fileChanged = false;
-					} else { 
-						// "Cancel" was selected
+					} else {
 						return;
 					}
 				} else { 
@@ -287,30 +278,19 @@ public class MainFrame extends JFrame implements ReportLog {
 			public void actionPerformed(ActionEvent e) {
 				// file changed, thus save it
 				if (fileChanged) {
-					// file did not exist yet
 					if (openedFile == null) {
-						// open the file chooser
-						JFileChooser chooser = new JFileChooser();
-						chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
-						chooser.setFileFilter(filter);
-						chooser.setSelectedFile(new File("New File.prog"));
-						
-						// save unchanged file
-						int returnVal = chooser.showSaveDialog(null);
-						if (returnVal == JFileChooser.APPROVE_OPTION) {
-							openedFile = chooser.getSelectedFile();
-							setTitle("Javabite Compiler - " + openedFile.getName());
-							toolBarLabel.setText("Document saved.");
-							saveEditorContentIntoFile(openedFile);
-							fileChanged = false;
-						}
-					} else { // file already exists, but was changed
+						// file did not exist yet
+						fileManager.saveFileDialog(openedFile);
+						fileChanged = false;
+					} else { 
+						// file already exists, but was changed
 						saveEditorContentIntoFile(openedFile);
 						setTitle("Javabite Compiler - " + openedFile.getName());
 						toolBarLabel.setText("Document saved.");
 						fileChanged = false;
 					}
-				} else { // file was not changed
+				} else { 
+					// file was not changed
 					JFrame frame = new JFrame();
 					JOptionPane.showMessageDialog(frame, "There are no changes to save!");
 				}
@@ -325,31 +305,19 @@ public class MainFrame extends JFrame implements ReportLog {
 				if (fileChanged) {
 					int n = fileManager.saveOrNotDialog(openedFile);
 					
-					if (n == 2) { // "Yes" was selected
+					if (n == 2) { 
+						// "Yes" was selected
 						if (openedFile == null) {
-							// create and open the file chooser
-							JFileChooser chooser = new JFileChooser();
-							chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
-							chooser.setFileFilter(filter);
-							chooser.setSelectedFile(new File("New File.prog"));
 							
-							// save unchanged file
-							int returnVal = chooser.showSaveDialog(null);
-							if (returnVal == JFileChooser.APPROVE_OPTION) {
-								openedFile = chooser.getSelectedFile();
-								setTitle("Javabite Compiler - " + openedFile.getName());
-								toolBarLabel.setText("Document saved.");
-								saveEditorContentIntoFile(openedFile);
-								fileChanged = false;
-								
+							int returnValue = fileManager.saveFileDialog(openedFile);
+							fileChanged = false;
+							if(returnValue == JFileChooser.APPROVE_OPTION) {
 								// close application
 								System.exit(0);
 							}
 						} else {
 							// firstly save file
 							saveEditorContentIntoFile(openedFile);
-							setTitle("Javabite Compiler - " + openedFile.getName());
-							toolBarLabel.setText("Document saved.");
 							System.exit(0);
 						}
 					} else if (n == 1) { 
