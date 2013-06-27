@@ -137,36 +137,43 @@ public class Translator {
 	 */
 	private void generateClassfilesForStructsInTAC(final List<Quadruple> tac,
 			final String basicClassName) {
-
+		int structCount = -1;
+		
 		// search for struct declarations
 		for (final ListIterator<Quadruple> tacIter = tac.listIterator(); tacIter
 				.hasNext();) {
-
+			structCount++;
+			
 			// get the quadruple parts
 			Quadruple quad = tacIter.next();
 			Quadruple.Operator operator = quad.getOperator();
 			String structName = quad.getResult();
 			String arg1 = quad.getArgument1();
 
-			// temp variable for found structs' tac
-			List<Quadruple> structTAC = new ArrayList<Quadruple>();
-
 			/*
 			 * if the operator is an DECLARE_STRUCT-operator, a new classfile
 			 * has to be generated
 			 */
 			if (operator.equals(Operator.DECLARE_STRUCT)) {
+				int structStart = structCount;
+				int structEnd = 0;
+				
+				// temp variable for found structs' tac
+				List<Quadruple> structTAC;
+				
 				// get struct's tac
 				long memberVarsCount = Long.parseLong(removeConstantSign(arg1));
-				structTAC.addAll(getStructsTac(tacIter, memberVarsCount));
+				structTAC = getStructsTac(tacIter, memberVarsCount);
+				structEnd = structStart + structTAC.size();
 
 				// generate appropriate classfile
 				String className = basicClassName + "_" + structName;
 				translateStructIntoClassfile(structTAC, className);
+				
+				// delete struct tac from tac
+				tac.subList(structStart, structEnd).clear();
 			}
 		}
-
-		// TODO DELETE TAC of structs???
 	}
 
 	/**
