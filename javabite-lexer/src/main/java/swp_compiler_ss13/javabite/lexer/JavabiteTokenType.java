@@ -46,10 +46,10 @@ public enum JavabiteTokenType {
 	NUMWITHERROR2(TokenType.NOT_A_TOKEN, "[0-9]+(E|e)-{2,}[0-9]+"),
 	NUM(TokenType.NUM, "[0-9]+((E|e)-?[0-9]+)?"),
 	STRING(TokenType.STRING, "\\\"(?:[^\\\"\\\\]+|\\\\.)*\\\""),
-	COMMENT(TokenType.COMMENT, "#[^\n]*"),
+	COMMENT(TokenType.COMMENT, "#[^(\r\n|\r|\n)]*"),
 	ID(TokenType.ID, "[a-zA-Z]\\w*"),
-	WHITESPACE(null,"[ \t\f\r]+"),
-	LINEBREAK(null,"[\n]+"),
+	WHITESPACE(null,"[ \t\f]+"),
+	LINEBREAK(null,"(\r\n|\r|\n)"),
 	EOF(TokenType.EOF, null),
 	NOTATOKEN(TokenType.NOT_A_TOKEN, ".");
 	
