@@ -1787,10 +1787,10 @@ public class Program {
 					.addFieldrefConstantToConstantPool("out",
 							"Ljava/io/PrintStream;", "java/lang/System");
 
-			// add printOp methodref info to constant pool, if necessary
+			// add print methodref info to constant pool, if necessary
 			final short printIndex = classfile
-					.addMethodrefConstantToConstantPool("printOp",
-							"(Ljava/lang/String)V", "java/io/PrintStream");
+					.addMethodrefConstantToConstantPool("print",
+							"(Ljava/lang/String;)V", "java/io/PrintStream");
 
 			op.add(Mnemonic.GETSTATIC,
 					ByteUtils.shortToByteArray(systemOutIndex));
