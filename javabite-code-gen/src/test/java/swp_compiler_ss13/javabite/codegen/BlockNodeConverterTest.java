@@ -5,7 +5,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -33,26 +33,17 @@ public class BlockNodeConverterTest {
 	 * with given test object icg. If it is executed, it will 
 	 * be created a new BlockNode test object.
 	 */
-	@SuppressWarnings("unchecked")
 	@Test
 	public void testBlockNodeConverter(){ 
 		try{
 			BlockNode node = Mockito.mock(BlockNode.class);
+			
+			when(node.getDeclarationList()).thenReturn(new ArrayList<DeclarationNode>());
+			when(node.getStatementList()).thenReturn(new ArrayList<StatementNode>());
+			converter.convert(node);
 			verify(converter.icg).enterNewScope();
-			
-			List<DeclarationNode> decList = Mockito.mock(List.class);
-			when(node.getDeclarationList()).thenReturn(any(List.class));
-			for(DeclarationNode decNode : decList){
-				verify(converter.icg).processNode(decNode);
-			}
-			
-			List<StatementNode> stateList = Mockito.mock(List.class);
-			when(node.getStatementList()).thenReturn(any(List.class));
-			for(StatementNode stateNode : stateList){
-				verify(converter.icg).processNode(stateNode);
-			}
-			
 			verify(converter.icg).leaveCurrentScope();
+			
 		}
 		catch(IntermediateCodeGeneratorException e){
 			fail();

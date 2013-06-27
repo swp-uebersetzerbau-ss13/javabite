@@ -26,6 +26,7 @@ public class ArrayIdentifierNodeJb extends IdentifierNodeJb implements
 
 	public void setIndexNode(ExpressionNode indexNode) {
 		this.indexNode = indexNode;
+		addChild(indexNode, 1);
 	}
 
 	public IdentifierNode getIdentifierNode() {
@@ -34,6 +35,7 @@ public class ArrayIdentifierNodeJb extends IdentifierNodeJb implements
 
 	public void setIdentifierNode(IdentifierNode identifierNode) {
 		this.identifierNode = identifierNode;
+		addChild(identifierNode, 0);
 	}
 
 	@Override
