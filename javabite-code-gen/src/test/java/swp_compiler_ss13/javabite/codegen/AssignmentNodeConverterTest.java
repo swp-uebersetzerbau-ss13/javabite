@@ -39,6 +39,9 @@ public class AssignmentNodeConverterTest {
 	}
 	
 	
+	
+	//////////////////LONG/////////////////////////////
+	
 	/**
 	 * Test for an AssignmentNode, which has the type Long.
 	 */
@@ -175,6 +178,9 @@ public class AssignmentNodeConverterTest {
 			
 		}
 	}
+	
+	
+	//////////////////////DOUBLE/////////////////////////
 	
 	/**
 	 * Test for an AssignmentNode, which has the type Double.
@@ -314,6 +320,8 @@ public class AssignmentNodeConverterTest {
 	}
 
 	
+	///////////////////BOOLEAN//////////////////////////
+	
 	/**
 	 * Test for an AssignmentNode, which has the type Boolean.
 	 */
@@ -357,7 +365,100 @@ public class AssignmentNodeConverterTest {
 			
 		}
 	}
+
+	/**
+	 * Test for an AssignmentNode, which left type Boolean and right type Double.
+	 */
+	@Test
+	public void testAssignmentNodeConverter_BooleanDouble(){
+		try {
+			AssignmentNode node = Mockito.mock(AssignmentNode.class);
+
+			IdentifierData leftData = new IdentifierData("testLeft", new BooleanType());
+			when(converter.icg.popIdentifierData()).thenReturn(
+                    new IdentifierData("testRight", new DoubleType()) ,
+                    leftData);
+			IdentifierData tmp = new IdentifierData("tmp", new BooleanType());
+			when(converter.icg.generateTempIdentifier(any(BooleanType.class)))
+	            .thenReturn(tmp);
+			converter.convert(node);
+			fail();
+		}catch(IntermediateCodeGeneratorException e) {
+			
+		}
+	}
+
+	/**
+	 * Test for an AssignmentNode, which left type Boolean and right type String.
+	 */
+	@Test
+	public void testAssignmentNodeConverter_BooleanString(){
+		try {
+			AssignmentNode node = Mockito.mock(AssignmentNode.class);
+
+			IdentifierData leftData = new IdentifierData("testLeft", new BooleanType());
+			when(converter.icg.popIdentifierData()).thenReturn(
+                    new IdentifierData("testRight", new StringType(0l)) ,
+                    leftData);
+			IdentifierData tmp = new IdentifierData("tmp", new BooleanType());
+			when(converter.icg.generateTempIdentifier(any(BooleanType.class)))
+	            .thenReturn(tmp);
+			converter.convert(node);
+			fail();
+		}catch(IntermediateCodeGeneratorException e) {
+			
+		}
+	}
+
+	/**
+	 * Test for an AssignmentNode, which left type Boolean and right type Array.
+	 */
+	@Test
+	public void testAssignmentNodeConverter_BooleanArray(){
+		try {
+			AssignmentNode node = Mockito.mock(AssignmentNode.class);
+
+			IdentifierData leftData = new IdentifierData("testLeft", new BooleanType());
+			when(converter.icg.popIdentifierData()).thenReturn(
+                    new IdentifierData("testRight", new ArrayType(new LongType(), 0)) ,
+                    leftData);
+			IdentifierData tmp = new IdentifierData("tmp", new BooleanType());
+			when(converter.icg.generateTempIdentifier(any(BooleanType.class)))
+	            .thenReturn(tmp);
+			converter.convert(node);
+			fail();
+		}catch(IntermediateCodeGeneratorException e) {
+			
+		}
+	}
+
+	/**
+	 * Test for an AssignmentNode, which left type Boolean and right type Struct.
+	 */
+	@Test
+	public void testAssignmentNodeConverter_BooleanStruct(){
+		try {
+			AssignmentNode node = Mockito.mock(AssignmentNode.class);
+
+			IdentifierData leftData = new IdentifierData("testLeft", new BooleanType());
+			when(converter.icg.popIdentifierData()).thenReturn(
+                    new IdentifierData("testRight", new ArrayType(new StructType(null,
+                            new Member[] { new Member("",
+                                    new DoubleType()) }), 0)), leftData);
+			IdentifierData tmp = new IdentifierData("tmp", new BooleanType());
+			when(converter.icg.generateTempIdentifier(any(BooleanType.class)))
+	            .thenReturn(tmp);
+			converter.convert(node);
+			fail();
+		}catch(IntermediateCodeGeneratorException e) {
+			
+		}
+	}
+
 	
+
+	/////////STRING////////////////
+
 	/**
 	 * Test for an AssignmentNode, which has the type String.
 	 */
@@ -381,6 +482,122 @@ public class AssignmentNodeConverterTest {
 	}
 	
 	/**
+	 * Test for an AssignmentNode, which left type String and right type Long.
+	 */
+	@Test
+	public void testAssignmentNodeConverter_StringLong(){
+		try {
+			AssignmentNode node = Mockito.mock(AssignmentNode.class);
+
+			IdentifierData leftData = new IdentifierData("testLeft", new StringType(0l));
+			when(converter.icg.popIdentifierData()).thenReturn(
+                    new IdentifierData("testRight", new LongType()) ,
+                    leftData);
+			IdentifierData tmp = new IdentifierData("tmp", new StringType(0l));
+			when(converter.icg.generateTempIdentifier(any(StringType.class)))
+	            .thenReturn(tmp);
+			converter.convert(node);
+			fail();
+		}catch(IntermediateCodeGeneratorException e) {
+			
+		}
+	}
+
+	/**
+	 * Test for an AssignmentNode, which left type String and right type Double.
+	 */
+	@Test
+	public void testAssignmentNodeConverter_StringDouble(){
+		try {
+			AssignmentNode node = Mockito.mock(AssignmentNode.class);
+
+			IdentifierData leftData = new IdentifierData("testLeft", new StringType(0l));
+			when(converter.icg.popIdentifierData()).thenReturn(
+                    new IdentifierData("testRight", new DoubleType()) ,
+                    leftData);
+			IdentifierData tmp = new IdentifierData("tmp", new StringType(0l));
+			when(converter.icg.generateTempIdentifier(any(StringType.class)))
+	            .thenReturn(tmp);
+			converter.convert(node);
+			fail();
+		}catch(IntermediateCodeGeneratorException e) {
+			
+		}
+	}
+
+	/**
+	 * Test for an AssignmentNode, which left type String and right type Boolean.
+	 */
+	@Test
+	public void testAssignmentNodeConverter_StringBoolean(){
+		try {
+			AssignmentNode node = Mockito.mock(AssignmentNode.class);
+
+			IdentifierData leftData = new IdentifierData("testLeft", new StringType(0l));
+			when(converter.icg.popIdentifierData()).thenReturn(
+                    new IdentifierData("testRight", new BooleanType()) ,
+                    leftData);
+			IdentifierData tmp = new IdentifierData("tmp", new StringType(0l));
+			when(converter.icg.generateTempIdentifier(any(StringType.class)))
+	            .thenReturn(tmp);
+			converter.convert(node);
+			fail();
+		}catch(IntermediateCodeGeneratorException e) {
+			
+		}
+	}
+	
+	
+	/**
+	 * Test for an AssignmentNode, which left type String and right type Array.
+	 */
+	@Test
+	public void testAssignmentNodeConverter_StringArray(){
+		try {
+			AssignmentNode node = Mockito.mock(AssignmentNode.class);
+
+			IdentifierData leftData = new IdentifierData("testLeft", new StringType(0l));
+			when(converter.icg.popIdentifierData()).thenReturn(
+                    new IdentifierData("testRight", new ArrayType(new LongType(), 0)) ,
+                    leftData);
+			IdentifierData tmp = new IdentifierData("tmp", new StringType(0l));
+			when(converter.icg.generateTempIdentifier(any(StringType.class)))
+	            .thenReturn(tmp);
+			converter.convert(node);
+			fail();
+		}catch(IntermediateCodeGeneratorException e) {
+			
+		}
+	}
+
+	/**
+	 * Test for an AssignmentNode, which left type String and right type Struct.
+	 */
+	@Test
+	public void testAssignmentNodeConverter_StringStruct(){
+		try {
+			AssignmentNode node = Mockito.mock(AssignmentNode.class);
+
+			IdentifierData leftData = new IdentifierData("testLeft", new StringType(0l));
+			when(converter.icg.popIdentifierData()).thenReturn(
+                    new IdentifierData("testRight", new StructType(null,
+                            new Member[] { new Member("",
+                                    new DoubleType()) })), leftData);
+			IdentifierData tmp = new IdentifierData("tmp", new StringType(0l));
+			when(converter.icg.generateTempIdentifier(any(StringType.class)))
+	            .thenReturn(tmp);
+			converter.convert(node);
+			fail();
+		}catch(IntermediateCodeGeneratorException e) {
+			
+		}
+	}
+
+	
+	
+	/////////////////ARRAY/////////////////////
+	
+	/**
 	 * Test for an AssignmentNode, which has the type Array.
 	 */
 	@Test
@@ -399,6 +616,104 @@ public class AssignmentNodeConverterTest {
 			
 		}
 	}
+	
+	/**
+	 * Test for an AssignmentNode, which left type Array and right type Long.
+	 */
+	@Test
+	public void testAssignmentNodeConverter_ArrayLong(){
+		try {
+			AssignmentNode node = Mockito.mock(AssignmentNode.class);
+
+			IdentifierData leftData = new IdentifierData("testLeft", new ArrayType(new LongType(), 0));
+			when(converter.icg.popIdentifierData()).thenReturn(
+                    new IdentifierData("testRight", new LongType()) ,
+                    leftData);
+			IdentifierData tmp = new IdentifierData("tmp", new ArrayType(new LongType(), 0));
+			when(converter.icg.generateTempIdentifier(any(ArrayType.class)))
+	            .thenReturn(tmp);
+			converter.convert(node);
+			fail();
+		}catch(IntermediateCodeGeneratorException e) {
+			
+		}
+	}
+
+	/**
+	 * Test for an AssignmentNode, which left type Array and right type Double.
+	 */
+	@Test
+	public void testAssignmentNodeConverter_ArrayDouble(){
+		try {
+			AssignmentNode node = Mockito.mock(AssignmentNode.class);
+
+			IdentifierData leftData = new IdentifierData("testLeft", new ArrayType(new LongType(), 0));
+			when(converter.icg.popIdentifierData()).thenReturn(
+                    new IdentifierData("testRight", new DoubleType()) ,
+                    leftData);
+			IdentifierData tmp = new IdentifierData("tmp", new ArrayType(new LongType(), 0));
+			when(converter.icg.generateTempIdentifier(any(ArrayType.class)))
+	            .thenReturn(tmp);
+			converter.convert(node);
+			fail();
+		}catch(IntermediateCodeGeneratorException e) {
+			
+		}
+	}
+
+	/**
+	 * Test for an AssignmentNode, which left type Array and right type Boolean.
+	 */
+	@Test
+	public void testAssignmentNodeConverter_ArrayBoolean(){
+		try {
+			AssignmentNode node = Mockito.mock(AssignmentNode.class);
+
+			IdentifierData leftData = new IdentifierData("testLeft", new ArrayType(new LongType(), 0));
+			when(converter.icg.popIdentifierData()).thenReturn(
+                    new IdentifierData("testRight", new BooleanType()) ,
+                    leftData);
+			IdentifierData tmp = new IdentifierData("tmp", new ArrayType(new LongType(), 0));
+			when(converter.icg.generateTempIdentifier(any(ArrayType.class)))
+	            .thenReturn(tmp);
+			converter.convert(node);
+			fail();
+		}catch(IntermediateCodeGeneratorException e) {
+			
+		}
+	}
+	
+	/**
+	 * Test for an AssignmentNode, which left type Array and right type Struct.
+	 */
+	@Test
+	public void testAssignmentNodeConverter_ArrayStruct(){
+		try {
+			AssignmentNode node = Mockito.mock(AssignmentNode.class);
+
+			IdentifierData leftData = new IdentifierData("testLeft", new ArrayType(new LongType(), 0));
+			when(converter.icg.popIdentifierData()).thenReturn(
+                    new IdentifierData("testRight", new ArrayType(new StructType(null,
+                            new Member[] { new Member("",
+                                    new DoubleType()) }), 0)));
+			IdentifierData tmp = new IdentifierData("tmp", new ArrayType(new LongType(), 0));
+			when(converter.icg.generateTempIdentifier(any(ArrayType.class)))
+	            .thenReturn(tmp);
+			converter.convert(node);
+			fail();
+		}catch(IntermediateCodeGeneratorException e) {
+			
+		}
+	}
+
+	
+	
+	
+	
+	
+	
+	
+	////////////////STRUCT///////////////////////////
 	
 	/**
 	 * Test for an AssignmentNode, which has the type Struct.
@@ -422,4 +737,135 @@ public class AssignmentNodeConverterTest {
 			
 		}
 	}
+	
+	/**
+	 * Test for an AssignmentNode, which left type Struct and right type Long.
+	 */
+	@Test
+	public void testAssignmentNodeConverter_StructLong(){
+		try {
+			AssignmentNode node = Mockito.mock(AssignmentNode.class);
+
+			IdentifierData leftData = new IdentifierData("testLeft", new StructType(null,
+                    new Member[] { new Member("",
+                            new DoubleType()) }));
+			when(converter.icg.popIdentifierData()).thenReturn(
+                    new IdentifierData("testRight", new LongType()) ,
+                    leftData);
+			IdentifierData tmp = new IdentifierData("tmp", new StructType(null,
+                    new Member[] { new Member("",
+                            new DoubleType()) }));
+			when(converter.icg.generateTempIdentifier(any(StructType.class)))
+	            .thenReturn(tmp);
+			converter.convert(node);
+			fail();
+		}catch(IntermediateCodeGeneratorException e) {
+			
+		}
+	}
+
+	/**
+	 * Test for an AssignmentNode, which left type Struct and right type Double.
+	 */
+	@Test
+	public void testAssignmentNodeConverter_StructDouble(){
+		try {
+			AssignmentNode node = Mockito.mock(AssignmentNode.class);
+
+			IdentifierData leftData = new IdentifierData("testLeft", new StructType(null,
+                    new Member[] { new Member("",
+                            new DoubleType()) }));
+			when(converter.icg.popIdentifierData()).thenReturn(
+                    new IdentifierData("testRight", new DoubleType()) ,
+                    leftData);
+			IdentifierData tmp = new IdentifierData("tmp", new StructType(null,
+                    new Member[] { new Member("",
+                            new DoubleType()) }));
+			when(converter.icg.generateTempIdentifier(any(StructType.class)))
+	            .thenReturn(tmp);
+			converter.convert(node);
+			fail();
+		}catch(IntermediateCodeGeneratorException e) {
+			
+		}
+	}
+
+	/**
+	 * Test for an AssignmentNode, which left type Struct and right type Boolean.
+	 */
+	@Test
+	public void testAssignmentNodeConverter_StructBoolean(){
+		try {
+			AssignmentNode node = Mockito.mock(AssignmentNode.class);
+
+			IdentifierData leftData = new IdentifierData("testLeft", new StructType(null,
+                    new Member[] { new Member("",
+                            new DoubleType()) }));
+			when(converter.icg.popIdentifierData()).thenReturn(
+                    new IdentifierData("testRight", new BooleanType()) ,
+                    leftData);
+			IdentifierData tmp = new IdentifierData("tmp", new StructType(null,
+                    new Member[] { new Member("",
+                            new DoubleType()) }));
+			when(converter.icg.generateTempIdentifier(any(StructType.class)))
+	            .thenReturn(tmp);
+			converter.convert(node);
+			fail();
+		}catch(IntermediateCodeGeneratorException e) {
+			
+		}
+	}
+	
+	/**
+	 * Test for an AssignmentNode, which left type Struct and right type String.
+	 */
+	@Test
+	public void testAssignmentNodeConverter_StructString(){
+		try {
+			AssignmentNode node = Mockito.mock(AssignmentNode.class);
+
+			IdentifierData leftData = new IdentifierData("testLeft", new StructType(null,
+                    new Member[] { new Member("",
+                            new DoubleType()) }));
+			when(converter.icg.popIdentifierData()).thenReturn(
+                    new IdentifierData("testRight", new StringType(0l)) ,
+                    leftData);
+			IdentifierData tmp = new IdentifierData("tmp", new StructType(null,
+                    new Member[] { new Member("",
+                            new DoubleType()) }));
+			when(converter.icg.generateTempIdentifier(any(StructType.class)))
+	            .thenReturn(tmp);
+			converter.convert(node);
+			fail();
+		}catch(IntermediateCodeGeneratorException e) {
+			
+		}
+	}
+
+	/**
+	 * Test for an AssignmentNode, which left type Struct and right type Array.
+	 */
+	@Test
+	public void testAssignmentNodeConverter_StructArray(){
+		try {
+			AssignmentNode node = Mockito.mock(AssignmentNode.class);
+
+			IdentifierData leftData = new IdentifierData("testLeft", new StructType(null,
+                    new Member[] { new Member("",
+                            new DoubleType()) }));
+			when(converter.icg.popIdentifierData()).thenReturn(
+                    new IdentifierData("testRight", new ArrayType(new LongType(), 0)) ,
+                    leftData);
+			IdentifierData tmp = new IdentifierData("tmp", new StructType(null,
+                    new Member[] { new Member("",
+                            new DoubleType()) }));
+			when(converter.icg.generateTempIdentifier(any(StructType.class)))
+	            .thenReturn(tmp);
+			converter.convert(node);
+			fail();
+		}catch(IntermediateCodeGeneratorException e) {
+			
+		}
+	}
+	
 }
