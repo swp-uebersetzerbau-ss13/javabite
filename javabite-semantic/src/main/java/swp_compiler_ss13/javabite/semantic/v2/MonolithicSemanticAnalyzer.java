@@ -8,11 +8,16 @@ import static swp_compiler_ss13.javabite.semantic.v2.AttributingAttribute.INHERI
 import static swp_compiler_ss13.javabite.semantic.v2.AttributingAttribute.SYNTHESIZED;
 import static swp_compiler_ss13.javabite.semantic.v2.BreakValidness.IN_LOOP;
 import static swp_compiler_ss13.javabite.semantic.v2.BreakValidness.NOT_IN_LOOP;
-import static swp_compiler_ss13.javabite.semantic.v2.ReturnValidness.RETURN_INVALID;
-import static swp_compiler_ss13.javabite.semantic.v2.ReturnValidness.RETURN_VALID;
+import static swp_compiler_ss13.javabite.semantic.v2.CodeFlowAttribute.FLOW_CONTINUE;
+import static swp_compiler_ss13.javabite.semantic.v2.CodeFlowAttribute.FLOW_INTERRUPT;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +26,7 @@ import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.ASTNode.ASTNodeType;
 import swp_compiler_ss13.common.ast.nodes.IdentifierNode;
+import swp_compiler_ss13.common.ast.nodes.StatementNode;
 import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
 import swp_compiler_ss13.common.ast.nodes.binary.DoWhileNode;
@@ -39,6 +45,8 @@ import swp_compiler_ss13.common.ast.nodes.unary.LogicUnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.PrintNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.ast.nodes.unary.StructIdentifierNode;
+import swp_compiler_ss13.common.lexer.Lexer;
+import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.parser.SymbolTable;
 import swp_compiler_ss13.common.report.ReportLog;
 import swp_compiler_ss13.common.report.ReportType;
@@ -48,22 +56,20 @@ import swp_compiler_ss13.common.types.Type.Kind;
 import swp_compiler_ss13.common.types.derived.ArrayType;
 import swp_compiler_ss13.common.types.derived.Member;
 import swp_compiler_ss13.common.types.derived.StructType;
-
+import swp_compiler_ss13.javabite.lexer.LexerJb;
+import swp_compiler_ss13.javabite.parser.ParserJb;
 
 /**
- * This class is a preliminary solution to handle the semantic analysis.
- * The code will be documented in a few days.
- * brief overview:
- * - limited inherited and synthesized attributed grammar
- * - most used methods
- * 	- get <- gets a attribute from a node
- *  - set <- sets a attribute from a node
- * - example for synthesized attribute:
- *  - abstract typing ( algebra-class )
- * - example for inherited attribute:
- *  - concrete typing ( e.g. the different levels in multi-dimensional arrays) 
+ * This class is a preliminary solution to handle the semantic analysis. The
+ * code will be documented in a few days. brief overview: - limited inherited
+ * and synthesized attributed grammar - most used methods - get <- gets a
+ * attribute from a node - set <- sets a attribute from a node - example for
+ * synthesized attribute: - abstract typing ( algebra-class ) - example for
+ * inherited attribute: - concrete typing ( e.g. the different levels in
+ * multi-dimensional arrays)
+ * 
  * @author Till
- *
+ * 
  */
 public class MonolithicSemanticAnalyzer implements SemanticAnalyser {
 	Logger internal_logger = LoggerFactory.getLogger(SemanticAnalyser.class);
@@ -335,7 +341,7 @@ public class MonolithicSemanticAnalyzer implements SemanticAnalyser {
 				set(n, INTEGER, SYNTHESIZED);
 			} else {
 				ArrayType arrType = (ArrayType) type;
-				set(n, arrType.getInnerType(),Type.class, SYNTHESIZED);
+				set(n, arrType.getInnerType(), Type.class, SYNTHESIZED);
 				setAccordingToType(n, arrType.getInnerType());
 			}
 		} else {
@@ -350,7 +356,7 @@ public class MonolithicSemanticAnalyzer implements SemanticAnalyser {
 	}
 
 	private void evalIntermediateAttributes(AssignmentNode n) {
-
+		set(n, FLOW_CONTINUE, SYNTHESIZED);
 	}
 
 	private void evalSynthesizedAttributes(AssignmentNode n) {
@@ -377,8 +383,8 @@ public class MonolithicSemanticAnalyzer implements SemanticAnalyser {
 		SymbolTable table = get(n, SymbolTable.class, INHERITED);
 		if (!table.isDeclared(n.getIdentifier())) {
 			errorLog.reportError(ReportType.UNDECLARED_VARIABLE_USAGE,
-					n.coverage(),
-					"variable \""+n.getIdentifier()+"\" has not been declared in current scope");
+					n.coverage(), "variable \"" + n.getIdentifier()
+							+ "\" has not been declared in current scope");
 			set(n, INTEGER, SYNTHESIZED);
 			return;
 		}
@@ -439,24 +445,36 @@ public class MonolithicSemanticAnalyzer implements SemanticAnalyser {
 		// we have to treat different it if it is the root node
 		if (n.getParentNode() == null) {
 			set(n, NOT_IN_LOOP, INHERITED);
-			set(n, RETURN_VALID, INHERITED);
 		}
 
 		// all but the last statement is a valid return statement
 		for (ASTNode child : n.getStatementList()) {
-			set(child, RETURN_INVALID, INHERITED);
 			copyAttributeFromTo(BreakValidness.class, n, child, INHERITED);
-		}
-		// set the last to valid if the current block is a valid return
-		if (!n.getStatementList().isEmpty()) {
-			copyAttributeFromTo(ReturnValidness.class, n, n.getStatementList()
-					.get(n.getStatementList().size() - 1), INHERITED);
 		}
 
 	}
 
 	private void evalSynthesizedAttributes(BlockNode n) {
-		// TODO: Implement
+		// set the last to valid if the current block is a valid return
+		if (!n.getStatementList().isEmpty()) {
+			StatementNode last_statement = n.getStatementList().get(
+					n.getStatementList().size() - 1);
+			for (StatementNode statement : n.getStatementList()) {
+				// statement is not last_statement -> CAN_CONTINUE
+				if (statement != last_statement
+						&& is(statement, FLOW_INTERRUPT, SYNTHESIZED)) {
+					// not valid
+					errorLog.reportError(ReportType.UNDEFINED,
+							statement.coverage(), "Non-reachable code");
+					set(n, FLOW_INTERRUPT, SYNTHESIZED);
+					break;
+				}
+			}
+			copyAttributeFromTo(CodeFlowAttribute.class, last_statement, n, SYNTHESIZED);
+		}
+		else{
+			set(n,FLOW_CONTINUE,SYNTHESIZED);
+		}
 	}
 
 	private void evalInheritedAttributes(BlockNode n) {
@@ -464,11 +482,12 @@ public class MonolithicSemanticAnalyzer implements SemanticAnalyser {
 	}
 
 	private void evalIntermediateAttributes(BranchNode n) {
-		set(n.getStatementNodeOnTrue(), RETURN_VALID, INHERITED);
+		Collection<ASTNode> children = new LinkedList<>();
+		children.add(n.getStatementNodeOnTrue());
 		copyAttributeFromTo(BreakValidness.class, n,
 				n.getStatementNodeOnTrue(), INHERITED);
 		if (n.getStatementNodeOnFalse() != null) {
-			set(n.getStatementNodeOnFalse(), RETURN_VALID, INHERITED);
+			children.add(n.getStatementNodeOnFalse());
 			copyAttributeFromTo(BreakValidness.class, n,
 					n.getStatementNodeOnFalse(), INHERITED);
 		}
@@ -478,6 +497,17 @@ public class MonolithicSemanticAnalyzer implements SemanticAnalyser {
 	private void evalSynthesizedAttributes(BranchNode n) {
 		if (!is(n.getCondition(), BOOLEAN, SYNTHESIZED)) {
 			wrongType(n);
+		}
+
+		Collection<ASTNode> children = new LinkedList<>();
+		children.add(n.getStatementNodeOnTrue());
+		if (n.getStatementNodeOnFalse() != null) {
+			children.add(n.getStatementNodeOnFalse());
+		}
+		if (applyForAll(children, FLOW_INTERRUPT, SYNTHESIZED)) {
+			set(n, FLOW_INTERRUPT, SYNTHESIZED);
+		} else {
+			set(n, FLOW_CONTINUE, SYNTHESIZED);
 		}
 	}
 
@@ -490,10 +520,7 @@ public class MonolithicSemanticAnalyzer implements SemanticAnalyser {
 	}
 
 	private void evalSynthesizedAttributes(BreakNode n) {
-		if (!(is(n, IN_LOOP, INHERITED) && is(n, RETURN_VALID, INHERITED))) {
-			errorLog.reportError(ReportType.UNDEFINED, n.coverage(),
-					"Invalid position for break");
-		}
+		set(n, FLOW_INTERRUPT, SYNTHESIZED);
 	}
 
 	private void evalInheritedAttributes(BreakNode n) {
@@ -515,7 +542,7 @@ public class MonolithicSemanticAnalyzer implements SemanticAnalyser {
 
 	private void evalIntermediateAttributes(DoWhileNode n) {
 		set(n.getLoopBody(), IN_LOOP, INHERITED);
-		set(n.getLoopBody(), RETURN_VALID, INHERITED);
+		set(n, FLOW_CONTINUE, SYNTHESIZED);
 	}
 
 	private void evalSynthesizedAttributes(DoWhileNode n) {
@@ -595,7 +622,7 @@ public class MonolithicSemanticAnalyzer implements SemanticAnalyser {
 	}
 
 	private void evalIntermediateAttributes(PrintNode n) {
-
+		set(n,FLOW_CONTINUE,SYNTHESIZED);
 	}
 
 	private void evalSynthesizedAttributes(PrintNode n) {
@@ -627,14 +654,11 @@ public class MonolithicSemanticAnalyzer implements SemanticAnalyser {
 	}
 
 	private void evalIntermediateAttributes(ReturnNode n) {
-
+		set(n, FLOW_INTERRUPT, SYNTHESIZED);
 	}
 
 	private void evalSynthesizedAttributes(ReturnNode n) {
-		if (is(n, RETURN_INVALID, INHERITED)) {
-			errorLog.reportError(ReportType.UNDEFINED, n.coverage(),
-					"Invalid position for return");
-		}
+
 		if (n.getRightValue() != null) {
 			IdentifierNode returnVal = n.getRightValue();
 			if (!is(returnVal, INTEGER, SYNTHESIZED)) {
@@ -652,22 +676,22 @@ public class MonolithicSemanticAnalyzer implements SemanticAnalyser {
 	}
 
 	private void evalSynthesizedAttributes(StructIdentifierNode n) {
-		
+
 		Type type = get(n.getIdentifierNode(), Type.class, SYNTHESIZED);
 		if (type.getKind() != Kind.STRUCT) {
 			wrongType(n, "Accessing member of non-struct type");
 			set(n, INTEGER, SYNTHESIZED);
 		} else {
 			StructType strType = (StructType) type;
-			String memberName=n.getFieldName();
-			for (Member member : strType.members()){
-				if (memberName.equals(member.getName())){
-					//hit, found member
+			String memberName = n.getFieldName();
+			for (Member member : strType.members()) {
+				if (memberName.equals(member.getName())) {
+					// hit, found member
 					setAccordingToType(n, member.getType());
 				}
 			}
-			//set(n, strType.getInnerType(), SYNTHESIZED);
-			//setAccordingToType(n, arrType.getInnerType());
+			// set(n, strType.getInnerType(), SYNTHESIZED);
+			// setAccordingToType(n, arrType.getInnerType());
 		}
 
 	}
@@ -678,7 +702,7 @@ public class MonolithicSemanticAnalyzer implements SemanticAnalyser {
 
 	private void evalIntermediateAttributes(WhileNode n) {
 		set(n.getLoopBody(), IN_LOOP, INHERITED);
-		set(n.getLoopBody(), RETURN_VALID, INHERITED);
+		set(n, FLOW_CONTINUE, SYNTHESIZED);
 	}
 
 	private void evalSynthesizedAttributes(WhileNode n) {
@@ -756,13 +780,14 @@ public class MonolithicSemanticAnalyzer implements SemanticAnalyser {
 					INHERITED);
 		}
 	}
+
 	private <A> void copyAttributeFromTo(Class<A> attribute_clazz,
 			ASTNode from, ASTNode to, AttributingAttribute fashion) {
 		set(to, get(from, attribute_clazz, fashion), fashion);
 	}
-	
+
 	// ----------------------------------------------------------------------------------
-	/* For test purpose;)
+
 	public static void main(String[] args) throws FileNotFoundException {
 		File f = new File("/Users/Till/Desktop/test.prog");
 		Lexer lex = new LexerJb();
@@ -800,6 +825,4 @@ public class MonolithicSemanticAnalyzer implements SemanticAnalyser {
 		sa.analyse(ast);
 	}
 
-	
-	*/
 }
