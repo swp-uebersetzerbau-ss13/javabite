@@ -168,7 +168,8 @@ public class Program {
 
 		@Override
 		protected Program buildInternal() {
-			return null;
+			return null; // To change body of implemented methods use File |
+							// Settings | File Templates.
 		}
 
 	}

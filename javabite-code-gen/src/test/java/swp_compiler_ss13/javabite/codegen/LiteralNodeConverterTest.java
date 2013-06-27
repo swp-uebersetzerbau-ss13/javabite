@@ -9,6 +9,7 @@ import org.mockito.Mockito;
 
 import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
+import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.types.derived.ArrayType;
 import swp_compiler_ss13.common.types.derived.Member;
 import swp_compiler_ss13.common.types.derived.StructType;
@@ -35,8 +36,16 @@ public class LiteralNodeConverterTest {
 	 */
 	@Test
 	public void testLiteralNodeConverter_Long(){
-		ASTNode node = Mockito.mock(LiteralNode.class);
-		verify(converter.icg).pushIdentifierData(new IdentifierData("test", new LongType()));
+		try {
+			LiteralNode node = Mockito.mock(LiteralNode.class);
+			node.setLiteral("test");
+			node.setLiteralType(new LongType());
+			converter.convert(node);
+			verify(converter.icg).pushIdentifierData(new IdentifierData("#"+node.getLiteral(), node.getLiteralType()));
+		} catch (IntermediateCodeGeneratorException e) {
+			fail();
+		}
+		
 	}
 	
 	
@@ -45,8 +54,15 @@ public class LiteralNodeConverterTest {
 	 */
 	@Test
 	public void testLiteralNodeConverter_Double(){
-		ASTNode node = Mockito.mock(LiteralNode.class);
-		verify(converter.icg).pushIdentifierData(new IdentifierData("test", new DoubleType()));
+		try {
+			LiteralNode node = Mockito.mock(LiteralNode.class);
+			node.setLiteral("test");
+			node.setLiteralType(new DoubleType());
+			converter.convert(node);
+			verify(converter.icg).pushIdentifierData(new IdentifierData("#"+node.getLiteral(), node.getLiteralType()));
+		} catch (IntermediateCodeGeneratorException e) {
+			fail();
+		}
 	}
 	
 	
@@ -56,9 +72,15 @@ public class LiteralNodeConverterTest {
 	 */
 	@Test
 	public void testLiteralNodeConverter_Boolean(){
-		ASTNode node = Mockito.mock(LiteralNode.class);
-		verify(converter.icg).pushIdentifierData(new IdentifierData("test", new BooleanType()));
-		fail();
+		try {
+			LiteralNode node = Mockito.mock(LiteralNode.class);
+			node.setLiteral("test");
+			node.setLiteralType(new BooleanType());
+			converter.convert(node);
+			verify(converter.icg).pushIdentifierData(new IdentifierData("#"+node.getLiteral(), node.getLiteralType()));
+		} catch (IntermediateCodeGeneratorException e) {
+			fail();
+		}
 	}
 	
 	
@@ -69,9 +91,15 @@ public class LiteralNodeConverterTest {
 	 */
 	@Test
 	public void testLiteralNodeConverter_String(){
-		ASTNode node = Mockito.mock(LiteralNode.class);
-		verify(converter.icg).pushIdentifierData(new IdentifierData("test", new StringType(0l)));
-		fail();
+		try {
+			LiteralNode node = Mockito.mock(LiteralNode.class);
+			node.setLiteral("test");
+			node.setLiteralType(new StringType(0l));
+			converter.convert(node);
+			verify(converter.icg).pushIdentifierData(new IdentifierData("#"+node.getLiteral(), node.getLiteralType()));
+		} catch (IntermediateCodeGeneratorException e) {
+			fail();
+		}
 	}
 	
 	
@@ -82,12 +110,19 @@ public class LiteralNodeConverterTest {
 	 */
 	@Test
 	public void testLiteralNodeConverter_Struct(){
-		ASTNode node = Mockito.mock(LiteralNode.class);
-		verify(converter.icg).pushIdentifierData(new IdentifierData("test", new StructType(
-				null,
-				new Member[] { new Member("",
-						new LongType()) })));
-		fail();
+		try {
+			LiteralNode node = Mockito.mock(LiteralNode.class);
+			node.setLiteral("test");
+			node.setLiteralType(new StructType(
+					null,
+					new Member[] { new Member("",
+							new LongType()) }));
+			converter.convert(node);
+			verify(converter.icg).pushIdentifierData(new IdentifierData("#"+node.getLiteral(), node.getLiteralType()));
+		} catch (IntermediateCodeGeneratorException e) {
+			fail();
+		}
+		
 	}
 	
 	
@@ -98,8 +133,15 @@ public class LiteralNodeConverterTest {
 	 */
 	@Test
 	public void testLiteralNodeConverter_Array(){
-		ASTNode node = Mockito.mock(LiteralNode.class);
-		verify(converter.icg).pushIdentifierData(new IdentifierData("test", new ArrayType(new LongType(), 0)));
-		fail();
+		try {
+			LiteralNode node = Mockito.mock(LiteralNode.class);
+			node.setLiteral("test");
+			node.setLiteralType(new ArrayType(new LongType(), 0));
+			converter.convert(node);
+			verify(converter.icg).pushIdentifierData(new IdentifierData("#"+node.getLiteral(), node.getLiteralType()));
+		} catch (IntermediateCodeGeneratorException e) {
+			fail();
+		}
+		
 	}
 }

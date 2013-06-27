@@ -76,14 +76,17 @@ public class CastingAst2CodeConverterTest {
 	}
 
 	@Test
-	public void testCastLongToStringFails() {
+	public void testCastLongToString() {
 		try {
 			when(converter.icg.generateTempIdentifier(any(StringType.class)))
 					.thenReturn(new IdentifierData("tmp", new StringType(0l)));
 			converter.cast(new StringType(0l), new IdentifierData("test",
 					new LongType()));
-			fail();
+			verify(converter.icg).addQuadruple(
+					new QuadrupleJb(Operator.LONG_TO_STRING, "test",
+							Quadruple.EmptyArgument, "tmp"));
 		} catch (IntermediateCodeGeneratorException e) {
+			fail();
 		}
 	}
 
@@ -130,14 +133,17 @@ public class CastingAst2CodeConverterTest {
 	}
 
 	@Test
-	public void testCastDoubleToStringFails() {
+	public void testCastDoubleToString() {
 		try {
 			when(converter.icg.generateTempIdentifier(any(StringType.class)))
 					.thenReturn(new IdentifierData("tmp", new StringType(0l)));
 			converter.cast(new StringType(0l), new IdentifierData("test",
 					new DoubleType()));
-			fail();
+			verify(converter.icg).addQuadruple(
+					new QuadrupleJb(Operator.DOUBLE_TO_STRING, "test",
+							Quadruple.EmptyArgument, "tmp"));
 		} catch (IntermediateCodeGeneratorException e) {
+			fail();
 		}
 	}
 
@@ -210,14 +216,17 @@ public class CastingAst2CodeConverterTest {
 	}
 
 	@Test
-	public void testCastBooleanToStringFails() {
+	public void testCastBooleanToString() {
 		try {
 			when(converter.icg.generateTempIdentifier(any(StringType.class)))
 					.thenReturn(new IdentifierData("tmp", new StringType(0l)));
 			converter.cast(new StringType(0l), new IdentifierData("test",
 					new BooleanType()));
-			fail();
+			verify(converter.icg).addQuadruple(
+					new QuadrupleJb(Operator.BOOLEAN_TO_STRING, "test",
+							Quadruple.EmptyArgument, "tmp"));
 		} catch (IntermediateCodeGeneratorException e) {
+			fail();
 		}
 	}
 

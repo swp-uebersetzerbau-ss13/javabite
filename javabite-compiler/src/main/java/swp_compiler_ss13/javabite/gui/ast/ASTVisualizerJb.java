@@ -101,7 +101,7 @@ public class ASTVisualizerJb implements ASTVisualization {
 		frame = new mxGraphComponent(graph);
 		((mxGraphComponent) frame).getGraphControl().addMouseListener(new MouseAdapter()
 		{
-			public void mouseReleased(MouseEvent e){
+			public void mouseClicked(MouseEvent e){
 				Object cell = ((mxGraphComponent) frame).getCellAt(e.getX(), e.getY());
 				if (cell != null)
 				{
@@ -117,7 +117,28 @@ public class ASTVisualizerJb implements ASTVisualization {
 				}
 			}
 		});
+		
+	/*	((mxGraphComponent) frame).getGraphControl().(new MouseAdapter()
+		{
+			public void mouseReleased(MouseEvent e){
+				Object cell = ((mxGraphComponent) frame).getCellAt(e.getX(), e.getY());
+				if (cell != null)
+				{
+					breadthFirstSearch((mxCell) cell);
+					Object[] edges = graph.getOutgoingEdges(cell); // remove edges
+					graph.removeCells(edges);
+					System.out.println(queueSubTree.size());
+					
+				for (mxCell k: queueSubTree){
+						Object[] edges1 = graph.getOutgoingEdges((mxCell) k);
+						graph.removeCells(edges1);		
+					}
+				}
+			}
+		});*/
 	}
+	
+	
 	
 	
 	private void breadthFirstSearch(mxCell parent) {

@@ -38,9 +38,6 @@ ArithmeticBinaryExpressionNodeConverter converter;
         converter.icg = Mockito
                 .mock(IntermediateCodeGeneratorJb.class);
     }
-
-   
-   
    
     //Long_SUB
     @Test
