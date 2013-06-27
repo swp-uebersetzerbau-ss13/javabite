@@ -36,6 +36,7 @@ public class Classfile {
 
 	// name of File
 	private final String name;
+	private final boolean isStruct;
 
 	/*
 	 * general classfile constant pool information being used while classfile
@@ -84,15 +85,19 @@ public class Classfile {
 	 * @param superClassNameEIF
 	 *            string describing the superclass' class name encoded in
 	 *            internal form according to the jvm specification.
+	 * @param isStruct
+	 *            boolean flag which determines, whether this classfile is the
+	 *            main classfile or a struct classfile
 	 * @param accessFlags
 	 *            arbitrary amount of classfile access flags.
 	 */
 	public Classfile(final String name, final String thisClassNameEIF,
-			final String superClassNameEIF,
+			final String superClassNameEIF, boolean isStruct,
 			final ClassfileAccessFlag... accessFlags) {
 
 		// set basic parameters
 		this.name = name;
+		this.isStruct = isStruct;
 		this.thisClassNameEIF = thisClassNameEIF;
 		this.superClassNameEIF = superClassNameEIF;
 		interfaceCount = 0;
@@ -683,9 +688,26 @@ public class Classfile {
 	public void addFieldToFieldArea(final String fieldName,
 			final String fieldDescriptor, final FieldAccessFlag... accessFlags) {
 		// first generate appropriate constants in the constant pool
-		short fieldNameIndex = this.constantPool.generateConstantUTF8Info(fieldName);
-		short fieldDescriptorIndex = this.constantPool.generateConstantUTF8Info(fieldDescriptor);
+		short fieldNameIndex = this.constantPool
+				.generateConstantUTF8Info(fieldName);
+		short fieldDescriptorIndex = this.constantPool
+				.generateConstantUTF8Info(fieldDescriptor);
 		// add fields
-		this.fieldArea.addField(fieldNameIndex, fieldDescriptorIndex, accessFlags);
+		this.fieldArea.addField(fieldNameIndex, fieldDescriptorIndex,
+				accessFlags);
+	}
+
+	/**
+	 * <h1>isStruct</h1>
+	 * <p>
+	 * This method determines, whether this classfile is a main classfile or a
+	 * struct classfile.
+	 * </p>
+	 * 
+	 * @since 27.06.2013
+	 * @return true, if struct classfile, false if main classfile
+	 */
+	public boolean isStruct() {
+		return this.isStruct;
 	}
 }
