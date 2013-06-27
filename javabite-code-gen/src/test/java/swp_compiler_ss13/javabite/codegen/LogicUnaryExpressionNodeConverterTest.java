@@ -10,6 +10,7 @@ import org.mockito.Mockito;
 
 import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.nodes.unary.LogicUnaryExpressionNode;
+import swp_compiler_ss13.common.ast.nodes.unary.UnaryExpressionNode.UnaryOperator;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
@@ -42,12 +43,14 @@ public class LogicUnaryExpressionNodeConverterTest {
 	@Test
 	public void testLogicUnaryExpressionLong(){
 		try {
-			ASTNode node = Mockito.mock(LogicUnaryExpressionNode.class);
-			//verify(converter.icg).processNode(any(LogicUnaryExpressionNode.class));
-			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test", new LongType()));
-			when(converter.icg.generateTempIdentifier(any(LongType.class)))
-			.thenReturn(new IdentifierData("tmp", new LongType()));
-			verify(converter).convert(node);
+			LogicUnaryExpressionNode node = Mockito.mock(LogicUnaryExpressionNode.class);
+			IdentifierData oldData = new IdentifierData("testOld", new LongType());
+			IdentifierData newData = new IdentifierData("testNew", new LongType());
+			when(converter.icg.popIdentifierData()).thenReturn(oldData);
+			when(converter.icg.generateTempIdentifier(oldData.getType()))
+			.thenReturn(newData);
+			node.setOperator(UnaryOperator.LOGICAL_NEGATE);
+			converter.convert(node);
 			fail();
 		}catch(IntermediateCodeGeneratorException e) {
 			
@@ -62,15 +65,15 @@ public class LogicUnaryExpressionNodeConverterTest {
 	@Test
 	public void testLogicUnaryExpressionDouble(){
 		try {
-			ASTNode node = Mockito.mock(LogicUnaryExpressionNode.class);
-			//verify(converter.icg).processNode(any(LogicUnaryExpressionNode.class));
-			IdentifierData oldData = new IdentifierData("test", new DoubleType());
+			LogicUnaryExpressionNode node = Mockito.mock(LogicUnaryExpressionNode.class);
+			IdentifierData oldData = new IdentifierData("testOld", new DoubleType());
+			IdentifierData newData = new IdentifierData("testNew", new DoubleType());
 			when(converter.icg.popIdentifierData()).thenReturn(oldData);
-			when(converter.icg.generateTempIdentifier(any(DoubleType.class)))
-			.thenReturn(new IdentifierData("tmp", new DoubleType()));
-			verify(converter).convert(node);
+			when(converter.icg.generateTempIdentifier(oldData.getType()))
+			.thenReturn(newData);
+			node.setOperator(UnaryOperator.LOGICAL_NEGATE);
+			converter.convert(node);
 			fail();
-			
 		}catch(IntermediateCodeGeneratorException e) {
 			
 		}
@@ -83,15 +86,22 @@ public class LogicUnaryExpressionNodeConverterTest {
 	@Test
 	public void testLogicUnaryExpressionBoolean(){
 		try {
-			ASTNode node = Mockito.mock(LogicUnaryExpressionNode.class);
-			//verify(converter.icg).processNode(any(LogicUnaryExpressionNode.class));
-			IdentifierData oldData = new IdentifierData("test", new BooleanType());
-			when(converter.icg.popIdentifierData()).thenReturn(oldData);
+			LogicUnaryExpressionNode node = Mockito.mock(LogicUnaryExpressionNode.class);
+//			IdentifierData oldData = new IdentifierData("testOld", new BooleanType());
+//			IdentifierData newData = new IdentifierData("testNew", new BooleanType());
+//			oldData.setIdentifier("testOld");
+//			oldData.setType(new BooleanType());
+//			newData.setIdentifier("testNew");
+//			newData.setType(new BooleanType());
+			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("testOld", new BooleanType()));
 			when(converter.icg.generateTempIdentifier(any(BooleanType.class)))
-			.thenReturn(new IdentifierData("tmp", new BooleanType()));
-			verify(converter).convert(node);
-			verify(converter.icg).addQuadruple(new QuadrupleJb(Operator.NOT_BOOLEAN, "test1",
-					Quadruple.EmptyArgument, "test2"));
+			.thenReturn(new IdentifierData("testNew", new BooleanType()));
+			when(node.getOperator()).thenReturn(UnaryOperator.LOGICAL_NEGATE);
+			converter.convert(node);
+			verify(converter.icg).addQuadruple(new QuadrupleJb(Operator.NOT_BOOLEAN, "testOld",
+					Quadruple.EmptyArgument, "testNew"));
+			//verify(converter.icg).pushIdentifierData(newData);
+			
 		}catch(IntermediateCodeGeneratorException e) {
 			fail();
 		}
@@ -104,18 +114,21 @@ public class LogicUnaryExpressionNodeConverterTest {
 	@Test
 	public void testLogicUnaryExpressionStruct(){
 		try {
-			ASTNode node = Mockito.mock(LogicUnaryExpressionNode.class);
-			//verify(converter.icg).processNode(any(LogicUnaryExpressionNode.class));
-			IdentifierData oldData = new IdentifierData("test", new StructType(
+			LogicUnaryExpressionNode node = Mockito.mock(LogicUnaryExpressionNode.class);
+			IdentifierData oldData = new IdentifierData("testOld", new StructType(
+					null,
+					new Member[] { new Member("",
+							new LongType()) }));
+			IdentifierData newData = new IdentifierData("testNew", new StructType(
 					null,
 					new Member[] { new Member("",
 							new LongType()) }));
 			when(converter.icg.popIdentifierData()).thenReturn(oldData);
-			when(converter.icg.generateTempIdentifier(any(DoubleType.class)))
-			.thenReturn(new IdentifierData("tmp", new DoubleType()));
-			verify(converter).convert(node);
+			when(converter.icg.generateTempIdentifier(oldData.getType()))
+			.thenReturn(newData);
+			node.setOperator(UnaryOperator.LOGICAL_NEGATE);
+			converter.convert(node);
 			fail();
-			
 		}catch(IntermediateCodeGeneratorException e) {
 			
 		}
@@ -127,16 +140,17 @@ public class LogicUnaryExpressionNodeConverterTest {
 	 */
 	@Test
 	public void testLogicUnaryExpressionArray(){
+		
 		try {
-			ASTNode node = Mockito.mock(LogicUnaryExpressionNode.class);
-			//verify(converter.icg).processNode(any(LogicUnaryExpressionNode.class));
-			IdentifierData oldData = new IdentifierData("test", new ArrayType(new LongType(), 0));
+			LogicUnaryExpressionNode node = Mockito.mock(LogicUnaryExpressionNode.class);
+			IdentifierData oldData = new IdentifierData("testOld", new ArrayType(new LongType(), 0));
+			IdentifierData newData = new IdentifierData("testNew", new ArrayType(new LongType(), 0));
 			when(converter.icg.popIdentifierData()).thenReturn(oldData);
-			when(converter.icg.generateTempIdentifier(any(ArrayType.class)))
-			.thenReturn(new IdentifierData("tmp", new ArrayType(new LongType(), 0)));
-			verify(converter).convert(node);
+			when(converter.icg.generateTempIdentifier(oldData.getType()))
+			.thenReturn(newData);
+			node.setOperator(UnaryOperator.LOGICAL_NEGATE);
+			converter.convert(node);
 			fail();
-			
 		}catch(IntermediateCodeGeneratorException e) {
 			
 		}
