@@ -100,11 +100,22 @@ public class ASTVisualizerJb implements ASTVisualization {
 		layout.setInterHierarchySpacing(20);
 		layout.setIntraCellSpacing(5);
 		layout.execute(graph.getDefaultParent());
-		frame = new mxGraphComponent(graph);
+		frame = new TooltipMxGraphComponent(graph);
 		ToolTipManager.sharedInstance().registerComponent(frame);
+		
+		
 		((mxGraphComponent) frame).getGraphControl().addMouseListener(new MouseAdapter()
 		{
+			 public void mouseEntered(MouseEvent e) {
+				 Object cell = ((mxGraphComponent) frame).getCellAt(e.getX(), e.getY());
+				 if (cell != null)
+					{
+					 frame.getToolTipText(e);
+					}
+			 }
 			public void mouseClicked(MouseEvent e){
+				
+				
 				Object cell = ((mxGraphComponent) frame).getCellAt(e.getX(), e.getY());
 				if (cell != null)
 				{
@@ -123,15 +134,7 @@ public class ASTVisualizerJb implements ASTVisualization {
 		});	
 	}
 	
-	public String getToolTipText(MouseEvent e) {
-	      // Fetch Cell under Mousepointer
-	      Object c = ((mxGraphComponent) frame).getCellAt(e.getX(), e.getY());
-	      if (c != null)
-	        // Convert Cell to String and Return
-	        return "HI";
-	    
-	    return null;
-	  }		
+		
 	
 	private void breadthFirstSearch(mxCell parent) {
 
