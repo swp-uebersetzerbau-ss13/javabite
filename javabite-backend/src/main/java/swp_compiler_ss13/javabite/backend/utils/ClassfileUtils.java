@@ -1,9 +1,12 @@
 package swp_compiler_ss13.javabite.backend.utils;
 
+import org.apache.commons.lang.StringUtils;
+import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.translation.Mnemonic;
 
 import java.util.EnumSet;
+import java.util.List;
 
 public final class ClassfileUtils {
 
@@ -239,6 +242,32 @@ public final class ClassfileUtils {
 				return STRING;
 			if (OPERATOR_BOOLEAN_TYPES.contains(operator))
 				return BOOLEAN;
+			return null;
+		}
+
+	}
+
+	public static String getByQuadruples(final Quadruple quad) {
+		return JavaType.getByOperator(quad.getOperator()).className;
+	}
+
+	public static String getByQuadruples(final List<Quadruple> tac) {
+		switch (tac.get(0).getOperator()) {
+		case DECLARE_ARRAY:
+			int dimensions = 0;
+			for (final Quadruple quad : tac) {
+				if (quad.getOperator() == Operator.DECLARE_ARRAY) {
+					dimensions++;
+				}
+			}
+			return StringUtils.leftPad("", dimensions, '[')
+					+ JavaType.getByOperator(tac.get(tac.size() - 1)
+							.getOperator()).className;
+
+		case DECLARE_STRUCT:
+			return tac.get(0).getResult();
+
+		default:
 			return null;
 		}
 	}

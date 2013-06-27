@@ -102,68 +102,24 @@ public class Program {
 		return true;
 	}
 
-	/**
-	 * <h1>Builder</h1>
-	 * <p>
-	 * This class provides a builder pattern implementation for the program
-	 * class.
-	 * </p>
-	 * 
-	 * @author eike
-	 * @since May 18, 2013 12:29:51 AM
-	 */
-	public static class Builder {
+	private static abstract class Builder<T extends Builder<?>> {
 
-		// the list of operations of this program
-		private final List<Operation> operations;
 		// the classfile instance of this program
-		private final Classfile classfile;
+		protected final Classfile classfile;
 		// the method name of this program
-		private final String methodName;
-		// saves all jump targets (labels) for jump instruction creation
-		private final Map<String, Instruction> jumpTargets;
-		// saves all jump instructions for later offset calculation
-		private final List<JumpInstruction> jumpInstructions;
-		// sizes of last array declaration, in reverse order on the stack
-		private final Stack<String> arrayDimensions;
-		// label name of last label
-		private final Stack<String> labelNames;
+		protected final String methodName;
+		// the list of operations of this program
+		protected final List<Operation> operations;
 		// determines, whether the System exit method has already been added/
 		// a return statement is present in the tac
-		private boolean returnFlag;
-		// indicates last instruction was a label, denoting a jump location
-		private boolean labelFlag;
-		// name of last array seen
-		private String arrayName;
+		protected boolean returnFlag;
 
 		public Builder(final Classfile classfile, final String methodName) {
-			operations = new ArrayList<>();
-			jumpTargets = new HashMap<>();
-			jumpInstructions = new ArrayList<>();
-			arrayDimensions = new Stack<>();
-			labelNames = new Stack<>();
 			this.classfile = classfile;
 			this.methodName = methodName;
-			returnFlag = false;
+			operations = new ArrayList<>();
 		}
 
-		private Builder add(final Operation operation) {
-			operations.add(operation);
-			if (labelFlag) {
-				labelFlag = false;
-				while (!labelNames.isEmpty()) {
-					jumpTargets.put(labelNames.pop(),
-							operation.getInstruction(0));
-				}
-			}
-			return this;
-		}
-
-		/**
-		 * Builds the current program instance and returns it.
-		 * 
-		 * @return the program instance built by this builder instance
-		 */
 		public Program build() {
 			// check, whether there is a return instruction in the end
 			// if not, set it
@@ -180,6 +136,92 @@ public class Program {
 				}
 			}
 
+			return buildInternal();
+		}
+
+		protected abstract Program buildInternal();
+
+		protected Builder<T> add(final Operation operation) {
+			operations.add(operation);
+			return this;
+		}
+
+		private void addReturnOp() {
+			final Operation.Builder op = Operation.Builder.newBuilder();
+			op.add(Mnemonic.RETURN);
+			add(op.build());
+		}
+
+		protected void addNop() {
+			final Operation.Builder op = Operation.Builder.newBuilder();
+			op.add(Mnemonic.NOP);
+			add(op.build());
+		}
+
+	}
+
+	public static class StructBuilder extends Builder<StructBuilder> {
+
+		public StructBuilder(final Classfile classfile, final String methodName) {
+			super(classfile, methodName);
+		}
+
+		@Override
+		protected Program buildInternal() {
+			return null;
+		}
+
+	}
+
+	/**
+	 * <h1>MainBuilder</h1>
+	 * <p>
+	 * This class provides a builder pattern implementation for the program
+	 * class.
+	 * </p>
+	 * 
+	 * @author eike
+	 * @since May 18, 2013 12:29:51 AM
+	 */
+	public static class MainBuilder extends Builder<MainBuilder> {
+
+		// saves all jump targets (labels) for jump instruction creation
+		private final Map<String, Instruction> jumpTargets;
+		// saves all jump instructions for later offset calculation
+		private final List<JumpInstruction> jumpInstructions;
+		// sizes of last array declaration, in reverse order on the stack
+		private final Stack<String> arrayDimensions;
+		// label name of last label
+		private final Stack<String> labelNames;
+		// indicates last instruction was a label, denoting a jump location
+		private boolean labelFlag;
+		// name of last array seen
+		private String arrayName;
+
+		public MainBuilder(final Classfile classfile, final String methodName) {
+			super(classfile, methodName);
+			jumpTargets = new HashMap<>();
+			jumpInstructions = new ArrayList<>();
+			arrayDimensions = new Stack<>();
+			labelNames = new Stack<>();
+			returnFlag = false;
+		}
+
+		@Override
+		protected MainBuilder add(final Operation operation) {
+			super.add(operation);
+			if (labelFlag) {
+				labelFlag = false;
+				while (!labelNames.isEmpty()) {
+					jumpTargets.put(labelNames.pop(),
+							operation.getInstruction(0));
+				}
+			}
+			return this;
+		}
+
+		@Override
+		protected Program buildInternal() {
 			// caluclate jump offset for every jump, set as argument of jump
 			for (final JumpInstruction in : jumpInstructions) {
 				Instruction target = in.getTargetInstruction();
@@ -552,7 +594,7 @@ public class Program {
 
 			final Operation.Builder op = Operation.Builder.newBuilder();
 			op.add(loadInstruction(q.getArgument1(), LocalVariableType.AREF));
-            // TODO getfield
+			// TODO getfield
 			op.add(storeInstruction(q.getResult(), variableType));
 			return op.build();
 		}
@@ -571,30 +613,13 @@ public class Program {
 			final Operation.Builder op = Operation.Builder.newBuilder();
 			op.add(loadInstruction(q.getArgument1(), LocalVariableType.AREF));
 			op.add(loadInstruction(q.getResult(), variableType));
-            // TODO putfield
+			// TODO putfield
 			return op.build();
-		}
-
-		// CONSTANT POOL HELPERS -----------------------------------------------
-
-		/**
-		 * Adds a return operation to the program.
-		 */
-		private void addReturnOp() {
-			final Operation.Builder op = Operation.Builder.newBuilder();
-			op.add(Mnemonic.RETURN);
-			add(op.build());
-		}
-
-		private void addNop() {
-			final Operation.Builder op = Operation.Builder.newBuilder();
-			op.add(Mnemonic.NOP);
-			add(op.build());
 		}
 
 		// OPERATIONS ----------------------------------------------------------
 
-		public Builder nop() {
+		public MainBuilder nop() {
 			addNop();
 			return this;
 		}
@@ -614,7 +639,7 @@ public class Program {
 		 *            quadruple of operation
 		 * @return this builders instance
 		 */
-		public Builder declareLong(final Quadruple q) {
+		public MainBuilder declareLong(final Quadruple q) {
 			assert q.getOperator() == Operator.DECLARE_LONG;
 			assert hasArgsCount(q, 0, 1, 2);
 			if ("!".equals(q.getResult())) {
@@ -635,7 +660,7 @@ public class Program {
 		 *            quadruple of operation
 		 * @return this builders instance
 		 */
-		public Builder declareDouble(final Quadruple q) {
+		public MainBuilder declareDouble(final Quadruple q) {
 			assert q.getOperator() == Operator.DECLARE_DOUBLE;
 			assert hasArgsCount(q, 0, 1, 2);
 			if ("!".equals(q.getResult())) {
@@ -656,7 +681,7 @@ public class Program {
 		 *            quadruple of operation
 		 * @return this builders instance
 		 */
-		public Builder declareString(final Quadruple q) {
+		public MainBuilder declareString(final Quadruple q) {
 			assert q.getOperator() == Operator.DECLARE_STRING;
 			assert hasArgsCount(q, 0, 1, 2);
 			if ("!".equals(q.getResult())) {
@@ -677,7 +702,7 @@ public class Program {
 		 *            quadruple of operation
 		 * @return this builders instance
 		 */
-		public Builder declareBoolean(final Quadruple q) {
+		public MainBuilder declareBoolean(final Quadruple q) {
 			assert q.getOperator() == Operator.DECLARE_BOOLEAN;
 			assert hasArgsCount(q, 0, 1, 2);
 			if ("!".equals(q.getResult())) {
@@ -713,7 +738,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder longToDouble(final Quadruple q) {
+		public MainBuilder longToDouble(final Quadruple q) {
 			assert q.getOperator() == Operator.LONG_TO_DOUBLE;
 			assert hasArgsCount(q, 2);
 			return add(assignValueOp(q, LocalVariableType.LONG, Mnemonic.L2D,
@@ -746,7 +771,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder doubleToLong(final Quadruple q) {
+		public MainBuilder doubleToLong(final Quadruple q) {
 			assert q.getOperator() == Operator.DOUBLE_TO_LONG;
 			assert hasArgsCount(q, 2);
 			return add(assignValueOp(q, LocalVariableType.DOUBLE, Mnemonic.D2L,
@@ -779,7 +804,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder assignLong(final Quadruple q) {
+		public MainBuilder assignLong(final Quadruple q) {
 			assert q.getOperator() == Operator.ASSIGN_LONG;
 			assert hasArgsCount(q, 2);
 			return add(assignValueOp(q, LocalVariableType.LONG, null, null));
@@ -811,7 +836,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder assignDouble(final Quadruple q) {
+		public MainBuilder assignDouble(final Quadruple q) {
 			assert q.getOperator() == Operator.ASSIGN_DOUBLE;
 			assert hasArgsCount(q, 2);
 			return add(assignValueOp(q, LocalVariableType.DOUBLE, null, null));
@@ -843,7 +868,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder assignString(final Quadruple q) {
+		public MainBuilder assignString(final Quadruple q) {
 			assert q.getOperator() == Operator.ASSIGN_STRING;
 			assert hasArgsCount(q, 2);
 			return add(assignValueOp(q, LocalVariableType.STRING, null, null));
@@ -875,7 +900,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder assignBoolean(final Quadruple q) {
+		public MainBuilder assignBoolean(final Quadruple q) {
 			assert q.getOperator() == Operator.ASSIGN_BOOLEAN;
 			assert hasArgsCount(q, 2);
 			final Operation.Builder op = Operation.Builder.newBuilder();
@@ -910,7 +935,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder addLong(final Quadruple q) {
+		public MainBuilder addLong(final Quadruple q) {
 			assert q.getOperator() == Operator.ADD_LONG;
 			assert hasArgsCount(q, 3);
 			return add(calculateNumberOp(q, LocalVariableType.LONG,
@@ -943,7 +968,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder addDouble(final Quadruple q) {
+		public MainBuilder addDouble(final Quadruple q) {
 			assert q.getOperator() == Operator.ADD_DOUBLE;
 			assert hasArgsCount(q, 3);
 			return add(calculateNumberOp(q, LocalVariableType.DOUBLE,
@@ -976,7 +1001,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder subLong(final Quadruple q) {
+		public MainBuilder subLong(final Quadruple q) {
 			assert q.getOperator() == Operator.SUB_LONG;
 			assert hasArgsCount(q, 3);
 			return add(calculateNumberOp(q, LocalVariableType.LONG,
@@ -1009,7 +1034,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder subDouble(final Quadruple q) {
+		public MainBuilder subDouble(final Quadruple q) {
 			assert q.getOperator() == Operator.SUB_DOUBLE;
 			assert hasArgsCount(q, 3);
 			return add(calculateNumberOp(q, LocalVariableType.DOUBLE,
@@ -1042,7 +1067,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder mulLong(final Quadruple q) {
+		public MainBuilder mulLong(final Quadruple q) {
 			assert q.getOperator() == Operator.MUL_LONG;
 			assert hasArgsCount(q, 3);
 			return add(calculateNumberOp(q, LocalVariableType.LONG,
@@ -1075,7 +1100,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder mulDouble(final Quadruple q) {
+		public MainBuilder mulDouble(final Quadruple q) {
 			assert q.getOperator() == Operator.MUL_DOUBLE;
 			assert hasArgsCount(q, 3);
 			return add(calculateNumberOp(q, LocalVariableType.DOUBLE,
@@ -1108,7 +1133,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder divLong(final Quadruple q) {
+		public MainBuilder divLong(final Quadruple q) {
 			assert q.getOperator() == Operator.DIV_LONG;
 			assert hasArgsCount(q, 3);
 			return add(calculateNumberOp(q, LocalVariableType.LONG,
@@ -1141,7 +1166,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder divDouble(final Quadruple q) {
+		public MainBuilder divDouble(final Quadruple q) {
 			assert q.getOperator() == Operator.DIV_DOUBLE;
 			assert hasArgsCount(q, 3);
 			return add(calculateNumberOp(q, LocalVariableType.DOUBLE,
@@ -1174,7 +1199,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder returnLong(final Quadruple q) {
+		public MainBuilder returnLong(final Quadruple q) {
 			assert q.getOperator() == Operator.RETURN;
 			assert hasArgsCount(q, 1);
 			returnFlag = true;
@@ -1225,7 +1250,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder notBoolean(final Quadruple q) {
+		public MainBuilder notBoolean(final Quadruple q) {
 			assert q.getOperator() == Operator.NOT_BOOLEAN;
 			assert hasArgsCount(q, 2);
 			final Operation.Builder op = Operation.Builder.newBuilder();
@@ -1273,7 +1298,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder orBoolean(final Quadruple q) {
+		public MainBuilder orBoolean(final Quadruple q) {
 			assert q.getOperator() == Operator.OR_BOOLEAN;
 			assert hasArgsCount(q, 3);
 			return add(booleanOp(q, Mnemonic.IOR));
@@ -1303,7 +1328,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder andBoolean(final Quadruple q) {
+		public MainBuilder andBoolean(final Quadruple q) {
 			assert q.getOperator() == Operator.AND_BOOLEAN;
 			assert hasArgsCount(q, 3);
 			return add(booleanOp(q, Mnemonic.IAND));
@@ -1335,7 +1360,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder compareLongE(final Quadruple q) {
+		public MainBuilder compareLongE(final Quadruple q) {
 			assert q.getOperator() == Operator.COMPARE_LONG_E;
 			assert hasArgsCount(q, 3);
 			return add(compareNumberOp(q, LocalVariableType.LONG,
@@ -1367,7 +1392,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder compareLongG(final Quadruple q) {
+		public MainBuilder compareLongG(final Quadruple q) {
 			assert q.getOperator() == Operator.COMPARE_LONG_G;
 			assert hasArgsCount(q, 3);
 			return add(compareNumberOp(q, LocalVariableType.LONG,
@@ -1399,7 +1424,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder compareLongL(final Quadruple q) {
+		public MainBuilder compareLongL(final Quadruple q) {
 			assert q.getOperator() == Operator.COMPARE_LONG_L;
 			assert hasArgsCount(q, 3);
 			return add(compareNumberOp(q, LocalVariableType.LONG,
@@ -1432,7 +1457,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder compareLongGE(final Quadruple q) {
+		public MainBuilder compareLongGE(final Quadruple q) {
 			assert q.getOperator() == Operator.COMPARE_LONG_GE;
 			assert hasArgsCount(q, 3);
 			return add(compareNumberOp(q, LocalVariableType.LONG,
@@ -1464,7 +1489,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder compareLongLE(final Quadruple q) {
+		public MainBuilder compareLongLE(final Quadruple q) {
 			assert q.getOperator() == Operator.COMPARE_LONG_LE;
 			assert hasArgsCount(q, 3);
 			return add(compareNumberOp(q, LocalVariableType.LONG,
@@ -1497,7 +1522,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder compareDoubleE(final Quadruple q) {
+		public MainBuilder compareDoubleE(final Quadruple q) {
 			assert q.getOperator() == Operator.COMPARE_DOUBLE_E;
 			assert hasArgsCount(q, 3);
 			return add(compareNumberOp(q, LocalVariableType.DOUBLE,
@@ -1529,7 +1554,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder compareDoubleG(final Quadruple q) {
+		public MainBuilder compareDoubleG(final Quadruple q) {
 			assert q.getOperator() == Operator.COMPARE_DOUBLE_G;
 			assert hasArgsCount(q, 3);
 			return add(compareNumberOp(q, LocalVariableType.DOUBLE,
@@ -1561,7 +1586,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder compareDoubleL(final Quadruple q) {
+		public MainBuilder compareDoubleL(final Quadruple q) {
 			assert q.getOperator() == Operator.COMPARE_DOUBLE_L;
 			assert hasArgsCount(q, 3);
 			return add(compareNumberOp(q, LocalVariableType.DOUBLE,
@@ -1593,7 +1618,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder compareDoubleGE(final Quadruple q) {
+		public MainBuilder compareDoubleGE(final Quadruple q) {
 			assert q.getOperator() == Operator.COMPARE_DOUBLE_GE;
 			assert hasArgsCount(q, 3);
 			return add(compareNumberOp(q, LocalVariableType.DOUBLE,
@@ -1625,7 +1650,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder compareDoubleLE(final Quadruple q) {
+		public MainBuilder compareDoubleLE(final Quadruple q) {
 			assert q.getOperator() == Operator.COMPARE_DOUBLE_LE;
 			assert hasArgsCount(q, 3);
 			return add(compareNumberOp(q, LocalVariableType.DOUBLE,
@@ -1657,7 +1682,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder label(final Quadruple q) {
+		public MainBuilder label(final Quadruple q) {
 			assert q.getOperator() == Operator.LABEL;
 			assert hasArgsCount(q, 1);
 			labelFlag = true;
@@ -1697,7 +1722,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder branch(final Quadruple q) {
+		public MainBuilder branch(final Quadruple q) {
 			assert q.getOperator() == Operator.BRANCH;
 			final Operation.Builder op = Operation.Builder.newBuilder();
 			if ("!".equals(q.getResult())) {
@@ -1752,7 +1777,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder printString(final Quadruple q) {
+		public MainBuilder printString(final Quadruple q) {
 			assert q.getOperator() == Operator.PRINT_STRING;
 			assert hasArgsCount(q, 1);
 			final Operation.Builder op = Operation.Builder.newBuilder();
@@ -1799,7 +1824,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder declareArray(final Quadruple q) {
+		public MainBuilder declareArray(final Quadruple q) {
 			assert q.getOperator() == Operator.DECLARE_ARRAY;
 			assert hasArgsCount(q, 1, 2);
 			if (!"!".equals(q.getResult())) {
@@ -1834,7 +1859,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder arrayGetLong(final Quadruple q) {
+		public MainBuilder arrayGetLong(final Quadruple q) {
 			assert q.getOperator() == Operator.ARRAY_GET_LONG;
 			assert hasArgsCount(q, 3);
 			return add(arrayGetOp(q, LocalVariableType.LONG));
@@ -1865,7 +1890,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder arrayGetDouble(final Quadruple q) {
+		public MainBuilder arrayGetDouble(final Quadruple q) {
 			assert q.getOperator() == Operator.ARRAY_GET_DOUBLE;
 			assert hasArgsCount(q, 3);
 			return add(arrayGetOp(q, LocalVariableType.DOUBLE));
@@ -1896,7 +1921,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder arrayGetBoolean(final Quadruple q) {
+		public MainBuilder arrayGetBoolean(final Quadruple q) {
 			assert q.getOperator() == Operator.ARRAY_GET_BOOLEAN;
 			assert hasArgsCount(q, 3);
 			return add(arrayGetOp(q, LocalVariableType.BOOLEAN));
@@ -1927,7 +1952,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder arrayGetString(final Quadruple q) {
+		public MainBuilder arrayGetString(final Quadruple q) {
 			assert q.getOperator() == Operator.ARRAY_GET_STRING;
 			assert hasArgsCount(q, 3);
 			return add(arrayGetOp(q, LocalVariableType.STRING));
@@ -1958,7 +1983,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder arrayGetReference(final Quadruple q) {
+		public MainBuilder arrayGetReference(final Quadruple q) {
 			assert q.getOperator() == Operator.ARRAY_GET_REFERENCE;
 			assert hasArgsCount(q, 3);
 			return add(arrayGetOp(q, LocalVariableType.AREF));
@@ -1989,7 +2014,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder arraySetLong(final Quadruple q) {
+		public MainBuilder arraySetLong(final Quadruple q) {
 			assert q.getOperator() == Operator.ARRAY_SET_LONG;
 			assert hasArgsCount(q, 3);
 			return add(arraySetOp(q, LocalVariableType.LONG));
@@ -2020,7 +2045,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder arraySetDouble(final Quadruple q) {
+		public MainBuilder arraySetDouble(final Quadruple q) {
 			assert q.getOperator() == Operator.ARRAY_SET_DOUBLE;
 			assert hasArgsCount(q, 3);
 			return add(arraySetOp(q, LocalVariableType.DOUBLE));
@@ -2051,7 +2076,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder arraySetBoolean(final Quadruple q) {
+		public MainBuilder arraySetBoolean(final Quadruple q) {
 			assert q.getOperator() == Operator.ARRAY_SET_BOOLEAN;
 			assert hasArgsCount(q, 3);
 			return add(arraySetOp(q, LocalVariableType.BOOLEAN));
@@ -2082,7 +2107,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder arraySetString(final Quadruple q) {
+		public MainBuilder arraySetString(final Quadruple q) {
 			assert q.getOperator() == Operator.ARRAY_SET_STRING;
 			assert hasArgsCount(q, 3);
 			return add(arraySetOp(q, LocalVariableType.STRING));
@@ -2117,7 +2142,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder booleanToString(final Quadruple q) {
+		public MainBuilder booleanToString(final Quadruple q) {
 			assert q.getOperator() == Operator.BOOLEAN_TO_STRING;
 			assert hasArgsCount(q, 2);
 			return add(toStringOp(q, "Z", "java/lang/Boolean",
@@ -2149,7 +2174,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder longToString(final Quadruple q) {
+		public MainBuilder longToString(final Quadruple q) {
 			assert q.getOperator() == Operator.LONG_TO_STRING;
 			assert hasArgsCount(q, 2);
 			return add(toStringOp(q, "J", "java/lang/Long",
@@ -2181,7 +2206,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder doubleToString(final Quadruple q) {
+		public MainBuilder doubleToString(final Quadruple q) {
 			assert q.getOperator() == Operator.DOUBLE_TO_STRING;
 			assert hasArgsCount(q, 2);
 			return add(toStringOp(q, "D", "java/lang/Double",
@@ -2213,7 +2238,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder declareStruct(final Quadruple q) {
+		public MainBuilder declareStruct(final Quadruple q) {
 			// TODO implement
 			assert q.getOperator() == Operator.DECLARE_STRUCT;
 			assert hasArgsCount(q, 2);
@@ -2245,7 +2270,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder structGetLong(final Quadruple q) {
+		public MainBuilder structGetLong(final Quadruple q) {
 			assert q.getOperator() == Operator.STRUCT_GET_LONG;
 			assert hasArgsCount(q, 3);
 			return add(structGetOp(q, LocalVariableType.LONG));
@@ -2276,7 +2301,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder structGetDouble(final Quadruple q) {
+		public MainBuilder structGetDouble(final Quadruple q) {
 			assert q.getOperator() == Operator.STRUCT_GET_DOUBLE;
 			assert hasArgsCount(q, 3);
 			return add(structGetOp(q, LocalVariableType.DOUBLE));
@@ -2307,7 +2332,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder structGetBoolean(final Quadruple q) {
+		public MainBuilder structGetBoolean(final Quadruple q) {
 			assert q.getOperator() == Operator.STRUCT_GET_BOOLEAN;
 			assert hasArgsCount(q, 3);
 			return add(structGetOp(q, LocalVariableType.BOOLEAN));
@@ -2338,7 +2363,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder structGetString(final Quadruple q) {
+		public MainBuilder structGetString(final Quadruple q) {
 			assert q.getOperator() == Operator.STRUCT_GET_STRING;
 			assert hasArgsCount(q, 3);
 			return add(structGetOp(q, LocalVariableType.STRING));
@@ -2370,7 +2395,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder structGetReference(final Quadruple q) {
+		public MainBuilder structGetReference(final Quadruple q) {
 			assert q.getOperator() == Operator.STRUCT_GET_REFERENCE;
 			assert hasArgsCount(q, 3);
 			return add(structGetOp(q, LocalVariableType.AREF));
@@ -2401,7 +2426,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder structSetLong(final Quadruple q) {
+		public MainBuilder structSetLong(final Quadruple q) {
 			assert q.getOperator() == Operator.STRUCT_SET_LONG;
 			assert hasArgsCount(q, 3);
 			return add(structSetOp(q, LocalVariableType.LONG));
@@ -2432,7 +2457,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder structSetDouble(final Quadruple q) {
+		public MainBuilder structSetDouble(final Quadruple q) {
 			assert q.getOperator() == Operator.STRUCT_SET_DOUBLE;
 			assert hasArgsCount(q, 3);
 			return add(structSetOp(q, LocalVariableType.DOUBLE));
@@ -2463,7 +2488,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder structSetBoolean(final Quadruple q) {
+		public MainBuilder structSetBoolean(final Quadruple q) {
 			assert q.getOperator() == Operator.STRUCT_SET_BOOLEAN;
 			assert hasArgsCount(q, 3);
 			return add(structSetOp(q, LocalVariableType.BOOLEAN));
@@ -2494,7 +2519,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder structSetString(final Quadruple q) {
+		public MainBuilder structSetString(final Quadruple q) {
 			assert q.getOperator() == Operator.STRUCT_SET_STRING;
 			assert hasArgsCount(q, 3);
 			return add(structSetOp(q, LocalVariableType.STRING));
@@ -2525,7 +2550,7 @@ public class Program {
 		 *            the operation quadruple
 		 * @return this program builders instance
 		 */
-		public Builder concatString(final Quadruple q) {
+		public MainBuilder concatString(final Quadruple q) {
 			assert q.getOperator() == Operator.CONCAT_STRING;
 			assert hasArgsCount(q, 3);
 			final Operation.Builder op = Operation.Builder.newBuilder();

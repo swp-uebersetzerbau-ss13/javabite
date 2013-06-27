@@ -118,7 +118,7 @@ public class Operation {
 	}
 
 	/**
-	 * <h1>Builder</h1>
+	 * <h1>MainBuilder</h1>
 	 * <p>
 	 * This class provides the builder pattern to create new instances of the
 	 * Operation-class.
