@@ -17,7 +17,7 @@ public class FileManager {
 	}
 	
 	// if it returns 0, file was opened. if it returns 1, it was cancelled
-	public int openFileDialog(File openedFile) {
+	public int openFileDialog(File openedFile, boolean save) {
 		JFileChooser chooser = new JFileChooser();
 		// TODO: set an apropriate directory
 		chooser.setFileFilter(filter);
@@ -31,6 +31,22 @@ public class FileManager {
 			mf.toolBarLabel.setText("Document opened.");
 		}
 		
+		return returnVal;
+	}
+	
+	public int saveFileDialog(File openedFile) {
+		JFileChooser chooser = new JFileChooser();
+		chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
+		chooser.setFileFilter(filter);
+		chooser.setSelectedFile(new File("New File.prog"));
+		
+		int returnVal = chooser.showSaveDialog(null);
+		if (returnVal == JFileChooser.APPROVE_OPTION) { 
+			openedFile = chooser.getSelectedFile();
+			mf.setTitle("Javabite Compiler - " + openedFile.getName());
+			mf.toolBarLabel.setText("Document saved.");
+			mf.saveEditorContentIntoFile(openedFile);
+		}
 		return returnVal;
 	}
 
