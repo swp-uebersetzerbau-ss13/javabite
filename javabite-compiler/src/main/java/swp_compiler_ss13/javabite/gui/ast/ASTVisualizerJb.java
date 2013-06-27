@@ -13,6 +13,7 @@ import java.util.Set;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
+import javax.swing.ToolTipManager;
 
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.ASTNode;
@@ -65,6 +66,7 @@ public class ASTVisualizerJb implements ASTVisualization {
 	int i=1;
 	private Set<mxCell> visitedSet = new HashSet<mxCell>();
     List<mxCell> queueSubTree = new ArrayList<mxCell>();
+    
 
 	String[] operation = { "ADDITION", "SUBSTRACTION", "MULTIPLICATION",
 			"DIVISION", "LESSTHAN", "LESSTHANEQUAL", "GREATERTHAN",
@@ -99,6 +101,7 @@ public class ASTVisualizerJb implements ASTVisualization {
 		layout.setIntraCellSpacing(5);
 		layout.execute(graph.getDefaultParent());
 		frame = new mxGraphComponent(graph);
+		ToolTipManager.sharedInstance().registerComponent(frame);
 		((mxGraphComponent) frame).getGraphControl().addMouseListener(new MouseAdapter()
 		{
 			public void mouseClicked(MouseEvent e){
@@ -112,34 +115,23 @@ public class ASTVisualizerJb implements ASTVisualization {
 					
 				for (mxCell k: queueSubTree){
 						Object[] edges1 = graph.getOutgoingEdges((mxCell) k);
-						graph.removeCells(edges1);		
+						graph.removeCells(edges1);
 					}
 				}
 			}
-		});
-		
-	/*	((mxGraphComponent) frame).getGraphControl().(new MouseAdapter()
-		{
-			public void mouseReleased(MouseEvent e){
-				Object cell = ((mxGraphComponent) frame).getCellAt(e.getX(), e.getY());
-				if (cell != null)
-				{
-					breadthFirstSearch((mxCell) cell);
-					Object[] edges = graph.getOutgoingEdges(cell); // remove edges
-					graph.removeCells(edges);
-					System.out.println(queueSubTree.size());
-					
-				for (mxCell k: queueSubTree){
-						Object[] edges1 = graph.getOutgoingEdges((mxCell) k);
-						graph.removeCells(edges1);		
-					}
-				}
-			}
-		});*/
+			
+		});	
 	}
 	
-	
-	
+	public String getToolTipText(MouseEvent e) {
+	      // Fetch Cell under Mousepointer
+	      Object c = ((mxGraphComponent) frame).getCellAt(e.getX(), e.getY());
+	      if (c != null)
+	        // Convert Cell to String and Return
+	        return "HI";
+	    
+	    return null;
+	  }		
 	
 	private void breadthFirstSearch(mxCell parent) {
 
