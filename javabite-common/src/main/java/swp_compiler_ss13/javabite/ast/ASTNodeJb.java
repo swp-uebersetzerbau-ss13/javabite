@@ -19,7 +19,7 @@ import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.lexer.TokenType;
 
-public abstract class ASTNodeJb implements ASTNode, Iterable<ASTNode>{
+public abstract class ASTNodeJb implements ASTNode, Iterable<ASTNode> {
 	final private TreeMap<Integer,ASTNode> children=new TreeMap<>();
 	protected ASTNodeType astNodeType;
 	private Map<TokenType,List<Token>> typeTokenMap=new HashMap<>();
@@ -184,17 +184,14 @@ public abstract class ASTNodeJb implements ASTNode, Iterable<ASTNode>{
 		return res.get(0);
 	}
 
-    @Override
     public void setAttributeValue(Object attribute, Object value) {
         attributes.put(attribute,value);
     }
 
-    @Override
     public Map<?, ?> getAttributeValues() {
         return attributes;
     }
 
-    @Override
     public Object getAttributeValue(Object attribute) {
         return attributes.get(attribute);
     }
