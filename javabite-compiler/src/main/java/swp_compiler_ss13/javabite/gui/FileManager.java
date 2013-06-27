@@ -1,6 +1,9 @@
 package swp_compiler_ss13.javabite.gui;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -28,7 +31,7 @@ public class FileManager {
 			String fileName = openedFile.getName();
 			mf.setTitle("Javabite Compiler - " + fileName);
 			if(save) {
-				mf.saveEditorContentIntoFile(openedFile);
+				saveEditorContentIntoFile(openedFile);
 				mf.toolBarLabel.setText("Document saved.");
 			}
 			else {
@@ -51,7 +54,7 @@ public class FileManager {
 			openedFile = chooser.getSelectedFile();
 			mf.setTitle("Javabite Compiler - " + openedFile.getName());
 			mf.toolBarLabel.setText("Document saved.");
-			mf.saveEditorContentIntoFile(openedFile);
+			saveEditorContentIntoFile(openedFile);
 		}
 		return returnVal;
 	}
@@ -80,5 +83,27 @@ public class FileManager {
 		mf.editorPaneSourcecode.setText("");
 		mf.toolBarLabel.setText("New document opened.");
 		mf.setTitle("Javabite Compiler - New File.prog");
+	}
+	
+	/**
+	 * Reads current editor code and writes it into given file
+	 * */
+	public void saveEditorContentIntoFile(File openedFile) {
+		BufferedWriter bw;
+		try {
+			bw = new BufferedWriter(new FileWriter(openedFile));
+			bw.write(mf.editorPaneSourcecode.getText());
+			bw.flush();
+		} catch (IOException ex) {
+			ex.printStackTrace();
+		}
+		String fileName = "";
+		if (openedFile == null) {
+			fileName = "New File.prog";
+		} else {
+			fileName = openedFile.getName();
+		}
+		mf.setTitle("Javabite Compiler - " + fileName);
+		mf.toolBarLabel.setText("Document saved.");
 	}
 }

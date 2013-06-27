@@ -131,27 +131,7 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 	private String lastTooltipStr;
 	private JScrollPane scrollPaneReportLogs;
 	
-	/**
-	 * Reads current editor code and writes it into given file
-	 * */
-	public void saveEditorContentIntoFile(File file) {
-		BufferedWriter bw;
-		try {
-			bw = new BufferedWriter(new FileWriter(file));
-			bw.write(editorPaneSourcecode.getText());
-			bw.flush();
-		} catch (IOException ex) {
-			ex.printStackTrace();
-		}
-		String fileName = "";
-		if (openedFile == null) {
-			fileName = "New Program.prog";
-		} else {
-			fileName = openedFile.getName();
-		}
-		setTitle("Javabite Compiler - " + fileName);
-		toolBarLabel.setText("Document saved.");
-	}
+	
 	
 	/**
 	 * Reads current file content and writes it into sourcecode editor
@@ -220,7 +200,7 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 									fileChanged = false;
 								}
 							} else {
-								saveEditorContentIntoFile(openedFile);
+								fileManager.saveEditorContentIntoFile(openedFile);
 								fileManager.openFileDialog(openedFile, false);
 								fileChanged = false;
 							}
@@ -254,7 +234,7 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 								setTitle("Javabite Compiler - New File.prog");
 							}
 						} else {
-							saveEditorContentIntoFile(openedFile);
+							fileManager.saveEditorContentIntoFile(openedFile);
 							fileManager.openNewFile(openedFile);
 							fileChanged = false;
 						}
@@ -285,7 +265,7 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 						fileChanged = false;
 					} else { 
 						// file already exists, but was changed
-						saveEditorContentIntoFile(openedFile);
+						fileManager.saveEditorContentIntoFile(openedFile);
 						setTitle("Javabite Compiler - " + openedFile.getName());
 						toolBarLabel.setText("Document saved.");
 						fileChanged = false;
@@ -318,7 +298,7 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 							}
 						} else {
 							// firstly save file
-							saveEditorContentIntoFile(openedFile);
+							fileManager.saveEditorContentIntoFile(openedFile);
 							System.exit(0);
 						}
 					} else if (n == 1) { 
@@ -742,14 +722,14 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 							openedFile = chooser.getSelectedFile();
 							setTitle("Javabite Compiler - " + openedFile.getName());
 							toolBarLabel.setText("Document saved.");
-							saveEditorContentIntoFile(openedFile);
+							fileManager.saveEditorContentIntoFile(openedFile);
 							fileChanged = false;
 							
 							// sourcecode can now be compiled
 							canCompiled = true;
 						}
 					} else { // firstly save file
-						saveEditorContentIntoFile(openedFile);
+						fileManager.saveEditorContentIntoFile(openedFile);
 						setTitle("Javabite Compiler - " + openedFile.getName());
 						toolBarLabel.setText("Document saved.");
 						
@@ -797,7 +777,7 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 								openedFile = chooser.getSelectedFile();
 								setTitle("Javabite Compiler - " + openedFile.getName());
 								toolBarLabel.setText("Document saved.");
-								saveEditorContentIntoFile(openedFile);
+								fileManager.saveEditorContentIntoFile(openedFile);
 								fileChanged = false;
 								
 								// sourcecode can now be compiled
