@@ -105,10 +105,7 @@ public class ASTVisualizerJb implements ASTVisualization {
 		//ToolTipManager.sharedInstance().registerComponent(frame);
 		frame.getGraphControl().addMouseListener(new MouseAdapter()
 		{ 
-			
 			public void mouseClicked(MouseEvent e){
-				
-				
 				Object cell = ((mxGraphComponent) frame).getCellAt(e.getX(), e.getY());
 				if (cell != null)
 				{
