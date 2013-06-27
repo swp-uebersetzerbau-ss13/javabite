@@ -27,8 +27,14 @@ public class FileManager {
 			openedFile = chooser.getSelectedFile();
 			String fileName = openedFile.getName();
 			mf.setTitle("Javabite Compiler - " + fileName);
-			mf.saveFileContentIntoEditor(openedFile);
-			mf.toolBarLabel.setText("Document opened.");
+			if(save) {
+				mf.saveEditorContentIntoFile(openedFile);
+				mf.toolBarLabel.setText("Document saved.");
+			}
+			else {
+				mf.saveFileContentIntoEditor(openedFile);
+				mf.toolBarLabel.setText("Document opened.");
+			}
 		}
 		
 		return returnVal;
@@ -67,5 +73,12 @@ public class FileManager {
 		);
 		
 		return returnVal;
+	}
+	
+	public void openNewFile(File openedFile) {
+		openedFile = null;
+		mf.editorPaneSourcecode.setText("");
+		mf.toolBarLabel.setText("New document opened.");
+		mf.setTitle("Javabite Compiler - New File.prog");
 	}
 }

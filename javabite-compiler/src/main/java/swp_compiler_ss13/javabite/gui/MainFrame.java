@@ -101,7 +101,7 @@ public class MainFrame extends JFrame implements ReportLog {
 	JTable tableReportLogs;
 	DefaultTableModel modelReportLogs;
 	JTabbedPane tabbedPaneLog;
-	private JTextPane editorPaneSourcecode;
+	JTextPane editorPaneSourcecode;
 	
 	// get properties for syntax highlighting
 	JavabiteConfig properties = JavabiteConfig.getDefaultConfig();
@@ -141,6 +141,8 @@ public class MainFrame extends JFrame implements ReportLog {
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
+		setTitle("Javabite Compiler - " + openedFile.getName());
+		toolBarLabel.setText("Document saved.");
 	}
 	
 	/**
@@ -222,21 +224,8 @@ public class MainFrame extends JFrame implements ReportLog {
 							} else {
 								// firstly save file
 								saveEditorContentIntoFile(openedFile);
-								setTitle("Javabite Compiler - " + openedFile.getName());
-								toolBarLabel.setText("Document saved.");
-								
-								// now, display filechooser
-								JFileChooser chooser = new JFileChooser();
-								chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
-								chooser.setFileFilter(filter);
-								int returnVal = chooser.showOpenDialog(null);
-								if (returnVal == JFileChooser.APPROVE_OPTION) {
-									openedFile = chooser.getSelectedFile();
-									setTitle("Javabite Compiler - " + openedFile.getName());
-									saveFileContentIntoEditor(openedFile);
-									toolBarLabel.setText("Document opened.");
-									fileChanged = false;
-								}
+								fileManager.openFileDialog(openedFile, false);
+								fileChanged = false;
 							}
 						} else if (n == 1) { 
 							// "No" was selected
@@ -259,58 +248,34 @@ public class MainFrame extends JFrame implements ReportLog {
 				if (fileChanged) {
 					int n = fileManager.saveOrNotDialog(openedFile);
 					
-					if (n == 2) { // "Yes" was selected
+					if (n == 2) { 
+						// "Yes" was selected
 						if (openedFile == null) {
-							// create and open the file chooser
-							JFileChooser chooser = new JFileChooser();
-							chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
-							chooser.setFileFilter(filter);
-							chooser.setSelectedFile(new File("New File.prog"));
-							
-							// save unchanged file
-							int returnVal = chooser.showSaveDialog(null);
-							if (returnVal == JFileChooser.APPROVE_OPTION) {
-								openedFile = chooser.getSelectedFile();
-								setTitle("Javabite Compiler - " + openedFile.getName());
-								toolBarLabel.setText("Document saved.");
-								saveEditorContentIntoFile(openedFile);
-								fileChanged = false;
-								
-								// open new file
+							int returnValue = fileManager.saveFileDialog(openedFile);
+							fileChanged = false;
+							if(returnValue == JFileChooser.APPROVE_OPTION) {
 								openedFile = null;
 								editorPaneSourcecode.setText("");
 								toolBarLabel.setText("New document opened.");
 								setTitle("Javabite Compiler - New File.prog");
 							}
 						} else {
-							// firstly save file
 							saveEditorContentIntoFile(openedFile);
-							setTitle("Javabite Compiler - " + openedFile.getName());
-							toolBarLabel.setText("Document saved.");
-							
-							// now, open new file
-							openedFile = null;
+							fileManager.openNewFile(openedFile);
 							fileChanged = false;
-							editorPaneSourcecode.setText("");
-							toolBarLabel.setText("New document opened.");
-							setTitle("Javabite Compiler - New File.prog");
 						}
-					} else if (n == 1) { // "No" was selected
-						// open new file
-						openedFile = null;
+					} else if (n == 1) { 
+						// "No" was selected
+						fileManager.openNewFile(openedFile);
 						fileChanged = false;
-						editorPaneSourcecode.setText("");
-						toolBarLabel.setText("New document opened.");
-						setTitle("Javabite Compiler - New File.prog");
-					} else { // "Cancel" was selected
+					} else { 
+						// "Cancel" was selected
 						return;
 					}
-				} else { // file not changed, thus open new file
+				} else { 
+					// file not changed, thus open new file
+					fileManager.openNewFile(openedFile);
 					openedFile = null;
-					fileChanged = false;
-					editorPaneSourcecode.setText("");
-					toolBarLabel.setText("New document opened.");
-					setTitle("Javabite Compiler - New File.prog");
 				}
 			}
 		});
