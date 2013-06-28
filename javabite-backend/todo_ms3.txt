@@ -1,16 +1,11 @@
 * m3 implementieren (structs,...)
 * max stack korrekt berechnen (beachte jumps!)
-* stack map table implementieren, damit auf -noverify verzichtet werden kann
-* local variable table implementieren
 * unnötige konstanten nicht in den constant pool eintragen, z.b. #1
 * testen
 * javadoc + zeilenkommentare + dokumentation 
 * jclasslib einbinden?
 * bis nächste woche: structs funktionieren?
 * wie werden classfilees referenziert?
-* package name!!!
-* entferne stopTranslation!
-* prog tests schreiben
 
 OPTIMIEREN
 

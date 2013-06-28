@@ -44,6 +44,8 @@ class Code {
 	private final short codeIndex;
 	private short maxStack;
 	private short maxLocals;
+	private short attributesCount;
+	
 	/**
 	 * <h1>codeArea</h1>
 	 * <p>
@@ -79,6 +81,7 @@ class Code {
 		maxStack = 1;
 		maxLocals = 1;
 		exceptionTableLength = 0;
+		attributesCount = 0;
 	}
 
 	/**
@@ -124,6 +127,7 @@ class Code {
 
 			// exception table attribute (unused)
 			attributesDOS.writeShort(exceptionTableLength);
+			attributesDOS.writeShort(attributesCount);
 
 			classfileDOS.writeShort(codeIndex);
 			classfileDOS.writeInt(attributesDOS.size());
