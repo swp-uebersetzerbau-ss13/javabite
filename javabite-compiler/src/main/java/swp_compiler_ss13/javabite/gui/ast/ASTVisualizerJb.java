@@ -9,18 +9,14 @@ import java.util.Hashtable;
 import java.util.List;
 import java.util.Queue;
 import java.util.Set;
-
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
-import javax.swing.ToolTipManager;
-
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.ASTNode.ASTNodeType;
 import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
-import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.LogicBinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.LoopNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
@@ -34,28 +30,12 @@ import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.ast.nodes.unary.StructIdentifierNode;
 import swp_compiler_ss13.common.visualization.ASTVisualization;
 import swp_compiler_ss13.javabite.ast.ASTSource;
-import swp_compiler_ss13.javabite.ast.nodes.binary.LoopNodeJb;
-import swp_compiler_ss13.javabite.ast.nodes.marynary.BlockNodeJb;
-import swp_compiler_ss13.javabite.ast.nodes.ternary.BranchNodeJb;
-import swp_compiler_ss13.javabite.ast.nodes.unary.ArrayIdentifierNodeJb;
-import swp_compiler_ss13.javabite.ast.nodes.unary.DeclarationNodeJb;
-import swp_compiler_ss13.javabite.ast.nodes.unary.ReturnNodeJb;
-import swp_compiler_ss13.javabite.ast.nodes.unary.StructIdentifierNodeJb;
 import swp_compiler_ss13.javabite.gui.ast.fitted.KhaledGraphFrame;
-
-import com.mxgraph.layout.mxGraphLayout;
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
 import com.mxgraph.model.mxCell;
-import com.mxgraph.model.mxCell;
-import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxGraph;
-import com.mxgraph.view.mxLayoutManager;
-import com.mxgraph.view.mxStylesheet;
-
-import com.mxgraph.swing.mxGraphComponent;
-import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxStylesheet;
 
 public class ASTVisualizerJb implements ASTVisualization {
@@ -66,13 +46,6 @@ public class ASTVisualizerJb implements ASTVisualization {
 	int i=1;
 	private Set<mxCell> visitedSet = new HashSet<mxCell>();
     List<mxCell> queueSubTree = new ArrayList<mxCell>();
-    
-
-	String[] operation = { "ADDITION", "SUBSTRACTION", "MULTIPLICATION",
-			"DIVISION", "LESSTHAN", "LESSTHANEQUAL", "GREATERTHAN",
-			"GREATERTHANEQUAL", "EQUAL", "INEQUAL", "LOGICAL_AND", "LOGICAL_OR" };
-	String[] operationS = { "+", "-", "*", "/", "<", "<=", ">", ">=", "=",
-			"=!", "UND", "ODER" };
 
 	/**
 	 * visualizes the ast
@@ -273,8 +246,8 @@ public class ASTVisualizerJb implements ASTVisualization {
 	 * @return the cell-object, which correspondents to the given node
 	 */
 	private Object asCell(ASTNode ast) {
-
 		Object returnVal = null;
+		OperationSymbol opr=null;
 		int i = 0;
 		String value = null;
 		String color = null;
@@ -282,18 +255,12 @@ public class ASTVisualizerJb implements ASTVisualization {
 			value = "Id= " + ((BasicIdentifierNode) ast).getIdentifier();
 			color = "0000ff";
 		} else if (ast instanceof ArithmeticBinaryExpressionNode) {
-			while (!(((ArithmeticBinaryExpressionNode) ast).getOperator())
-					.toString().equals(operation[i])) {
-				i++;
-			}
-			value = operationS[i];
+			opr =new OperationSymbol(ast);
+			value = opr.getOperationSymbol();
 			color = "cyan";
 		} else if (ast instanceof ArithmeticUnaryExpressionNode) {
-			while (!(((ArithmeticUnaryExpressionNode) ast).getOperator())
-					.toString().equals(operation[i])) {
-				i++;
-			}
-			value = operationS[i];
+			opr =new OperationSymbol(ast);
+			value = opr.getOperationSymbol();
 			color = "blue";
 		} else if (ast instanceof LiteralNode) {
 			value = "Type= " + ((LiteralNode) ast).getLiteralType()
@@ -304,11 +271,8 @@ public class ASTVisualizerJb implements ASTVisualization {
 			color = "white";
 
 		} else if (ast instanceof LogicBinaryExpressionNode) {
-			while (!(((LogicBinaryExpressionNode) ast).getOperator())
-					.toString().equals(operation[i])) {
-				i++;
-			}
-			value = operationS[i];
+		    opr =new OperationSymbol(ast);
+			value = opr.getOperationSymbol();
 			color = "blue";
 
 		}
