@@ -8,20 +8,6 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.ASTNode;
-import swp_compiler_ss13.common.ast.ASTNode.ASTNodeType;
-import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
-import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
-import swp_compiler_ss13.common.ast.nodes.binary.LogicBinaryExpressionNode;
-import swp_compiler_ss13.common.ast.nodes.binary.LoopNode;
-import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
-import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
-import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
-import swp_compiler_ss13.common.ast.nodes.ternary.BranchNode;
-import swp_compiler_ss13.common.ast.nodes.unary.ArithmeticUnaryExpressionNode;
-import swp_compiler_ss13.common.ast.nodes.unary.ArrayIdentifierNode;
-import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
-import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
-import swp_compiler_ss13.common.ast.nodes.unary.StructIdentifierNode;
 import swp_compiler_ss13.common.visualization.ASTVisualization;
 import swp_compiler_ss13.javabite.ast.ASTSource;
 import swp_compiler_ss13.javabite.gui.ast.fitted.KhaledGraphFrame;
@@ -128,33 +114,8 @@ public class ASTVisualizerJb implements ASTVisualization {
 
 		}
 		this.toVisit_celledCopy = toVisit_celled;
-
 	}
-
-	void treeNodes() {
-
-	}
-
-	void test(AST ast) {
-		Queue<ASTNode> queue = new ArrayDeque<>();
-		int i = 0;
-		for (ASTNode k : ast.getRootNode().getChildren()) {
-			queue.add(k);
-		}
-		for (ASTNode k : queue) {
-			if (k.getNodeType().equals(ASTNodeType.ReturnNode)) {
-				System.out.println(i);
-			} else
-				i++;
-		}
-	}
-
-	/*
-	 * private Object asCell(ArithmeticBinaryExpressionNode node){ return
-	 * graph.insertVertex(graph.getDefaultParent(), null, node.getOperator(),
-	 * 20, 40, 00, 70); }
-	 */
-
+	
 	/**
 	 * creates a cell representation of the ast
 	 * 
@@ -163,87 +124,14 @@ public class ASTVisualizerJb implements ASTVisualization {
 	 * @return the cell-object, which correspondents to the given node
 	 */
 	private Object asCell(ASTNode ast) {
-		Object returnVal = null;
-		OperationSymbol opr=null;
-		String value = null;
-		String color = null;
-		if (ast instanceof BasicIdentifierNode) {
-			value = "Id= " + ((BasicIdentifierNode) ast).getIdentifier();
-			color = "0000ff";
-		} else if (ast instanceof ArithmeticBinaryExpressionNode) {
-			opr =new OperationSymbol(ast);
-			value = opr.getOperationSymbol();
-			color = "cyan";
-		} else if (ast instanceof ArithmeticUnaryExpressionNode) {
-			opr =new OperationSymbol(ast);
-			value = opr.getOperationSymbol();
-			color = "blue";
-		} else if (ast instanceof LiteralNode) {
-			value = "Type= " + ((LiteralNode) ast).getLiteralType()
-					+ "\nLiteral= " + ((LiteralNode) ast).getLiteral();
-			color = "yellow";
-		} else if (ast instanceof AssignmentNode) {
-			value = "Assignment";
-			color = "white";
-
-		} else if (ast instanceof LogicBinaryExpressionNode) {
-		    opr =new OperationSymbol(ast);
-			value = opr.getOperationSymbol();
-			color = "blue";
-
-		}
-
-		else if (ast instanceof ReturnNode) {
-			value = "Return";
-			color = "orange";
-		} else if (ast instanceof DeclarationNode) {
-			value = "Type= " + ((DeclarationNode) ast).getType() + "\nId= "
-					+ ((DeclarationNode) ast).getIdentifier();
-			color = "magenta";
-		} else if (ast instanceof BlockNode) {
-			value = "Statements= " + ((BlockNode) ast).getNumberOfStatements()
-					+ "\nDeclarations= "
-					+ ((BlockNode) ast).getNumberOfDeclarations();
-			color = "pink";
-		} else if (ast instanceof ArrayIdentifierNode) {
-			value = "Index= " + ((ArrayIdentifierNode) ast).getIdentifierNode();
-			color = "black";
-		} else if (ast instanceof StructIdentifierNode) {
-			value = "Index= "
-					+ ((StructIdentifierNode) ast).getIdentifierNode();
-			color = "red";
-		}
-
-		else if (ast instanceof LoopNode) {
-			value = "Condition= " + ((LoopNode) ast).getCondition() + "\nBody"
-					+ ((LoopNode) ast).getLoopBody();
-			color = "violet";
-		} else if (ast instanceof ReturnNode) {
-			value = "" + ((ReturnNode) ast).getRightValue();
-			color = "navy";
-		} else if (ast instanceof BranchNode) {
-			value = "Condition" + ((BranchNode) ast).getCondition();
-			color = "yellow";
-		} 
-
-		else {
-			value = ast.toString();
-			color = "white";
-		}
-
-		returnVal = graph
-				.insertVertex(
-						graph.getDefaultParent(),
-						null,
-						value,
-						20,
-						40,
-						100,
-						35,
-						"ROUNDED;strokeWidth=2.0;strokeColor=white;shadow=false;autosize=0;foldable=0;editable=0;bendable=0;movable=0;resizable=0;cloneable=0;deletable=0;rounded=true;autosize=1;separatorColor=white;gradientColor=white;fillColor="
-								+ color);
-		return returnVal;
-
+		Object returnVal;
+		vertexAttributes ver = new vertexAttributes();
+		ver.addAttributes(ast);
+		String value=ver.value;
+		String color=ver.color;
+		returnVal = 
+		graph.insertVertex(graph.getDefaultParent(),null,value,20,40,100,35,color);
+        return returnVal;
 	}
 
 	public static void main(String[] args) {
