@@ -31,7 +31,7 @@ public class Translator {
 	public static final String FILE_EXTENSION_CLASS = ".class";
 
 	public static final MethodSignature MAIN_METHOD = new MethodSignature(
-			"main", null, void.class, String[].class);
+			"main", (String) null, void.class, String[].class);
 	public static final String OBJECT_CLASSNAME_EIF = ClassfileUtils
 			.getClassName(Object.class, false);
 

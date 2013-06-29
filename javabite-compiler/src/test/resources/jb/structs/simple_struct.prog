@@ -1,0 +1,6 @@
+record {
+    long x;
+} r;
+
+r.x = 5;
+print r.x;

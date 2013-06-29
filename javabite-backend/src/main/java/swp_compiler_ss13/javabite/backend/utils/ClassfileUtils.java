@@ -284,9 +284,9 @@ public final class ClassfileUtils {
 		public final String methodDescriptor;
 
 		public MethodSignature(final String methodName,
-				final Class<?> methodClass, final Class<?> methodReturnClass,
+				final String methodClass, final Class<?> methodReturnClass,
 				final Class<?>... params) {
-			this.methodClass = getClassName(methodClass, false);
+			this.methodClass = methodClass;
 			this.methodName = methodName;
 			this.methodReturnClass = getClassName(methodReturnClass, true);
 			if (params == null) {
@@ -299,6 +299,13 @@ public final class ClassfileUtils {
 			}
 			methodDescriptor = "(" + StringUtils.join(methodArgsClasses) + ")"
 					+ this.methodReturnClass;
+		}
+
+		public MethodSignature(final String methodName,
+				final Class<?> methodClass, final Class<?> methodReturnClass,
+				final Class<?>... params) {
+			this(methodName, getClassName(methodClass, false),
+					methodReturnClass, params);
 		}
 
 		@Override
