@@ -32,6 +32,7 @@ import swp_compiler_ss13.javabite.ast.nodes.leaf.BasicIdentifierNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.leaf.LiteralNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.marynary.BlockNodeJb;
 import swp_compiler_ss13.javabite.ast.nodes.unary.DeclarationNodeJb;
+import swp_compiler_ss13.javabite.semantic.old.SemanticAnalyserJb;
 
 
 public class SemanticAnalyserJbTest {

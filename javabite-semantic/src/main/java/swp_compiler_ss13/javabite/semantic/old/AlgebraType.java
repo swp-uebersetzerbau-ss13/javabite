@@ -1,4 +1,4 @@
-package swp_compiler_ss13.javabite.semantic;
+package swp_compiler_ss13.javabite.semantic.old;
 
 public enum AlgebraType {
 	BOOLEAN,

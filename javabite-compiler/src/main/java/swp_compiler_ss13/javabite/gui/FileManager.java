@@ -29,6 +29,7 @@ public class FileManager {
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			openedFile = chooser.getSelectedFile();
 			String fileName = openedFile.getName();
+			mf.openedFile = openedFile;
 			mf.setTitle("Javabite Compiler - " + fileName);
 			if(save) {
 				saveEditorContentIntoFile(openedFile);

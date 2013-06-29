@@ -2292,10 +2292,11 @@ public class Program {
 		 * @return this program builders instance
 		 */
 		public MainBuilder declareStruct(final Quadruple q) {
-			// TODO implement
 			assert q.getOperator() == Operator.DECLARE_STRUCT;
 			assert hasArgsCount(q, 2);
-			return this;
+            final Operation.Builder op = Operation.Builder.newBuilder();
+
+			return add(op.build());
 		}
 
 		/**
@@ -2577,6 +2578,13 @@ public class Program {
 			assert hasArgsCount(q, 3);
 			return add(structSetOp(q, LocalVariableType.STRING));
 		}
+
+        public Operation createObjectOp(final String className) {
+            final Operation.Builder op = Operation.Builder.newBuilder();
+            final short classIndex = classfile.addClassConstantToConstantPool(className);
+            // TODO implement
+            return op.build();
+        }
 
 		/**
 		 * <table>

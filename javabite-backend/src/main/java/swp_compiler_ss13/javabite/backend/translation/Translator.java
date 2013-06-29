@@ -1,24 +1,20 @@
 package swp_compiler_ss13.javabite.backend.translation;
 
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isConstant;
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.removeConstantSign;
+import swp_compiler_ss13.common.backend.Quadruple;
+import swp_compiler_ss13.common.backend.Quadruple.Operator;
+import swp_compiler_ss13.javabite.backend.classfile.Classfile;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.*;
+import swp_compiler_ss13.javabite.backend.utils.ConstantUtils;
+import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.ListIterator;
 
-import swp_compiler_ss13.common.backend.Quadruple;
-import swp_compiler_ss13.common.backend.Quadruple.Operator;
-import swp_compiler_ss13.javabite.backend.classfile.Classfile;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ClassfileAccessFlag;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.FieldAccessFlag;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodAccessFlag;
-import swp_compiler_ss13.javabite.backend.utils.ConstantUtils;
-import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isConstant;
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.removeConstantSign;
 
 /**
  * <h1>Translator</h1>
@@ -34,9 +30,10 @@ public class Translator {
 
 	public static final String FILE_EXTENSION_CLASS = ".class";
 
-	public static final String METHOD_NAME_MAIN = "main";
-	public static final String METHOD_DESCRIPTOR_MAIN = "([Ljava/lang/String;)V";
-	public static final String OBJECT_CLASSNAME_EIF = "java/lang/Object";
+	public static final MethodSignature MAIN_METHOD = new MethodSignature(
+			"main", null, void.class, String[].class);
+	public static final String OBJECT_CLASSNAME_EIF = ClassfileUtils
+			.getClassName(Object.class, false);
 
 	Collection<Classfile> classfiles;
 
@@ -105,8 +102,8 @@ public class Translator {
 				ClassfileAccessFlag.ACC_PUBLIC, ClassfileAccessFlag.ACC_SUPER);
 
 		// add main method to this (main)classfile
-		mainClassfile.addMethodToMethodArea(METHOD_NAME_MAIN,
-				METHOD_DESCRIPTOR_MAIN, MethodAccessFlag.ACC_PUBLIC,
+		mainClassfile.addMethodToMethodArea(MAIN_METHOD.methodName,
+				MAIN_METHOD.methodDescriptor, MethodAccessFlag.ACC_PUBLIC,
 				MethodAccessFlag.ACC_STATIC);
 
 		// parse tac for struct declarations and create classfiles for them
@@ -116,10 +113,10 @@ public class Translator {
 		// translate tac/program into the main method's code
 		if (tac != null) {
 			tac = addVariablesToLocalVariableSpace(mainClassfile,
-					METHOD_NAME_MAIN, tac);
+					MAIN_METHOD.methodName, tac);
 			addConstantsToConstantPool(mainClassfile, tac);
-			extractInstructionsFromOperations(mainClassfile, METHOD_NAME_MAIN,
-					tac);
+			extractInstructionsFromOperations(mainClassfile,
+					MAIN_METHOD.methodName, tac);
 		}
 
 		return classfiles;
@@ -133,7 +130,6 @@ public class Translator {
 	 * translate(...,..., false)
 	 * 
 	 * @since 24.06.2013
-	 * @author Marco
 	 */
 	private void generateClassfilesForStructsInTAC(final List<Quadruple> tac,
 			final String basicClassName) {
@@ -155,8 +151,6 @@ public class Translator {
 			 * has to be generated
 			 */
 			if (operator.equals(Operator.DECLARE_STRUCT)) {
-				final int structStart = structCount;
-				int structEnd = 0;
 
 				// temp variable for found structs' tac
 				List<Quadruple> structTAC;
@@ -165,7 +159,7 @@ public class Translator {
 				final long memberVarsCount = Long
 						.parseLong(removeConstantSign(arg1));
 				structTAC = getStructsTac(tacIter, memberVarsCount);
-				structEnd = structStart + structTAC.size();
+				int structEnd = structCount + structTAC.size();
 
 				// generate appropriate classfile
 				final String className = basicClassName + "_" + structName;
@@ -175,7 +169,7 @@ public class Translator {
 				 * delete struct tac from tac, structStart + 1 to keep the
 				 * struct declaration
 				 */
-				tac.subList(structStart + 1, structEnd).clear();
+				tac.subList(structCount + 1, structEnd).clear();
 			}
 		}
 	}
@@ -186,13 +180,12 @@ public class Translator {
 	 * getStructsTac TODO javadoc
 	 * 
 	 * @since 24.06.2013
-	 * @author Marco
 	 */
-	private List<Quadruple> getStructsTac(
+	private static List<Quadruple> getStructsTac(
 			final ListIterator<Quadruple> tacIter, final long memberVarsCount) {
 
 		// temp variable for found structs' tac
-		final List<Quadruple> structTAC = new ArrayList<Quadruple>();
+		final List<Quadruple> structTAC = new ArrayList<>();
 
 		// get tac
 		for (int i = 0; i < memberVarsCount; i++) {
@@ -240,13 +233,12 @@ public class Translator {
 	 * translateStructIntoClassfile TODO javadoc
 	 * 
 	 * @since 24.06.2013
-	 * @author Marco
 	 */
 	private void translateStructIntoClassfile(final List<Quadruple> structTac,
 			final String className) {
 
 		// tac list for constructor code generation
-		final List<Quadruple> constructorTAC = new ArrayList<Quadruple>();
+		final List<Quadruple> constructorTAC = new ArrayList<>();
 
 		// generate classfile
 		final String classFileName = className + FILE_EXTENSION_CLASS;
@@ -277,7 +269,7 @@ public class Translator {
 				switch (op) {
 				case DECLARE_ARRAY:
 					// temp variable for found array's tac
-					final List<Quadruple> arrayTAC = new ArrayList<Quadruple>();
+					final List<Quadruple> arrayTAC = new ArrayList<>();
 					arrayTAC.add(quad);
 					constructorTAC.add(quad);
 
@@ -291,6 +283,7 @@ public class Translator {
 					if (arrayQuad.getOperator() == Operator.DECLARE_STRUCT) {
 						arrayTAC.add(arrayQuad);
 						constructorTAC.add(arrayQuad);
+
 						List<Quadruple> structTACwithoutFirstDecl;
 
 						// get struct's tac
@@ -298,8 +291,8 @@ public class Translator {
 								.parseLong(removeConstantSign(arrayQuad
 										.getArgument1()));
 
-						structTACwithoutFirstDecl = getStructsTac(tacIter,
-								structMemberVarsCount);
+						structTACwithoutFirstDecl = getStructsTac(
+								tacIter, structMemberVarsCount);
 						arrayTAC.addAll(structTACwithoutFirstDecl);
 
 						// generate classfile for structTACwithoutFirstDecl
@@ -325,8 +318,7 @@ public class Translator {
 					break;
 				case DECLARE_STRUCT:
 					// temp variables for found struct's tac
-					final List<Quadruple> structTAC = new ArrayList<Quadruple>();
-					List<Quadruple> structTACwithoutFirstDecl = new ArrayList<Quadruple>();
+					final List<Quadruple> structTAC = new ArrayList<>();
 
 					structTAC.add(quad);
 					constructorTAC.add(quad);
@@ -334,8 +326,8 @@ public class Translator {
 					// get struct's tac
 					final long structMemberVarsCount = Long
 							.parseLong(removeConstantSign(quad.getArgument1()));
-					structTACwithoutFirstDecl = getStructsTac(tacIter,
-							structMemberVarsCount);
+					List<Quadruple> structTACwithoutFirstDecl = getStructsTac(
+							tacIter, structMemberVarsCount);
 					structTAC.addAll(structTACwithoutFirstDecl);
 
 					// generate classfile for structTACwithoutFirstDecl
@@ -799,7 +791,7 @@ public class Translator {
 	/**
 	 * <h1>translateStructIntoConstructorCode</h1> TODO EIke
 	 */
-	private void translateStructTacIntoConstructorCode(
+	private static void translateStructTacIntoConstructorCode(
 			final Classfile structClassfile,
 			final List<Quadruple> constructorTAC) {
 		final Program.StructBuilder pb = new Program.StructBuilder(
@@ -807,13 +799,27 @@ public class Translator {
 
 		for (final Quadruple quad : constructorTAC) {
 			switch (quad.getOperator()) {
-			case DECLARE_BOOLEAN:
 			case DECLARE_ARRAY:
+				pb.declareArray(quad);
+				break;
 			case DECLARE_STRUCT:
+				pb.declareStruct(quad);
+				break;
+			case DECLARE_BOOLEAN:
+			case ASSIGN_BOOLEAN:
+				pb.declareBoolean(quad);
+				break;
 			case DECLARE_STRING:
+			case ASSIGN_STRING:
+				pb.declareString(quad);
+				break;
 			case DECLARE_DOUBLE:
+			case ASSIGN_DOUBLE:
+				pb.declareDouble(quad);
+				break;
 			case DECLARE_LONG:
-			case DECLARE_REFERENCE:
+				pb.declareLong(quad);
+				break;
 			default:
 				break;
 			}

@@ -1,8 +1,16 @@
 package swp_compiler_ss13.javabite.backend;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.apache.commons.io.IOUtils;
+import org.junit.Before;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import swp_compiler_ss13.common.backend.Backend;
+import swp_compiler_ss13.common.backend.BackendException;
+import swp_compiler_ss13.common.backend.Quadruple;
+import swp_compiler_ss13.common.backend.Quadruple.Operator;
+import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
+import swp_compiler_ss13.javabite.runtime.JavaClassProcess;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -14,18 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import swp_compiler_ss13.common.backend.Backend;
-import swp_compiler_ss13.common.backend.BackendException;
-import swp_compiler_ss13.common.backend.Quadruple;
-import swp_compiler_ss13.common.backend.Quadruple.Operator;
-import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
-import swp_compiler_ss13.javabite.runtime.JavaClassProcess;
+import static org.junit.Assert.*;
 
 public class BackendTest {
 
@@ -192,82 +189,82 @@ public class BackendTest {
 		backend = new BackendJb();
 	}
 
-	// @Test
-	// public void testTac1ReturnVal() throws BackendException {
-	// assertEquals(
-	// "Generated target code returns unexpected value while execution",
-	// 27, testToReturnValueOfTac(tac1, 1));
-	// }
-	//
-	// @Test
-	// public void testSimpleAddTacTranslation() throws BackendException {
-	// assertEquals(
-	// "Generated target code returns unexpected value while execution",
-	// 6, testToReturnValueOfTac(tac2, 1));
-	// }
-	//
-	// @Test
-	// public void testSimpleMulTacTranslation() throws BackendException {
-	// assertEquals(
-	// "Generated target code returns unexpected value while execution",
-	// 9, testToReturnValueOfTac(tac3, 1));
-	// }
-	//
-	// @Test
-	// public void testTac4ReturnVal() throws BackendException {
-	// assertEquals(
-	// "Generated target code returns unexpected value while execution",
-	// 0, testToReturnValueOfTac(tac4, 1));
-	// }
-	//
-	// @Test
-	// public void testTac5ReturnVal() throws BackendException {
-	// assertEquals(
-	// "Generated target code returns unexpected value while execution",
-	// 0, testToReturnValueOfTac(tac5, 1));
-	// }
-	//
-	// @Test
-	// public void testTac6ReturnVal() throws BackendException {
-	// assertEquals(
-	// "Generated target code returns unexpected value while execution",
-	// 0, testToReturnValueOfTac(tac6, 1));
-	// }
-	//
-	// @Test
-	// public void testTac7ReturnVal() throws BackendException {
-	// assertEquals(
-	// "Generated target code returns unexpected value while execution",
-	// 0, testToReturnValueOfTac(tac7, 1));
-	// }
-	//
-	// @Test
-	// public void testTac8ReturnVal() throws BackendException {
-	// assertEquals(
-	// "Generated target code returns unexpected value while execution",
-	// 0, testToReturnValueOfTac(tac8, 1));
-	// }
-	//
-	// @Test
-	// public void testTac9ReturnVal() throws BackendException {
-	// assertEquals(
-	// "Generated target code returns unexpected value while execution",
-	// 0, testToReturnValueOfTac(tac9, 1));
-	// }
-	//
-	// @Test
-	// public void testTac10ReturnVal() throws BackendException {
-	// assertEquals(
-	// "Generated target code returns unexpected value while execution",
-	// 0, testToReturnValueOfTac(tac10, 1));
-	// }
-	//
-	// @Test
-	// public void testTac11ReturnVal() throws BackendException {
-	// assertEquals(
-	// "Generated target code returns unexpected value while execution",
-	// 10, testToReturnValueOfTac(tac11, 1));
-	// }
+	@Test
+	public void testTac1ReturnVal() throws BackendException {
+		assertEquals(
+				"Generated target code returns unexpected value while execution",
+				27, testToReturnValueOfTac(tac1, 1));
+	}
+
+	@Test
+	public void testSimpleAddTacTranslation() throws BackendException {
+		assertEquals(
+				"Generated target code returns unexpected value while execution",
+				6, testToReturnValueOfTac(tac2, 1));
+	}
+
+	@Test
+	public void testSimpleMulTacTranslation() throws BackendException {
+		assertEquals(
+				"Generated target code returns unexpected value while execution",
+				9, testToReturnValueOfTac(tac3, 1));
+	}
+
+	@Test
+	public void testTac4ReturnVal() throws BackendException {
+		assertEquals(
+				"Generated target code returns unexpected value while execution",
+				0, testToReturnValueOfTac(tac4, 1));
+	}
+
+	@Test
+	public void testTac5ReturnVal() throws BackendException {
+		assertEquals(
+				"Generated target code returns unexpected value while execution",
+				0, testToReturnValueOfTac(tac5, 1));
+	}
+
+	@Test
+	public void testTac6ReturnVal() throws BackendException {
+		assertEquals(
+				"Generated target code returns unexpected value while execution",
+				0, testToReturnValueOfTac(tac6, 1));
+	}
+
+	@Test
+	public void testTac7ReturnVal() throws BackendException {
+		assertEquals(
+				"Generated target code returns unexpected value while execution",
+				0, testToReturnValueOfTac(tac7, 1));
+	}
+
+	@Test
+	public void testTac8ReturnVal() throws BackendException {
+		assertEquals(
+				"Generated target code returns unexpected value while execution",
+				0, testToReturnValueOfTac(tac8, 1));
+	}
+
+	@Test
+	public void testTac9ReturnVal() throws BackendException {
+		assertEquals(
+				"Generated target code returns unexpected value while execution",
+				0, testToReturnValueOfTac(tac9, 1));
+	}
+
+	@Test
+	public void testTac10ReturnVal() throws BackendException {
+		assertEquals(
+				"Generated target code returns unexpected value while execution",
+				0, testToReturnValueOfTac(tac10, 1));
+	}
+
+	@Test
+	public void testTac11ReturnVal() throws BackendException {
+		assertEquals(
+				"Generated target code returns unexpected value while execution",
+				10, testToReturnValueOfTac(tac11, 1));
+	}
 
 	@Test
 	public void testTac12ReturnVal() throws BackendException {
@@ -276,12 +273,12 @@ public class BackendTest {
 				5, testToReturnValueOfTac(tac12, 1));
 	}
 
-	// @Test
-	// public void testTac13ReturnVal() throws BackendException {
-	// assertEquals(
-	// "Generated target code returns unexpected value while execution",
-	// 0, testToReturnValueOfTac(tac13, 1));
-	// }
+	@Test
+	public void testTac13ReturnVal() throws BackendException {
+		assertEquals(
+				"Generated target code returns unexpected value while execution",
+				0, testToReturnValueOfTac(tac13, 1));
+	}
 
 	public long testToReturnValueOfTac(final List<Quadruple> tac,
 			final int fileamount) throws BackendException {
