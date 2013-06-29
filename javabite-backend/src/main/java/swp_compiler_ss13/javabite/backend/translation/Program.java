@@ -1,5 +1,18 @@
 package swp_compiler_ss13.javabite.backend.translation;
 
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.convertBooleanConstant;
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isBooleanConstant;
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isConstant;
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isIgnoreParam;
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.removeConstantSign;
+
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
+
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.classfile.Classfile;
@@ -7,11 +20,6 @@ import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType;
 import swp_compiler_ss13.javabite.backend.utils.ConstantUtils;
-
-import java.io.PrintStream;
-import java.util.*;
-
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.*;
 
 /**
  * <h1>Program</h1>
@@ -264,12 +272,12 @@ public class Program {
 		private Operation structSetOp(final Quadruple q,
 				final LocalVariableType variableType) {
 			final Operation.Builder op = Operation.Builder.newBuilder();
-			op.add(loadInstruction(q.getArgument1(), LocalVariableType.AREF));
-			op.add(loadInstruction(q.getResult(), variableType));
+			op.add(Mnemonic.ALOAD_0);
+			op.add(loadInstruction(q.getArgument1(), variableType));
 			final short fieldIndex = classfile
 					.getIndexOfConstantInConstantPool(
 							ClassfileUtils.ConstantPoolType.FIELDREF,
-							q.getArgument2());
+							q.getResult());
 			op.add(Mnemonic.PUTFIELD, ByteUtils.shortToByteArray(fieldIndex));
 			return op.build();
 		}
@@ -2395,10 +2403,14 @@ public class Program {
 		 */
 		public MainBuilder declareStruct(final Quadruple q) {
 			assert q.getOperator() == Operator.DECLARE_STRUCT;
-			assert hasArgsCount(q, 2);
+			assert hasArgsCount(q, 3);
+			// create the signature of the default constructor
 			final ClassfileUtils.MethodSignature constructor = new ClassfileUtils.MethodSignature(
-					"<init>", q.getResult(), void.class);
-			return add(createOperation(q.getResult(), constructor, null));
+					"<init>", q.getArgument2(), void.class);
+			// instantiate a new object with classname from arg2, the
+			// constructor signature, and store the new instance in result
+			return add(createOperation(q.getArgument2(), constructor,
+					q.getResult()));
 		}
 
 		/**

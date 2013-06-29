@@ -1,20 +1,26 @@
 package swp_compiler_ss13.javabite.backend.translation;
 
-import swp_compiler_ss13.common.backend.Quadruple;
-import swp_compiler_ss13.common.backend.Quadruple.Operator;
-import swp_compiler_ss13.javabite.backend.classfile.Classfile;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.*;
-import swp_compiler_ss13.javabite.backend.utils.ConstantUtils;
-import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isConstant;
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.removeConstantSign;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.ListIterator;
 
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isConstant;
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.removeConstantSign;
+import swp_compiler_ss13.common.backend.Quadruple;
+import swp_compiler_ss13.common.backend.Quadruple.Operator;
+import swp_compiler_ss13.javabite.backend.classfile.Classfile;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ClassfileAccessFlag;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.FieldAccessFlag;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodAccessFlag;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodSignature;
+import swp_compiler_ss13.javabite.backend.utils.ConstantUtils;
+import swp_compiler_ss13.javabite.backend.utils.QuadrupleUtils;
+import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
 
 /**
  * <h1>Translator</h1>
@@ -136,7 +142,7 @@ public class Translator {
 		int structCount = -1;
 
 		// search for struct declarations
-		for (final ListIterator<Quadruple> tacIter = tac.listIterator(); tacIter
+		for (ListIterator<Quadruple> tacIter = tac.listIterator(); tacIter
 				.hasNext();) {
 			structCount++;
 
@@ -150,7 +156,15 @@ public class Translator {
 			 * if the operator is an DECLARE_STRUCT-operator, a new classfile
 			 * has to be generated
 			 */
-			if (operator.equals(Operator.DECLARE_STRUCT)) {
+			if (operator == Operator.DECLARE_STRUCT) {
+
+				// generate appropriate classfile
+				// TODO normalize struct name
+				final String className = basicClassName + "_" + structName;
+				// argument2 is misused to store the actual class name of the
+				// struct
+				tacIter.set(QuadrupleUtils.copyQuadruple(quad, null, null,
+						className, null));
 
 				// temp variable for found structs' tac
 				List<Quadruple> structTAC;
@@ -159,17 +173,16 @@ public class Translator {
 				final long memberVarsCount = Long
 						.parseLong(removeConstantSign(arg1));
 				structTAC = getStructsTac(tacIter, memberVarsCount);
-				int structEnd = structCount + structTAC.size();
+				final int structEnd = structCount + structTAC.size();
 
-				// generate appropriate classfile
-				final String className = basicClassName + "_" + structName;
 				translateStructIntoClassfile(structTAC, className);
 
 				/*
 				 * delete struct tac from tac, structStart + 1 to keep the
 				 * struct declaration
 				 */
-				tac.subList(structCount + 1, structEnd).clear();
+				tac.subList(structCount + 1, structEnd + 1).clear();
+				tacIter = tac.listIterator(structCount + 1);
 			}
 		}
 	}
@@ -291,8 +304,8 @@ public class Translator {
 								.parseLong(removeConstantSign(arrayQuad
 										.getArgument1()));
 
-						structTACwithoutFirstDecl = getStructsTac(
-								tacIter, structMemberVarsCount);
+						structTACwithoutFirstDecl = getStructsTac(tacIter,
+								structMemberVarsCount);
 						arrayTAC.addAll(structTACwithoutFirstDecl);
 
 						// generate classfile for structTACwithoutFirstDecl
@@ -326,7 +339,7 @@ public class Translator {
 					// get struct's tac
 					final long structMemberVarsCount = Long
 							.parseLong(removeConstantSign(quad.getArgument1()));
-					List<Quadruple> structTACwithoutFirstDecl = getStructsTac(
+					final List<Quadruple> structTACwithoutFirstDecl = getStructsTac(
 							tacIter, structMemberVarsCount);
 					structTAC.addAll(structTACwithoutFirstDecl);
 
@@ -778,6 +791,9 @@ public class Translator {
 			case CONCAT_STRING:
 				pb.concatString(quad);
 				break;
+			case DECLARE_STRUCT:
+				pb.declareStruct(quad);
+				break;
 			default:
 				break;
 			}
@@ -826,6 +842,12 @@ public class Translator {
 		}
 
 		final Program pr = pb.build();
+		final Instruction InstrAload = new Instruction(Mnemonic.ALOAD_0);
+		final Instruction InstrInvokespecial = new Instruction(
+				Mnemonic.INVOKESPECIAL, structClassfile.getConstructorIndex());
+		structClassfile.addInstructionToMethodsCode("<init>", InstrAload);
+		structClassfile.addInstructionToMethodsCode("<init>",
+				InstrInvokespecial);
 		structClassfile.addInstructionsToMethodsCode("<init>",
 				pr.toInstructionsArray());
 	}

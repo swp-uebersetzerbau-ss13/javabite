@@ -1,12 +1,13 @@
 package swp_compiler_ss13.javabite.backend.utils;
 
+import java.util.EnumSet;
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
+
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.translation.Mnemonic;
-
-import java.util.EnumSet;
-import java.util.List;
 
 public final class ClassfileUtils {
 

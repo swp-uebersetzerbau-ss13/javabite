@@ -62,10 +62,11 @@ public class Classfile {
 	private short superClassIndex;
 	private final short interfaceCount;
 	// interface area left out
-	private final short fieldsCount;
 	protected FieldArea fieldArea;
 	protected MethodArea methodArea;
 	private final short attributesCount;
+
+	private byte[] constructorIndex;
 
 	// attribute area left out
 
@@ -107,7 +108,6 @@ public class Classfile {
 		this.thisClassNameEIF = thisClassNameEIF;
 		this.superClassNameEIF = superClassNameEIF;
 		interfaceCount = 0;
-		fieldsCount = 0;
 		attributesCount = 0;
 
 		for (final ClassfileAccessFlag accessFlag : accessFlags) {
@@ -121,6 +121,10 @@ public class Classfile {
 
 		// initialize classfile
 		initializeClassfile();
+	}
+
+	public byte[] getConstructorIndex() {
+		return constructorIndex;
 	}
 
 	/**
@@ -139,6 +143,7 @@ public class Classfile {
 		 * thisClassIndex to it
 		 */
 		thisClassIndex = addClassConstantToConstantPool(thisClassNameEIF);
+
 		/*
 		 * add the super class' name encoded in internal form to constant pool,
 		 * get back its index in the constant pool and set member variable
@@ -152,28 +157,24 @@ public class Classfile {
 		 */
 		// TODO externalize static strings
 		addMethodToMethodArea("<init>", "()V", MethodAccessFlag.ACC_PUBLIC);
+
+		// if this is a struct, the initialization of the object will be done by
+		// the program builder, later in the program
 		// TODO replace with addMethodref
 		final short initNATIndex = constantPool
 				.generateConstantNameAndTypeInfo("<init>", "()V");
-		final short methodrefIndex = constantPool
-				.generateConstantMethodrefInfo(superClassIndex, initNATIndex);
-		final byte[] methodRefByteArray = ByteUtils
-				.shortToByteArray(methodrefIndex);
-
-		// add code to initialize-method
-		// final Instruction InstrAload = new Instruction(1, Mnemonic.ALOAD_0,
-		// null);
-		final Instruction InstrAload = new Instruction(Mnemonic.ALOAD_0);
-		// final Instruction InstrInvokespecial = new Instruction(3,
-		// Mnemonic.INVOKESPECIAL, methodRefByteArray);
-		final Instruction InstrInvokespecial = new Instruction(
-				Mnemonic.INVOKESPECIAL, methodRefByteArray);
-		// final Instruction InstrReturn = new Instruction(1, Mnemonic.RETURN,
-		// null);
-		final Instruction InstrReturn = new Instruction(Mnemonic.RETURN);
-		addInstructionToMethodsCode("<init>", InstrAload);
-		addInstructionToMethodsCode("<init>", InstrInvokespecial);
-		addInstructionToMethodsCode("<init>", InstrReturn);
+		constructorIndex = ByteUtils.shortToByteArray(constantPool
+				.generateConstantMethodrefInfo(superClassIndex, initNATIndex));
+		if (!isStruct) {
+			// add code to initialize-method
+			final Instruction InstrAload = new Instruction(Mnemonic.ALOAD_0);
+			final Instruction InstrInvokespecial = new Instruction(
+					Mnemonic.INVOKESPECIAL, constructorIndex);
+			final Instruction InstrReturn = new Instruction(Mnemonic.RETURN);
+			addInstructionToMethodsCode("<init>", InstrAload);
+			addInstructionToMethodsCode("<init>", InstrInvokespecial);
+			addInstructionToMethodsCode("<init>", InstrReturn);
+		}
 	}
 
 	/**
@@ -192,10 +193,6 @@ public class Classfile {
 		final DataOutputStream classfileDOS = new DataOutputStream(baos);
 
 		writeTo(classfileDOS);
-
-		// final ClassReader cr = new ClassReader(baos.toByteArray());
-		// final ClassWriter cw = new ClassWriter(cr,
-		// ClassWriter.COMPUTE_FRAMES);
 
 		return new ByteArrayInputStream(baos.toByteArray());
 	}
@@ -237,15 +234,15 @@ public class Classfile {
 			classfileDOS.writeShort(thisClassIndex);
 			classfileDOS.writeShort(superClassIndex);
 			classfileDOS.writeShort(interfaceCount);
-			classfileDOS.writeShort(fieldsCount);
+
+			fieldArea.writeTo(classfileDOS);
 
 			if (logger.isDebugEnabled()) {
-				logger.debug("accessFlags(2), thisClassIndex(2), superClassIndex(2), interfaceCount(2), fieldsCount(2)");
-				logger.debug("{} {} {} {} {}", shortToHexString(accessFlags),
+				logger.debug("accessFlags(2), thisClassIndex(2), superClassIndex(2), interfaceCount(2)");
+				logger.debug("{} {} {} {}", shortToHexString(accessFlags),
 						shortToHexString(thisClassIndex),
 						shortToHexString(superClassIndex),
-						shortToHexString(interfaceCount),
-						shortToHexString(fieldsCount));
+						shortToHexString(interfaceCount));
 			}
 
 			methodArea.writeTo(classfileDOS);

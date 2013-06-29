@@ -9,7 +9,7 @@ import java.util.Set;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.utils.ConstantUtils;
-import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
+import swp_compiler_ss13.javabite.backend.utils.QuadrupleUtils;
 
 /**
  * TACOptimizer class.
@@ -117,7 +117,8 @@ public class TACOptimizer {
 			}
 		}
 		if (replace) {
-			iter.set(copyQuadruple(quad, null, arg1, arg2, result));
+			iter.set(QuadrupleUtils.copyQuadruple(quad, null, arg1, arg2,
+					result));
 		}
 	}
 
@@ -132,14 +133,6 @@ public class TACOptimizer {
 
 			}
 		}
-	}
-
-	private static Quadruple copyQuadruple(final Quadruple q,
-			final Operator op, final String arg1, final String arg2,
-			final String res) {
-		return new QuadrupleJb(op != null ? op : q.getOperator(),
-				arg1 != null ? arg1 : q.getArgument1(), arg2 != null ? arg2
-						: q.getArgument2(), res != null ? res : q.getResult());
 	}
 
 	private static class TacIterator implements ListIterator<Quadruple>,
