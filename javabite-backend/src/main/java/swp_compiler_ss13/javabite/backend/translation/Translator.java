@@ -108,7 +108,7 @@ public class Translator {
 
 		// parse tac for struct declarations and create classfiles for them
 		// TODO einkommentieren, wenn es geht
-		// generateClassfilesForStructsInTAC(tac, mainClassName);
+		generateClassfilesForStructsInTAC(tac, mainClassName);
 
 		// translate tac/program into the main method's code
 		if (tac != null) {
@@ -165,8 +165,11 @@ public class Translator {
 				final String className = basicClassName + "_" + structName;
 				translateStructIntoClassfile(structTAC, className);
 
-				// delete struct tac from tac
-				tac.subList(structCount, structEnd).clear();
+				/*
+				 * delete struct tac from tac, structStart + 1 to keep the
+				 * struct declaration
+				 */
+				tac.subList(structCount + 1, structEnd).clear();
 			}
 		}
 	}
@@ -259,6 +262,7 @@ public class Translator {
 				final Quadruple quad = tacIter.next();
 				final String name = quad.getResult();
 				final Operator op = quad.getOperator();
+				final String arg1 = quad.getArgument1();
 
 				String descriptor;
 
@@ -280,12 +284,14 @@ public class Translator {
 						arrayTAC.add(arrayQuad);
 						constructorTAC.add(arrayQuad);
 
+						List<Quadruple> structTACwithoutFirstDecl;
+
 						// get struct's tac
 						final long structMemberVarsCount = Long
 								.parseLong(removeConstantSign(arrayQuad
 										.getArgument1()));
 
-						List<Quadruple> structTACwithoutFirstDecl = getStructsTac(
+						structTACwithoutFirstDecl = getStructsTac(
 								tacIter, structMemberVarsCount);
 						arrayTAC.addAll(structTACwithoutFirstDecl);
 
@@ -343,20 +349,28 @@ public class Translator {
 							descriptor, className);
 					break;
 				default:
-					constructorTAC.add(quad);
-
 					// getDescriptor using quad
 					descriptor = ClassfileUtils.typeByQuadruples(quad);
 					// add field to field area
 					structClassfile.addFieldToFieldArea(name, descriptor,
 							FieldAccessFlag.ACC_PUBLIC);
+
 					/*
-					 * generate field reference info structure in the constant
-					 * pool, which will be used in the constructor for
-					 * initialization
+					 * without initial value, initialization in constructor will
+					 * not be necessary
 					 */
-					structClassfile.addFieldrefConstantToConstantPool(name,
-							descriptor, className);
+					if (!ConstantUtils.isIgnoreParam(arg1)) {
+						// add to constructor tac
+						constructorTAC.add(quad);
+
+						/*
+						 * generate field reference info structure in the
+						 * constant pool, which will be used in the constructor
+						 * for initialization
+						 */
+						structClassfile.addFieldrefConstantToConstantPool(name,
+								descriptor, className);
+					}
 				}
 			}
 		}
@@ -400,7 +414,7 @@ public class Translator {
 					classFile.addLongConstantToConstantPool(Long
 							.parseLong(removeConstantSign(arg2)));
 				}
-				// result can be a cnstant of different types
+				// result can be a constant of different types
 				if (isConstant(result)) {
 					switch (operator) {
 					case ARRAY_SET_LONG:
@@ -546,8 +560,11 @@ public class Translator {
 				 */
 				while (tacIter.next().getOperator() == Operator.DECLARE_ARRAY) {
 				}
-				// TODO Structs
 				continue;
+			case DECLARE_STRUCT:
+				// do not delete declaration tac
+				file.addVariableToMethodsCode(methodName, result,
+						ClassfileUtils.LocalVariableType.AREF);
 			default:
 				continue;
 			}
