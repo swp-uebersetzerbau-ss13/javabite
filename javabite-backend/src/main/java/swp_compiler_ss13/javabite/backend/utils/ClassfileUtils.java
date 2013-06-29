@@ -1,13 +1,12 @@
 package swp_compiler_ss13.javabite.backend.utils;
 
-import java.util.EnumSet;
-import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
-
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.translation.Mnemonic;
+
+import java.util.EnumSet;
+import java.util.List;
 
 public final class ClassfileUtils {
 
@@ -304,7 +303,8 @@ public final class ClassfileUtils {
 
 		@Override
 		public String toString() {
-			return methodClass + "." + methodName + ":" + methodDescriptor;
+			return (methodClass != null ? methodClass + "." : "") + methodName
+					+ ":" + methodDescriptor;
 		}
 
 	}
@@ -324,12 +324,15 @@ public final class ClassfileUtils {
 
 		@Override
 		public String toString() {
-			return fieldClass + "." + fieldName + ":" + fieldDescriptor;
+			return (fieldClass != null ? fieldClass + "." : "") + fieldName
+					+ ":" + fieldDescriptor;
 		}
 	}
 
 	public static String getClassName(final Class<?> clazz,
 			final boolean isParam) {
+		if (clazz == null)
+			return null;
 		if (clazz.isPrimitive()) {
 			return getPrimitiveClassName(clazz);
 		}
