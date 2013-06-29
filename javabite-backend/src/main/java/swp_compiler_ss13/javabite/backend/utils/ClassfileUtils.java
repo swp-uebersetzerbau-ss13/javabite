@@ -1,12 +1,13 @@
 package swp_compiler_ss13.javabite.backend.utils;
 
+import java.util.EnumSet;
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
+
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.translation.Mnemonic;
-
-import java.util.EnumSet;
-import java.util.List;
 
 public final class ClassfileUtils {
 
@@ -146,7 +147,7 @@ public final class ClassfileUtils {
 				final Mnemonic varLoadOp, final Mnemonic arrayLoadOp,
 				final Mnemonic varStoreOp, final Mnemonic arrayStoreOp) {
 			this.length = (short) length;
-			this.wide = length == 2;
+			wide = length == 2;
 			this.constantPoolType = constantPoolType;
 			this.javaType = javaType;
 			this.constantLoadOp = constantLoadOp;
@@ -290,15 +291,15 @@ public final class ClassfileUtils {
 			this.methodName = methodName;
 			this.methodReturnClass = getClassName(methodReturnClass, true);
 			if (params == null) {
-				this.methodArgsClasses = null;
+				methodArgsClasses = null;
 			} else {
 				methodArgsClasses = new String[params.length];
 				for (int i = 0; i < params.length; i++) {
 					methodArgsClasses[i] = getClassName(params[i], true);
 				}
 			}
-			this.methodDescriptor = "(" + StringUtils.join(methodArgsClasses)
-					+ ")" + this.methodReturnClass;
+			methodDescriptor = "(" + StringUtils.join(methodArgsClasses) + ")"
+					+ this.methodReturnClass;
 		}
 
 		@Override
@@ -318,7 +319,7 @@ public final class ClassfileUtils {
 				final Class<?> containerClass, final Class<?> fieldClass) {
 			this.fieldClass = getClassName(containerClass, false);
 			this.fieldName = fieldName;
-			this.fieldDescriptor = getClassName(fieldClass, true);
+			fieldDescriptor = getClassName(fieldClass, true);
 		}
 
 		@Override

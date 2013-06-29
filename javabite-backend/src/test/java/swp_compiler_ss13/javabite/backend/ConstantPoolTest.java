@@ -1,23 +1,25 @@
 package swp_compiler_ss13.javabite.backend;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.doubleToByteArray;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.longToByteArray;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import junitx.util.PrivateAccessor;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.internal.util.reflection.Whitebox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import swp_compiler_ss13.javabite.backend.classfile.CPInfo;
 import swp_compiler_ss13.javabite.backend.classfile.ConstantPool;
 import swp_compiler_ss13.javabite.backend.classfile.ConstantPoolFullException;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.doubleToByteArray;
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.longToByteArray;
 
 /**
  * <h1>ConstantPoolTest</h1>

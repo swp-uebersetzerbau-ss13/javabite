@@ -1,5 +1,7 @@
 package swp_compiler_ss13.javabite.backend;
 
+import java.util.regex.Pattern;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -7,8 +9,6 @@ import org.junit.Test;
 import org.junit.rules.TestName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.regex.Pattern;
 
 public class ByteUtilsTests {
 

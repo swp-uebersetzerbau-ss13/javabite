@@ -1,10 +1,9 @@
 package swp_compiler_ss13.javabite.backend.classfile;
 
-import org.apache.commons.lang.StringEscapeUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.doubleToByteArray;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.intToHexString;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.longToByteArray;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToByteArray;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -14,7 +13,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.*;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType;
 
 /**
  * <h1>ConstantPool</h1>

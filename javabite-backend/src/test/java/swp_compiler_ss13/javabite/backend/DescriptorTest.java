@@ -1,15 +1,16 @@
 package swp_compiler_ss13.javabite.backend;
 
-import org.junit.Assert;
-import org.junit.Test;
-import swp_compiler_ss13.common.backend.Quadruple;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
-import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
-
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+import swp_compiler_ss13.common.backend.Quadruple;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
+import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
 
 public class DescriptorTest {
 
@@ -105,7 +106,7 @@ public class DescriptorTest {
 	public void testUtilsDescriptor() {
 		Assert.assertEquals("Z", ClassfileUtils
 				.typeByQuadruples(new QuadrupleJb(
-                        Quadruple.Operator.DECLARE_BOOLEAN, "!", "!", "!")));
+						Quadruple.Operator.DECLARE_BOOLEAN, "!", "!", "!")));
 
 		final List<Quadruple> tac1 = new ArrayList<>();
 		tac1.add(new QuadrupleJb(Quadruple.Operator.DECLARE_ARRAY, "!", "!",
@@ -154,7 +155,7 @@ public class DescriptorTest {
 	static class SimpleClass {
 		private long[] l;
 
-		public String m(int a, boolean[] b, String x) {
+		public String m(final int a, final boolean[] b, final String x) {
 			return null;
 		}
 	}

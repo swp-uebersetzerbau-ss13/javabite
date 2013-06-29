@@ -94,13 +94,13 @@ public class Operation {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(final Object o) {
 		if (this == o)
 			return true;
 		if (o == null || getClass() != o.getClass())
 			return false;
 
-		Operation operation = (Operation) o;
+		final Operation operation = (Operation) o;
 
 		if (size != operation.size)
 			return false;

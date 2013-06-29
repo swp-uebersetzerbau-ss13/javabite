@@ -1,5 +1,18 @@
 package swp_compiler_ss13.javabite.backend.translation;
 
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.convertBooleanConstant;
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isBooleanConstant;
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isConstant;
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isIgnoreParam;
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.removeConstantSign;
+
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
+
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.classfile.Classfile;
@@ -7,11 +20,6 @@ import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType;
 import swp_compiler_ss13.javabite.backend.utils.ConstantUtils;
-
-import java.io.PrintStream;
-import java.util.*;
-
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.*;
 
 /**
  * <h1>Program</h1>
@@ -325,7 +333,7 @@ public class Program {
 		 *            type of variable/constant to load
 		 */
 		private Instruction loadInstruction(final String arg1,
-				LocalVariableType variableType) {
+				final LocalVariableType variableType) {
 			if (isBooleanConstant(arg1)) {
 				return new Instruction(convertBooleanConstant(arg1));
 			} else if (isConstant(arg1)) {

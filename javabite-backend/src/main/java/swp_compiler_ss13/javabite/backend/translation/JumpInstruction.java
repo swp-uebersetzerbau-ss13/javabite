@@ -17,12 +17,12 @@ public class JumpInstruction extends Instruction {
 			final Instruction targetInstruction) {
 		super(mnemonic);
 		this.targetInstruction = targetInstruction;
-		this.targetLabel = null;
+		targetLabel = null;
 	}
 
 	public JumpInstruction(final Mnemonic mnemonic, final String targetLabel) {
 		super(mnemonic);
-		this.targetInstruction = null;
+		targetInstruction = null;
 		this.targetLabel = targetLabel;
 	}
 
@@ -41,7 +41,7 @@ public class JumpInstruction extends Instruction {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(final Object o) {
 		if (this == o)
 			return true;
 		if (o == null || getClass() != o.getClass())
@@ -49,7 +49,7 @@ public class JumpInstruction extends Instruction {
 		if (!super.equals(o))
 			return false;
 
-		JumpInstruction that = (JumpInstruction) o;
+		final JumpInstruction that = (JumpInstruction) o;
 
 		if (targetInstruction != null ? !targetInstruction
 				.equals(that.targetInstruction)

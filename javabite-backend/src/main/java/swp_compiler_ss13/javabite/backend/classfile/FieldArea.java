@@ -1,15 +1,16 @@
 package swp_compiler_ss13.javabite.backend.classfile;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.FieldAccessFlag;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.intToHexString;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.intToHexString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.FieldAccessFlag;
 
 /**
  * <h1>FieldArea</h1>

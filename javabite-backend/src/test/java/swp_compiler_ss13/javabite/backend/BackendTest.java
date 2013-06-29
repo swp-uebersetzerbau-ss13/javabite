@@ -1,16 +1,8 @@
 package swp_compiler_ss13.javabite.backend;
 
-import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import swp_compiler_ss13.common.backend.Backend;
-import swp_compiler_ss13.common.backend.BackendException;
-import swp_compiler_ss13.common.backend.Quadruple;
-import swp_compiler_ss13.common.backend.Quadruple.Operator;
-import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
-import swp_compiler_ss13.javabite.runtime.JavaClassProcess;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -22,7 +14,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import static org.junit.Assert.*;
+import org.apache.commons.io.IOUtils;
+import org.junit.Before;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import swp_compiler_ss13.common.backend.Backend;
+import swp_compiler_ss13.common.backend.BackendException;
+import swp_compiler_ss13.common.backend.Quadruple;
+import swp_compiler_ss13.common.backend.Quadruple.Operator;
+import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
+import swp_compiler_ss13.javabite.runtime.JavaClassProcess;
 
 public class BackendTest {
 

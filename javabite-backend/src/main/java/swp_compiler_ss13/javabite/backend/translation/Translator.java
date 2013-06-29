@@ -1,20 +1,24 @@
 package swp_compiler_ss13.javabite.backend.translation;
 
-import swp_compiler_ss13.common.backend.Quadruple;
-import swp_compiler_ss13.common.backend.Quadruple.Operator;
-import swp_compiler_ss13.javabite.backend.classfile.Classfile;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.*;
-import swp_compiler_ss13.javabite.backend.utils.ConstantUtils;
-import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isConstant;
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.removeConstantSign;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.ListIterator;
 
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isConstant;
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.removeConstantSign;
+import swp_compiler_ss13.common.backend.Quadruple;
+import swp_compiler_ss13.common.backend.Quadruple.Operator;
+import swp_compiler_ss13.javabite.backend.classfile.Classfile;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ClassfileAccessFlag;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.FieldAccessFlag;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodAccessFlag;
+import swp_compiler_ss13.javabite.backend.utils.ConstantUtils;
+import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
 
 /**
  * <h1>Translator</h1>
@@ -37,7 +41,7 @@ public class Translator {
 	Collection<Classfile> classfiles;
 
 	public Translator() {
-		this.classfiles = new ArrayList<>();
+		classfiles = new ArrayList<>();
 	}
 
 	/**
@@ -64,10 +68,10 @@ public class Translator {
 	 */
 	private Classfile generateClassfile(final String name,
 			final String thisClassNameEIF, final String superClassNameEIF,
-			boolean isStruct, final ClassfileAccessFlag... accessFlags) {
-		Classfile classfile = new Classfile(name, thisClassNameEIF,
+			final boolean isStruct, final ClassfileAccessFlag... accessFlags) {
+		final Classfile classfile = new Classfile(name, thisClassNameEIF,
 				superClassNameEIF, isStruct, accessFlags);
-		this.classfiles.add(classfile);
+		classfiles.add(classfile);
 		return classfile;
 	}
 
@@ -141,29 +145,30 @@ public class Translator {
 			structCount++;
 
 			// get the quadruple parts
-			Quadruple quad = tacIter.next();
-			Quadruple.Operator operator = quad.getOperator();
-			String structName = quad.getResult();
-			String arg1 = quad.getArgument1();
+			final Quadruple quad = tacIter.next();
+			final Quadruple.Operator operator = quad.getOperator();
+			final String structName = quad.getResult();
+			final String arg1 = quad.getArgument1();
 
 			/*
 			 * if the operator is an DECLARE_STRUCT-operator, a new classfile
 			 * has to be generated
 			 */
 			if (operator.equals(Operator.DECLARE_STRUCT)) {
-				int structStart = structCount;
+				final int structStart = structCount;
 				int structEnd = 0;
 
 				// temp variable for found structs' tac
 				List<Quadruple> structTAC;
 
 				// get struct's tac
-				long memberVarsCount = Long.parseLong(removeConstantSign(arg1));
+				final long memberVarsCount = Long
+						.parseLong(removeConstantSign(arg1));
 				structTAC = getStructsTac(tacIter, memberVarsCount);
 				structEnd = structStart + structTAC.size();
 
 				// generate appropriate classfile
-				String className = basicClassName + "_" + structName;
+				final String className = basicClassName + "_" + structName;
 				translateStructIntoClassfile(structTAC, className);
 
 				// delete struct tac from tac
@@ -180,16 +185,16 @@ public class Translator {
 	 * @since 24.06.2013
 	 * @author Marco
 	 */
-	private List<Quadruple> getStructsTac(ListIterator<Quadruple> tacIter,
-			long memberVarsCount) {
+	private List<Quadruple> getStructsTac(
+			final ListIterator<Quadruple> tacIter, final long memberVarsCount) {
 
 		// temp variable for found structs' tac
-		List<Quadruple> structTAC = new ArrayList<Quadruple>();
+		final List<Quadruple> structTAC = new ArrayList<Quadruple>();
 
 		// get tac
 		for (int i = 0; i < memberVarsCount; i++) {
 			Quadruple structQuad = tacIter.next();
-			Operator operator = structQuad.getOperator();
+			final Operator operator = structQuad.getOperator();
 
 			switch (operator) {
 			case DECLARE_ARRAY:
@@ -202,7 +207,7 @@ public class Translator {
 				if (structQuad.getOperator() == Operator.DECLARE_STRUCT) {
 					structTAC.add(structQuad);
 					// get struct's tac
-					long structMemberVarsCount = Long
+					final long structMemberVarsCount = Long
 							.parseLong(removeConstantSign(structQuad
 									.getArgument1()));
 					structTAC.addAll(getStructsTac(tacIter,
@@ -214,7 +219,7 @@ public class Translator {
 			case DECLARE_STRUCT:
 				structTAC.add(structQuad);
 				// get struct's tac
-				long structMemberVarsCount = Long
+				final long structMemberVarsCount = Long
 						.parseLong(removeConstantSign(structQuad.getArgument1()));
 				structTAC.addAll(getStructsTac(tacIter, structMemberVarsCount));
 				break;
@@ -238,15 +243,15 @@ public class Translator {
 			final String className) {
 
 		// tac list for constructor code generation
-		List<Quadruple> constructorTAC = new ArrayList<Quadruple>();
+		final List<Quadruple> constructorTAC = new ArrayList<Quadruple>();
 
 		// generate classfile
 		final String classFileName = className + FILE_EXTENSION_CLASS;
 
 		// create a new (main)classfile / classfile with main method
-		Classfile structClassfile = generateClassfile(classFileName, className,
-				OBJECT_CLASSNAME_EIF, true, ClassfileAccessFlag.ACC_PUBLIC,
-				ClassfileAccessFlag.ACC_SUPER);
+		final Classfile structClassfile = generateClassfile(classFileName,
+				className, OBJECT_CLASSNAME_EIF, true,
+				ClassfileAccessFlag.ACC_PUBLIC, ClassfileAccessFlag.ACC_SUPER);
 
 		// add constants to constant pool
 		addConstantsToConstantPool(structClassfile, structTac);
@@ -261,15 +266,15 @@ public class Translator {
 
 				final Quadruple quad = tacIter.next();
 				final String name = quad.getResult();
-				String arg1 = quad.getArgument1();
-				Operator op = quad.getOperator();
+				final String arg1 = quad.getArgument1();
+				final Operator op = quad.getOperator();
 
 				String descriptor;
 
 				switch (op) {
 				case DECLARE_ARRAY:
 					// temp variable for found array's tac
-					List<Quadruple> arrayTAC = new ArrayList<Quadruple>();
+					final List<Quadruple> arrayTAC = new ArrayList<Quadruple>();
 					arrayTAC.add(quad);
 					constructorTAC.add(quad);
 
@@ -286,7 +291,7 @@ public class Translator {
 						List<Quadruple> structTACwithoutFirstDecl = new ArrayList<Quadruple>();
 
 						// get struct's tac
-						long structMemberVarsCount = Long
+						final long structMemberVarsCount = Long
 								.parseLong(removeConstantSign(arrayQuad
 										.getArgument1()));
 
@@ -295,7 +300,7 @@ public class Translator {
 						arrayTAC.addAll(structTACwithoutFirstDecl);
 
 						// generate classfile for structTACwithoutFirstDecl
-						String structClassName = className + "_" + name;
+						final String structClassName = className + "_" + name;
 						translateStructIntoClassfile(structTACwithoutFirstDecl,
 								structClassName);
 					} else {
@@ -317,21 +322,21 @@ public class Translator {
 					break;
 				case DECLARE_STRUCT:
 					// temp variables for found struct's tac
-					List<Quadruple> structTAC = new ArrayList<Quadruple>();
+					final List<Quadruple> structTAC = new ArrayList<Quadruple>();
 					List<Quadruple> structTACwithoutFirstDecl = new ArrayList<Quadruple>();
 
 					structTAC.add(quad);
 					constructorTAC.add(quad);
 
 					// get struct's tac
-					long structMemberVarsCount = Long
+					final long structMemberVarsCount = Long
 							.parseLong(removeConstantSign(quad.getArgument1()));
 					structTACwithoutFirstDecl = getStructsTac(tacIter,
 							structMemberVarsCount);
 					structTAC.addAll(structTACwithoutFirstDecl);
 
 					// generate classfile for structTACwithoutFirstDecl
-					String structClassName = className + "_" + name;
+					final String structClassName = className + "_" + name;
 					translateStructIntoClassfile(structTACwithoutFirstDecl,
 							structClassName);
 
@@ -368,8 +373,7 @@ public class Translator {
 		}
 
 		// set constructor
-		structClassfile = translateStructTacIntoConstructorCode(
-				structClassfile, constructorTAC);
+		translateStructTacIntoConstructorCode(structClassfile, constructorTAC);
 	}
 
 	/**
@@ -781,8 +785,28 @@ public class Translator {
 	/**
 	 * <h1>translateStructIntoConstructorCode</h1> TODO EIke
 	 */
-	private Classfile translateStructTacIntoConstructorCode(
-			Classfile structClassfile, final List<Quadruple> constructorTAC) {
-		return structClassfile;
+	private void translateStructTacIntoConstructorCode(
+			final Classfile structClassfile,
+			final List<Quadruple> constructorTAC) {
+		final Program.StructBuilder pb = new Program.StructBuilder(
+				structClassfile, "<init>");
+
+		for (final Quadruple quad : constructorTAC) {
+			switch (quad.getOperator()) {
+			case DECLARE_BOOLEAN:
+			case DECLARE_ARRAY:
+			case DECLARE_STRUCT:
+			case DECLARE_STRING:
+			case DECLARE_DOUBLE:
+			case DECLARE_LONG:
+			case DECLARE_REFERENCE:
+			default:
+				break;
+			}
+		}
+
+		final Program pr = pb.build();
+		structClassfile.addInstructionsToMethodsCode("<init>",
+				pr.toInstructionsArray());
 	}
 }

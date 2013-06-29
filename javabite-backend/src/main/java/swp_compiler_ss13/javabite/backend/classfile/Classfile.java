@@ -1,7 +1,18 @@
 package swp_compiler_ss13.javabite.backend.classfile;
 
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.byteArrayToHexString;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToHexString;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import swp_compiler_ss13.javabite.backend.translation.Instruction;
 import swp_compiler_ss13.javabite.backend.translation.Mnemonic;
 import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
@@ -10,11 +21,6 @@ import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ClassfileAccessFl
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.FieldAccessFlag;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodAccessFlag;
-
-import java.io.*;
-
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.byteArrayToHexString;
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToHexString;
 
 /**
  * <h1>Classfile</h1>
@@ -92,7 +98,7 @@ public class Classfile {
 	 *            arbitrary amount of classfile access flags.
 	 */
 	public Classfile(final String name, final String thisClassNameEIF,
-			final String superClassNameEIF, boolean isStruct,
+			final String superClassNameEIF, final boolean isStruct,
 			final ClassfileAccessFlag... accessFlags) {
 
 		// set basic parameters
@@ -383,18 +389,11 @@ public class Classfile {
 	 * </p>
 	 * 
 	 * @since 13.05.2013
-	 * @param methodName
-	 *            string name of the method
-	 * @param methodNameDescriptor
-	 *            string method descriptor as specified by the jvm specification
-	 * @param classNameEIF
-	 *            string describing the method's class' class name encoded in
-	 *            internal form according to the jvm specification
+	 * @param signature
+	 *            Signature of method to add to the constant pool
 	 * @return short index of a methodref info entry in the constant pool of
 	 *         this classfile meeting the parameters.
 	 */
-	// public short addMethodrefConstantToConstantPool(final String methodName,
-	// final String methodNameDescriptor, final String classNameEIF) {
 	public short addMethodrefConstantToConstantPool(
 			final ClassfileUtils.MethodSignature signature) {
 		// add class
@@ -679,9 +678,7 @@ public class Classfile {
 	 */
 	public void addInstructionsToMethodsCode(final String methodName,
 			final Instruction[] instructions) {
-		for (final Instruction instruction : instructions) {
-			methodArea.addInstructionToMethodsCode(methodName, instruction);
-		}
+		methodArea.addInstructionsToMethodsCode(methodName, instructions);
 	}
 
 	/**
@@ -702,13 +699,12 @@ public class Classfile {
 	public void addFieldToFieldArea(final String fieldName,
 			final String fieldDescriptor, final FieldAccessFlag... accessFlags) {
 		// first generate appropriate constants in the constant pool
-		short fieldNameIndex = this.constantPool
+		final short fieldNameIndex = constantPool
 				.generateConstantUTF8Info(fieldName);
-		short fieldDescriptorIndex = this.constantPool
+		final short fieldDescriptorIndex = constantPool
 				.generateConstantUTF8Info(fieldDescriptor);
 		// add fields
-		this.fieldArea.addField(fieldNameIndex, fieldDescriptorIndex,
-				accessFlags);
+		fieldArea.addField(fieldNameIndex, fieldDescriptorIndex, accessFlags);
 	}
 
 	/**
@@ -722,6 +718,6 @@ public class Classfile {
 	 * @return true, if struct classfile, false if main classfile
 	 */
 	public boolean isStruct() {
-		return this.isStruct;
+		return isStruct;
 	}
 }

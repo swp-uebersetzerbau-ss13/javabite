@@ -1,11 +1,15 @@
 package swp_compiler_ss13.javabite.backend.translation;
 
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Set;
+
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.utils.ConstantUtils;
 import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
-
-import java.util.*;
 
 /**
  * TACOptimizer class.
@@ -21,8 +25,8 @@ public class TACOptimizer {
 
 	public void optimize(final List<Quadruple> tac) {
 
-		this.jumpTargets = new HashSet<>();
-		this.iter = new TacIterator(tac);
+		jumpTargets = new HashSet<>();
+		iter = new TacIterator(tac);
 
 		// loop 1
 		// perform primary analysis
@@ -61,7 +65,7 @@ public class TACOptimizer {
 		String result = null;
 		boolean replace = false;
 		if (next != null && next.getOperator() == Operator.LABEL) {
-			String labelName = next.getArgument1();
+			final String labelName = next.getArgument1();
 			// check if next label is true target
 			if (quad.getArgument1().equals(labelName)) {
 				arg1 = ConstantUtils.SYMBOL_IGNORE_PARAM;
@@ -77,7 +81,7 @@ public class TACOptimizer {
 				jumpTargets.add(quad.getArgument2());
 			}
 		}
-		if ((arg1 != null && arg2 != null)) {
+		if (arg1 != null && arg2 != null) {
 			// if both targets point to the next operation, remove jump
 			iter.remove();
 			return;
@@ -142,11 +146,11 @@ public class TACOptimizer {
 			Iterable<Quadruple> {
 
 		private ListIterator<Quadruple> iter;
-		private List<Quadruple> tac;
+		private final List<Quadruple> tac;
 		private int index;
 
 		public TacIterator(final List<Quadruple> tac) {
-			this.iter = tac.listIterator();
+			iter = tac.listIterator();
 			this.tac = tac;
 			index = 0;
 		}
@@ -189,12 +193,12 @@ public class TACOptimizer {
 		}
 
 		@Override
-		public void set(Quadruple quadruple) {
+		public void set(final Quadruple quadruple) {
 			iter.set(quadruple);
 		}
 
 		@Override
-		public void add(Quadruple quadruple) {
+		public void add(final Quadruple quadruple) {
 			iter.add(quadruple);
 		}
 
@@ -211,8 +215,8 @@ public class TACOptimizer {
 
 		@Override
 		public Iterator<Quadruple> iterator() {
-			this.index = 0;
-			this.iter = tac.listIterator();
+			index = 0;
+			iter = tac.listIterator();
 			return this;
 		}
 
