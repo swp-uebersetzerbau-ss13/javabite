@@ -36,6 +36,7 @@ public class Classfile {
 
 	// name of File
 	private final String name;
+	private final boolean isStruct;
 
 	/*
 	 * general classfile constant pool information being used while classfile
@@ -84,15 +85,19 @@ public class Classfile {
 	 * @param superClassNameEIF
 	 *            string describing the superclass' class name encoded in
 	 *            internal form according to the jvm specification.
+	 * @param isStruct
+	 *            boolean flag which determines, whether this classfile is the
+	 *            main classfile or a struct classfile
 	 * @param accessFlags
 	 *            arbitrary amount of classfile access flags.
 	 */
 	public Classfile(final String name, final String thisClassNameEIF,
-			final String superClassNameEIF,
+			final String superClassNameEIF, boolean isStruct,
 			final ClassfileAccessFlag... accessFlags) {
 
 		// set basic parameters
 		this.name = name;
+		this.isStruct = isStruct;
 		this.thisClassNameEIF = thisClassNameEIF;
 		this.superClassNameEIF = superClassNameEIF;
 		interfaceCount = 0;
@@ -431,7 +436,8 @@ public class Classfile {
 		final short natIndex = constantPool.generateConstantNameAndTypeInfo(
 				fieldName, fieldNameDescriptor);
 		// add fieldref
-		return constantPool.generateConstantFieldrefInfo(classIndex, natIndex);
+		return constantPool.generateConstantFieldrefInfo(classIndex, natIndex,
+				fieldName);
 	}
 
 	public short addFieldrefConstantToConstantPool(
@@ -703,5 +709,19 @@ public class Classfile {
 		// add fields
 		this.fieldArea.addField(fieldNameIndex, fieldDescriptorIndex,
 				accessFlags);
+	}
+
+	/**
+	 * <h1>isStruct</h1>
+	 * <p>
+	 * This method determines, whether this classfile is a main classfile or a
+	 * struct classfile.
+	 * </p>
+	 * 
+	 * @since 27.06.2013
+	 * @return true, if struct classfile, false if main classfile
+	 */
+	public boolean isStruct() {
+		return this.isStruct;
 	}
 }

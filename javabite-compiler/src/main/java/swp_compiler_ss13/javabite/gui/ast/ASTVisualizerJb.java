@@ -1,76 +1,28 @@
 package swp_compiler_ss13.javabite.gui.ast;
 
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.List;
 import java.util.Queue;
-import java.util.Set;
-
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
-
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.ASTNode;
-import swp_compiler_ss13.common.ast.ASTNode.ASTNodeType;
-import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
-import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
-import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode;
-import swp_compiler_ss13.common.ast.nodes.binary.LogicBinaryExpressionNode;
-import swp_compiler_ss13.common.ast.nodes.binary.LoopNode;
-import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
-import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
-import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
-import swp_compiler_ss13.common.ast.nodes.ternary.BranchNode;
-import swp_compiler_ss13.common.ast.nodes.unary.ArithmeticUnaryExpressionNode;
-import swp_compiler_ss13.common.ast.nodes.unary.ArrayIdentifierNode;
-import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
-import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
-import swp_compiler_ss13.common.ast.nodes.unary.StructIdentifierNode;
 import swp_compiler_ss13.common.visualization.ASTVisualization;
 import swp_compiler_ss13.javabite.ast.ASTSource;
-import swp_compiler_ss13.javabite.ast.nodes.binary.LoopNodeJb;
-import swp_compiler_ss13.javabite.ast.nodes.marynary.BlockNodeJb;
-import swp_compiler_ss13.javabite.ast.nodes.ternary.BranchNodeJb;
-import swp_compiler_ss13.javabite.ast.nodes.unary.ArrayIdentifierNodeJb;
-import swp_compiler_ss13.javabite.ast.nodes.unary.DeclarationNodeJb;
-import swp_compiler_ss13.javabite.ast.nodes.unary.ReturnNodeJb;
-import swp_compiler_ss13.javabite.ast.nodes.unary.StructIdentifierNodeJb;
 import swp_compiler_ss13.javabite.gui.ast.fitted.KhaledGraphFrame;
-
-import com.mxgraph.layout.mxGraphLayout;
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
-import com.mxgraph.model.mxCell;
-import com.mxgraph.model.mxCell;
-import com.mxgraph.model.mxIGraphModel;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxGraph;
-import com.mxgraph.view.mxLayoutManager;
-import com.mxgraph.view.mxStylesheet;
-
-import com.mxgraph.swing.mxGraphComponent;
-import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxStylesheet;
 
 public class ASTVisualizerJb implements ASTVisualization {
 	public mxGraph graph;
-	JScrollPane frame;
+	mxGraphComponent frame;
 	Queue<Object> toVisit_celledCopy;
 	int x, y;
 	int i=1;
-	private Set<mxCell> visitedSet = new HashSet<mxCell>();
-    List<mxCell> queueSubTree = new ArrayList<mxCell>();
-
-	String[] operation = { "ADDITION", "SUBSTRACTION", "MULTIPLICATION",
-			"DIVISION", "LESSTHAN", "LESSTHANEQUAL", "GREATERTHAN",
-			"GREATERTHANEQUAL", "EQUAL", "INEQUAL", "LOGICAL_AND", "LOGICAL_OR" };
-	String[] operationS = { "+", "-", "*", "/", "<", "<=", ">", ">=", "=",
-			"=!", "UND", "ODER" };
 
 	/**
 	 * visualizes the ast
@@ -87,7 +39,6 @@ public class ASTVisualizerJb implements ASTVisualization {
 		style.put(mxConstants.STYLE_FONTCOLOR, "#000000");
 		style.put(mxConstants.STYLE_FONTSTYLE, mxConstants.FONT_BOLD);
 		stylesheet.putCellStyle("BOLD", style);
-
 		initTree(ast);
 		KhaledGraphFrame k = new KhaledGraphFrame();
 		this.x = 167 * k.levelsCounter(ast);
@@ -99,102 +50,12 @@ public class ASTVisualizerJb implements ASTVisualization {
 		layout.setIntraCellSpacing(5);
 		layout.execute(graph.getDefaultParent());
 		frame = new mxGraphComponent(graph);
-		((mxGraphComponent) frame).getGraphControl().addMouseListener(new MouseAdapter()
-		{
-			public void mouseClicked(MouseEvent e){
-				Object cell = ((mxGraphComponent) frame).getCellAt(e.getX(), e.getY());
-				if (cell != null)
-				{
-					breadthFirstSearch((mxCell) cell);
-					Object[] edges = graph.getOutgoingEdges(cell); // remove edges
-					graph.removeCells(edges);
-					System.out.println(queueSubTree.size());
-					
-				for (mxCell k: queueSubTree){
-						Object[] edges1 = graph.getOutgoingEdges((mxCell) k);
-						graph.removeCells(edges1);		
-					}
-				}
-			}
-		});
-		
-	/*	((mxGraphComponent) frame).getGraphControl().(new MouseAdapter()
-		{
-			public void mouseReleased(MouseEvent e){
-				Object cell = ((mxGraphComponent) frame).getCellAt(e.getX(), e.getY());
-				if (cell != null)
-				{
-					breadthFirstSearch((mxCell) cell);
-					Object[] edges = graph.getOutgoingEdges(cell); // remove edges
-					graph.removeCells(edges);
-					System.out.println(queueSubTree.size());
-					
-				for (mxCell k: queueSubTree){
-						Object[] edges1 = graph.getOutgoingEdges((mxCell) k);
-						graph.removeCells(edges1);		
-					}
-				}
-			}
-		});*/
+		frame.setToolTips(true);
+		HidingSubTree h = new HidingSubTree(graph,frame);
+		h.hiddenSubTree();
+		//ToolTipManager.sharedInstance().registerComponent(frame);
 	}
-	
-	
-	
-	
-	private void breadthFirstSearch(mxCell parent) {
-
-        // clear marker set
-        visitedSet = new HashSet<mxCell>();
-        // create a queue Q
-        List<mxCell> queue = new ArrayList<mxCell>();
-        // enqueue v onto Q
-        queue.add(parent);
-        // mark v
-        visit(parent);
-        // while Q is not empty:
-        while (!queue.isEmpty()) {
-        	// t <- Q.dequeue()
-            mxCell cell = queue.get(0);
-            queue.remove(cell);
-
-            // if t is what we are looking for: 
-            //   return t
-            // TODO: add handling code if you search something
-            System.out.println("BFS visiting: " + cell.getValue());
-            // for all edges e in G.incidentEdges(t) do
-            Object[] edges = graph.getOutgoingEdges(cell);
-
-            for (Object edge : edges) {
-
-                // o <- G.opposite(t,e)
-                // get node from edge
-                mxCell target = (mxCell) graph.getView().getVisibleTerminal(edge, false);
-
-                // if o is not marked:
-                if (!isVisited(target)) {
-
-                    // mark o
-                    visit(target);
-
-                    // enqueue o onto Q
-                    queue.add(target);
-                    queueSubTree.add(target);
-                   target.removeFromParent(); //here there is problem
-               }
-            }
-        }
-
-    }
-
-    private void visit(mxCell what) {
-        visitedSet.add(what);
-    }
-
-    private boolean isVisited(mxCell what) {
-        return visitedSet.contains(what);
-    }
-
-	
+		
 
 	public JScrollPane getFrame() {
 		return frame;
@@ -253,33 +114,8 @@ public class ASTVisualizerJb implements ASTVisualization {
 
 		}
 		this.toVisit_celledCopy = toVisit_celled;
-
 	}
-
-	void treeNodes() {
-
-	}
-
-	void test(AST ast) {
-		Queue<ASTNode> queue = new ArrayDeque<>();
-		int i = 0;
-		for (ASTNode k : ast.getRootNode().getChildren()) {
-			queue.add(k);
-		}
-		for (ASTNode k : queue) {
-			if (k.getNodeType().equals(ASTNodeType.ReturnNode)) {
-				System.out.println(i);
-			} else
-				i++;
-		}
-	}
-
-	/*
-	 * private Object asCell(ArithmeticBinaryExpressionNode node){ return
-	 * graph.insertVertex(graph.getDefaultParent(), null, node.getOperator(),
-	 * 20, 40, 00, 70); }
-	 */
-
+	
 	/**
 	 * creates a cell representation of the ast
 	 * 
@@ -288,97 +124,14 @@ public class ASTVisualizerJb implements ASTVisualization {
 	 * @return the cell-object, which correspondents to the given node
 	 */
 	private Object asCell(ASTNode ast) {
-
-		Object returnVal = null;
-		int i = 0;
-		String value = null;
-		String color = null;
-		if (ast instanceof BasicIdentifierNode) {
-			value = "Id= " + ((BasicIdentifierNode) ast).getIdentifier();
-			color = "0000ff";
-		} else if (ast instanceof ArithmeticBinaryExpressionNode) {
-			while (!(((ArithmeticBinaryExpressionNode) ast).getOperator())
-					.toString().equals(operation[i])) {
-				i++;
-			}
-			value = operationS[i];
-			color = "cyan";
-		} else if (ast instanceof ArithmeticUnaryExpressionNode) {
-			while (!(((ArithmeticUnaryExpressionNode) ast).getOperator())
-					.toString().equals(operation[i])) {
-				i++;
-			}
-			value = operationS[i];
-			color = "blue";
-		} else if (ast instanceof LiteralNode) {
-			value = "Type= " + ((LiteralNode) ast).getLiteralType()
-					+ "\nLiteral= " + ((LiteralNode) ast).getLiteral();
-			color = "yellow";
-		} else if (ast instanceof AssignmentNode) {
-			value = "Assignment";
-			color = "white";
-
-		} else if (ast instanceof LogicBinaryExpressionNode) {
-			while (!(((LogicBinaryExpressionNode) ast).getOperator())
-					.toString().equals(operation[i])) {
-				i++;
-			}
-			value = operationS[i];
-			color = "blue";
-
-		}
-
-		else if (ast instanceof ReturnNode) {
-			value = "Return";
-			color = "orange";
-		} else if (ast instanceof DeclarationNode) {
-			value = "Type= " + ((DeclarationNode) ast).getType() + "\nId= "
-					+ ((DeclarationNode) ast).getIdentifier();
-			color = "magenta";
-		} else if (ast instanceof BlockNode) {
-			value = "Statements= " + ((BlockNode) ast).getNumberOfStatements()
-					+ "\nDeclarations= "
-					+ ((BlockNode) ast).getNumberOfDeclarations();
-			color = "pink";
-		} else if (ast instanceof ArrayIdentifierNode) {
-			value = "Index= " + ((ArrayIdentifierNode) ast).getIdentifierNode();
-			color = "black";
-		} else if (ast instanceof StructIdentifierNode) {
-			value = "Index= "
-					+ ((StructIdentifierNode) ast).getIdentifierNode();
-			color = "red";
-		}
-
-		else if (ast instanceof LoopNode) {
-			value = "Condition= " + ((LoopNode) ast).getCondition() + "\nBody"
-					+ ((LoopNode) ast).getLoopBody();
-			color = "violet";
-		} else if (ast instanceof ReturnNode) {
-			value = "" + ((ReturnNode) ast).getRightValue();
-			color = "navy";
-		} else if (ast instanceof BranchNode) {
-			value = "Condition" + ((BranchNode) ast).getCondition();
-			color = "yellow";
-		} 
-
-		else {
-			value = ast.toString();
-			color = "white";
-		}
-
-		returnVal = graph
-				.insertVertex(
-						graph.getDefaultParent(),
-						null,
-						value,
-						20,
-						40,
-						100,
-						35,
-						"ROUNDED;strokeWidth=2.0;strokeColor=white;shadow=false;autosize=0;foldable=0;editable=0;bendable=0;movable=0;resizable=0;cloneable=0;deletable=0;rounded=true;autosize=1;separatorColor=white;gradientColor=white;fillColor="
-								+ color);
-		return returnVal;
-
+		Object returnVal;
+		vertexAttributes ver = new vertexAttributes();
+		ver.addAttributes(ast);
+		String value=ver.value;
+		String color=ver.color;
+		returnVal = 
+		graph.insertVertex(graph.getDefaultParent(),null,value,20,40,100,35,color);
+        return returnVal;
 	}
 
 	public static void main(String[] args) {
