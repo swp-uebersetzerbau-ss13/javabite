@@ -52,7 +52,11 @@ public class IntermediateCodeGeneratorJb implements
 
 	private static final String LABEL_PREFIX = "LABEL";
 	private long labelCounter = 0;
-
+	
+	private static final String REFERENCE_NAME = "ref";
+	private long referenceDepth = 0;
+	private boolean referenceDeclared = false;
+	
 	final List<Quadruple> quadruples = new ArrayList<>(1000);
 
 	/**
@@ -208,6 +212,8 @@ public class IntermediateCodeGeneratorJb implements
 		identifierGenerationCounter = 0;
 		breakLabelStack.clear();
 		labelCounter = 0;
+		referenceDepth = 0;
+		referenceDeclared = false;
 	}
 
 	@Override
@@ -228,5 +234,29 @@ public class IntermediateCodeGeneratorJb implements
 	@Override
 	public String getCurrentBreakLabel() {
 		return breakLabelStack.peek();
+	}
+
+	@Override
+	public void increaseReferenceDepth() {
+		referenceDepth++;
+	}
+
+	@Override
+	public void decreaseReferenceDepth() {
+		referenceDepth--;
+	}
+
+	@Override
+	public boolean isBaseDepth() {
+		return referenceDepth == 1;
+	}
+
+	@Override
+	public String getReference() {
+		if (!referenceDeclared) {
+			addQuadruple(QuadrupleFactoryJb.generateReferenceDeclaring(REFERENCE_NAME));
+			referenceDeclared = true;
+		}
+		return REFERENCE_NAME;
 	}
 }
