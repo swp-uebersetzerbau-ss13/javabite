@@ -1,4 +1,4 @@
-package swp_compiler_ss13.javabite.semantic.v2;
+package swp_compiler_ss13.javabite.semantic;
 
 public enum BreakValidness implements Attribute{
 	IN_LOOP,
