@@ -97,4 +97,26 @@ public interface Ast2CodeConverterCompatibleGenerator extends
 	 * @return the current break label from loop-scopes
 	 */
 	String getCurrentBreakLabel();
+	
+	/**
+	 * should be called if stepped into a referencing node
+	 * like array or struct
+	 */
+	void increaseReferenceDepth();
+	
+	/**
+	 * should be called if stepping out a referencing node
+	 * like array or struct
+	 */
+	void decreaseReferenceDepth();
+	
+	/**
+	 * @return true if on level 1
+	 */
+	boolean isBaseDepth();
+	
+	/**
+	 * @return 
+	 */
+	String getReference();
 }
