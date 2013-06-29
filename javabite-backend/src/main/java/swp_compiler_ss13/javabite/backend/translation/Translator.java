@@ -4,11 +4,7 @@ import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.classfile.Classfile;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ClassfileAccessFlag;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.FieldAccessFlag;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodAccessFlag;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.*;
 import swp_compiler_ss13.javabite.backend.utils.ConstantUtils;
 import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
 
@@ -132,8 +128,8 @@ public class Translator {
 	 * @since 24.06.2013
 	 * @author Marco
 	 */
-	private void generateClassfilesForStructsInTAC(
-			final List<Quadruple> tac, final String basicClassName) {
+	private void generateClassfilesForStructsInTAC(final List<Quadruple> tac,
+			final String basicClassName) {
 
 		// classfile list
 		final Collection<Classfile> classfiles = new ArrayList<>();
@@ -165,7 +161,7 @@ public class Translator {
 				translateStructIntoClassfile(structTAC, className);
 			}
 		}
-		
+
 		// TODO DELETE TAC of structs???
 	}
 
@@ -231,8 +227,8 @@ public class Translator {
 	 * @since 24.06.2013
 	 * @author Marco
 	 */
-	private void translateStructIntoClassfile(
-			final List<Quadruple> structTac, final String className) {
+	private void translateStructIntoClassfile(final List<Quadruple> structTac,
+			final String className) {
 		// generate classfile
 		final String classFileName = className + FILE_EXTENSION_CLASS;
 
@@ -577,7 +573,8 @@ public class Translator {
 	private static void extractInstructionsFromOperations(
 			final Classfile classfile, final String methodName,
 			final List<Quadruple> tac) {
-		final Program.MainBuilder pb = new Program.MainBuilder(classfile, methodName);
+		final Program.MainBuilder pb = new Program.MainBuilder(classfile,
+				methodName);
 
 		for (final Quadruple quad : tac) {
 

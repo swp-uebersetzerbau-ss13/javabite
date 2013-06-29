@@ -8,6 +8,7 @@ import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType;
 import swp_compiler_ss13.javabite.backend.utils.ConstantUtils;
 
+import java.io.PrintStream;
 import java.util.*;
 
 import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.*;
@@ -102,6 +103,33 @@ public class Program {
 		return true;
 	}
 
+	public static final ClassfileUtils.MethodSignature EXIT_METHOD = new ClassfileUtils.MethodSignature(
+			"exit", System.class, void.class, int.class);
+
+	public static final ClassfileUtils.MethodSignature LONG_TOSTRING_METHOD = new ClassfileUtils.MethodSignature(
+			"toString", Long.class, String.class, long.class);
+
+	public static final ClassfileUtils.MethodSignature DOUBLE_TOSTRING_METHOD = new ClassfileUtils.MethodSignature(
+			"toString", Double.class, String.class, double.class);
+
+	public static final ClassfileUtils.MethodSignature BOOLEAN_TOSTRING_METHOD = new ClassfileUtils.MethodSignature(
+			"toString", Boolean.class, String.class, boolean.class);
+
+	public static final ClassfileUtils.FieldSignature OUT_FIELD = new ClassfileUtils.FieldSignature(
+			"out", System.class, PrintStream.class);
+
+	public static final ClassfileUtils.MethodSignature PRINT_METHOD = new ClassfileUtils.MethodSignature(
+			"print", PrintStream.class, void.class, String.class);
+
+	public static final ClassfileUtils.MethodSignature APPEND_METHOD = new ClassfileUtils.MethodSignature(
+			"append", StringBuilder.class, StringBuilder.class, String.class);
+
+	public static final ClassfileUtils.MethodSignature SB_NEW_METHOD = new ClassfileUtils.MethodSignature(
+			"<init>", StringBuilder.class, void.class);
+
+	public static final ClassfileUtils.MethodSignature SB_TOSTRING_METHOD = new ClassfileUtils.MethodSignature(
+			"toString", StringBuilder.class, String.class);
+
 	private static abstract class Builder<T extends Builder<?>> {
 
 		// the classfile instance of this program
@@ -136,10 +164,12 @@ public class Program {
 				}
 			}
 
-			return buildInternal();
+			prepareBuild();
+
+			return new Program(operations);
 		}
 
-		protected abstract Program buildInternal();
+		protected abstract void prepareBuild();
 
 		protected Builder<T> add(final Operation operation) {
 			operations.add(operation);
@@ -167,9 +197,32 @@ public class Program {
 		}
 
 		@Override
-		protected Program buildInternal() {
-			return null; // To change body of implemented methods use File |
-							// Settings | File Templates.
+		protected void prepareBuild() {
+
+		}
+
+		public StructBuilder declareLong(final Quadruple q) {
+			return this;
+		}
+
+		public StructBuilder declareDouble(final Quadruple q) {
+			return this;
+		}
+
+		public StructBuilder declareString(final Quadruple q) {
+			return this;
+		}
+
+		public StructBuilder declareBoolean(final Quadruple q) {
+			return this;
+		}
+
+		public StructBuilder declareArray(final Quadruple q) {
+			return this;
+		}
+
+		public StructBuilder declareStruct(final Quadruple q) {
+			return this;
 		}
 
 	}
@@ -222,7 +275,7 @@ public class Program {
 		}
 
 		@Override
-		protected Program buildInternal() {
+		protected void prepareBuild() {
 			// caluclate jump offset for every jump, set as argument of jump
 			for (final JumpInstruction in : jumpInstructions) {
 				Instruction target = in.getTargetInstruction();
@@ -241,8 +294,6 @@ public class Program {
 					in.setArguments(ByteUtils.shortToByteArray((short) offset));
 				}
 			}
-
-			return new Program(operations);
 		}
 
 		private static boolean hasArgsCount(final Quadruple q,
@@ -560,20 +611,16 @@ public class Program {
 		 * 
 		 * @param q
 		 *            quadruple of operation
-		 * @param paramType
-		 *            data type of value to turn into a string
-		 * @param className
-		 *            full class name of class containing the toString method
 		 * @param variableType
 		 *            type of variable/constant to load
 		 * @return new operation instance
 		 */
-		private Operation toStringOp(final Quadruple q, final String paramType,
-				final String className, final LocalVariableType variableType) {
+		private Operation toStringOp(final Quadruple q,
+				final ClassfileUtils.MethodSignature toStringSig,
+				final LocalVariableType variableType) {
 			final Operation.Builder op = Operation.Builder.newBuilder();
 			final short toStringIndex = classfile
-					.addMethodrefConstantToConstantPool("toString", "("
-							+ paramType + ")Ljava/lang/String", className);
+					.addMethodrefConstantToConstantPool(toStringSig);
 			op.add(loadInstruction(q.getArgument1(), variableType));
 			op.add(Mnemonic.INVOKESTATIC,
 					ByteUtils.shortToByteArray(toStringIndex));
@@ -643,7 +690,7 @@ public class Program {
 		public MainBuilder declareLong(final Quadruple q) {
 			assert q.getOperator() == Operator.DECLARE_LONG;
 			assert hasArgsCount(q, 0, 1, 2);
-			if ("!".equals(q.getResult())) {
+			if (ConstantUtils.isIgnoreParam(q.getResult())) {
 				return add(arrayCreateOp(ClassfileUtils.JavaType.LONG));
 			}
 
@@ -664,7 +711,7 @@ public class Program {
 		public MainBuilder declareDouble(final Quadruple q) {
 			assert q.getOperator() == Operator.DECLARE_DOUBLE;
 			assert hasArgsCount(q, 0, 1, 2);
-			if ("!".equals(q.getResult())) {
+			if (ConstantUtils.isIgnoreParam(q.getResult())) {
 				return add(arrayCreateOp(ClassfileUtils.JavaType.DOUBLE));
 			}
 
@@ -685,7 +732,7 @@ public class Program {
 		public MainBuilder declareString(final Quadruple q) {
 			assert q.getOperator() == Operator.DECLARE_STRING;
 			assert hasArgsCount(q, 0, 1, 2);
-			if ("!".equals(q.getResult())) {
+			if (ConstantUtils.isIgnoreParam(q.getResult())) {
 				return add(arrayCreateOp(ClassfileUtils.JavaType.STRING));
 			}
 
@@ -706,7 +753,7 @@ public class Program {
 		public MainBuilder declareBoolean(final Quadruple q) {
 			assert q.getOperator() == Operator.DECLARE_BOOLEAN;
 			assert hasArgsCount(q, 0, 1, 2);
-			if ("!".equals(q.getResult())) {
+			if (ConstantUtils.isIgnoreParam(q.getResult())) {
 				return add(arrayCreateOp(ClassfileUtils.JavaType.BOOLEAN));
 			}
 
@@ -1205,8 +1252,7 @@ public class Program {
 			assert hasArgsCount(q, 1);
 			returnFlag = true;
 			final short systemExitIndex = classfile
-					.addMethodrefConstantToConstantPool("exit", "(I)V",
-							"java/lang/System");
+					.addMethodrefConstantToConstantPool(EXIT_METHOD);
 			final Operation.Builder op = Operation.Builder.newBuilder();
 			op.add(loadInstruction(q.getArgument1(), LocalVariableType.LONG));
 			op.add(Mnemonic.L2I);
@@ -1726,7 +1772,7 @@ public class Program {
 		public MainBuilder branch(final Quadruple q) {
 			assert q.getOperator() == Operator.BRANCH;
 			final Operation.Builder op = Operation.Builder.newBuilder();
-			if ("!".equals(q.getResult())) {
+			if (ConstantUtils.isIgnoreParam(q.getResult())) {
 				// unconditional branch
 				assert hasArgsCount(q, 1);
 				final JumpInstruction jumpOp = new JumpInstruction(
@@ -1784,13 +1830,11 @@ public class Program {
 			final Operation.Builder op = Operation.Builder.newBuilder();
 
 			final short systemOutIndex = classfile
-					.addFieldrefConstantToConstantPool("out",
-							"Ljava/io/PrintStream;", "java/lang/System");
+					.addFieldrefConstantToConstantPool(OUT_FIELD);
 
 			// add printOp methodref info to constant pool, if necessary
 			final short printIndex = classfile
-					.addMethodrefConstantToConstantPool("printOp",
-							"(Ljava/lang/String)V", "java/io/PrintStream");
+					.addMethodrefConstantToConstantPool(PRINT_METHOD);
 
 			op.add(Mnemonic.GETSTATIC,
 					ByteUtils.shortToByteArray(systemOutIndex));
@@ -1828,7 +1872,7 @@ public class Program {
 		public MainBuilder declareArray(final Quadruple q) {
 			assert q.getOperator() == Operator.DECLARE_ARRAY;
 			assert hasArgsCount(q, 1, 2);
-			if (!"!".equals(q.getResult())) {
+			if (!ConstantUtils.isIgnoreParam(q.getResult())) {
 				arrayName = q.getResult();
 			}
 			arrayDimensions.push(q.getArgument1());
@@ -2146,7 +2190,7 @@ public class Program {
 		public MainBuilder booleanToString(final Quadruple q) {
 			assert q.getOperator() == Operator.BOOLEAN_TO_STRING;
 			assert hasArgsCount(q, 2);
-			return add(toStringOp(q, "Z", "java/lang/Boolean",
+			return add(toStringOp(q, BOOLEAN_TOSTRING_METHOD,
 					LocalVariableType.BOOLEAN));
 		}
 
@@ -2178,7 +2222,7 @@ public class Program {
 		public MainBuilder longToString(final Quadruple q) {
 			assert q.getOperator() == Operator.LONG_TO_STRING;
 			assert hasArgsCount(q, 2);
-			return add(toStringOp(q, "J", "java/lang/Long",
+			return add(toStringOp(q, LONG_TOSTRING_METHOD,
 					LocalVariableType.LONG));
 		}
 
@@ -2210,7 +2254,7 @@ public class Program {
 		public MainBuilder doubleToString(final Quadruple q) {
 			assert q.getOperator() == Operator.DOUBLE_TO_STRING;
 			assert hasArgsCount(q, 2);
-			return add(toStringOp(q, "D", "java/lang/Double",
+			return add(toStringOp(q, DOUBLE_TOSTRING_METHOD,
 					LocalVariableType.DOUBLE));
 		}
 
@@ -2556,17 +2600,13 @@ public class Program {
 			assert hasArgsCount(q, 3);
 			final Operation.Builder op = Operation.Builder.newBuilder();
 			final short appendMethod = classfile
-					.addMethodrefConstantToConstantPool("append",
-							"(Ljava/lang/String;)Ljava/lang/StringBuilder",
-							"java/lang/StringBuilder");
+					.addMethodrefConstantToConstantPool(APPEND_METHOD);
 			final short stringBuilderClassIndex = classfile
-					.addClassConstantToConstantPool("java/lang/StringBuilder");
+					.addClassConstantToConstantPool(StringBuilder.class);
 			final short stringBuilderCstr = classfile
-					.addMethodrefConstantToConstantPool("<init>", "()V",
-							"java/lang/StringBuilder");
+					.addMethodrefConstantToConstantPool(SB_NEW_METHOD);
 			final short stringBuilderToString = classfile
-					.addMethodrefConstantToConstantPool("toString",
-							"()Ljava/lang/String", "java/lang/StringBuilder");
+					.addMethodrefConstantToConstantPool(SB_TOSTRING_METHOD);
 			op.add(Mnemonic.NEW,
 					ByteUtils.shortToByteArray(stringBuilderClassIndex));
 			op.add(Mnemonic.DUP);

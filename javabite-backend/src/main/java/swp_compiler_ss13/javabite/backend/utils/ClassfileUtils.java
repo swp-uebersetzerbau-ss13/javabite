@@ -250,11 +250,11 @@ public final class ClassfileUtils {
 
 	}
 
-	public static String getByQuadruples(final Quadruple quad) {
+	public static String typeByQuadruples(final Quadruple quad) {
 		return JavaType.getByOperator(quad.getOperator()).className;
 	}
 
-	public static String getByQuadruples(final List<Quadruple> tac) {
+	public static String typeByQuadruples(final List<Quadruple> tac) {
 		switch (tac.get(0).getOperator()) {
 		case DECLARE_ARRAY:
 			int dimensions = 0;
@@ -273,6 +273,93 @@ public final class ClassfileUtils {
 		default:
 			return null;
 		}
+	}
+
+	public static class MethodSignature {
+
+		public final String methodClass;
+		public final String methodName;
+		public final String methodReturnClass;
+		public final String[] methodArgsClasses;
+		public final String methodDescriptor;
+
+		public MethodSignature(final String methodName,
+				final Class<?> methodClass, final Class<?> methodReturnClass,
+				final Class<?>... params) {
+			this.methodClass = getClassName(methodClass, false);
+			this.methodName = methodName;
+			this.methodReturnClass = getClassName(methodReturnClass, true);
+			if (params == null) {
+				this.methodArgsClasses = null;
+			} else {
+				methodArgsClasses = new String[params.length];
+				for (int i = 0; i < params.length; i++) {
+					methodArgsClasses[i] = getClassName(params[i], true);
+				}
+			}
+			this.methodDescriptor = "(" + StringUtils.join(methodArgsClasses)
+					+ ")" + this.methodReturnClass;
+		}
+
+		@Override
+		public String toString() {
+			return methodClass + "." + methodName + ":" + methodDescriptor;
+		}
+
+	}
+
+	public static class FieldSignature {
+
+		public final String fieldClass;
+		public final String fieldName;
+		public final String fieldDescriptor;
+
+		public FieldSignature(final String fieldName,
+				final Class<?> containerClass, final Class<?> fieldClass) {
+			this.fieldClass = getClassName(containerClass, false);
+			this.fieldName = fieldName;
+			this.fieldDescriptor = getClassName(fieldClass, true);
+		}
+
+		@Override
+		public String toString() {
+			return fieldClass + "." + fieldName + ":" + fieldDescriptor;
+		}
+	}
+
+	public static String getClassName(final Class<?> clazz,
+			final boolean isParam) {
+		if (clazz.isPrimitive()) {
+			return getPrimitiveClassName(clazz);
+		}
+		if (isParam) {
+			if (clazz.isArray())
+				return clazz.getName().replaceAll("\\.", "/");
+			return "L" + clazz.getName().replaceAll("\\.", "/") + ";";
+		}
+		return clazz.getName().replaceAll("\\.", "/");
+	}
+
+	public static String getPrimitiveClassName(final Class<?> clazz) {
+		if (clazz == void.class)
+			return "V";
+		if (clazz == int.class)
+			return "I";
+		if (clazz == long.class)
+			return "J";
+		if (clazz == double.class)
+			return "D";
+		if (clazz == boolean.class)
+			return "Z";
+		if (clazz == byte.class)
+			return "B";
+		if (clazz == char.class)
+			return "C";
+		if (clazz == float.class)
+			return "F";
+		if (clazz == short.class)
+			return "S";
+		return null;
 	}
 
 	private ClassfileUtils() {

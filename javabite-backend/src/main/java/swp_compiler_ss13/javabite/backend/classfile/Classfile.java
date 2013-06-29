@@ -361,6 +361,11 @@ public class Classfile {
 		return constantPool.generateConstantClassInfo(value);
 	}
 
+	public short addClassConstantToConstantPool(final Class<?> clazz) {
+		return addClassConstantToConstantPool(ClassfileUtils.getClassName(
+				clazz, false));
+	}
+
 	/**
 	 * <h1>addMethodrefConstantToConstantPool</h1>
 	 * <p>
@@ -383,13 +388,15 @@ public class Classfile {
 	 * @return short index of a methodref info entry in the constant pool of
 	 *         this classfile meeting the parameters.
 	 */
-	public short addMethodrefConstantToConstantPool(final String methodName,
-			final String methodNameDescriptor, final String classNameEIF) {
+	// public short addMethodrefConstantToConstantPool(final String methodName,
+	// final String methodNameDescriptor, final String classNameEIF) {
+	public short addMethodrefConstantToConstantPool(
+			final ClassfileUtils.MethodSignature signature) {
 		// add class
-		final short classIndex = addClassConstantToConstantPool(classNameEIF);
+		final short classIndex = addClassConstantToConstantPool(signature.methodClass);
 		// add NAT
 		final short natIndex = constantPool.generateConstantNameAndTypeInfo(
-				methodName, methodNameDescriptor);
+				signature.methodName, signature.methodDescriptor);
 		// add methodref
 		return constantPool.generateConstantMethodrefInfo(classIndex, natIndex);
 	}
@@ -425,6 +432,12 @@ public class Classfile {
 				fieldName, fieldNameDescriptor);
 		// add fieldref
 		return constantPool.generateConstantFieldrefInfo(classIndex, natIndex);
+	}
+
+	public short addFieldrefConstantToConstantPool(
+			final ClassfileUtils.FieldSignature signature) {
+		return addFieldrefConstantToConstantPool(signature.fieldName,
+				signature.fieldDescriptor, signature.fieldClass);
 	}
 
 	/**
@@ -683,9 +696,12 @@ public class Classfile {
 	public void addFieldToFieldArea(final String fieldName,
 			final String fieldDescriptor, final FieldAccessFlag... accessFlags) {
 		// first generate appropriate constants in the constant pool
-		short fieldNameIndex = this.constantPool.generateConstantUTF8Info(fieldName);
-		short fieldDescriptorIndex = this.constantPool.generateConstantUTF8Info(fieldDescriptor);
+		short fieldNameIndex = this.constantPool
+				.generateConstantUTF8Info(fieldName);
+		short fieldDescriptorIndex = this.constantPool
+				.generateConstantUTF8Info(fieldDescriptor);
 		// add fields
-		this.fieldArea.addField(fieldNameIndex, fieldDescriptorIndex, accessFlags);
+		this.fieldArea.addField(fieldNameIndex, fieldDescriptorIndex,
+				accessFlags);
 	}
 }
