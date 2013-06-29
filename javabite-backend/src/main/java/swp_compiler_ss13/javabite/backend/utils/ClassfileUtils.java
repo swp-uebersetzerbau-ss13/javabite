@@ -19,23 +19,24 @@ public final class ClassfileUtils {
 			Operator.ARRAY_GET_REFERENCE, Operator.COMPARE_LONG_E,
 			Operator.COMPARE_LONG_G, Operator.COMPARE_LONG_L,
 			Operator.COMPARE_LONG_GE, Operator.COMPARE_LONG_LE,
-			Operator.RETURN, Operator.STRUCT_GET_LONG, Operator.DECLARE_LONG);
+			Operator.RETURN, Operator.STRUCT_SET_LONG, Operator.DECLARE_LONG,
+			Operator.DECLARE_STRUCT);
 
 	public static final EnumSet<Operator> OPERATOR_DOUBLE_TYPES = EnumSet.of(
 			Operator.ASSIGN_DOUBLE, Operator.ADD_DOUBLE, Operator.SUB_DOUBLE,
 			Operator.MUL_DOUBLE, Operator.DIV_DOUBLE,
 			Operator.COMPARE_DOUBLE_E, Operator.COMPARE_DOUBLE_G,
 			Operator.COMPARE_DOUBLE_L, Operator.COMPARE_DOUBLE_GE,
-			Operator.COMPARE_DOUBLE_LE, Operator.STRUCT_GET_DOUBLE,
+			Operator.COMPARE_DOUBLE_LE, Operator.STRUCT_SET_DOUBLE,
 			Operator.DECLARE_DOUBLE);
 
 	public static final EnumSet<Operator> OPERATOR_STRING_TYPES = EnumSet.of(
 			Operator.ASSIGN_STRING, Operator.PRINT_STRING,
-			Operator.CONCAT_STRING, Operator.STRUCT_GET_STRING,
+			Operator.CONCAT_STRING, Operator.STRUCT_SET_STRING,
 			Operator.DECLARE_STRING);
 
 	public static final EnumSet<Operator> OPERATOR_BOOLEAN_TYPES = EnumSet.of(
-			Operator.ASSIGN_BOOLEAN, Operator.STRUCT_GET_BOOLEAN,
+			Operator.ASSIGN_BOOLEAN, Operator.STRUCT_SET_BOOLEAN,
 			Operator.DECLARE_BOOLEAN);
 
 	/**
