@@ -78,6 +78,8 @@ public class HidingSubTree {
 							breadthFirstSearch1((mxCell) k);
 							index++;
 						}
+						listEdges.clear();
+						queueSubTree.clear();
 						index=0;
 					}
 					i=0;
