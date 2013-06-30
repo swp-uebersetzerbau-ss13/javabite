@@ -17,11 +17,12 @@ public class HidingSubTree {
 	mxGraph graph;
 	mxGraph graph1;
 	Object cell1;
-	Object[] edges1;
+	Object[] edgesObj;
 	mxGraphComponent frame;
 	AST ast;
 	AST ast1;
-	int index;
+	int index=0;
+	List<Object[]> listEdges= new ArrayList<Object[]>();
 	List<mxCell> queueSubTree = new ArrayList<mxCell>();
 	List<Integer> listClick = new ArrayList<Integer>();
 	List<Object> listObject = new ArrayList<Object>();
@@ -54,12 +55,15 @@ public class HidingSubTree {
 					cell1=cell;
 					breadthFirstSearch((mxCell) cell);
 					Object[] edges = graph.getOutgoingEdges(cell);
-					edges1=edges;// remove edges								
+					edgesObj=edges;// remove edges								
 					graph.removeCells(edges);
 					for (mxCell k : queueSubTree) {
 						Object[] edges1 = graph.getOutgoingEdges((mxCell) k);
+						listEdges.add(index, edges1);
 						graph.removeCells(edges1);
+						index++;
 					}
+					index=0;
 					i = 0;
 				} else if (cell != null && i == 1 && listObject.contains(cell)) {
 					int cellLocation = listObject.indexOf(cell);
@@ -67,6 +71,14 @@ public class HidingSubTree {
 						listClick.set(cellLocation, 0);
 						System.out.println("hi");
 						breadthFirstSearch1((mxCell) cell1);
+						System.out.println(queueSubTree.size());
+						for (mxCell k : queueSubTree){
+							edgesObj=listEdges.get(index);
+							System.out.println(edgesObj.length);
+							breadthFirstSearch1((mxCell) k);
+							index++;
+						}
+						index=0;
 					}
 					i=0;
 				}
@@ -114,7 +126,6 @@ public class HidingSubTree {
 	}
 	
 	private void breadthFirstSearch1(mxCell parent) {
-		System.out.println("khaled");
 		// clear marker set
 		visitedSet = new HashSet<mxCell>();
 		// create a queue Q
@@ -125,7 +136,6 @@ public class HidingSubTree {
 		visit(parent);
 		// while Q is not empty:
 		while (!queue.isEmpty()) {
-			System.out.println("khaled");
 			// t <- Q.dequeue()
 			mxCell cell = queue.get(0);
 			queue.remove(cell);
@@ -133,8 +143,8 @@ public class HidingSubTree {
 			// return t
 			// TODO: add handling code if you search something
 			// for all edges e in G.incidentEdges(t) do
-			for (Object edge : edges1) {
-				System.out.println("khaledm");
+			for (Object edge : edgesObj) {
+				System.out.println("hi");
 				// o <- G.opposite(t,e)
 				// get node from edge
 				mxCell target = (mxCell) graph1.getView().getVisibleTerminal(
@@ -143,12 +153,10 @@ public class HidingSubTree {
 				if (!isVisited(target)) {
 					graph.addCell(target);
 					graph.insertEdge(parent, null, null, cell, target);
-					System.out.println("khaledi");
 					// mark o
 					visit(target);
 					// enqueue o onto Q
 					queue.add(target);
-					queueSubTree.add(target);
 					}
 				}
 			}
