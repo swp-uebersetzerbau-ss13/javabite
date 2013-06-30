@@ -68,7 +68,7 @@ public class ASTVisualizerJb implements ASTVisualization {
 	 * @param ast
 	 */
 
-	private void initTree(AST ast) {
+	void initTree(AST ast) {
 		// necessary for the model, not important for us
 		Object parent = graph.getDefaultParent();
 

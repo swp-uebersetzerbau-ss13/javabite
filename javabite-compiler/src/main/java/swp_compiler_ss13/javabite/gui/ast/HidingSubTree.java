@@ -6,9 +6,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import swp_compiler_ss13.common.ast.AST;
-
 import com.mxgraph.model.mxCell;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.view.mxGraph;
@@ -17,20 +15,23 @@ public class HidingSubTree {
 
 	private Set<mxCell> visitedSet = new HashSet<mxCell>();
 	mxGraph graph;
+	mxGraph graph1;
+	
 	mxGraphComponent frame;
 	AST ast;
+	AST ast1;
 	List<mxCell> queueSubTree = new ArrayList<mxCell>();
 	List<Integer> listClick = new ArrayList<Integer>();
 	List<Object> listObject = new ArrayList<Object>();
-	// int[] array=new int[ast.getNumberOfNodes()];
-	// Object[] arrayObject= new Object[ast.getNumberOfNodes()];
 	int location = 0;
 	int i = 0;
+	Object[] edgesObj;
 
 	public HidingSubTree(mxGraph graph, mxGraphComponent frame, AST ast) {
 		this.graph = graph;
 		this.frame = frame;
 		this.ast = ast;
+		this.ast1=ast;
 	}
 
 	public void hiddenSubTree() {
@@ -48,9 +49,10 @@ public class HidingSubTree {
 						listClick.add(location, 2);
 						location++;
 					}
+					graph1=graph;
 					breadthFirstSearch((mxCell) cell);
-					Object[] edges = graph.getOutgoingEdges(cell); // remove
-																	// edges
+					Object[] edges = graph.getOutgoingEdges(cell); // remove edges
+					edgesObj=edges;										
 					graph.removeCells(edges);
 					for (mxCell k : queueSubTree) {
 						Object[] edges1 = graph.getOutgoingEdges((mxCell) k);
@@ -60,8 +62,8 @@ public class HidingSubTree {
 				} else if (cell != null && i == 1 && listObject.contains(cell)) {
 					int cellLocation = listObject.indexOf(cell);
 					if (listClick.get(cellLocation) == 2) {
-						System.out.println("hi");
 						listClick.set(cellLocation, 0);
+						System.out.println("hi");		
 					}
 					i=0;
 				}
@@ -100,7 +102,9 @@ public class HidingSubTree {
 					// enqueue o onto Q
 					queue.add(target);
 					queueSubTree.add(target);
-					target.removeFromParent(); // here there is problem
+					if(i==2){
+						target.removeFromParent();// here there is problem
+					}
 				}
 			}
 		}
