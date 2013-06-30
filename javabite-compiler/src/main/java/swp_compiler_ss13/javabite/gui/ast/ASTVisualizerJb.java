@@ -51,7 +51,7 @@ public class ASTVisualizerJb implements ASTVisualization {
 		layout.execute(graph.getDefaultParent());
 		frame = new mxGraphComponent(graph);
 		frame.setToolTips(true);
-		HidingSubTree h = new HidingSubTree(graph,frame);
+		HidingSubTree h = new HidingSubTree(graph,frame,ast);
 		h.hiddenSubTree();
 		//ToolTipManager.sharedInstance().registerComponent(frame);
 	}

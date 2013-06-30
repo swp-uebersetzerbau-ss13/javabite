@@ -6,6 +6,9 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import swp_compiler_ss13.common.ast.AST;
+
 import com.mxgraph.model.mxCell;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.view.mxGraph;
@@ -15,28 +18,55 @@ public class HidingSubTree {
 	private Set<mxCell> visitedSet = new HashSet<mxCell>();
 	mxGraph graph;
 	mxGraphComponent frame;
+	AST ast;
 	List<mxCell> queueSubTree = new ArrayList<mxCell>();
+	List<Integer> listClick = new ArrayList<Integer>();
+	List<Object> listObject = new ArrayList<Object>();
+	// int[] array=new int[ast.getNumberOfNodes()];
+	// Object[] arrayObject= new Object[ast.getNumberOfNodes()];
+	int location = 0;
+	int i = 0;
 
-	public HidingSubTree(mxGraph graph, mxGraphComponent frame) {
+	public HidingSubTree(mxGraph graph, mxGraphComponent frame, AST ast) {
 		this.graph = graph;
 		this.frame = frame;
+		this.ast = ast;
 	}
-	
-	public void hiddenSubTree(){
-	frame.getGraphControl().addMouseListener(new MouseAdapter(){
-		public void mouseClicked(MouseEvent e) {
-			Object cell = ((mxGraphComponent) frame).getCellAt(e.getX(), e.getY());
-			if (cell != null) {
-				breadthFirstSearch((mxCell) cell);
-				Object[] edges = graph.getOutgoingEdges(cell); // remove edges
-				graph.removeCells(edges);
-				for (mxCell k : queueSubTree) {
-					Object[] edges1 = graph.getOutgoingEdges((mxCell) k);
-					graph.removeCells(edges1);
+
+	public void hiddenSubTree() {
+		frame.getGraphControl().addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				Object cell = ((mxGraphComponent) frame).getCellAt(e.getX(),
+						e.getY());
+				i++;
+				if (cell != null && i == 2) {
+					if (listObject.contains(cell)) { // if list contains cell
+						int cellLocation = listObject.indexOf(cell);
+						listClick.set(cellLocation, 0);
+					} else {
+						listObject.add(location, cell);
+						listClick.add(location, 2);
+						location++;
+					}
+					breadthFirstSearch((mxCell) cell);
+					Object[] edges = graph.getOutgoingEdges(cell); // remove
+																	// edges
+					graph.removeCells(edges);
+					for (mxCell k : queueSubTree) {
+						Object[] edges1 = graph.getOutgoingEdges((mxCell) k);
+						graph.removeCells(edges1);
+					}
+					i = 0;
+				} else if (cell != null && i == 1 && listObject.contains(cell)) {
+					int cellLocation = listObject.indexOf(cell);
+					if (listClick.get(cellLocation) == 2) {
+						System.out.println("hi");
+						listClick.set(cellLocation, 0);
+					}
+					i=0;
 				}
 			}
-			}
-		});	
+		});
 	}
 
 	private void breadthFirstSearch(mxCell parent) {
