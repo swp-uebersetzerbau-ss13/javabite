@@ -77,15 +77,21 @@ public class StyleManager extends DocumentFilter {
 	 * */
 	void underlineToken(List<Token> tokens, Color color) {
 		mf.fileManager.isProcessing = true;
-		String code = mf.editorPaneSourcecode.getText();
-		String[] lines = code.split(System.getProperty("line.separator"));
-		
-		for(Token t:tokens) {
-			SimpleAttributeSet attributes = new SimpleAttributeSet();
-			StyleConstants.setForeground(attributes, color);
-			StyleConstants.setUnderline(attributes, true);
-			mf.doc.setCharacterAttributes(code.indexOf(lines[t.getLine()-1]), t.getValue().length(), attributes, true);
-		}
+//		String code = mf.editorPaneSourcecode.getText();
+//		String[] lines = code.split(System.getProperty("line.separator"));
+//		
+//		for(Token t:tokens) {
+//			SimpleAttributeSet attributes = new SimpleAttributeSet();
+//			StyleConstants.setForeground(attributes, color);
+//			StyleConstants.setUnderline(attributes, true);
+//			mf.doc.setCharacterAttributes(code.indexOf(lines[t.getLine()-1]), t.getValue().length(), attributes, true);
+//		}
+
+		SimpleAttributeSet attributes = new SimpleAttributeSet();
+		StyleConstants.setForeground(attributes, color);
+		StyleConstants.setUnderline(attributes, true);
+		TextRange range = getTextRangeOf(tokens);
+		mf.doc.setCharacterAttributes(range.from, range.to, attributes, true);
 		mf.fileManager.isProcessing = false;
 	}
 	
@@ -112,6 +118,43 @@ public class StyleManager extends DocumentFilter {
 		}
 		
 		return -1;
+	}
+	
+	TextRange getTextRangeOf(List<Token> tokens) {
+		int from = 0;
+		int to = 0;
+		
+		int currentPos = 0;
+		int line = 1;
+		int startLine = tokens.get(0).getLine();
+		int startColumn = tokens.get(0).getColumn();
+		int endLine = tokens.get(tokens.size()-1).getLine();
+		int endColumn = tokens.get(tokens.size()-1).getColumn() + tokens.get(tokens.size()-1).getValue().length();
+		
+		try {
+			while (startLine != line) {
+				currentPos = Utilities.getRowEnd(mf.editorPaneSourcecode,
+						currentPos)+1;
+				line++;
+			}
+			from = currentPos + startColumn - 1;
+
+			if (startLine != endLine) {
+				while (endLine != line) {
+					currentPos = Utilities.getRowEnd(mf.editorPaneSourcecode,
+							currentPos);
+					line++;
+				}
+
+				to = currentPos + endColumn - 1;
+			} else {
+				to = currentPos + endColumn - startColumn;
+			}
+		} catch (BadLocationException e) {
+			e.printStackTrace();
+		}
+		
+		return new TextRange(from, to);
 	}
 	
 	void showToolTip(Point loc) {
@@ -172,5 +215,15 @@ public class StyleManager extends DocumentFilter {
 				}
 			}
 		});
+	}
+	
+	class TextRange {
+		int from;
+		int to;
+		
+		TextRange(int from, int to) {
+			this.from = from;
+			this.to = to;
+		}
 	}
 }
