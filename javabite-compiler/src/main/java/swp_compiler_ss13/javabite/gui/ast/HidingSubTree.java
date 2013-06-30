@@ -15,8 +15,6 @@ public class HidingSubTree {
 
 	private Set<mxCell> visitedSet = new HashSet<mxCell>();
 	mxGraph graph;
-	mxGraph graph1;
-	
 	mxGraphComponent frame;
 	AST ast;
 	AST ast1;
@@ -49,7 +47,6 @@ public class HidingSubTree {
 						listClick.add(location, 2);
 						location++;
 					}
-					graph1=graph;
 					breadthFirstSearch((mxCell) cell);
 					Object[] edges = graph.getOutgoingEdges(cell); // remove edges
 					edgesObj=edges;										
