@@ -252,8 +252,16 @@ public final class ClassfileUtils {
 
 	}
 
+	public static boolean isPrimitive(final Operator operator) {
+		return !OPERATOR_STRING_TYPES.contains(operator);
+	}
+
 	public static String typeByQuadruples(final Quadruple quad) {
-		return JavaType.getByOperator(quad.getOperator()).className;
+		if (isPrimitive(quad.getOperator()))
+			return JavaType.getByOperator(quad.getOperator()).className;
+		else
+			return "L" + JavaType.getByOperator(quad.getOperator()).className
+					+ ";";
 	}
 
 	public static String typeByQuadruples(final List<Quadruple> tac) {
@@ -323,6 +331,14 @@ public final class ClassfileUtils {
 		public final String fieldClass;
 		public final String fieldName;
 		public final String fieldDescriptor;
+
+		public FieldSignature(final String fieldName,
+				final String containerClass, final String fieldClass) {
+			this.fieldName = fieldName;
+			this.fieldClass = containerClass;
+			fieldDescriptor = fieldClass
+					+ (fieldClass.endsWith(";") ? "" : ";");
+		}
 
 		public FieldSignature(final String fieldName,
 				final Class<?> containerClass, final Class<?> fieldClass) {

@@ -114,7 +114,7 @@ public class Translator {
 
 		// parse tac for struct declarations and create classfiles for them
 		// TODO einkommentieren, wenn es geht
-		generateClassfilesForStructsInTAC(tac, mainClassName);
+		generateClassfilesForStructsInTAC(mainClassfile, tac, mainClassName);
 
 		// translate tac/program into the main method's code
 		if (tac != null) {
@@ -137,7 +137,8 @@ public class Translator {
 	 * 
 	 * @since 24.06.2013
 	 */
-	private void generateClassfilesForStructsInTAC(final List<Quadruple> tac,
+	private void generateClassfilesForStructsInTAC(
+			final Classfile mainClassfile, final List<Quadruple> tac,
 			final String basicClassName) {
 		int structCount = -1;
 
@@ -161,6 +162,9 @@ public class Translator {
 				// generate appropriate classfile
 				// TODO normalize struct name
 				final String className = basicClassName + "_" + structName;
+
+				// register struct as toplevel struct for struct resolution
+				mainClassfile.addToplevelStruct(structName);
 				// argument2 is misused to store the actual class name of the
 				// struct
 				tacIter.set(QuadrupleUtils.copyQuadruple(quad, null, null,
@@ -349,7 +353,9 @@ public class Translator {
 							structClassName);
 
 					// getDescriptor using structTAC
-					descriptor = ClassfileUtils.typeByQuadruples(structTAC);
+					// TODO delete
+					// descriptor = ClassfileUtils.typeByQuadruples(structTAC);
+					descriptor = "L" + structClassName + ";";
 					structClassfile.addFieldToFieldArea(name, descriptor,
 							FieldAccessFlag.ACC_PUBLIC);
 

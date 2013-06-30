@@ -9,6 +9,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +45,7 @@ public class Classfile {
 	// name of File
 	private final String name;
 	private final boolean isStruct;
+	private final Set<String> toplevelStructs;
 
 	/*
 	 * general classfile constant pool information being used while classfile
@@ -105,6 +108,7 @@ public class Classfile {
 		// set basic parameters
 		this.name = name;
 		this.isStruct = isStruct;
+		toplevelStructs = new HashSet<>();
 		this.thisClassNameEIF = thisClassNameEIF;
 		this.superClassNameEIF = superClassNameEIF;
 		interfaceCount = 0;
@@ -125,6 +129,14 @@ public class Classfile {
 
 	public byte[] getConstructorIndex() {
 		return constructorIndex;
+	}
+
+	public void addToplevelStruct(final String structName) {
+		toplevelStructs.add(structName);
+	}
+
+	public boolean isToplevelStruct(final String structName) {
+		return toplevelStructs.contains(structName);
 	}
 
 	/**
@@ -260,15 +272,19 @@ public class Classfile {
 	}
 
 	/**
-	 * <h1>getName</h1>
+	 * <h1>getFilename</h1>
 	 * <p>
 	 * This method returns the classfile's name.
 	 * </p>
 	 * 
 	 * @since 27.04.2013
 	 */
-	public String getName() {
+	public String getFilename() {
 		return name;
+	}
+
+	public String getClassname() {
+		return thisClassNameEIF;
 	}
 
 	/**
@@ -433,7 +449,7 @@ public class Classfile {
 				fieldName, fieldNameDescriptor);
 		// add fieldref
 		return constantPool.generateConstantFieldrefInfo(classIndex, natIndex,
-				fieldName);
+				fieldName, classNameEIF);
 	}
 
 	public short addFieldrefConstantToConstantPool(

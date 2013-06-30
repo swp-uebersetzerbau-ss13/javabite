@@ -420,9 +420,11 @@ public class ConstantPool {
 	 *         classfile meeting the parameters.
 	 */
 	short generateConstantFieldrefInfo(final short classIndex,
-			final short nameAndTypeIndex, final String fieldName) {
+			final short nameAndTypeIndex, final String fieldName,
+			final String classNameEIF) {
 		checkConstantPoolSize(1);
-		final String key = ConstantPoolType.FIELDREF.name() + fieldName;
+		final String key = ConstantPoolType.FIELDREF.name() + classNameEIF
+				+ fieldName;
 
 		// return existing entry's index, if it exists already
 		if (cpMapEntryExists(key)) {

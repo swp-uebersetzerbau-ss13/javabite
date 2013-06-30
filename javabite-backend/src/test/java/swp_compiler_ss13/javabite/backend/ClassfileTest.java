@@ -44,7 +44,7 @@ public class ClassfileTest {
 	@Test
 	public void testThatInitializeClassfileWorksCorrectly() {
 		assertEquals("The classname is set incorrect while initiation",
-				classfile.getName(),
+				classfile.getFilename(),
 				Whitebox.getInternalState(classfile, "name"));
 		assertEquals(
 				"The thisClassNameEIF field is set incorrect while initiation",

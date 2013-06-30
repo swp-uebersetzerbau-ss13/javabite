@@ -100,7 +100,7 @@ public class BackendJb implements Backend {
 		final Map<String, InputStream> targetCodeIS = new HashMap<>();
 
 		for (final Classfile classfile : classfiles) {
-			targetCodeIS.put(classfile.getName(),
+			targetCodeIS.put(classfile.getFilename(),
 					classfile.generateInputstream());
 		}
 

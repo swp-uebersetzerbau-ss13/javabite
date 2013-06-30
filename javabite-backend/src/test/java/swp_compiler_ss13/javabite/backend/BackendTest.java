@@ -189,7 +189,20 @@ public class BackendTest {
 
 	static final List<Quadruple> tac14 = asList(new QuadrupleJb(
 			Operator.DECLARE_STRUCT, "#1", "!", "srobert"), new QuadrupleJb(
-			Operator.DECLARE_LONG, "#233", "!", "l"));
+			Operator.DECLARE_STRING, "#\"bla\"", "!", "l"), new QuadrupleJb(
+			Operator.DECLARE_STRING, "!", "!", "s"), new QuadrupleJb(
+			Operator.STRUCT_GET_STRING, "srobert", "l", "s"), new QuadrupleJb(
+			Operator.PRINT_STRING, "s", "!", "!"));
+
+	static final List<Quadruple> tac15 = asList(new QuadrupleJb(
+			Operator.DECLARE_STRUCT, "#1", "!", "outer"), new QuadrupleJb(
+			Operator.DECLARE_STRUCT, "#1", "!", "inner"), new QuadrupleJb(
+			Operator.DECLARE_STRING, "#\"hi\"", "!", "s"), new QuadrupleJb(
+			Operator.DECLARE_REFERENCE, "!", "!", "r"), new QuadrupleJb(
+			Operator.STRUCT_GET_REFERENCE, "outer", "inner", "r"),
+			new QuadrupleJb(Operator.DECLARE_STRING, "!", "!", "s"),
+			new QuadrupleJb(Operator.STRUCT_GET_STRING, "r", "s", "s"),
+			new QuadrupleJb(Operator.PRINT_STRING, "s", "!", "!"));
 
 	@Before
 	public void setup() {
@@ -286,12 +299,19 @@ public class BackendTest {
 	// "Generated target code returns unexpected value while execution",
 	// 0, testToReturnValueOfTac(tac13, 1));
 	// }
+	//
+	// @Test
+	// public void testTac14ReturnVal() throws BackendException {
+	// assertEquals(
+	// "Generated target code returns unexpected value while execution",
+	// 0, testToReturnValueOfTac(tac14, 2));
+	// }
 
 	@Test
-	public void testTac14ReturnVal() throws BackendException {
+	public void testTac15ReturnVal() throws BackendException {
 		assertEquals(
 				"Generated target code returns unexpected value while execution",
-				0, testToReturnValueOfTac(tac14, 2));
+				0, testToReturnValueOfTac(tac15, 3));
 	}
 
 	public long testToReturnValueOfTac(final List<Quadruple> tac,

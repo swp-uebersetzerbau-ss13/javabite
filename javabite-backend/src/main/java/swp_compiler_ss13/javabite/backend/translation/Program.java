@@ -212,185 +212,6 @@ public class Program {
 			return false;
 		}
 
-	}
-
-	public static class StructBuilder extends Builder<StructBuilder> {
-
-		public StructBuilder(final Classfile classfile, final String methodName) {
-			super(classfile, methodName);
-		}
-
-		@Override
-		protected void prepareBuild() {
-		}
-
-		@Override
-		protected StructBuilder add(final Operation operation) {
-			super.add(operation);
-			return this;
-		}
-
-		/**
-		 * Creates a load instruction, that can be added to a program flow. This
-		 * operation can distinguish between constants and variables, but needs
-		 * information on the size of the variable to be loaded.
-		 * 
-		 * @param arg1
-		 *            argument containing constant or variable name
-		 * @param variableType
-		 *            type of variable/constant to load
-		 */
-		private Instruction loadInstruction(final String arg1,
-				final LocalVariableType variableType) {
-			if (isBooleanConstant(arg1)) {
-				return new Instruction(convertBooleanConstant(arg1));
-			} else if (isConstant(arg1)) {
-				assert variableType != null;
-				final short index = classfile
-						.getIndexOfConstantInConstantPool(
-								variableType.constantPoolType,
-								removeConstantSign(arg1));
-				assert index > 0;
-				if (variableType.wide) {
-					return new Instruction(Mnemonic.LDC2_W,
-							ByteUtils.shortToByteArray(index));
-				} else if (index >= 256) {
-					return new Instruction(Mnemonic.LDC_W,
-							ByteUtils.shortToByteArray(index));
-				} else {
-					return new Instruction(Mnemonic.LDC, (byte) index);
-				}
-			} else {
-				final byte index = classfile.getIndexOfVariableInMethod(
-						methodName, arg1);
-				assert index > 0;
-				return new Instruction(variableType.varLoadOp.withIndex(index),
-						index);
-			}
-		}
-
-		private Operation structSetOp(final Quadruple q,
-				final LocalVariableType variableType) {
-			final Operation.Builder op = Operation.Builder.newBuilder();
-			op.add(Mnemonic.ALOAD_0);
-			op.add(loadInstruction(q.getArgument1(), variableType));
-			final short fieldIndex = classfile
-					.getIndexOfConstantInConstantPool(
-							ClassfileUtils.ConstantPoolType.FIELDREF,
-							q.getResult());
-			op.add(Mnemonic.PUTFIELD, ByteUtils.shortToByteArray(fieldIndex));
-			return op.build();
-		}
-
-		public StructBuilder declareLong(final Quadruple q) {
-			assert q.getOperator() == Operator.DECLARE_LONG;
-			assert hasArgsCount(q, 1, 2);
-			return add(structSetOp(q, LocalVariableType.LONG));
-		}
-
-		public StructBuilder declareDouble(final Quadruple q) {
-			assert q.getOperator() == Operator.DECLARE_DOUBLE;
-			assert hasArgsCount(q, 1, 2);
-			return add(structSetOp(q, LocalVariableType.DOUBLE));
-		}
-
-		public StructBuilder declareString(final Quadruple q) {
-			assert q.getOperator() == Operator.DECLARE_STRING;
-			assert hasArgsCount(q, 1, 2);
-			return add(structSetOp(q, LocalVariableType.STRING));
-		}
-
-		public StructBuilder declareBoolean(final Quadruple q) {
-			assert q.getOperator() == Operator.DECLARE_BOOLEAN;
-			assert hasArgsCount(q, 1, 2);
-			return add(structSetOp(q, LocalVariableType.BOOLEAN));
-		}
-
-		public StructBuilder declareArray(final Quadruple q) {
-			assert q.getOperator() == Operator.DECLARE_ARRAY;
-			assert hasArgsCount(q, 2);
-			// TODO implement
-			return this;
-		}
-
-		public StructBuilder declareStruct(final Quadruple q) {
-			assert q.getOperator() == Operator.DECLARE_STRUCT;
-			assert hasArgsCount(q, 2);
-			// TODO implement
-			return this;
-		}
-
-	}
-
-	/**
-	 * <h1>MainBuilder</h1>
-	 * <p>
-	 * This class provides a builder pattern implementation for the program
-	 * class.
-	 * </p>
-	 * 
-	 * @author eike
-	 * @since May 18, 2013 12:29:51 AM
-	 */
-	public static class MainBuilder extends Builder<MainBuilder> {
-
-		// saves all jump targets (labels) for jump instruction creation
-		private final Map<String, Instruction> jumpTargets;
-		// saves all jump instructions for later offset calculation
-		private final List<JumpInstruction> jumpInstructions;
-		// sizes of last array declaration, in reverse order on the stack
-		private final Stack<String> arrayDimensions;
-		// label name of last label
-		private final Stack<String> labelNames;
-		// indicates last instruction was a label, denoting a jump location
-		private boolean labelFlag;
-		// name of last array seen
-		private String arrayName;
-
-		public MainBuilder(final Classfile classfile, final String methodName) {
-			super(classfile, methodName);
-			jumpTargets = new HashMap<>();
-			jumpInstructions = new ArrayList<>();
-			arrayDimensions = new Stack<>();
-			labelNames = new Stack<>();
-			returnFlag = false;
-		}
-
-		@Override
-		protected MainBuilder add(final Operation operation) {
-			super.add(operation);
-			if (labelFlag) {
-				labelFlag = false;
-				while (!labelNames.isEmpty()) {
-					jumpTargets.put(labelNames.pop(),
-							operation.getInstruction(0));
-				}
-			}
-			return this;
-		}
-
-		@Override
-		protected void prepareBuild() {
-			// caluclate jump offset for every jump, set as argument of jump
-			for (final JumpInstruction in : jumpInstructions) {
-				Instruction target = in.getTargetInstruction();
-				if (target == null) {
-					// target instruction is null -> target label is set
-					// get instruction by label name
-					target = jumpTargets.get(in.getTargetLabel());
-				}
-				assert target != null;
-				// calculate offset delta from jump instruction to target
-				final int offset = target.getOffset() - in.getOffset();
-				if (offset > Short.MAX_VALUE) {
-					in.setMnemonic(Mnemonic.GOTO_W);
-					in.setArguments(ByteUtils.intToByteArray(offset));
-				} else {
-					in.setArguments(ByteUtils.shortToByteArray((short) offset));
-				}
-			}
-		}
-
 		// INSTRUCTION CREATORS ------------------------------------------------
 
 		/**
@@ -403,7 +224,7 @@ public class Program {
 		 * @param variableType
 		 *            type of variable/constant to load
 		 */
-		private Instruction loadInstruction(final String arg1,
+		protected Instruction loadInstruction(final String arg1,
 				final LocalVariableType variableType) {
 			if (isBooleanConstant(arg1)) {
 				return new Instruction(convertBooleanConstant(arg1));
@@ -442,12 +263,197 @@ public class Program {
 		 *            type of variable/constant to store
 		 * @return new instruction
 		 */
-		private Instruction storeInstruction(final String result,
+		protected Instruction storeInstruction(final String result,
 				final LocalVariableType variableType) {
 			final byte index = classfile.getIndexOfVariableInMethod(methodName,
 					result);
+			assert index > 0;
 			return new Instruction(variableType.varStoreOp.withIndex(index),
 					index);
+		}
+
+		/**
+		 * Creates a series of operations to create a new object. The newly
+		 * created object is stored inside a local variable (if a store-target
+		 * is present)
+		 * 
+		 * @param constructor
+		 *            signature of constructor method
+		 * @param store
+		 *            name of variable to store object instance in
+		 * @return new operation instance
+		 */
+		protected Operation createOperation(
+				final ClassfileUtils.MethodSignature constructor,
+				final String store) {
+			final Operation.Builder op = Operation.Builder.newBuilder();
+			final short classIndex = classfile
+					.addClassConstantToConstantPool(constructor.methodClass);
+			assert classIndex > 0;
+			final short cstrIndex = classfile
+					.addMethodrefConstantToConstantPool(constructor);
+			assert cstrIndex > 0;
+			op.add(Mnemonic.NEW, ByteUtils.shortToByteArray(classIndex));
+			op.add(Mnemonic.DUP);
+			op.add(Mnemonic.INVOKESPECIAL,
+					ByteUtils.shortToByteArray(cstrIndex));
+			if (store != null) {
+				op.add(storeInstruction(store, LocalVariableType.AREF));
+			}
+			return op.build();
+		}
+
+	}
+
+	public static class StructBuilder extends Builder<StructBuilder> {
+
+		public StructBuilder(final Classfile classfile, final String methodName) {
+			super(classfile, methodName);
+		}
+
+		@Override
+		protected void prepareBuild() {
+		}
+
+		@Override
+		protected StructBuilder add(final Operation operation) {
+			super.add(operation);
+			return this;
+		}
+
+		private Operation structSetOp(final Quadruple q,
+				final LocalVariableType variableType) {
+			final Operation.Builder op = Operation.Builder.newBuilder();
+			op.add(Mnemonic.ALOAD_0);
+			op.add(loadInstruction(q.getArgument1(), variableType));
+			final String fieldType = "L"
+					+ (variableType.javaType == null ? classfile.getClassname()
+							+ "_" + q.getArgument2()
+							: variableType.javaType.className);
+			final ClassfileUtils.FieldSignature fieldSignature = new ClassfileUtils.FieldSignature(
+					q.getResult(), classfile.getClassname(), fieldType);
+			final short fieldIndex = classfile
+					.addFieldrefConstantToConstantPool(fieldSignature);
+			assert fieldIndex > 0;
+			op.add(Mnemonic.PUTFIELD, ByteUtils.shortToByteArray(fieldIndex));
+			return op.build();
+		}
+
+		public StructBuilder declareLong(final Quadruple q) {
+			assert q.getOperator() == Operator.DECLARE_LONG;
+			assert hasArgsCount(q, 1, 2);
+			return add(structSetOp(q, LocalVariableType.LONG));
+		}
+
+		public StructBuilder declareDouble(final Quadruple q) {
+			assert q.getOperator() == Operator.DECLARE_DOUBLE;
+			assert hasArgsCount(q, 1, 2);
+			return add(structSetOp(q, LocalVariableType.DOUBLE));
+		}
+
+		public StructBuilder declareString(final Quadruple q) {
+			assert q.getOperator() == Operator.DECLARE_STRING;
+			assert hasArgsCount(q, 1, 2);
+			return add(structSetOp(q, LocalVariableType.STRING));
+		}
+
+		public StructBuilder declareBoolean(final Quadruple q) {
+			assert q.getOperator() == Operator.DECLARE_BOOLEAN;
+			assert hasArgsCount(q, 1, 2);
+			return add(structSetOp(q, LocalVariableType.BOOLEAN));
+		}
+
+		public StructBuilder declareArray(final Quadruple q) {
+			assert q.getOperator() == Operator.DECLARE_ARRAY;
+			assert hasArgsCount(q, 2);
+			// TODO implement
+			return this;
+		}
+
+		public StructBuilder declareStruct(final Quadruple q) {
+			assert q.getOperator() == Operator.DECLARE_STRUCT;
+			assert hasArgsCount(q, 2);
+			final ClassfileUtils.MethodSignature constructor = new ClassfileUtils.MethodSignature(
+					"<init>", classfile.getClassname() + "_" + q.getResult(),
+					void.class);
+			return add(createOperation(constructor, q.getResult()));
+		}
+
+	}
+
+	/**
+	 * <h1>MainBuilder</h1>
+	 * <p>
+	 * This class provides a builder pattern implementation for the program
+	 * class.
+	 * </p>
+	 * 
+	 * @author eike
+	 * @since May 18, 2013 12:29:51 AM
+	 */
+	public static class MainBuilder extends Builder<MainBuilder> {
+
+		// saves all jump targets (labels) for jump instruction creation
+		private final Map<String, Instruction> jumpTargets;
+		// saves all jump instructions for later offset calculation
+		private final List<JumpInstruction> jumpInstructions;
+		// sizes of last array declaration, in reverse order on the stack
+		private final Stack<String> arrayDimensions;
+		// label name of last label
+		private final Stack<String> labelNames;
+		// indicates last instruction was a label, denoting a jump location
+		private boolean labelFlag;
+		// name of last array seen
+		private String arrayName;
+
+		private final StringBuilder structName;
+
+		private final Map<String, String> structChains;
+
+		public MainBuilder(final Classfile classfile, final String methodName) {
+			super(classfile, methodName);
+			jumpTargets = new HashMap<>();
+			jumpInstructions = new ArrayList<>();
+			arrayDimensions = new Stack<>();
+			labelNames = new Stack<>();
+			returnFlag = false;
+			structName = new StringBuilder();
+			structChains = new HashMap<>();
+		}
+
+		@Override
+		protected MainBuilder add(final Operation operation) {
+			super.add(operation);
+			if (labelFlag) {
+				labelFlag = false;
+				while (!labelNames.isEmpty()) {
+					jumpTargets.put(labelNames.pop(),
+							operation.getInstruction(0));
+				}
+			}
+			return this;
+		}
+
+		@Override
+		protected void prepareBuild() {
+			// caluclate jump offset for every jump, set as argument of jump
+			for (final JumpInstruction in : jumpInstructions) {
+				Instruction target = in.getTargetInstruction();
+				if (target == null) {
+					// target instruction is null -> target label is set
+					// get instruction by label name
+					target = jumpTargets.get(in.getTargetLabel());
+				}
+				assert target != null;
+				// calculate offset delta from jump instruction to target
+				final int offset = target.getOffset() - in.getOffset();
+				if (offset > Short.MAX_VALUE) {
+					in.setMnemonic(Mnemonic.GOTO_W);
+					in.setArguments(ByteUtils.intToByteArray(offset));
+				} else {
+					in.setArguments(ByteUtils.shortToByteArray((short) offset));
+				}
+			}
 		}
 
 		// GENERIC OPERATIONS --------------------------------------------------
@@ -613,6 +619,7 @@ public class Program {
 						.replace("\0", "[") + type.className;
 				final short classIndex = classfile
 						.addClassConstantToConstantPool(classSignature);
+				assert classIndex > 0;
 				final byte[] classIndexArray = ByteUtils
 						.shortToByteArray(classIndex);
 				assert classIndexArray.length == 2;
@@ -651,6 +658,7 @@ public class Program {
 			final Operation.Builder op = Operation.Builder.newBuilder();
 			final byte arrayIndex = classfile.getIndexOfVariableInMethod(
 					methodName, q.getArgument1());
+			assert arrayIndex > 0;
 			op.add(Mnemonic.ALOAD.withIndex(arrayIndex), arrayIndex);
 			op.add(loadInstruction(q.getArgument2(), LocalVariableType.LONG));
 			op.add(Mnemonic.L2I);
@@ -676,6 +684,7 @@ public class Program {
 			final Operation.Builder op = Operation.Builder.newBuilder();
 			final byte arrayIndex = classfile.getIndexOfVariableInMethod(
 					methodName, q.getArgument1());
+			assert arrayIndex > 0;
 			op.add(Mnemonic.ALOAD.withIndex(arrayIndex), arrayIndex);
 			op.add(loadInstruction(q.getArgument2(), LocalVariableType.LONG));
 			op.add(Mnemonic.L2I);
@@ -700,6 +709,7 @@ public class Program {
 			final Operation.Builder op = Operation.Builder.newBuilder();
 			final short toStringIndex = classfile
 					.addMethodrefConstantToConstantPool(toStringSig);
+			assert toStringIndex > 0;
 			op.add(loadInstruction(q.getArgument1(), variableType));
 			op.add(Mnemonic.INVOKESTATIC,
 					ByteUtils.shortToByteArray(toStringIndex));
@@ -718,13 +728,19 @@ public class Program {
 		 */
 		private Operation structGetOp(final Quadruple q,
 				final LocalVariableType variableType) {
-
+			final String structName = classfile.getClassname()
+					+ structChains.get(q.getArgument1());
 			final Operation.Builder op = Operation.Builder.newBuilder();
 			op.add(loadInstruction(q.getArgument1(), LocalVariableType.AREF));
+			final String fieldType = "L"
+					+ (variableType.javaType == null ? structName + "_"
+							+ q.getArgument2()
+							: variableType.javaType.className);
+			final ClassfileUtils.FieldSignature fieldSignature = new ClassfileUtils.FieldSignature(
+					q.getArgument2(), structName, fieldType);
 			final short fieldIndex = classfile
-					.getIndexOfConstantInConstantPool(
-							ClassfileUtils.ConstantPoolType.FIELDREF,
-							q.getArgument2());
+					.addFieldrefConstantToConstantPool(fieldSignature);
+			assert fieldIndex > 0;
 			op.add(Mnemonic.GETFIELD, ByteUtils.shortToByteArray(fieldIndex));
 			op.add(storeInstruction(q.getResult(), variableType));
 			return op.build();
@@ -741,45 +757,21 @@ public class Program {
 		 */
 		private Operation structSetOp(final Quadruple q,
 				final LocalVariableType variableType) {
+			final String structName = classfile.getFilename()
+					+ structChains.get(q.getArgument1());
 			final Operation.Builder op = Operation.Builder.newBuilder();
-			op.add(loadInstruction(q.getArgument1(), LocalVariableType.AREF));
+			op.add(loadInstruction(structName, LocalVariableType.AREF));
 			op.add(loadInstruction(q.getResult(), variableType));
+			final String fieldType = "L"
+					+ (variableType.javaType == null ? structName + "_"
+							+ q.getArgument2()
+							: variableType.javaType.className);
+			final ClassfileUtils.FieldSignature fieldSignature = new ClassfileUtils.FieldSignature(
+					q.getArgument2(), structName, fieldType);
 			final short fieldIndex = classfile
-					.getIndexOfConstantInConstantPool(
-							ClassfileUtils.ConstantPoolType.FIELDREF,
-							q.getArgument2());
+					.addFieldrefConstantToConstantPool(fieldSignature);
+			assert fieldIndex > 0;
 			op.add(Mnemonic.PUTFIELD, ByteUtils.shortToByteArray(fieldIndex));
-			return op.build();
-		}
-
-		/**
-		 * Creates a series of operations to create a new object. The newly
-		 * created object is stored inside a local variable (if a store-target
-		 * is present)
-		 * 
-		 * @param className
-		 *            name of class to instantiate
-		 * @param constructor
-		 *            signature of constructor method
-		 * @param store
-		 *            name of variable to store object instance in
-		 * @return new operation instance
-		 */
-		public Operation createOperation(final String className,
-				final ClassfileUtils.MethodSignature constructor,
-				final String store) {
-			final Operation.Builder op = Operation.Builder.newBuilder();
-			final short classIndex = classfile
-					.addClassConstantToConstantPool(className);
-			final short cstrIndex = classfile
-					.addMethodrefConstantToConstantPool(constructor);
-			op.add(Mnemonic.NEW, ByteUtils.shortToByteArray(classIndex));
-			op.add(Mnemonic.DUP);
-			op.add(Mnemonic.INVOKESPECIAL,
-					ByteUtils.shortToByteArray(cstrIndex));
-			if (store != null) {
-				op.add(storeInstruction(store, LocalVariableType.AREF));
-			}
 			return op.build();
 		}
 
@@ -2409,8 +2401,7 @@ public class Program {
 					"<init>", q.getArgument2(), void.class);
 			// instantiate a new object with classname from arg2, the
 			// constructor signature, and store the new instance in result
-			return add(createOperation(q.getArgument2(), constructor,
-					q.getResult()));
+			return add(createOperation(constructor, q.getResult()));
 		}
 
 		/**
@@ -2566,6 +2557,13 @@ public class Program {
 		public MainBuilder structGetReference(final Quadruple q) {
 			assert q.getOperator() == Operator.STRUCT_GET_REFERENCE;
 			assert hasArgsCount(q, 3);
+			if (classfile.isToplevelStruct(q.getArgument1())) {
+				structName.setLength(0);
+				structName.append("_").append(q.getArgument1());
+				structChains.put(q.getArgument1(), "_" + q.getArgument1());
+			}
+			structName.append("_").append(q.getArgument2());
+			structChains.put(q.getResult(), structName.toString());
 			return add(structGetOp(q, LocalVariableType.AREF));
 		}
 
@@ -2727,7 +2725,7 @@ public class Program {
 			final short stringBuilderToString = classfile
 					.addMethodrefConstantToConstantPool(SB_TOSTRING_METHOD);
 
-			op.add(createOperation("StringBuilder", SB_NEW_METHOD, null));
+			op.add(createOperation(SB_NEW_METHOD, null));
 
 			if (!isIgnoreParam(q.getArgument1())) {
 				op.add(loadInstruction(q.getArgument1(),
