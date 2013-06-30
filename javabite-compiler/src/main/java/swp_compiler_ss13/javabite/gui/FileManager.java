@@ -2,109 +2,212 @@ package swp_compiler_ss13.javabite.gui;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringWriter;
 
 import javax.swing.JFileChooser;
-import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-public class FileManager {
+import org.apache.commons.io.IOUtils;
+
+public class FileManager implements DocumentListener {
+	private final static String DOCUMENT_OPENED = "Document opened.";
+	private final static String DOCUMENT_SAVED = "Document saved.";
+	private final static String DOCUMENT_ASK = "Document has unsaved changes! Save file: ";
 	
 	private final FileNameExtensionFilter filter = new FileNameExtensionFilter("Sourcecode (.prog)", "prog");
 	private MainFrame mf;
+	public String filename;
+	public File currentFile;
+	public boolean hasUnsavedChanges = false;
+	
+	boolean isProcessing = false;
 	
 	public FileManager(MainFrame mf) {
 		this.mf = mf;
 	}
 	
-	// if it returns 0, file was opened. if it returns 1, it was cancelled
-	public int openFileDialog(File openedFile, boolean save) {
-		JFileChooser chooser = new JFileChooser();
-		// TODO: set an apropriate directory
-		chooser.setFileFilter(filter);
-		int returnVal = chooser.showOpenDialog(null);
+	/**
+	 * open a new file
+	 * 
+	 * handles the saving of unsave changes
+	 * 
+	 * @return false if aborted else true
+	 */
+	public boolean newFile() {
+		if (!saveFileIfChanged())
+			return false;
 		
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			openedFile = chooser.getSelectedFile();
-			String fileName = openedFile.getName();
-			mf.openedFile = openedFile;
-			mf.setTitle("Javabite Compiler - " + fileName);
-			if(save) {
-				saveEditorContentIntoFile(openedFile);
-				mf.toolBarLabel.setText("Document saved.");
-			}
-			else {
-				mf.saveFileContentIntoEditor(openedFile);
-				mf.toolBarLabel.setText("Document opened.");
-			}
-		}
+		isProcessing = true;
+		filename = "new.prog";
+		currentFile = null;
+		mf.clearSourcePane();
+		updateUi();
+		isProcessing = false;
 		
-		return returnVal;
+		return true;
 	}
 	
-	public int saveFileDialog(File openedFile) {
-		JFileChooser chooser = new JFileChooser();
-		chooser.setCurrentDirectory(new File(System.getProperty("user.home")));
-		chooser.setFileFilter(filter);
-		chooser.setSelectedFile(new File("New File.prog"));
-		
-		int returnVal = chooser.showSaveDialog(null);
-		if (returnVal == JFileChooser.APPROVE_OPTION) { 
-			openedFile = chooser.getSelectedFile();
-			mf.setTitle("Javabite Compiler - " + openedFile.getName());
-			mf.toolBarLabel.setText("Document saved.");
-			saveEditorContentIntoFile(openedFile);
+	/**
+	 * open a via user workflow
+	 * 
+	 * handles the saving of unsave changes
+	 * 
+	 * @return false if aborted else true
+	 */
+	public boolean openFile() {
+		if (!saveFileIfChanged()) {
+			return false;
 		}
-		return returnVal;
-	}
-
-	// 2 = yes, 1 = no, 0 = cancel
-	public int saveOrNotDialog(File openedFile) {
-		JFrame frame = new JFrame("Save");
-		Object[] options = {"Cancel", "No", "Yes"};
-		String fileName = (openedFile == null) ? "New File.prog" : openedFile.getName();
-		int returnVal = JOptionPane.showOptionDialog (
-			frame,
-			"Save file \"" + fileName + "\"?\n",
-			"Save",
-			JOptionPane.YES_NO_CANCEL_OPTION,
-			JOptionPane.QUESTION_MESSAGE,
-			null,
-			options,
-			options[2]
-		);
 		
-		return returnVal;
+		JFileChooser chooser = getFileChooser();
+		
+		if (chooser.showOpenDialog(mf) != JFileChooser.APPROVE_OPTION) {
+			return false;
+		}
+		
+		return openFile(chooser.getSelectedFile());
 	}
 	
-	public void openNewFile(File openedFile) {
-		openedFile = null;
-		mf.editorPaneSourcecode.setText("");
-		mf.toolBarLabel.setText("New document opened.");
-		mf.setTitle("Javabite Compiler - New File.prog");
+	/**
+	 * open a the file
+	 * 
+	 * DOES NOT handles the saving of unsave changes
+	 * 
+	 * @param file which should be opened
+	 * @return false if aborted else true
+	 */
+	public boolean openFile(File file) {
+		isProcessing = true;
+		setCurrentFile(file);
+		loadFileContentIntoEditor(file);
+		updateUi();
+		mf.restyle();
+		isProcessing = false;
+		mf.setToolBar(DOCUMENT_OPENED);
+		return true;
+	}
+	
+	/**
+	 * check if there are unsave changes and starts save workflow
+	 * @return false if user abort workflow else true
+	 */
+	public boolean saveFileIfChanged() {
+		if (!hasUnsavedChanges) {
+			return true;
+		}
+		
+		int result = JOptionPane.showConfirmDialog(mf, DOCUMENT_ASK + filename,
+				"Save", JOptionPane.YES_NO_CANCEL_OPTION);
+		
+		if (result == JOptionPane.CANCEL_OPTION) {
+			return false;
+		}
+		
+		if (result == JOptionPane.YES_OPTION) {
+			saveFile();
+		}
+		
+		hasUnsavedChanges = false;
+		return true;
+	}
+	
+	public boolean saveFile() {
+		if (currentFile == null) {
+			return saveFileIn();
+		}
+		
+		saveEditorContentIntoFile(currentFile);
+		hasUnsavedChanges = false;
+		mf.setToolBar(DOCUMENT_SAVED);
+		updateUi();
+		return true;
+	}
+	
+	public boolean saveFileIn() {
+		JFileChooser chooser = getFileChooser();
+		chooser.setSelectedFile(currentFile != null?currentFile:new File(filename));
+		if (chooser.showSaveDialog(mf) != JFileChooser.APPROVE_OPTION)
+			return false;
+		
+		setCurrentFile(chooser.getSelectedFile());
+		
+		return saveFile();
+	}
+	
+	public void updateUi() {
+		mf.setTitle(filename + (hasUnsavedChanges?"*":""));
 	}
 	
 	/**
 	 * Reads current editor code and writes it into given file
-	 * */
-	public void saveEditorContentIntoFile(File openedFile) {
+	 */
+	public void saveEditorContentIntoFile(File file) {
 		BufferedWriter bw;
 		try {
-			bw = new BufferedWriter(new FileWriter(openedFile));
+			bw = new BufferedWriter(new FileWriter(file));
 			bw.write(mf.editorPaneSourcecode.getText());
 			bw.flush();
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
-		String fileName = "";
-		if (openedFile == null) {
-			fileName = "New File.prog";
-		} else {
-			fileName = openedFile.getName();
+	}
+	
+	/**
+	 * Reads current file content and writes it into sourcecode editor
+	 */
+	public void loadFileContentIntoEditor(File file) {
+		// convert to string for java pattern/matcher class
+		StringWriter writer = new StringWriter();
+		try {
+			FileInputStream stream = new FileInputStream(file);
+			IOUtils.copy(stream, writer, "UTF-8");
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-		mf.setTitle("Javabite Compiler - " + fileName);
-		mf.toolBarLabel.setText("Document saved.");
+		mf.editorPaneSourcecode.setText(writer.toString());
+	}
+	
+	public void setCurrentFile(File file) {
+		currentFile = file;
+		filename = currentFile.getName();
+	}
+	
+	@Override
+	public void insertUpdate(DocumentEvent e) {
+		remarkFileAsChanged();
+	}
+
+	@Override
+	public void removeUpdate(DocumentEvent e) {
+		remarkFileAsChanged();
+	}
+
+	@Override
+	public void changedUpdate(DocumentEvent e) {
+		// styling changes are of no value
+	}
+	
+	private void remarkFileAsChanged() {
+		if (isProcessing)
+			return;
+		
+		hasUnsavedChanges = true;
+		updateUi();
+	}
+	
+	private JFileChooser getFileChooser() {
+		JFileChooser chooser = new JFileChooser(currentFile != null ? currentFile.getParentFile() : getUserHome());
+		chooser.setFileFilter(filter);
+		return chooser;
+	}
+	
+	private File getUserHome() {
+		return new File(System.getProperty("user.home"));
 	}
 }

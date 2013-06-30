@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import swp_compiler_ss13.common.ast.AST;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.view.mxGraph;
@@ -13,30 +14,86 @@ import com.mxgraph.view.mxGraph;
 public class HidingSubTree {
 
 	private Set<mxCell> visitedSet = new HashSet<mxCell>();
+	AST ast;
 	mxGraph graph;
+	mxGraph firstGraph;
+	List<Object[]> temporaryEdgeslist= new ArrayList<Object[]>();
+	Object[] temporaryEdges;
 	mxGraphComponent frame;
+	List<mxCell> cells = new ArrayList<mxCell>();
+	List<Object[]> listEdges = new ArrayList<Object[]>();
 	List<mxCell> queueSubTree = new ArrayList<mxCell>();
+	List<List<mxCell>> listSubTree = new ArrayList<List<mxCell>>();
+	List<List<Object[]>> linLEdges = new ArrayList<List<Object[]>>(); //liste in liste
+	List<Integer> listClick = new ArrayList<Integer>();
+	List<Object> listObject = new ArrayList<Object>();
+	int location = 0;
+	int index = 0;
+	int i = 0;
+	int j=0;
 
-	public HidingSubTree(mxGraph graph, mxGraphComponent frame) {
+	public HidingSubTree(mxGraph graph, mxGraphComponent frame, AST ast) {
 		this.graph = graph;
 		this.frame = frame;
+		this.ast = ast;
+		this.firstGraph=graph;
 	}
-	
-	public void hiddenSubTree(){
-	frame.getGraphControl().addMouseListener(new MouseAdapter(){
-		public void mouseClicked(MouseEvent e) {
-			Object cell = ((mxGraphComponent) frame).getCellAt(e.getX(), e.getY());
-			if (cell != null) {
-				breadthFirstSearch((mxCell) cell);
-				Object[] edges = graph.getOutgoingEdges(cell); // remove edges
-				graph.removeCells(edges);
-				for (mxCell k : queueSubTree) {
-					Object[] edges1 = graph.getOutgoingEdges((mxCell) k);
-					graph.removeCells(edges1);
+
+	public void hiddenSubTree() {
+		frame.getGraphControl().addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent e) {
+				Object cell = ((mxGraphComponent) frame).getCellAt(e.getX(),
+						e.getY());
+				i++;
+				if (cell != null && i == 2) {
+					if (listObject.contains(cell)) { // if list contains cell
+						int cellLocation = listObject.indexOf(cell);
+						listClick.set(cellLocation, 0);
+					} else {
+						listObject.add(location, cell);
+						listClick.add(location, 2);
+						location++;
+					}
+					breadthFirstSearch((mxCell) cell);
+					listSubTree.add(j, (List<mxCell>) queueSubTree); 
+					cells.add(j,(mxCell) cell); //inserted cell 
+					Object[] edges = graph.getOutgoingEdges(cell);
+					temporaryEdgeslist.add(j,edges);
+					graph.removeCells(edges);
+					for (mxCell k : queueSubTree) {
+						Object[] edges1 = graph.getOutgoingEdges((mxCell) k);
+						listEdges.add(index, edges1);
+						graph.removeCells(edges1);
+						index++;
+					}
+					linLEdges.add(j, listEdges);
+					index = 0;
+					i = 0;
+					j++;
+				} 
+				else if (cell != null && i == 1 && listObject.contains(cell)) {
+					int cellLocation = listObject.indexOf(cell);
+					i = 0;
+					if (listClick.get(cellLocation) == 2) {
+						listClick.set(cellLocation, 0);
+						int indexOfCell=cells.indexOf(cell);
+						System.out.println(indexOfCell);
+						temporaryEdges=temporaryEdgeslist.get(indexOfCell);
+						bfsProduceSubTree((mxCell) cell);
+						listEdges=linLEdges.get(indexOfCell);
+						System.out.println(linLEdges.size());
+						for (mxCell k : listSubTree.get(indexOfCell)) {
+							temporaryEdges = listEdges.get(index);
+							bfsProduceSubTree((mxCell) k);
+							index++;
+						}
+						index = 0;
+						listEdges.clear();
+						queueSubTree.clear();
+					}
 				}
 			}
-			}
-		});	
+		});
 	}
 
 	private void breadthFirstSearch(mxCell parent) {
@@ -70,7 +127,30 @@ public class HidingSubTree {
 					// enqueue o onto Q
 					queue.add(target);
 					queueSubTree.add(target);
-					target.removeFromParent(); // here there is problem
+					if (i == 2) {
+						target.removeFromParent();// here there is problem
+					}
+				}
+			}
+		}
+	}
+
+	private void bfsProduceSubTree(mxCell parent) {
+		visitedSet = new HashSet<mxCell>();
+		List<mxCell> queue = new ArrayList<mxCell>();
+		queue.add(parent);
+		visit(parent);
+		while (!queue.isEmpty()) {
+			mxCell cell = queue.get(0);
+			queue.remove(cell);
+			for (Object edge : temporaryEdges) {
+				mxCell target = (mxCell) firstGraph.getView()
+						.getVisibleTerminal(edge, false);
+				if (!isVisited(target)) {
+					graph.addCell(target);
+					graph.insertEdge(parent, null, null, cell, target);
+					visit(target);
+					queue.add(target);
 				}
 			}
 		}
