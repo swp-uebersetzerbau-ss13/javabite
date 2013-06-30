@@ -3,9 +3,11 @@ package swp_compiler_ss13.javabite.gui;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.StringWriter;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -14,6 +16,8 @@ import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
+
+import org.apache.commons.io.IOUtils;
 
 public class FileManager implements DocumentListener {
 	private final static String DOCUMENT_OPENED = "Document opened.";
@@ -162,31 +166,15 @@ public class FileManager implements DocumentListener {
 	 * Reads current file content and writes it into sourcecode editor
 	 */
 	public void loadFileContentIntoEditor(File file) {
-		// read out lines
-		BufferedReader in = null;
-		String line = null;
+		// convert to string for java pattern/matcher class
+		StringWriter writer = new StringWriter();
 		try {
-			in = new BufferedReader(new FileReader(file));
-			line = in.readLine();
-		} catch (IOException ex) {
-			ex.printStackTrace();
+			FileInputStream stream = new FileInputStream(file);
+			IOUtils.copy(stream, writer, "UTF-8");
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
-		
-//		// insert lines into source code editor
-		Document doc = mf.doc;
-		try {
-			doc.remove(0, doc.getLength()); // remove old content
-			while (line != null) {
-				doc.insertString(doc.getLength(), line + "\n", null);
-				line = in.readLine();
-			}
-			// remove wrongly inserted last newline
-			if (doc.getText(0, doc.getLength()).endsWith("\n")) {
-				doc.remove(doc.getLength() - 1, 1);
-			}
-		} catch (BadLocationException | IOException ex) {
-			ex.printStackTrace();
-		}
+		mf.editorPaneSourcecode.setText(writer.toString());
 	}
 	
 	public void setCurrentFile(File file) {
