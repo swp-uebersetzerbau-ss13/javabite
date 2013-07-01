@@ -46,6 +46,7 @@ import swp_compiler_ss13.common.report.ReportLog;
 import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.javabite.config.Configurable;
 import swp_compiler_ss13.javabite.config.JavabiteConfig;
+
 import swp_compiler_ss13.javabite.gui.ast.ASTVisualizerJb;
 import swp_compiler_ss13.javabite.gui.ast.fitted.KhaledGraphFrame;
 import swp_compiler_ss13.javabite.gui.config.SettingsPanel;
