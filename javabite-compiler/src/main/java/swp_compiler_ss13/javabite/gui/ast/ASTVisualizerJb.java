@@ -3,6 +3,7 @@ package swp_compiler_ss13.javabite.gui.ast;
 import java.util.ArrayDeque;
 import java.util.Hashtable;
 import java.util.Queue;
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
@@ -17,7 +18,15 @@ import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxStylesheet;
 
-public class ASTVisualizerJb implements ASTVisualization {
+public class ASTVisualizerJb extends JComponent implements ASTVisualization {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	/**
+	 * 
+	 */
+	
 	public mxGraph graph;
 	mxGraphComponent frame;
 	Queue<Object> toVisit_celledCopy;
@@ -29,7 +38,14 @@ public class ASTVisualizerJb implements ASTVisualization {
 	 */
 	@Override
 	public void visualizeAST(AST ast) {
-		graph = new mxGraph();
+		graph = new mxGraph(){
+			public String getToolTipForCell(Object cell) {
+				if (cell!=null){
+					return "Test";
+				}
+				return null;
+			}
+		};
 		graph.getStylesheet();
 		mxStylesheet stylesheet = graph.getStylesheet();
 		Hashtable<String, Object> style = new Hashtable<String, Object>();
@@ -53,9 +69,8 @@ public class ASTVisualizerJb implements ASTVisualization {
 		frame.setToolTips(true);
 		HidingSubTree h = new HidingSubTree(graph,frame,ast);
 		h.hiddenSubTree();
-		//ToolTipManager.sharedInstance().registerComponent(frame);
-	}
 		
+	}
 
 	public JScrollPane getFrame() {
 		return frame;

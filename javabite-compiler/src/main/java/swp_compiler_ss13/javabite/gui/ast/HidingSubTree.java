@@ -48,7 +48,7 @@ public class HidingSubTree {
 				if (cell != null && i == 2) {
 					if (listObject.contains(cell)) { // if list contains cell
 						int cellLocation = listObject.indexOf(cell);
-						listClick.set(cellLocation, 0);
+						listClick.set(cellLocation, 2);
 					} else {
 						listObject.add(location, cell);
 						listClick.add(location, 2);
@@ -77,11 +77,9 @@ public class HidingSubTree {
 					if (listClick.get(cellLocation) == 2) {
 						listClick.set(cellLocation, 0);
 						int indexOfCell=cells.indexOf(cell);
-						System.out.println(indexOfCell);
 						temporaryEdges=temporaryEdgeslist.get(indexOfCell);
 						bfsProduceSubTree((mxCell) cell);
 						listEdges=linLEdges.get(indexOfCell);
-						System.out.println(linLEdges.size());
 						for (mxCell k : listSubTree.get(indexOfCell)) {
 							temporaryEdges = listEdges.get(index);
 							bfsProduceSubTree((mxCell) k);
@@ -90,6 +88,7 @@ public class HidingSubTree {
 						index = 0;
 						listEdges.clear();
 						queueSubTree.clear();
+						listClick.set(cellLocation, 0);
 					}
 				}
 			}
