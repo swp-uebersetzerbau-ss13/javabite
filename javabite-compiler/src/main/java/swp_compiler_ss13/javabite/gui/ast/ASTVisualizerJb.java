@@ -2,6 +2,7 @@ package swp_compiler_ss13.javabite.gui.ast;
 
 import java.util.ArrayDeque;
 import java.util.Hashtable;
+
 import java.util.Queue;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -9,6 +10,7 @@ import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.ASTNode;
+import swp_compiler_ss13.common.lexer.Token;
 import swp_compiler_ss13.common.visualization.ASTVisualization;
 import swp_compiler_ss13.javabite.ast.ASTSource;
 import swp_compiler_ss13.javabite.gui.ast.fitted.KhaledGraphFrame;
@@ -46,15 +48,8 @@ public class ASTVisualizerJb extends JComponent implements ASTVisualization {
 				return null;
 			}
 		};
-		graph.getStylesheet();
-		mxStylesheet stylesheet = graph.getStylesheet();
-		Hashtable<String, Object> style = new Hashtable<String, Object>();
-		stylesheet.putCellStyle("ROUNDED", style);
-		style.put(mxConstants.STYLE_SHAPE, mxConstants.SHAPE_RECTANGLE);
-		style.put(mxConstants.STYLE_OPACITY, 50);
-		style.put(mxConstants.STYLE_FONTCOLOR, "#000000");
-		style.put(mxConstants.STYLE_FONTSTYLE, mxConstants.FONT_BOLD);
-		stylesheet.putCellStyle("BOLD", style);
+		graphStyle style=new graphStyle(graph);
+		style.style();
 		initTree(ast);
 		KhaledGraphFrame k = new KhaledGraphFrame();
 		this.x = 167 * k.levelsCounter(ast);
@@ -139,13 +134,16 @@ public class ASTVisualizerJb extends JComponent implements ASTVisualization {
 	 * @return the cell-object, which correspondents to the given node
 	 */
 	private Object asCell(ASTNode ast) {
+		/*for(Token t:ast.coverage()){
+			System.out.println(t.getValue());
+		}*/
 		Object returnVal;
 		vertexAttributes ver = new vertexAttributes();
 		ver.addAttributes(ast);
 		String value=ver.value;
 		String color=ver.color;
 		returnVal = 
-		graph.insertVertex(graph.getDefaultParent(),null,value,20,40,100,35,color);
+		graph.insertVertex(graph.getDefaultParent(),null,value,20,40,100,35,color);		
         return returnVal;
 	}
 
