@@ -1,8 +1,16 @@
 package swp_compiler_ss13.javabite.backend;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import org.apache.commons.io.IOUtils;
+import org.junit.Before;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import swp_compiler_ss13.common.backend.Backend;
+import swp_compiler_ss13.common.backend.BackendException;
+import swp_compiler_ss13.common.backend.Quadruple;
+import swp_compiler_ss13.common.backend.Quadruple.Operator;
+import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
+import swp_compiler_ss13.javabite.runtime.JavaClassProcess;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -14,18 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import swp_compiler_ss13.common.backend.Backend;
-import swp_compiler_ss13.common.backend.BackendException;
-import swp_compiler_ss13.common.backend.Quadruple;
-import swp_compiler_ss13.common.backend.Quadruple.Operator;
-import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
-import swp_compiler_ss13.javabite.runtime.JavaClassProcess;
+import static org.junit.Assert.*;
 
 public class BackendTest {
 
@@ -204,6 +201,39 @@ public class BackendTest {
 			new QuadrupleJb(Operator.STRUCT_GET_STRING, "r", "s", "s"),
 			new QuadrupleJb(Operator.PRINT_STRING, "s", "!", "!"));
 
+	static final List<Quadruple> tac16 = asList(new QuadrupleJb(
+			Operator.DECLARE_STRUCT, "#1", "!", "outer"), new QuadrupleJb(
+			Operator.DECLARE_STRUCT, "#4", "!", "inner"), new QuadrupleJb(
+			Operator.DECLARE_STRING, "#\"hi\"", "!", "s"), new QuadrupleJb(
+			Operator.DECLARE_LONG, "#1234123", "!", "l"), new QuadrupleJb(
+			Operator.DECLARE_DOUBLE, "#2.13e14", "!", "d"), new QuadrupleJb(
+			Operator.DECLARE_BOOLEAN, "#TRUE", "!", "b"), new QuadrupleJb(
+			Operator.DECLARE_REFERENCE, "!", "!", "r"), new QuadrupleJb(
+			Operator.STRUCT_GET_REFERENCE, "outer", "inner", "r"),
+			new QuadrupleJb(Operator.DECLARE_STRING, "!", "!", "s"),
+			new QuadrupleJb(Operator.STRUCT_GET_STRING, "r", "s", "s"),
+			new QuadrupleJb(Operator.PRINT_STRING, "s", "!", "!"),
+			new QuadrupleJb(Operator.DECLARE_LONG, "!", "!", "l"),
+			new QuadrupleJb(Operator.STRUCT_GET_LONG, "r", "l", "l"),
+			new QuadrupleJb(Operator.LONG_TO_STRING, "l", "!", "s"),
+			new QuadrupleJb(Operator.PRINT_STRING, "s", "!", "!"),
+			new QuadrupleJb(Operator.DECLARE_DOUBLE, "!", "!", "d"),
+			new QuadrupleJb(Operator.STRUCT_GET_DOUBLE, "r", "d", "d"),
+			new QuadrupleJb(Operator.DOUBLE_TO_STRING, "d", "!", "s"),
+			new QuadrupleJb(Operator.PRINT_STRING, "s", "!", "!"),
+			new QuadrupleJb(Operator.DECLARE_BOOLEAN, "!", "!", "b"),
+			new QuadrupleJb(Operator.STRUCT_GET_BOOLEAN, "r", "b", "b"),
+			new QuadrupleJb(Operator.BOOLEAN_TO_STRING, "b", "!", "s"),
+			new QuadrupleJb(Operator.PRINT_STRING, "s", "!", "!"));
+
+    static final List<Quadruple> tac17 = asList(
+            new QuadrupleJb(Operator.DECLARE_STRING, "#\"hello, \"", "!", "datLeftString"),
+            new QuadrupleJb(Operator.DECLARE_STRING, "#\"world!\"", "!", "datRightString"),
+            new QuadrupleJb(Operator.DECLARE_STRING, "!", "!", "result0r"),
+            new QuadrupleJb(Operator.CONCAT_STRING, "datLeftString", "datRightString", "result0r"),
+            new QuadrupleJb(Operator.PRINT_STRING, "result0r", "!", "!")
+    );
+
 	@Before
 	public void setup() {
 		backend = new BackendJb();
@@ -306,13 +336,27 @@ public class BackendTest {
 	// "Generated target code returns unexpected value while execution",
 	// 0, testToReturnValueOfTac(tac14, 2));
 	// }
+	//
+	// @Test
+	// public void testTac15ReturnVal() throws BackendException {
+	// assertEquals(
+	// "Generated target code returns unexpected value while execution",
+	// 0, testToReturnValueOfTac(tac15, 3));
+	// }
+	//
+	// @Test
+	// public void testTac16ReturnVal() throws BackendException {
+	// assertEquals(
+	// "Generated target code returns unexpected value while execution",
+	// 0, testToReturnValueOfTac(tac16, 3));
+	// }
 
-	@Test
-	public void testTac15ReturnVal() throws BackendException {
-		assertEquals(
-				"Generated target code returns unexpected value while execution",
-				0, testToReturnValueOfTac(tac15, 3));
-	}
+    @Test
+    public void testTac17ReturnVal() throws BackendException {
+        assertEquals(
+                "Generated target code returns unexpected value while execution",
+                0, testToReturnValueOfTac(tac17, 1));
+    }
 
 	public long testToReturnValueOfTac(final List<Quadruple> tac,
 			final int fileamount) throws BackendException {

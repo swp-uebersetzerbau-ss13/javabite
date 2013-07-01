@@ -1,18 +1,5 @@
 package swp_compiler_ss13.javabite.backend.translation;
 
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.convertBooleanConstant;
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isBooleanConstant;
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isConstant;
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isIgnoreParam;
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.removeConstantSign;
-
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
-
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.classfile.Classfile;
@@ -20,6 +7,11 @@ import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType;
 import swp_compiler_ss13.javabite.backend.utils.ConstantUtils;
+
+import java.io.PrintStream;
+import java.util.*;
+
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.*;
 
 /**
  * <h1>Program</h1>
@@ -254,25 +246,6 @@ public class Program {
 		}
 
 		/**
-		 * creates a store operation, which stores the value on the stack into a
-		 * variable identified by the result-string.
-		 * 
-		 * @param result
-		 *            name of variable to store value in
-		 * @param variableType
-		 *            type of variable/constant to store
-		 * @return new instruction
-		 */
-		protected Instruction storeInstruction(final String result,
-				final LocalVariableType variableType) {
-			final byte index = classfile.getIndexOfVariableInMethod(methodName,
-					result);
-			assert index > 0;
-			return new Instruction(variableType.varStoreOp.withIndex(index),
-					index);
-		}
-
-		/**
 		 * Creates a series of operations to create a new object. The newly
 		 * created object is stored inside a local variable (if a store-target
 		 * is present)
@@ -293,14 +266,44 @@ public class Program {
 			final short cstrIndex = classfile
 					.addMethodrefConstantToConstantPool(constructor);
 			assert cstrIndex > 0;
+			if (store != null) {
+				// TODO bla
+				op.add(Mnemonic.ALOAD_0);
+			}
 			op.add(Mnemonic.NEW, ByteUtils.shortToByteArray(classIndex));
 			op.add(Mnemonic.DUP);
 			op.add(Mnemonic.INVOKESPECIAL,
 					ByteUtils.shortToByteArray(cstrIndex));
 			if (store != null) {
-				op.add(storeInstruction(store, LocalVariableType.AREF));
+				final String fieldType = "L" + constructor.methodClass + ";";
+				final ClassfileUtils.FieldSignature fieldSignature = new ClassfileUtils.FieldSignature(
+						store, classfile.getClassname(), fieldType, false);
+				final short fieldIndex = classfile
+						.addFieldrefConstantToConstantPool(fieldSignature);
+				assert fieldIndex > 0;
+				op.add(Mnemonic.PUTFIELD,
+						ByteUtils.shortToByteArray(fieldIndex));
 			}
 			return op.build();
+		}
+
+		/**
+		 * creates a store operation, which stores the value on the stack into a
+		 * variable identified by the result-string.
+		 * 
+		 * @param result
+		 *            name of variable to store value in
+		 * @param variableType
+		 *            type of variable/constant to store
+		 * @return new instruction
+		 */
+		protected Instruction storeInstruction(final String result,
+				final LocalVariableType variableType) {
+			final byte index = classfile.getIndexOfVariableInMethod(methodName,
+					result);
+			assert index > 0;
+			return new Instruction(variableType.varStoreOp.withIndex(index),
+					index);
 		}
 
 	}
@@ -326,12 +329,16 @@ public class Program {
 			final Operation.Builder op = Operation.Builder.newBuilder();
 			op.add(Mnemonic.ALOAD_0);
 			op.add(loadInstruction(q.getArgument1(), variableType));
-			final String fieldType = "L"
-					+ (variableType.javaType == null ? classfile.getClassname()
-							+ "_" + q.getArgument2()
-							: variableType.javaType.className);
+			final String structName = classfile.getClassname();
+			final String fieldType;
+			final boolean isPrimitive = variableType.isPrimitive();
+			if (isPrimitive) {
+				fieldType = variableType.javaType.className;
+			} else {
+				fieldType = "L" + structName + "_" + q.getArgument2();
+			}
 			final ClassfileUtils.FieldSignature fieldSignature = new ClassfileUtils.FieldSignature(
-					q.getResult(), classfile.getClassname(), fieldType);
+					q.getResult(), structName, fieldType, isPrimitive);
 			final short fieldIndex = classfile
 					.addFieldrefConstantToConstantPool(fieldSignature);
 			assert fieldIndex > 0;
@@ -732,12 +739,15 @@ public class Program {
 					+ structChains.get(q.getArgument1());
 			final Operation.Builder op = Operation.Builder.newBuilder();
 			op.add(loadInstruction(q.getArgument1(), LocalVariableType.AREF));
-			final String fieldType = "L"
-					+ (variableType.javaType == null ? structName + "_"
-							+ q.getArgument2()
-							: variableType.javaType.className);
+			final String fieldType;
+			final boolean isPrimitive = variableType.isPrimitive();
+			if (variableType.javaType != null) {
+				fieldType = variableType.javaType.className;
+			} else {
+				fieldType = structName + "_" + q.getArgument2();
+			}
 			final ClassfileUtils.FieldSignature fieldSignature = new ClassfileUtils.FieldSignature(
-					q.getArgument2(), structName, fieldType);
+					q.getArgument2(), structName, fieldType, isPrimitive);
 			final short fieldIndex = classfile
 					.addFieldrefConstantToConstantPool(fieldSignature);
 			assert fieldIndex > 0;
@@ -762,12 +772,17 @@ public class Program {
 			final Operation.Builder op = Operation.Builder.newBuilder();
 			op.add(loadInstruction(structName, LocalVariableType.AREF));
 			op.add(loadInstruction(q.getResult(), variableType));
-			final String fieldType = "L"
-					+ (variableType.javaType == null ? structName + "_"
-							+ q.getArgument2()
-							: variableType.javaType.className);
+
+			final String fieldType;
+			final boolean isPrimitive = variableType.isPrimitive();
+			if (isPrimitive) {
+				fieldType = variableType.javaType.className;
+			} else {
+				fieldType = "L" + structName + "_" + q.getArgument2();
+			}
 			final ClassfileUtils.FieldSignature fieldSignature = new ClassfileUtils.FieldSignature(
-					q.getArgument2(), structName, fieldType);
+					q.getArgument2(), structName, fieldType, isPrimitive);
+
 			final short fieldIndex = classfile
 					.addFieldrefConstantToConstantPool(fieldSignature);
 			assert fieldIndex > 0;
@@ -2396,12 +2411,26 @@ public class Program {
 		public MainBuilder declareStruct(final Quadruple q) {
 			assert q.getOperator() == Operator.DECLARE_STRUCT;
 			assert hasArgsCount(q, 3);
+
 			// create the signature of the default constructor
 			final ClassfileUtils.MethodSignature constructor = new ClassfileUtils.MethodSignature(
 					"<init>", q.getArgument2(), void.class);
 			// instantiate a new object with classname from arg2, the
 			// constructor signature, and store the new instance in result
-			return add(createOperation(constructor, q.getResult()));
+
+			final Operation.Builder op = Operation.Builder.newBuilder();
+			final short classIndex = classfile
+					.addClassConstantToConstantPool(constructor.methodClass);
+			assert classIndex > 0;
+			final short cstrIndex = classfile
+					.addMethodrefConstantToConstantPool(constructor);
+			assert cstrIndex > 0;
+			op.add(Mnemonic.NEW, ByteUtils.shortToByteArray(classIndex));
+			op.add(Mnemonic.DUP);
+			op.add(Mnemonic.INVOKESPECIAL,
+					ByteUtils.shortToByteArray(cstrIndex));
+			op.add(storeInstruction(q.getResult(), LocalVariableType.AREF));
+			return add(op.build());
 		}
 
 		/**

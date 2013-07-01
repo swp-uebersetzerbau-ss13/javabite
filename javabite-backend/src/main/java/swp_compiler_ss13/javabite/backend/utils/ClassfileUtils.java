@@ -1,13 +1,12 @@
 package swp_compiler_ss13.javabite.backend.utils;
 
-import java.util.EnumSet;
-import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
-
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.translation.Mnemonic;
+
+import java.util.EnumSet;
+import java.util.List;
 
 public final class ClassfileUtils {
 
@@ -156,6 +155,10 @@ public final class ClassfileUtils {
 			this.arrayLoadOp = arrayLoadOp;
 			this.varStoreOp = varStoreOp;
 			this.arrayStoreOp = arrayStoreOp;
+		}
+
+		public boolean isPrimitive() {
+			return javaType != null && javaType.isPrimitive();
 		}
 	}
 
@@ -333,11 +336,14 @@ public final class ClassfileUtils {
 		public final String fieldDescriptor;
 
 		public FieldSignature(final String fieldName,
-				final String containerClass, final String fieldClass) {
+				final String containerClass, final String fieldClass,
+				final boolean isPrimitive) {
 			this.fieldName = fieldName;
 			this.fieldClass = containerClass;
-			fieldDescriptor = fieldClass
-					+ (fieldClass.endsWith(";") ? "" : ";");
+			fieldDescriptor = (isPrimitive || fieldClass.startsWith("L") ? ""
+					: "L")
+					+ fieldClass
+					+ (isPrimitive || fieldClass.endsWith(";") ? "" : ";");
 		}
 
 		public FieldSignature(final String fieldName,
