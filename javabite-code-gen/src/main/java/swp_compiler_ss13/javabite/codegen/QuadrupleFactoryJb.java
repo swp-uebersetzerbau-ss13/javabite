@@ -10,13 +10,14 @@ import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.types.Type.Kind;
 import swp_compiler_ss13.common.types.derived.ArrayType;
+import swp_compiler_ss13.common.types.derived.Member;
+import swp_compiler_ss13.common.types.derived.StructType;
 import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
 
 public class QuadrupleFactoryJb {
 
 	public static List<Quadruple> generateDeclaration(IdentifierData data)
 			throws IntermediateCodeGeneratorException {
-		// TODO: struct declaration has to be added
 		List<Quadruple> quadruples = new ArrayList<>();
 		String id = data.getIdentifier();
 		id = id!=null ? id : Quadruple.EmptyArgument;
@@ -42,6 +43,13 @@ public class QuadrupleFactoryJb {
 			quadruples.add(new QuadrupleJb(Operator.DECLARE_ARRAY, "#" + arrayType.getLength(), Quadruple.EmptyArgument, id));
 			quadruples.addAll(generateDeclaration(new IdentifierData(null, arrayType.getInnerType())));
 			break;
+		case STRUCT:
+			StructType structType = (StructType) data.getType();
+			Member[] members = structType.members();
+			quadruples.add(new QuadrupleJb(Operator.DECLARE_STRUCT, "#" + members.length, Quadruple.EmptyArgument, id));
+			for (Member m:members) {
+				quadruples.addAll(generateDeclaration(new IdentifierData(m.getName(), m.getType())));
+			}
 		default:
 			throw new IntermediateCodeGeneratorException("Unsupported type: "
 					+ data.getType().getKind());
@@ -349,5 +357,9 @@ public class QuadrupleFactoryJb {
 			String trueLabel, String falseLabel) {
 		return new QuadrupleJb(Operator.BRANCH, trueLabel, falseLabel,
 				boolId.getIdentifier());
+	}
+
+	public static Quadruple generateReferenceDeclaring(String referenceName) {
+		return new QuadrupleJb(Operator.DECLARE_REFERENCE, Quadruple.EmptyArgument, Quadruple.EmptyArgument, referenceName);
 	}
 }

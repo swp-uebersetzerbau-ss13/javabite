@@ -1,15 +1,16 @@
 package swp_compiler_ss13.javabite.backend.classfile;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import swp_compiler_ss13.javabite.backend.translation.Instruction;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodAccessFlag;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToHexString;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToHexString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import swp_compiler_ss13.javabite.backend.translation.Instruction;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodAccessFlag;
 
 /**
  * <h1>Method</h1>
@@ -89,7 +90,7 @@ class Method {
 		codeAttribute = new Code(codeIndex);
 
 		for (final MethodAccessFlag faf : fieldAccessFlags) {
-			this.accessFlags = (short) (this.accessFlags | faf.value);
+			accessFlags = (short) (accessFlags | faf.value);
 		}
 
 	}
@@ -189,5 +190,9 @@ class Method {
 	 */
 	void addInstructionToCodeAttribute(final Instruction instruction) {
 		codeAttribute.addInstruction(instruction);
+	}
+
+	void addInstructionsToCodeAttribute(final Instruction[] instructions) {
+		codeAttribute.addInstructions(instructions);
 	}
 }

@@ -1,12 +1,13 @@
 package swp_compiler_ss13.javabite.backend.classfile;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType;
-
 import java.io.DataOutputStream;
 import java.io.IOException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType;
 
 /**
  * <h1>CPInfo</h1>

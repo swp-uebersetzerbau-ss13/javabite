@@ -1,7 +1,20 @@
 package swp_compiler_ss13.javabite.backend.classfile;
 
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.byteArrayToHexString;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToHexString;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import swp_compiler_ss13.javabite.backend.translation.Instruction;
 import swp_compiler_ss13.javabite.backend.translation.Mnemonic;
 import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
@@ -10,11 +23,6 @@ import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ClassfileAccessFl
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.FieldAccessFlag;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodAccessFlag;
-
-import java.io.*;
-
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.byteArrayToHexString;
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToHexString;
 
 /**
  * <h1>Classfile</h1>
@@ -37,6 +45,7 @@ public class Classfile {
 	// name of File
 	private final String name;
 	private final boolean isStruct;
+	private final Set<String> toplevelStructs;
 
 	/*
 	 * general classfile constant pool information being used while classfile
@@ -56,10 +65,11 @@ public class Classfile {
 	private short superClassIndex;
 	private final short interfaceCount;
 	// interface area left out
-	private final short fieldsCount;
 	protected FieldArea fieldArea;
 	protected MethodArea methodArea;
 	private final short attributesCount;
+
+	private byte[] constructorIndex;
 
 	// attribute area left out
 
@@ -92,16 +102,16 @@ public class Classfile {
 	 *            arbitrary amount of classfile access flags.
 	 */
 	public Classfile(final String name, final String thisClassNameEIF,
-			final String superClassNameEIF, boolean isStruct,
+			final String superClassNameEIF, final boolean isStruct,
 			final ClassfileAccessFlag... accessFlags) {
 
 		// set basic parameters
 		this.name = name;
 		this.isStruct = isStruct;
+		toplevelStructs = new HashSet<>();
 		this.thisClassNameEIF = thisClassNameEIF;
 		this.superClassNameEIF = superClassNameEIF;
 		interfaceCount = 0;
-		fieldsCount = 0;
 		attributesCount = 0;
 
 		for (final ClassfileAccessFlag accessFlag : accessFlags) {
@@ -115,6 +125,18 @@ public class Classfile {
 
 		// initialize classfile
 		initializeClassfile();
+	}
+
+	public byte[] getConstructorIndex() {
+		return constructorIndex;
+	}
+
+	public void addToplevelStruct(final String structName) {
+		toplevelStructs.add(structName);
+	}
+
+	public boolean isToplevelStruct(final String structName) {
+		return toplevelStructs.contains(structName);
 	}
 
 	/**
@@ -133,6 +155,7 @@ public class Classfile {
 		 * thisClassIndex to it
 		 */
 		thisClassIndex = addClassConstantToConstantPool(thisClassNameEIF);
+
 		/*
 		 * add the super class' name encoded in internal form to constant pool,
 		 * get back its index in the constant pool and set member variable
@@ -146,28 +169,24 @@ public class Classfile {
 		 */
 		// TODO externalize static strings
 		addMethodToMethodArea("<init>", "()V", MethodAccessFlag.ACC_PUBLIC);
+
+		// if this is a struct, the initialization of the object will be done by
+		// the program builder, later in the program
 		// TODO replace with addMethodref
 		final short initNATIndex = constantPool
 				.generateConstantNameAndTypeInfo("<init>", "()V");
-		final short methodrefIndex = constantPool
-				.generateConstantMethodrefInfo(superClassIndex, initNATIndex);
-		final byte[] methodRefByteArray = ByteUtils
-				.shortToByteArray(methodrefIndex);
-
-		// add code to initialize-method
-		// final Instruction InstrAload = new Instruction(1, Mnemonic.ALOAD_0,
-		// null);
-		final Instruction InstrAload = new Instruction(Mnemonic.ALOAD_0);
-		// final Instruction InstrInvokespecial = new Instruction(3,
-		// Mnemonic.INVOKESPECIAL, methodRefByteArray);
-		final Instruction InstrInvokespecial = new Instruction(
-				Mnemonic.INVOKESPECIAL, methodRefByteArray);
-		// final Instruction InstrReturn = new Instruction(1, Mnemonic.RETURN,
-		// null);
-		final Instruction InstrReturn = new Instruction(Mnemonic.RETURN);
-		addInstructionToMethodsCode("<init>", InstrAload);
-		addInstructionToMethodsCode("<init>", InstrInvokespecial);
-		addInstructionToMethodsCode("<init>", InstrReturn);
+		constructorIndex = ByteUtils.shortToByteArray(constantPool
+				.generateConstantMethodrefInfo(superClassIndex, initNATIndex));
+		if (!isStruct) {
+			// add code to initialize-method
+			final Instruction InstrAload = new Instruction(Mnemonic.ALOAD_0);
+			final Instruction InstrInvokespecial = new Instruction(
+					Mnemonic.INVOKESPECIAL, constructorIndex);
+			final Instruction InstrReturn = new Instruction(Mnemonic.RETURN);
+			addInstructionToMethodsCode("<init>", InstrAload);
+			addInstructionToMethodsCode("<init>", InstrInvokespecial);
+			addInstructionToMethodsCode("<init>", InstrReturn);
+		}
 	}
 
 	/**
@@ -186,10 +205,6 @@ public class Classfile {
 		final DataOutputStream classfileDOS = new DataOutputStream(baos);
 
 		writeTo(classfileDOS);
-
-		// final ClassReader cr = new ClassReader(baos.toByteArray());
-		// final ClassWriter cw = new ClassWriter(cr,
-		// ClassWriter.COMPUTE_FRAMES);
 
 		return new ByteArrayInputStream(baos.toByteArray());
 	}
@@ -231,15 +246,15 @@ public class Classfile {
 			classfileDOS.writeShort(thisClassIndex);
 			classfileDOS.writeShort(superClassIndex);
 			classfileDOS.writeShort(interfaceCount);
-			classfileDOS.writeShort(fieldsCount);
+
+			fieldArea.writeTo(classfileDOS);
 
 			if (logger.isDebugEnabled()) {
-				logger.debug("accessFlags(2), thisClassIndex(2), superClassIndex(2), interfaceCount(2), fieldsCount(2)");
-				logger.debug("{} {} {} {} {}", shortToHexString(accessFlags),
+				logger.debug("accessFlags(2), thisClassIndex(2), superClassIndex(2), interfaceCount(2)");
+				logger.debug("{} {} {} {}", shortToHexString(accessFlags),
 						shortToHexString(thisClassIndex),
 						shortToHexString(superClassIndex),
-						shortToHexString(interfaceCount),
-						shortToHexString(fieldsCount));
+						shortToHexString(interfaceCount));
 			}
 
 			methodArea.writeTo(classfileDOS);
@@ -257,15 +272,19 @@ public class Classfile {
 	}
 
 	/**
-	 * <h1>getName</h1>
+	 * <h1>getFilename</h1>
 	 * <p>
 	 * This method returns the classfile's name.
 	 * </p>
 	 * 
 	 * @since 27.04.2013
 	 */
-	public String getName() {
+	public String getFilename() {
 		return name;
+	}
+
+	public String getClassname() {
+		return thisClassNameEIF;
 	}
 
 	/**
@@ -366,6 +385,11 @@ public class Classfile {
 		return constantPool.generateConstantClassInfo(value);
 	}
 
+	public short addClassConstantToConstantPool(final Class<?> clazz) {
+		return addClassConstantToConstantPool(ClassfileUtils.getClassName(
+				clazz, false));
+	}
+
 	/**
 	 * <h1>addMethodrefConstantToConstantPool</h1>
 	 * <p>
@@ -378,23 +402,18 @@ public class Classfile {
 	 * </p>
 	 * 
 	 * @since 13.05.2013
-	 * @param methodName
-	 *            string name of the method
-	 * @param methodNameDescriptor
-	 *            string method descriptor as specified by the jvm specification
-	 * @param classNameEIF
-	 *            string describing the method's class' class name encoded in
-	 *            internal form according to the jvm specification
+	 * @param signature
+	 *            Signature of method to add to the constant pool
 	 * @return short index of a methodref info entry in the constant pool of
 	 *         this classfile meeting the parameters.
 	 */
-	public short addMethodrefConstantToConstantPool(final String methodName,
-			final String methodNameDescriptor, final String classNameEIF) {
+	public short addMethodrefConstantToConstantPool(
+			final ClassfileUtils.MethodSignature signature) {
 		// add class
-		final short classIndex = addClassConstantToConstantPool(classNameEIF);
+		final short classIndex = addClassConstantToConstantPool(signature.methodClass);
 		// add NAT
 		final short natIndex = constantPool.generateConstantNameAndTypeInfo(
-				methodName, methodNameDescriptor);
+				signature.methodName, signature.methodDescriptor);
 		// add methodref
 		return constantPool.generateConstantMethodrefInfo(classIndex, natIndex);
 	}
@@ -429,7 +448,14 @@ public class Classfile {
 		final short natIndex = constantPool.generateConstantNameAndTypeInfo(
 				fieldName, fieldNameDescriptor);
 		// add fieldref
-		return constantPool.generateConstantFieldrefInfo(classIndex, natIndex, fieldName);
+		return constantPool.generateConstantFieldrefInfo(classIndex, natIndex,
+				fieldName, classNameEIF);
+	}
+
+	public short addFieldrefConstantToConstantPool(
+			final ClassfileUtils.FieldSignature signature) {
+		return addFieldrefConstantToConstantPool(signature.fieldName,
+				signature.fieldDescriptor, signature.fieldClass);
 	}
 
 	/**
@@ -665,9 +691,7 @@ public class Classfile {
 	 */
 	public void addInstructionsToMethodsCode(final String methodName,
 			final Instruction[] instructions) {
-		for (final Instruction instruction : instructions) {
-			methodArea.addInstructionToMethodsCode(methodName, instruction);
-		}
+		methodArea.addInstructionsToMethodsCode(methodName, instructions);
 	}
 
 	/**
@@ -688,13 +712,12 @@ public class Classfile {
 	public void addFieldToFieldArea(final String fieldName,
 			final String fieldDescriptor, final FieldAccessFlag... accessFlags) {
 		// first generate appropriate constants in the constant pool
-		short fieldNameIndex = this.constantPool
+		final short fieldNameIndex = constantPool
 				.generateConstantUTF8Info(fieldName);
-		short fieldDescriptorIndex = this.constantPool
+		final short fieldDescriptorIndex = constantPool
 				.generateConstantUTF8Info(fieldDescriptor);
 		// add fields
-		this.fieldArea.addField(fieldNameIndex, fieldDescriptorIndex,
-				accessFlags);
+		fieldArea.addField(fieldNameIndex, fieldDescriptorIndex, accessFlags);
 	}
 
 	/**
@@ -708,6 +731,6 @@ public class Classfile {
 	 * @return true, if struct classfile, false if main classfile
 	 */
 	public boolean isStruct() {
-		return this.isStruct;
+		return isStruct;
 	}
 }

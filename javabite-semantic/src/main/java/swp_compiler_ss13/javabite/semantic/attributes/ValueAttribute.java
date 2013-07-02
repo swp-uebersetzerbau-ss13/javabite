@@ -1,4 +1,4 @@
-package swp_compiler_ss13.javabite.semantic.v2;
+package swp_compiler_ss13.javabite.semantic.attributes;
 
 public class ValueAttribute{
 	Long val_int;
@@ -38,7 +38,7 @@ public class ValueAttribute{
 		return new ValueAttribute(this.getBooleanVal() || right.getBooleanVal());
 	}
 	
-	ValueAttribute add(ValueAttribute right){
+	public ValueAttribute add(ValueAttribute right){
 		if (this.isFloat() || right.isFloat()){
 			double ret;
 			ret=this.isFloat()?this.getDoubleVal():this.getIntVal()+(right.isFloat()?right.getDoubleVal():right.getIntVal());
@@ -51,7 +51,7 @@ public class ValueAttribute{
 		}
 	}
 	
-	ValueAttribute sub(ValueAttribute right){
+	public ValueAttribute sub(ValueAttribute right){
 		if (this.isFloat() || right.isFloat()){
 			double ret;
 			ret=this.isFloat()?this.getDoubleVal():this.getIntVal()-(right.isFloat()?right.getDoubleVal():right.getIntVal());
@@ -63,7 +63,7 @@ public class ValueAttribute{
 			return new ValueAttribute(ret);
 		}
 	}
-	ValueAttribute mul(ValueAttribute right){
+	public ValueAttribute mul(ValueAttribute right){
 		if (this.isFloat() || right.isFloat()){
 			double ret;
 			ret=this.isFloat()?this.getDoubleVal():this.getIntVal()*(right.isFloat()?right.getDoubleVal():right.getIntVal());
@@ -76,7 +76,7 @@ public class ValueAttribute{
 		}
 	}
 	
-	ValueAttribute div(ValueAttribute right){
+	public ValueAttribute div(ValueAttribute right){
 		
 		if (this.isFloat() || right.isFloat()){
 			double ret;
@@ -89,7 +89,7 @@ public class ValueAttribute{
 			return new ValueAttribute(ret);
 		}
 	}
-	boolean isZero(){
+	public boolean isZero(){
 		if (this.isFloat()){
 			return val_float.doubleValue()==0;
 		}
@@ -98,7 +98,7 @@ public class ValueAttribute{
 		}
 	}
 	
-	Number getNumber(){
+	public Number getNumber(){
 		if(this.isFloat()){
 			return val_float;
 		}

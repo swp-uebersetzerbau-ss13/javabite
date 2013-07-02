@@ -25,6 +25,9 @@ public class LexerJb implements Lexer {
 	Pattern tokenPatterns;
 	Queue<Token> tokenQueue;
 	
+	int lastLine = 0;
+	int lastColumn = 0;
+	
 	public LexerJb() {
 		// create |-pattern for all token patterns
 		StringBuilder patternBuilder = new StringBuilder();
@@ -56,7 +59,7 @@ public class LexerJb implements Lexer {
 	@Override
 	public Token getNextToken() {
 		if (tokenQueue == null || tokenQueue.isEmpty())
-			return new TokenJb(TokenType.EOF, "");
+			return new TokenJb(TokenType.EOF, null, lastLine, lastColumn);
 		
 		return tokenQueue.poll();
 	}
@@ -125,5 +128,8 @@ public class LexerJb implements Lexer {
 		if (notAToken.length() != 0) {
 			tokenQueue.add(new TokenJb(TokenType.NOT_A_TOKEN,notAToken.toString(),notATokenLine,notATokenStart));
 		}
+	
+		lastLine = line;
+		lastColumn = column;
 	}
 }

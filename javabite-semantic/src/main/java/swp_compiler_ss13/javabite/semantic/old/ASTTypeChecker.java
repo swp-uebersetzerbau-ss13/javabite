@@ -1,4 +1,4 @@
-package swp_compiler_ss13.javabite.semantic;
+package swp_compiler_ss13.javabite.semantic.old;
 
 import java.util.HashMap;
 import java.util.Iterator;

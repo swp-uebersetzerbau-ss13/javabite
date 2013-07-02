@@ -1,18 +1,22 @@
 package swp_compiler_ss13.javabite.backend.classfile;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import swp_compiler_ss13.javabite.backend.translation.Instruction;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.byteArrayToHexString;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.intToHexString;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToHexString;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import swp_compiler_ss13.javabite.backend.translation.Instruction;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType;
 
 /**
  * <h1>CodeAttribute</h1>
@@ -44,8 +48,7 @@ class Code {
 	private final short codeIndex;
 	private short maxStack;
 	private short maxLocals;
-	private short attributesCount;
-	
+	private final short attributesCount;
 	/**
 	 * <h1>codeArea</h1>
 	 * <p>
@@ -242,6 +245,10 @@ class Code {
 	 */
 	void addInstruction(final Instruction instruction) {
 		codeArea.add(instruction);
+	}
+
+	void addInstructions(final Instruction[] instructions) {
+		Collections.addAll(codeArea, instructions);
 	}
 
 }

@@ -203,7 +203,7 @@ public enum Mnemonic {
     INVOKESTATIC	(0xB8, 0, 2),
     INVOKEINTERFACE	(0xB9, 0, 4),
     INVOKEDYNAMIC	(0xBA, 0, 4),
-    NEW	            (0xBB, 0, 2),
+    NEW	            (0xBB, 1, 2),
     NEWARRAY	    (0xBC, 0, 1),
     ANEWARRAY	    (0xBD, 0, 2),
     ARRAYLENGTH	    (0xBE),

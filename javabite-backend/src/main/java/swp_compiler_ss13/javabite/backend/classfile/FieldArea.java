@@ -1,15 +1,16 @@
 package swp_compiler_ss13.javabite.backend.classfile;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.FieldAccessFlag;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.intToHexString;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.intToHexString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.FieldAccessFlag;
 
 /**
  * <h1>FieldArea</h1>
@@ -86,8 +87,8 @@ class FieldArea {
 	 *            short index into this classfile's constant pool of field's
 	 *            string descriptor.
 	 */
-	void addField(final short nameIndex,
-			final short descriptorIndex, final FieldAccessFlag... accessFlags) {
+	void addField(final short nameIndex, final short descriptorIndex,
+			final FieldAccessFlag... accessFlags) {
 
 		final FieldInfo fieldInfo = new FieldInfo(nameIndex, descriptorIndex,
 				accessFlags);

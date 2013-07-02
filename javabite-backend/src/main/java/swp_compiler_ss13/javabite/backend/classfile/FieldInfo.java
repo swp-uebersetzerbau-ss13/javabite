@@ -1,12 +1,13 @@
 package swp_compiler_ss13.javabite.backend.classfile;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.FieldAccessFlag;
-
 import java.io.DataOutputStream;
 import java.io.IOException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.FieldAccessFlag;
 
 /**
  * <h1>FieldInfo</h1>
@@ -56,7 +57,7 @@ class FieldInfo {
 		this.descriptorIndex = descriptorIndex;
 
 		for (final FieldAccessFlag faf : fieldAccessFlags) {
-			this.accessFlags = (short) (this.accessFlags | faf.value);
+			accessFlags = (short) (accessFlags | faf.value);
 		}
 	}
 

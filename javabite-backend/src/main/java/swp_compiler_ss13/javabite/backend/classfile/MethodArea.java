@@ -1,16 +1,17 @@
 package swp_compiler_ss13.javabite.backend.classfile;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import swp_compiler_ss13.javabite.backend.translation.Instruction;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodAccessFlag;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToHexString;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToHexString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import swp_compiler_ss13.javabite.backend.translation.Instruction;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodAccessFlag;
 
 /**
  * <h1>MethodArea</h1>
@@ -196,6 +197,12 @@ class MethodArea {
 			final Instruction instruction) {
 		final Method method = getMethodByMethodName(methodName);
 		method.addInstructionToCodeAttribute(instruction);
+	}
+
+	void addInstructionsToMethodsCode(final String methodName,
+			final Instruction[] instructions) {
+		final Method method = getMethodByMethodName(methodName);
+		method.addInstructionsToCodeAttribute(instructions);
 	}
 
 }

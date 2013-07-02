@@ -1,8 +1,8 @@
 package swp_compiler_ss13.javabite.backend.translation;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -57,30 +57,6 @@ public class Operation {
 		return instructions.length;
 	}
 
-	/**
-	 * Returns this operations byte count
-	 * 
-	 * @return the byte count
-	 */
-	public int getByteCount() {
-		return size;
-	}
-
-	/**
-	 * Returns this operation as a byte array
-	 * 
-	 * @return the byte array
-	 */
-	public byte[] toByteArray() {
-		final ByteBuffer bb = ByteBuffer.allocate(size);
-		if (instructions != null) {
-			for (final Instruction instruction : instructions) {
-				bb.put(instruction.toByteArray());
-			}
-		}
-		return bb.array();
-	}
-
 	@Override
 	public String toString() {
 		final String nl = "\n";// System.getProperty("line.separator");
@@ -94,13 +70,13 @@ public class Operation {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(final Object o) {
 		if (this == o)
 			return true;
 		if (o == null || getClass() != o.getClass())
 			return false;
 
-		Operation operation = (Operation) o;
+		final Operation operation = (Operation) o;
 
 		if (size != operation.size)
 			return false;
@@ -155,6 +131,12 @@ public class Operation {
 		public Builder add(final Instruction instruction) {
 			instructions.add(instruction);
 			size += instruction.getByteCount();
+			return this;
+		}
+
+		public Builder add(final Operation operation) {
+			Collections.addAll(instructions, operation.getInstructions());
+			size += operation.size;
 			return this;
 		}
 

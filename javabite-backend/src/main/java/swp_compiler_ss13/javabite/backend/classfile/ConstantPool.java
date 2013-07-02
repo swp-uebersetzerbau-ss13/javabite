@@ -1,10 +1,9 @@
 package swp_compiler_ss13.javabite.backend.classfile;
 
-import org.apache.commons.lang.StringEscapeUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.doubleToByteArray;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.intToHexString;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.longToByteArray;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToByteArray;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -14,7 +13,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.*;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType;
 
 /**
  * <h1>ConstantPool</h1>
@@ -416,9 +420,11 @@ public class ConstantPool {
 	 *         classfile meeting the parameters.
 	 */
 	short generateConstantFieldrefInfo(final short classIndex,
-			final short nameAndTypeIndex, final String fieldName) {
+			final short nameAndTypeIndex, final String fieldName,
+			final String classNameEIF) {
 		checkConstantPoolSize(1);
-		final String key = ConstantPoolType.FIELDREF.name() + fieldName;
+		final String key = ConstantPoolType.FIELDREF.name() + classNameEIF
+				+ fieldName;
 
 		// return existing entry's index, if it exists already
 		if (cpMapEntryExists(key)) {
@@ -523,8 +529,8 @@ public class ConstantPool {
 	 *            InfoTag type of the constant
 	 * @return index of the constant in this constant pool
 	 * @see Classfile#getIndexOfConstantInConstantPool(swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType,
-	 *      String)
-	 * TODO constantName umbenennen, teilweise constants, teilweise names
+	 *      String) TODO constantName umbenennen, teilweise constants, teilweise
+	 *      names
 	 */
 	public short getIndexOfConstant(final ConstantPoolType constantType,
 			final String constantName) {

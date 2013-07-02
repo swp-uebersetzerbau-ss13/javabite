@@ -1,12 +1,13 @@
 package swp_compiler_ss13.javabite.backend.utils;
 
+import java.util.EnumSet;
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
+
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.translation.Mnemonic;
-
-import java.util.EnumSet;
-import java.util.List;
 
 public final class ClassfileUtils {
 
@@ -18,23 +19,24 @@ public final class ClassfileUtils {
 			Operator.ARRAY_GET_REFERENCE, Operator.COMPARE_LONG_E,
 			Operator.COMPARE_LONG_G, Operator.COMPARE_LONG_L,
 			Operator.COMPARE_LONG_GE, Operator.COMPARE_LONG_LE,
-			Operator.RETURN, Operator.STRUCT_GET_LONG, Operator.DECLARE_LONG);
+			Operator.RETURN, Operator.STRUCT_SET_LONG, Operator.DECLARE_LONG,
+			Operator.DECLARE_STRUCT);
 
 	public static final EnumSet<Operator> OPERATOR_DOUBLE_TYPES = EnumSet.of(
 			Operator.ASSIGN_DOUBLE, Operator.ADD_DOUBLE, Operator.SUB_DOUBLE,
 			Operator.MUL_DOUBLE, Operator.DIV_DOUBLE,
 			Operator.COMPARE_DOUBLE_E, Operator.COMPARE_DOUBLE_G,
 			Operator.COMPARE_DOUBLE_L, Operator.COMPARE_DOUBLE_GE,
-			Operator.COMPARE_DOUBLE_LE, Operator.STRUCT_GET_DOUBLE,
+			Operator.COMPARE_DOUBLE_LE, Operator.STRUCT_SET_DOUBLE,
 			Operator.DECLARE_DOUBLE);
 
 	public static final EnumSet<Operator> OPERATOR_STRING_TYPES = EnumSet.of(
 			Operator.ASSIGN_STRING, Operator.PRINT_STRING,
-			Operator.CONCAT_STRING, Operator.STRUCT_GET_STRING,
+			Operator.CONCAT_STRING, Operator.STRUCT_SET_STRING,
 			Operator.DECLARE_STRING);
 
 	public static final EnumSet<Operator> OPERATOR_BOOLEAN_TYPES = EnumSet.of(
-			Operator.ASSIGN_BOOLEAN, Operator.STRUCT_GET_BOOLEAN,
+			Operator.ASSIGN_BOOLEAN, Operator.STRUCT_SET_BOOLEAN,
 			Operator.DECLARE_BOOLEAN);
 
 	/**
@@ -146,7 +148,7 @@ public final class ClassfileUtils {
 				final Mnemonic varLoadOp, final Mnemonic arrayLoadOp,
 				final Mnemonic varStoreOp, final Mnemonic arrayStoreOp) {
 			this.length = (short) length;
-			this.wide = length == 2;
+			wide = length == 2;
 			this.constantPoolType = constantPoolType;
 			this.javaType = javaType;
 			this.constantLoadOp = constantLoadOp;
@@ -250,11 +252,19 @@ public final class ClassfileUtils {
 
 	}
 
-	public static String getByQuadruples(final Quadruple quad) {
-		return JavaType.getByOperator(quad.getOperator()).className;
+	public static boolean isPrimitive(final Operator operator) {
+		return !OPERATOR_STRING_TYPES.contains(operator);
 	}
 
-	public static String getByQuadruples(final List<Quadruple> tac) {
+	public static String typeByQuadruples(final Quadruple quad) {
+		if (isPrimitive(quad.getOperator()))
+			return JavaType.getByOperator(quad.getOperator()).className;
+		else
+			return "L" + JavaType.getByOperator(quad.getOperator()).className
+					+ ";";
+	}
+
+	public static String typeByQuadruples(final List<Quadruple> tac) {
 		switch (tac.get(0).getOperator()) {
 		case DECLARE_ARRAY:
 			int dimensions = 0;
@@ -273,6 +283,112 @@ public final class ClassfileUtils {
 		default:
 			return null;
 		}
+	}
+
+	public static class MethodSignature {
+
+		public final String methodClass;
+		public final String methodName;
+		public final String methodReturnClass;
+		public final String[] methodArgsClasses;
+		public final String methodDescriptor;
+
+		public MethodSignature(final String methodName,
+				final String methodClass, final Class<?> methodReturnClass,
+				final Class<?>... params) {
+			this.methodClass = methodClass;
+			this.methodName = methodName;
+			this.methodReturnClass = getClassName(methodReturnClass, true);
+			if (params == null) {
+				methodArgsClasses = null;
+			} else {
+				methodArgsClasses = new String[params.length];
+				for (int i = 0; i < params.length; i++) {
+					methodArgsClasses[i] = getClassName(params[i], true);
+				}
+			}
+			methodDescriptor = "(" + StringUtils.join(methodArgsClasses) + ")"
+					+ this.methodReturnClass;
+		}
+
+		public MethodSignature(final String methodName,
+				final Class<?> methodClass, final Class<?> methodReturnClass,
+				final Class<?>... params) {
+			this(methodName, getClassName(methodClass, false),
+					methodReturnClass, params);
+		}
+
+		@Override
+		public String toString() {
+			return (methodClass != null ? methodClass + "." : "") + methodName
+					+ ":" + methodDescriptor;
+		}
+
+	}
+
+	public static class FieldSignature {
+
+		public final String fieldClass;
+		public final String fieldName;
+		public final String fieldDescriptor;
+
+		public FieldSignature(final String fieldName,
+				final String containerClass, final String fieldClass) {
+			this.fieldName = fieldName;
+			this.fieldClass = containerClass;
+			fieldDescriptor = fieldClass
+					+ (fieldClass.endsWith(";") ? "" : ";");
+		}
+
+		public FieldSignature(final String fieldName,
+				final Class<?> containerClass, final Class<?> fieldClass) {
+			this.fieldClass = getClassName(containerClass, false);
+			this.fieldName = fieldName;
+			fieldDescriptor = getClassName(fieldClass, true);
+		}
+
+		@Override
+		public String toString() {
+			return (fieldClass != null ? fieldClass + "." : "") + fieldName
+					+ ":" + fieldDescriptor;
+		}
+	}
+
+	public static String getClassName(final Class<?> clazz,
+			final boolean isParam) {
+		if (clazz == null)
+			return null;
+		if (clazz.isPrimitive()) {
+			return getPrimitiveClassName(clazz);
+		}
+		if (isParam) {
+			if (clazz.isArray())
+				return clazz.getName().replaceAll("\\.", "/");
+			return "L" + clazz.getName().replaceAll("\\.", "/") + ";";
+		}
+		return clazz.getName().replaceAll("\\.", "/");
+	}
+
+	public static String getPrimitiveClassName(final Class<?> clazz) {
+		if (clazz == void.class)
+			return "V";
+		if (clazz == int.class)
+			return "I";
+		if (clazz == long.class)
+			return "J";
+		if (clazz == double.class)
+			return "D";
+		if (clazz == boolean.class)
+			return "Z";
+		if (clazz == byte.class)
+			return "B";
+		if (clazz == char.class)
+			return "C";
+		if (clazz == float.class)
+			return "F";
+		if (clazz == short.class)
+			return "S";
+		return null;
 	}
 
 	private ClassfileUtils() {
