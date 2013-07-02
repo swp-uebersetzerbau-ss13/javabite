@@ -562,7 +562,7 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 			progressBar.setEnabled(false);
 		}
 	}
-	
+
 	private String dump(File classfile) {
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		
@@ -575,8 +575,6 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 		}
 		return baos.toString();
 	}
-	
-
 
 	private void requestTacVisualization() {
 		tacVisualizationRequested = true;

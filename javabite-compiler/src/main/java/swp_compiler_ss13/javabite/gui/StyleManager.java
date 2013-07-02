@@ -123,35 +123,36 @@ public class StyleManager extends DocumentFilter {
 	TextRange getTextRangeOf(List<Token> tokens) {
 		int from = 0;
 		int to = 0;
-		
-		int currentPos = 0;
-		int line = 1;
-		int startLine = tokens.get(0).getLine();
-		int startColumn = tokens.get(0).getColumn();
-		int endLine = tokens.get(tokens.size()-1).getLine();
-		int endColumn = tokens.get(tokens.size()-1).getColumn() + tokens.get(tokens.size()-1).getValue().length();
-		
-		try {
-			while (startLine != line) {
-				currentPos = Utilities.getRowEnd(mf.editorPaneSourcecode,
-						currentPos)+1;
-				line++;
-			}
-			from = currentPos + startColumn - 1;
-
-			if (startLine != endLine) {
-				while (endLine != line) {
+		if (tokens != null && !tokens.isEmpty()) {
+			int currentPos = 0;
+			int line = 1;
+			int startLine = tokens.get(0).getLine();
+			int startColumn = tokens.get(0).getColumn();
+			int endLine = tokens.get(tokens.size()-1).getLine();
+			int endColumn = tokens.get(tokens.size()-1).getColumn() + tokens.get(tokens.size()-1).getValue().length();
+			
+			try {
+				while (startLine != line) {
 					currentPos = Utilities.getRowEnd(mf.editorPaneSourcecode,
-							currentPos);
+							currentPos)+1;
 					line++;
 				}
-
-				to = currentPos + endColumn - 1;
-			} else {
-				to = currentPos + endColumn - startColumn;
+				from = currentPos + startColumn - 1;
+	
+				if (startLine != endLine) {
+					while (endLine != line) {
+						currentPos = Utilities.getRowEnd(mf.editorPaneSourcecode,
+								currentPos);
+						line++;
+					}
+	
+					to = currentPos + endColumn - 1;
+				} else {
+					to = currentPos + endColumn - startColumn;
+				}
+			} catch (BadLocationException e) {
+				e.printStackTrace();
 			}
-		} catch (BadLocationException e) {
-			e.printStackTrace();
 		}
 		
 		return new TextRange(from, to);
