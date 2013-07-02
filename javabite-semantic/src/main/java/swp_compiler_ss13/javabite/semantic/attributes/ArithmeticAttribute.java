@@ -1,8 +1,8 @@
-package swp_compiler_ss13.javabite.semantic;
+package swp_compiler_ss13.javabite.semantic.attributes;
 
 import swp_compiler_ss13.common.types.Type;
 
-enum ArithmeticAttribute implements Attribute{
+public enum ArithmeticAttribute implements Attribute{
 	STRING,
 	FLOAT,
 	INTEGER,
@@ -11,7 +11,7 @@ enum ArithmeticAttribute implements Attribute{
 	STRUCT,
 	NONE;
 	
-	boolean isNumeric(){
+	public boolean isNumeric(){
 		return this==FLOAT || this==INTEGER;
 	}
 }

@@ -1,10 +1,13 @@
 package swp_compiler_ss13.javabite.codegen;
 
+import java.util.List;
+
 import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.types.Type;
+import swp_compiler_ss13.common.types.derived.Member;
 
 public interface Ast2CodeConverterCompatibleGenerator extends
 		IntermediateCodeGenerator {
@@ -98,25 +101,31 @@ public interface Ast2CodeConverterCompatibleGenerator extends
 	 */
 	String getCurrentBreakLabel();
 	
-	/**
-	 * should be called if stepped into a referencing node
-	 * like array or struct
-	 */
-	void increaseReferenceDepth();
 	
 	/**
-	 * should be called if stepping out a referencing node
-	 * like array or struct
+	 * @return the reference name 
 	 */
-	void decreaseReferenceDepth();
+	String getNewReference();
 	
 	/**
-	 * @return true if on level 1
+	 * pushes a reference on a special stack
+	 * @param reference
 	 */
-	boolean isBaseDepth();
+	void pushReference(String reference);
+	
+	/**
+	 * @return pop from reference stack
+	 */
+	String popReference();
 	
 	/**
 	 * @return 
 	 */
-	String getReference();
+	boolean isReferenceOnStack();
+	
+	void pushMembers(Member[] members);
+	
+	Member[] peekMembers();
+	
+	Member[] popMembers();
 }

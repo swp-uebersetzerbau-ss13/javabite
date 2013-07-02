@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Insets;
+import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -48,6 +49,7 @@ import swp_compiler_ss13.javabite.config.Configurable;
 import swp_compiler_ss13.javabite.config.JavabiteConfig;
 import swp_compiler_ss13.javabite.gui.ast.ASTVisualizerJb;
 import swp_compiler_ss13.javabite.gui.ast.fitted.KhaledGraphFrame;
+import swp_compiler_ss13.javabite.gui.bytecode.ByteCodeVisualizerJb;
 import swp_compiler_ss13.javabite.gui.config.SettingsPanel;
 import swp_compiler_ss13.javabite.gui.tac.TacVisualizerJb;
 import swp_compiler_ss13.javabite.runtime.JavaClassProcess;
@@ -63,6 +65,7 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 	
 	boolean astVisualizationRequested = false;
 	boolean tacVisualizationRequested = false;
+	boolean byteCodeVisualizationRequested = false;
 	
 	boolean errorReported;
 	private GuiCompiler guiCompiler;
@@ -84,6 +87,7 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 	JMenu menuVisual;
 	JMenuItem menuVisualAst;
 	JMenuItem menuVisualTac;
+	JMenuItem menuVisualByteCode;
 	JButton buttonRunCompile;
 	JToolBar toolBar;
 	JPanel panelLabel;
@@ -133,7 +137,6 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		getContentPane().setLayout(new BorderLayout(0, 0));
-			
 		menuBar = new JMenuBar();
 		getContentPane().add(menuBar, BorderLayout.NORTH);
 		
@@ -203,6 +206,14 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 			}
 		});
 		menuVisual.add(menuVisualTac);
+		
+		menuVisualByteCode = new JMenuItem("ByteCode");
+		menuVisualByteCode.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				requestByteCodeVisualization();
+			}
+		});
+		menuVisual.add(menuVisualByteCode);
 		
 		buttonRunCompile = new JButton("\u25BA");
 		buttonRunCompile.addActionListener(new ActionListener() {
@@ -318,6 +329,11 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 				restyle();
 			}
 		});
+		
+		//Hotkey manager
+		HotkeyManager hotkeyManager = new HotkeyManager(fileManager,editorPaneSourcecode,this);
+		KeyboardFocusManager keyboardFocusManager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+		keyboardFocusManager.addKeyEventDispatcher(hotkeyManager);
 		
 		// undo redo manager
 		undoManager = new UndoCostumManager(editorPaneSourcecode);
@@ -479,7 +495,7 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 	/**
 	 * Main entry point for the compile process
 	 * */
-	private void compile() {
+	public void compile() {
 		progressBar.setValue(0);
 		try {
 			if (!fileManager.saveFileIfChanged())
@@ -534,8 +550,6 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 			progressBar.setEnabled(false);
 		}
 	}
-	
-
 
 	private void requestTacVisualization() {
 		tacVisualizationRequested = true;
@@ -553,6 +567,24 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 		tacVisualizationRequested = false;
 		new TacVisualizerJb().visualizeTAC(tac);
 		toolBarLabel.setText("Rendered TAC.");
+	}
+	
+	private void requestByteCodeVisualization() {
+		byteCodeVisualizationRequested = true;
+		compile();
+	}
+	
+	void showByteCodeVisualization(File classfile) {
+		progressBar.setValue(0);
+		progressBar.setEnabled(false);
+		if (errorReported) {
+			JOptionPane.showMessageDialog(null, "While generating the Target Code an error occoured.", "Compilation Errors", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		
+		byteCodeVisualizationRequested = false;
+		new ByteCodeVisualizerJb().visualizeByteCode(classfile);
+		toolBarLabel.setText("Rendered ByteCode.");
 	}
 	
 	private void requestAstVisualization() {

@@ -50,6 +50,7 @@ public class QuadrupleFactoryJb {
 			for (Member m:members) {
 				quadruples.addAll(generateDeclaration(new IdentifierData(m.getName(), m.getType())));
 			}
+			break;
 		default:
 			throw new IntermediateCodeGeneratorException("Unsupported type: "
 					+ data.getType().getKind());
