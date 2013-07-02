@@ -4,13 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import com.mxgraph.view.mxGraph;
-
 import swp_compiler_ss13.common.ast.ASTNode;
-import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
-import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
-import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.lexer.Token;
 
 public class CreateCell {
@@ -33,24 +28,10 @@ public class CreateCell {
 	 */
 
 	Object asCell(ASTNode ast) {
-		if (ast instanceof ReturnNode ){
-			for(Token t:ast.coverage()){
-				str+=t;
-			}
-		}
-		if (ast instanceof ArithmeticBinaryExpressionNode ){
-			for(Token t:ast.coverage()){
-				str+=t;
-			}
-		}
-		if (ast instanceof BasicIdentifierNode ){
-			for(Token t:ast.coverage()){
-				str+=t;
-			}
-		}
 		Object returnVal;
 		vertexAttributes ver = new vertexAttributes();
 		ver.addAttributes(ast);
+		str=ver.strA;
 		String value=ver.value;
 		String color=ver.color;
 		returnVal = 

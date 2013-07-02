@@ -14,6 +14,7 @@ import swp_compiler_ss13.common.ast.nodes.unary.ArrayIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.ast.nodes.unary.StructIdentifierNode;
+import swp_compiler_ss13.common.lexer.Token;
 
 public class vertexAttributes {
 	final String colorAttributes= "ROUNDED;strokeWidth=2.0;" +
@@ -27,35 +28,43 @@ public class vertexAttributes {
 	String value = null;
 	String color = null;
 	ASTNode ast=null;
+	String strA= "";
 	
 	public void addAttributes(ASTNode ast) {
 		if (ast instanceof BasicIdentifierNode) {
 			value = "Id= " + ((BasicIdentifierNode) ast).getIdentifier();
 			color = colorAttributes+"0000ff";
+			getToken(ast);
 		} else if (ast instanceof ArithmeticBinaryExpressionNode) {
 			opr =new OperationSymbol(ast);
 			value = opr.getOperationSymbol();
 			color = colorAttributes+"cyan";
+			getToken(ast);
 		} else if (ast instanceof ArithmeticUnaryExpressionNode) {
 			opr =new OperationSymbol(ast);
 			value = opr.getOperationSymbol();
 			color = colorAttributes+"blue";
+			getToken(ast);
 		} else if (ast instanceof LiteralNode) {
 			value = "Type= " + ((LiteralNode) ast).getLiteralType()
 					+ "\nLiteral= " + ((LiteralNode) ast).getLiteral();
 			color = colorAttributes+"yellow";
+			getToken(ast);
 		} else if (ast instanceof AssignmentNode) {
 			value = "Assignment";
 			color = colorAttributes+"white";
+			getToken(ast);
 
 		} else if (ast instanceof LogicBinaryExpressionNode) {
 		    opr =new OperationSymbol(ast);
 			value = opr.getOperationSymbol();
 			color = colorAttributes+"blue";
+			getToken(ast);
 
 		} else if (ast instanceof ReturnNode) {
 			value = "Return";
 			color = colorAttributes+"orange";
+			getToken(ast);
 		} else if (ast instanceof DeclarationNode) {
 			value = "Type= " + ((DeclarationNode) ast).getType() + "\nId= "
 					+ ((DeclarationNode) ast).getIdentifier();
@@ -68,26 +77,39 @@ public class vertexAttributes {
 		} else if (ast instanceof ArrayIdentifierNode) {
 			value = "Index= " + ((ArrayIdentifierNode) ast).getIdentifierNode();
 			color = colorAttributes+"black";
+			getToken(ast);
 		} else if (ast instanceof StructIdentifierNode) {
 			value = "Index= "
 					+ ((StructIdentifierNode) ast).getIdentifierNode();
 			color = colorAttributes+"red";
+			getToken(ast);
 		} else if (ast instanceof LoopNode) {
 			value = "Condition= " + ((LoopNode) ast).getCondition() + "\nBody"
 					+ ((LoopNode) ast).getLoopBody();
 			color = colorAttributes+"violet";
+			getToken(ast);
 		} else if (ast instanceof ReturnNode) {
 			value = "" + ((ReturnNode) ast).getRightValue();
 			color = colorAttributes+"navy";
+			getToken(ast);
 		} else if (ast instanceof BranchNode) {
 			value = "Condition" + ((BranchNode) ast).getCondition();
 			color = colorAttributes+"yellow";
+			getToken(ast);
 		} 
 		else {
 			value = ast.toString();
 			color = colorAttributes+"white";
+			getToken(ast);
 		}
 
+	}
+	
+	void getToken(ASTNode ast){
+		for(Token t:ast.coverage()){
+			strA+=t.getValue();
+		}
+		
 	}
 
 }

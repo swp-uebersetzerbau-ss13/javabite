@@ -19,7 +19,7 @@ import com.mxgraph.view.mxGraph;
 public class ASTVisualizerJb extends JComponent implements ASTVisualization {
 	
 	private static final long serialVersionUID = 1L;
-	Map<Object, String> tooltips1 = new HashMap<Object, String>();
+	Map<Object, String> tooltips = new HashMap<Object, String>();
 	public mxGraph graph;
 	mxGraph graph1;
 	mxGraphComponent frame;
@@ -32,7 +32,7 @@ public class ASTVisualizerJb extends JComponent implements ASTVisualization {
 		graph = new mxGraph(){
 			public String getToolTipForCell(Object cell) {
 				if (cell!=null){
-					String s = tooltips1.get(cell);
+					String s = tooltips.get(cell);
 					return s;
 				}
 				return null;
@@ -42,7 +42,7 @@ public class ASTVisualizerJb extends JComponent implements ASTVisualization {
 		style.style();
 		CreateTree createTree=new CreateTree(graph);
 		createTree.initTree(ast);
-		tooltips1=createTree.tooltips;
+		this.tooltips=createTree.tooltips;
 		KhaledGraphFrame k = new KhaledGraphFrame();
 		this.x = 167 * k.levelsCounter(ast);
 		this.y = 47 * k.maximumOfNodesInLevels();
