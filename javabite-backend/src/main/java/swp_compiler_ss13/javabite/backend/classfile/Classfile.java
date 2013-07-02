@@ -9,7 +9,9 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -45,7 +47,12 @@ public class Classfile {
 	// name of File
 	private final String name;
 	private final boolean isStruct;
+
+	// used only in main classfile
+	// TODO moar commentz
 	private final Set<String> toplevelStructs;
+	private final Set<String> sublevelStructs;
+	private final Map<String, String> structMemberArrayTypes;
 
 	/*
 	 * general classfile constant pool information being used while classfile
@@ -109,6 +116,8 @@ public class Classfile {
 		this.name = name;
 		this.isStruct = isStruct;
 		toplevelStructs = new HashSet<>();
+		sublevelStructs = new HashSet<>();
+		structMemberArrayTypes = new HashMap<>();
 		this.thisClassNameEIF = thisClassNameEIF;
 		this.superClassNameEIF = superClassNameEIF;
 		interfaceCount = 0;
@@ -137,6 +146,27 @@ public class Classfile {
 
 	public boolean isToplevelStruct(final String structName) {
 		return toplevelStructs.contains(structName);
+	}
+
+	public void addSublevelStruct(final String structName) {
+		sublevelStructs.add(structName);
+	}
+
+	public boolean isSublevelStruct(final String structName) {
+		return sublevelStructs.contains(structName);
+	}
+
+	public void addStructMemberArray(final String arrayPath,
+			final String arrayType) {
+		structMemberArrayTypes.put(arrayPath, arrayType);
+	}
+
+	public String getStructMemberArrayType(final String arrayPath) {
+		return structMemberArrayTypes.get(arrayPath);
+	}
+
+	public boolean isStructArray(final String arrayPath) {
+		return structMemberArrayTypes.containsKey(arrayPath);
 	}
 
 	/**
@@ -385,9 +415,10 @@ public class Classfile {
 		return constantPool.generateConstantClassInfo(value);
 	}
 
-	public short addClassConstantToConstantPool(final Class<?> clazz) {
-		return addClassConstantToConstantPool(ClassfileUtils.getClassName(
-				clazz, false));
+	public short addClassConstantToConstantPool(
+			final ClassfileUtils.ClassSignature classSignature) {
+		return addClassConstantToConstantPool(classSignature
+				.getClassNameAsContainer());
 	}
 
 	/**
@@ -455,7 +486,8 @@ public class Classfile {
 	public short addFieldrefConstantToConstantPool(
 			final ClassfileUtils.FieldSignature signature) {
 		return addFieldrefConstantToConstantPool(signature.fieldName,
-				signature.fieldDescriptor, signature.fieldClass);
+				signature.fieldType.getClassNameAsType(),
+				signature.fieldClass.getClassNameAsContainer());
 	}
 
 	/**

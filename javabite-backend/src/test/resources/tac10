@@ -1,0 +1,4 @@
+BRANCH lbl ! !
+PRINT_STRING #\"error\" ! !
+LABEL lbl ! !
+PRINT_STRING #\"success\" ! !
