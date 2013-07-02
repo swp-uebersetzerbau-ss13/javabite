@@ -1,5 +1,18 @@
-apply plugin: 'java'
+import org.ajoberstar.gradle.git.tasks.*
+import org.eclipse.jgit.api.*
+import org.eclipse.jgit.api.errors.*
+import org.gradle.api.GradleException
+import org.gradle.api.tasks.*
+
+/*
+ * all projects are java-based and eclipse is used as IDE by most team members
+ * so we add support for that
+ */
 apply plugin: 'eclipse'
+/*
+ * fatjar helps to build jars with all files needed
+ * gradle-git helps to get FUC for cross-tests
+ */
 buildscript {
 	repositories {
 		mavenCentral()
@@ -7,6 +20,7 @@ buildscript {
 
 	dependencies {
 		classpath 'eu.appsatori:gradle-fatjar-plugin:0.2-rc1'
+		classpath 'org.ajoberstar:gradle-git:0.4.0'
 	}
 }
 configure(javabiteProjects()) {
@@ -40,7 +54,7 @@ configure(javabiteProjects()) {
 	test { systemProperties 'org.slf4j.simpleLogger.defaultLogLevel': 'debug' }
 }
 
-/**
+/*
  * BEGIN of project specific configs
  */
 project(':common'){
@@ -142,9 +156,39 @@ project(':javabite-backend') {
 project(':javabite-common') {
 	dependencies { compile project(':common') }
 }
-
-/**
- * END of project specific configs
+/*
+ * Cross-tests
+ */
+task cloneFuc(type: GitClone) {
+	def destination = file('fuc')
+	uri = "https://github.com/swp-uebersetzerbau-ss13/fuc.git"
+	destinationPath = destination
+	bare = false
+	enabled = !destination.exists()
+}
+task setupFuc(type: GitSubmoduleInit, dependsOn: cloneFuc) {
+	def repo = file('fuc')
+	repoPath = repo
+	modules = ['code/common']
+	enabled = !repo.exists()
+}
+task pullFuc(type: GitPull, dependsOn: setupFuc) {
+	repoPath = file('fuc')
+}
+task updateFuc(type: GitSubmoduleUpdate, dependsOn: pullFuc) {
+	repoPath = file('fuc')
+	modules = ['code/common']
+}
+if (file('fuc').exists()) {
+	project(':fuc') {
+		ant.importBuild 'code/build.xml'
+		dist.dependsOn(updateFuc)
+	}
+	task buildFuc(dependsOn: ':fuc:dist') {
+	}
+}
+/*
+ * generell tasks 
  */
 task wrapper(type: Wrapper) {
 	gradleVersion = '1.6'
@@ -164,6 +208,16 @@ task buildAll(dependsOn: javabiteProjects().fatJar) {
 		}
 	}
 }
+task buildForCrossTest(dependsOn: basicJavabiteProjects().jar) {
+	evaluationDependsOnChildren()
+	basicJavabiteProjects().each { project ->
+		copy {
+			from "${project.name}/build/libs"
+			into 'bin'
+			include 'javabite-*.jar'
+		}
+	}
+}
 task run(type: JavaExec, dependsOn: buildCompiler) {
 	main = 'swp_compiler_ss13.javabite.MainDispatcher'
 	classpath = files('bin/javabite-compiler-0.1.jar')
@@ -176,12 +230,72 @@ task runAllModules(type: JavaExec, dependsOn: buildCompiler) {
 def javabiteProjects() {
 	subprojects.findAll { it.name != 'fuc' && it.name != 'crosstest' }
 }
-
-def fucJarFiles() {
-	files('../fuc/code/dist/FUC-SymbolTable.jar','../fuc/code/dist/FUC-AST.jar',
-		'../fuc/code/dist/FUC-Lexer.jar','../fuc/code/dist/FUC-Parser.jar',
-		'../fuc/code/dist/FUC-Semantic-Analyser.jar','../fuc/code/dist/FUC-IRGen.jar',
-		'../fuc/code/dist/FUC-Backend.jar','../fuc/code/dist/lib/log4j-1.2.17.jar',
-		'../fuc/code/dist/FUC-Backend.jar')
+def basicJavabiteProjects() {
+	[project('javabite-common'),project('javabite-lexer'),project('javabite-parser'),project('javabite-semantic'),project('javabite-code-gen'),project('javabite-backend')]
 }
 
+def fucJarFiles() {
+	files('fuc/code/dist/FUC-SymbolTable.jar','fuc/code/dist/FUC-AST.jar',
+		'fuc/code/dist/FUC-Lexer.jar','fuc/code/dist/FUC-Parser.jar',
+		'fuc/code/dist/FUC-Semantic-Analyser.jar','fuc/code/dist/FUC-IRGen.jar',
+		'fuc/code/dist/FUC-Backend.jar','fuc/code/dist/lib/log4j-1.2.17.jar',
+		'fuc/code/dist/FUC-Backend.jar')
+}
+
+class GitSubmoduleInit extends GitBase {
+	List<String> modules
+	@TaskAction
+	void pullRepo() {
+		SubmoduleInitCommand cmd = getGit().submoduleInit()
+		modules.each {cmd.addPath(it)}
+		try {
+			cmd.call()
+		} catch (InvalidRemoteException e) {
+			throw new GradleException("Invalid remote repository.", e)
+		} catch (TransportException e) {
+			throw new GradleException("Problem with transport.", e)
+		} catch (WrongRepositoryStateException e) {
+			throw new GradleException("Invalid repository state.", e)
+		} catch (GitAPIException e) {
+			throw new GradleException("Problem with pull.", e)
+		}
+	}
+	
+	@Input
+	public void getModules() {
+		this.modules = modules?:[];
+	}
+	
+	public void setModules(List<String> modules) {
+		this.modules = modules;
+	}
+}
+
+class GitSubmoduleUpdate extends GitBase {
+	List<String> modules
+	@TaskAction
+	void pullRepo() {
+		SubmoduleUpdateCommand cmd = getGit().submoduleUpdate()
+		modules.each {cmd.addPath(it)}
+		try {
+			cmd.call()
+		} catch (InvalidRemoteException e) {
+			throw new GradleException("Invalid remote repository.", e)
+		} catch (TransportException e) {
+			throw new GradleException("Problem with transport.", e)
+		} catch (WrongRepositoryStateException e) {
+			throw new GradleException("Invalid repository state.", e)
+		} catch (GitAPIException e) {
+			throw new GradleException("Problem with pull.", e)
+		}
+	}
+	
+	@Input
+	public void getModules() {
+		this.modules = modules?:[];
+	}
+	
+	public void setModules(List<String> modules) {
+		this.modules = modules;
+	}
+}

@@ -15,5 +15,13 @@
 			<arg line="buildAll" />
 		</exec>
 	</target>
+	<target name="buildForCrossTest" description="Build Javabite-Compiler by utilizing gradle">
+		<condition property="gradlescript" value="./gradlew.bat" else="./gradlew">
+			<os family="windows"/>
+		</condition>
+		<exec executable="${gradlescript}">
+			<arg line="buildForCrossTest" />
+		</exec>
+	</target>
 </project>
 	

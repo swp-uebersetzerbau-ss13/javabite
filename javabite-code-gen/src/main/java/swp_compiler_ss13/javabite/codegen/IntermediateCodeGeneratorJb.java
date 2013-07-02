@@ -18,6 +18,7 @@ import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.types.Type;
+import swp_compiler_ss13.common.types.derived.Member;
 import swp_compiler_ss13.javabite.codegen.converters.ArithmeticBinaryExpressionNodeConverter;
 import swp_compiler_ss13.javabite.codegen.converters.ArithmeticUnaryExpressionNodeConverter;
 import swp_compiler_ss13.javabite.codegen.converters.AssignmentNodeConverter;
@@ -54,10 +55,8 @@ public class IntermediateCodeGeneratorJb implements
 	private long labelCounter = 0;
 	
 	private static final String REFERENCE_NAME = "ref";
-	private long referenceDepth = 0;
-	private boolean referenceDeclared = false;
 	
-	final List<Quadruple> quadruples = new ArrayList<>(1000);
+	List<Quadruple> quadruples = new ArrayList<>(1000);
 
 	/**
 	 * Set of used identifiers (in TAC is can't be use twice)
@@ -84,6 +83,9 @@ public class IntermediateCodeGeneratorJb implements
 	 * s All available converters for the AST
 	 */
 	private final Map<ASTNode.ASTNodeType, Ast2CodeConverter> converters = new HashMap<>();
+
+	private final Deque<Member[]> memberArrays = new ArrayDeque<>();
+	final Deque<String> referenceStack = new ArrayDeque<>();
 
 	public IntermediateCodeGeneratorJb() {
 		initConverters();
@@ -211,9 +213,9 @@ public class IntermediateCodeGeneratorJb implements
 		identifierDataStack.clear();
 		identifierGenerationCounter = 0;
 		breakLabelStack.clear();
+		memberArrays.clear();
+		referenceStack.clear();
 		labelCounter = 0;
-		referenceDepth = 0;
-		referenceDeclared = false;
 	}
 
 	@Override
@@ -237,26 +239,39 @@ public class IntermediateCodeGeneratorJb implements
 	}
 
 	@Override
-	public void increaseReferenceDepth() {
-		referenceDepth++;
+	public String getNewReference() {
+		String ref = REFERENCE_NAME + identifierGenerationCounter++;
+		addQuadruple(QuadrupleFactoryJb.generateReferenceDeclaring(ref));
+		return ref;
 	}
 
 	@Override
-	public void decreaseReferenceDepth() {
-		referenceDepth--;
+	public void pushMembers(Member[] members) {
+		memberArrays.push(members);
 	}
 
 	@Override
-	public boolean isBaseDepth() {
-		return referenceDepth == 1;
+	public Member[] peekMembers() {
+		return memberArrays.peek();
 	}
 
 	@Override
-	public String getReference() {
-		if (!referenceDeclared) {
-			addQuadruple(QuadrupleFactoryJb.generateReferenceDeclaring(REFERENCE_NAME));
-			referenceDeclared = true;
-		}
-		return REFERENCE_NAME;
+	public Member[] popMembers() {
+		return memberArrays.pop();
+	}
+
+	@Override
+	public void pushReference(String reference) {
+		referenceStack.push(reference);
+	}
+
+	@Override
+	public String popReference() {
+		return referenceStack.pop();
+	}
+
+	@Override
+	public boolean isReferenceOnStack() {
+		return !referenceStack.isEmpty();
 	}
 }
