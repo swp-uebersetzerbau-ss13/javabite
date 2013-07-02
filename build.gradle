@@ -54,6 +54,23 @@ project(':common'){
 	}
 }
 
+project(':jclasslib') {
+	sourceSets {
+		main {
+			java {
+				srcDir 'src'
+			}
+		}
+	}
+	
+	dependencies {
+		runtime files('lib-compile/antnbm.jar',
+			'lib-compile/docbook.zip',
+			'lib-compile/java.jar',
+			'lib-compile/openide.jar')
+	}
+}
+
 project(':javabite-compiler') {
 	
 	apply plugin:'application'
@@ -74,7 +91,7 @@ project(':javabite-compiler') {
 
 	dependencies {
 		compile 'org.tinyjee.jgraphx:jgraphx:1.10.4.1'
-		compile project(':javabite-common'), project(':javabite-lexer'), project(':javabite-parser'), project(':javabite-code-gen'), project(':javabite-backend'), project(':javabite-semantic')
+		compile project(':jclasslib'), project(':javabite-common'), project(':javabite-lexer'), project(':javabite-parser'), project(':javabite-code-gen'), project(':javabite-backend'), project(':javabite-semantic')
 	}
 	
 	sourceSets {

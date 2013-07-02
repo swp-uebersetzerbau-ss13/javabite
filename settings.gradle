@@ -1,1 +1,1 @@
-include 'common', 'javabite-backend', 'javabite-common', 'javabite-code-gen', 'javabite-compiler', 'javabite-lexer', 'javabite-parser', 'javabite-semantic'
+include 'common', 'jclasslib', 'javabite-backend', 'javabite-common', 'javabite-code-gen', 'javabite-compiler', 'javabite-lexer', 'javabite-parser', 'javabite-semantic'
