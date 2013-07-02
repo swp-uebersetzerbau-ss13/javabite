@@ -617,8 +617,7 @@ public class Translator {
 	private static void extractInstructionsFromOperations(
 			final Classfile classfile, final String methodName,
 			final List<Quadruple> tac) {
-		final Program.MainBuilder pb = new Program.MainBuilder(classfile,
-				methodName);
+		final MainBuilder pb = new MainBuilder(classfile, methodName);
 
 		for (final Quadruple quad : tac) {
 
@@ -816,8 +815,7 @@ public class Translator {
 	private static void translateStructTacIntoConstructorCode(
 			final Classfile structClassfile,
 			final List<Quadruple> constructorTAC) {
-		final Program.StructBuilder pb = new Program.StructBuilder(
-				structClassfile, "<init>");
+		final StructBuilder pb = new StructBuilder(structClassfile, "<init>");
 
 		for (final Quadruple quad : constructorTAC) {
 			switch (quad.getOperator()) {

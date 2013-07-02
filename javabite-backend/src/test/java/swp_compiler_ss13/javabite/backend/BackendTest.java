@@ -1,16 +1,8 @@
 package swp_compiler_ss13.javabite.backend;
 
-import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import swp_compiler_ss13.common.backend.Backend;
-import swp_compiler_ss13.common.backend.BackendException;
-import swp_compiler_ss13.common.backend.Quadruple;
-import swp_compiler_ss13.common.backend.Quadruple.Operator;
-import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
-import swp_compiler_ss13.javabite.runtime.JavaClassProcess;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -22,7 +14,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import static org.junit.Assert.*;
+import org.apache.commons.io.IOUtils;
+import org.junit.Before;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import swp_compiler_ss13.common.backend.Backend;
+import swp_compiler_ss13.common.backend.BackendException;
+import swp_compiler_ss13.common.backend.Quadruple;
+import swp_compiler_ss13.common.backend.Quadruple.Operator;
+import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
+import swp_compiler_ss13.javabite.runtime.JavaClassProcess;
 
 public class BackendTest {
 
@@ -226,13 +229,20 @@ public class BackendTest {
 			new QuadrupleJb(Operator.BOOLEAN_TO_STRING, "b", "!", "s"),
 			new QuadrupleJb(Operator.PRINT_STRING, "s", "!", "!"));
 
-    static final List<Quadruple> tac17 = asList(
-            new QuadrupleJb(Operator.DECLARE_STRING, "#\"hello, \"", "!", "datLeftString"),
-            new QuadrupleJb(Operator.DECLARE_STRING, "#\"world!\"", "!", "datRightString"),
-            new QuadrupleJb(Operator.DECLARE_STRING, "!", "!", "result0r"),
-            new QuadrupleJb(Operator.CONCAT_STRING, "datLeftString", "datRightString", "result0r"),
-            new QuadrupleJb(Operator.PRINT_STRING, "result0r", "!", "!")
-    );
+	static final List<Quadruple> tac17 = asList(new QuadrupleJb(
+			Operator.DECLARE_STRING, "#\"hello, \"", "!", "datLeftString"),
+			new QuadrupleJb(Operator.DECLARE_STRING, "#\"world!\"", "!",
+					"datRightString"), new QuadrupleJb(Operator.DECLARE_STRING,
+					"!", "!", "result0r"), new QuadrupleJb(
+					Operator.CONCAT_STRING, "datLeftString", "datRightString",
+					"result0r"), new QuadrupleJb(Operator.PRINT_STRING,
+					"result0r", "!", "!"));
+
+	static final List<Quadruple> tac18 = asList(new QuadrupleJb(
+			Operator.DECLARE_STRUCT, "#1", "!", "srobert"), new QuadrupleJb(
+			Operator.DECLARE_STRING, "!", "!", "l"), new QuadrupleJb(
+			Operator.DECLARE_STRING, "#\"something\"", "!", "s"),
+			new QuadrupleJb(Operator.STRUCT_SET_STRING, "srobert", "l", "s"));
 
 	@Before
 	public void setup() {
@@ -344,19 +354,26 @@ public class BackendTest {
 	// 0, testToReturnValueOfTac(tac15, 3));
 	// }
 	//
-	// @Test
-	// public void testTac16ReturnVal() throws BackendException {
-	// assertEquals(
-	// "Generated target code returns unexpected value while execution",
-	// 0, testToReturnValueOfTac(tac16, 3));
-	// }
+	@Test
+	public void testTac16ReturnVal() throws BackendException {
+		assertEquals(
+				"Generated target code returns unexpected value while execution",
+				0, testToReturnValueOfTac(tac16, 3));
+	}
 
-    @Test
-    public void testTac17ReturnVal() throws BackendException {
-        assertEquals(
-                "Generated target code returns unexpected value while execution",
-                0, testToReturnValueOfTac(tac17, 1));
-    }
+	@Test
+	public void testTac17ReturnVal() throws BackendException {
+		assertEquals(
+				"Generated target code returns unexpected value while execution",
+				0, testToReturnValueOfTac(tac17, 1));
+	}
+
+	@Test
+	public void testTac18ReturnVal() throws BackendException {
+		assertEquals(
+				"Generated target code returns unexpected value while execution",
+				0, testToReturnValueOfTac(tac18, 2));
+	}
 
 	public long testToReturnValueOfTac(final List<Quadruple> tac,
 			final int fileamount) throws BackendException {

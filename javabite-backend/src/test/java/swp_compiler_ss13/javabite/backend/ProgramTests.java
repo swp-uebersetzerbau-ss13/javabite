@@ -11,6 +11,7 @@ import org.junit.runners.MethodSorters;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.classfile.Classfile;
+import swp_compiler_ss13.javabite.backend.translation.MainBuilder;
 import swp_compiler_ss13.javabite.backend.translation.Program;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ClassfileAccessFlag;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodAccessFlag;
@@ -22,7 +23,7 @@ public class ProgramTests {
 	static final String methodName = "main";
 
 	Classfile classfile;
-	Program.MainBuilder pb;
+	MainBuilder pb;
 
 	@Rule
 	public TestName name = new TestName();
@@ -69,8 +70,7 @@ public class ProgramTests {
 		}
 	}
 
-	private void makeAssertions(final Program.MainBuilder pb,
-			final String sExpected) {
+	private void makeAssertions(final MainBuilder pb, final String sExpected) {
 		final Program p = pb.build();
 		Assert.assertTrue(p.toString().matches(sExpected));
 	}
@@ -82,7 +82,7 @@ public class ProgramTests {
 				ClassfileAccessFlag.ACC_SUPER);
 		classfile.addMethodToMethodArea(methodName, "([Ljava/lang/String;])V",
 				MethodAccessFlag.ACC_PUBLIC, MethodAccessFlag.ACC_STATIC);
-		pb = new Program.MainBuilder(classfile, methodName);
+		pb = new MainBuilder(classfile, methodName);
 	}
 
 	public static String NL = "\\\n";
@@ -424,7 +424,7 @@ public class ProgramTests {
 		pb.label(new QuadrupleJb(Operator.LABEL, "testLabel", "!", "!"));
 		pb.nop();
 		final String sExpected = "(?i)GOTO" + HEX(2) + NL + "NOP" + NL
-				+ "RETURN" + NL + "";
+				+ "RETURN" + NL;
 		makeAssertions(pb, sExpected);
 	}
 
