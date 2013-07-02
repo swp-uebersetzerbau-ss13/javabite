@@ -1,26 +1,21 @@
 package swp_compiler_ss13.javabite.backend.translation;
 
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isConstant;
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.removeConstantSign;
+import swp_compiler_ss13.common.backend.Quadruple;
+import swp_compiler_ss13.common.backend.Quadruple.Operator;
+import swp_compiler_ss13.javabite.backend.classfile.Classfile;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.*;
+import swp_compiler_ss13.javabite.backend.utils.ConstantUtils;
+import swp_compiler_ss13.javabite.backend.utils.QuadrupleUtils;
+import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.ListIterator;
 
-import swp_compiler_ss13.common.backend.Quadruple;
-import swp_compiler_ss13.common.backend.Quadruple.Operator;
-import swp_compiler_ss13.javabite.backend.classfile.Classfile;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ClassfileAccessFlag;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.FieldAccessFlag;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodAccessFlag;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodSignature;
-import swp_compiler_ss13.javabite.backend.utils.ConstantUtils;
-import swp_compiler_ss13.javabite.backend.utils.QuadrupleUtils;
-import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isConstant;
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.removeConstantSign;
 
 /**
  * <h1>Translator</h1>
@@ -38,8 +33,9 @@ public class Translator {
 
 	public static final MethodSignature MAIN_METHOD = new MethodSignature(
 			"main", (String) null, void.class, String[].class);
-	public static final String OBJECT_CLASSNAME_EIF = ClassfileUtils
-			.getClassName(Object.class, false);
+
+	public static final ClassfileUtils.ClassSignature OBJECT_CLASS = new ClassfileUtils.ClassSignature(
+			Object.class);
 
 	Collection<Classfile> classfiles;
 
@@ -104,7 +100,7 @@ public class Translator {
 
 		// create a new (main)classfile / classfile with main method
 		final Classfile mainClassfile = generateClassfile(classFileName,
-				mainClassName, OBJECT_CLASSNAME_EIF, false,
+				mainClassName, OBJECT_CLASS.getClassNameAsContainer(), false,
 				ClassfileAccessFlag.ACC_PUBLIC, ClassfileAccessFlag.ACC_SUPER);
 
 		// add main method to this (main)classfile
@@ -140,24 +136,29 @@ public class Translator {
 	private void generateClassfilesForStructsInTAC(
 			final Classfile mainClassfile, final List<Quadruple> tac,
 			final String basicClassName) {
-		int structCount = -1;
+		int listIndex = -1;
 
 		// search for struct declarations
 		for (ListIterator<Quadruple> tacIter = tac.listIterator(); tacIter
 				.hasNext();) {
-			structCount++;
+			listIndex++;
 
 			// get the quadruple parts
-			final Quadruple quad = tacIter.next();
+			Quadruple quad = tacIter.next();
 			final Quadruple.Operator operator = quad.getOperator();
 			final String structName = quad.getResult();
-			final String arg1 = quad.getArgument1();
+
+			if (operator == Operator.DECLARE_ARRAY) {
+				do {
+					listIndex++;
+				} while ((quad = tacIter.next()).getOperator() == Operator.DECLARE_ARRAY);
+			}
 
 			/*
 			 * if the operator is an DECLARE_STRUCT-operator, a new classfile
 			 * has to be generated
 			 */
-			if (operator == Operator.DECLARE_STRUCT) {
+			if (quad.getOperator() == Operator.DECLARE_STRUCT) {
 
 				// generate appropriate classfile
 				// TODO normalize struct name
@@ -175,18 +176,19 @@ public class Translator {
 
 				// get struct's tac
 				final long memberVarsCount = Long
-						.parseLong(removeConstantSign(arg1));
+						.parseLong(removeConstantSign(quad.getArgument1()));
 				structTAC = getStructsTac(tacIter, memberVarsCount);
-				final int structEnd = structCount + structTAC.size();
+				final int structEnd = listIndex + structTAC.size();
 
-				translateStructIntoClassfile(structTAC, className);
+				translateStructIntoClassfile(mainClassfile, structTAC,
+						className);
 
 				/*
 				 * delete struct tac from tac, structStart + 1 to keep the
 				 * struct declaration
 				 */
-				tac.subList(structCount + 1, structEnd + 1).clear();
-				tacIter = tac.listIterator(structCount + 1);
+				tac.subList(listIndex + 1, structEnd + 1).clear();
+				tacIter = tac.listIterator(listIndex + 1);
 			}
 		}
 	}
@@ -251,8 +253,8 @@ public class Translator {
 	 * 
 	 * @since 24.06.2013
 	 */
-	private void translateStructIntoClassfile(final List<Quadruple> structTac,
-			final String className) {
+	private void translateStructIntoClassfile(final Classfile mainClassfile,
+			final List<Quadruple> structTac, final String className) {
 
 		// tac list for constructor code generation
 		final List<Quadruple> constructorTAC = new ArrayList<>();
@@ -262,7 +264,7 @@ public class Translator {
 
 		// create a new (main)classfile / classfile with main method
 		final Classfile structClassfile = generateClassfile(classFileName,
-				className, OBJECT_CLASSNAME_EIF, true,
+				className, OBJECT_CLASS.getClassNameAsContainer(), true,
 				ClassfileAccessFlag.ACC_PUBLIC, ClassfileAccessFlag.ACC_SUPER);
 
 		// add constants to constant pool
@@ -289,6 +291,7 @@ public class Translator {
 					final List<Quadruple> arrayTAC = new ArrayList<>();
 					arrayTAC.add(quad);
 					constructorTAC.add(quad);
+					int dimensions = 1;
 
 					// get rest of arrays tac
 					Quadruple arrayQuad = tacIter.next();
@@ -296,7 +299,9 @@ public class Translator {
 						arrayTAC.add(arrayQuad);
 						constructorTAC.add(arrayQuad);
 						arrayQuad = tacIter.next();
+						dimensions++;
 					}
+
 					if (arrayQuad.getOperator() == Operator.DECLARE_STRUCT) {
 						arrayTAC.add(arrayQuad);
 						constructorTAC.add(arrayQuad);
@@ -314,8 +319,8 @@ public class Translator {
 
 						// generate classfile for structTACwithoutFirstDecl
 						final String structClassName = className + "_" + name;
-						translateStructIntoClassfile(structTACwithoutFirstDecl,
-								structClassName);
+						translateStructIntoClassfile(mainClassfile,
+								structTACwithoutFirstDecl, structClassName);
 					} else {
 						arrayTAC.add(arrayQuad);
 						constructorTAC.add(arrayQuad);
@@ -325,6 +330,11 @@ public class Translator {
 					descriptor = ClassfileUtils.typeByQuadruples(arrayTAC);
 					structClassfile.addFieldToFieldArea(name, descriptor,
 							FieldAccessFlag.ACC_PUBLIC);
+
+					// register array of current struct with its dimensions
+					mainClassfile.addStructMemberArray(className + "_" + name,
+							descriptor);
+
 					/*
 					 * generate field reference info structure in the constant
 					 * pool, which will be used in the constructor for
@@ -335,6 +345,7 @@ public class Translator {
 					break;
 				case DECLARE_STRUCT:
 					// temp variables for found struct's tac
+					// TODO remoav
 					final List<Quadruple> structTAC = new ArrayList<>();
 
 					structTAC.add(quad);
@@ -349,8 +360,11 @@ public class Translator {
 
 					// generate classfile for structTACwithoutFirstDecl
 					final String structClassName = className + "_" + name;
-					translateStructIntoClassfile(structTACwithoutFirstDecl,
-							structClassName);
+					translateStructIntoClassfile(mainClassfile,
+							structTACwithoutFirstDecl, structClassName);
+
+					// register struct as substruct
+					mainClassfile.addSublevelStruct(structClassName);
 
 					// getDescriptor using structTAC
 					// TODO delete
@@ -578,6 +592,7 @@ public class Translator {
 				 * type is declared/ the array declaration is finished.
 				 */
 				while (tacIter.next().getOperator() == Operator.DECLARE_ARRAY) {
+
 				}
 				continue;
 			case DECLARE_STRUCT:

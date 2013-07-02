@@ -1,20 +1,7 @@
 package swp_compiler_ss13.javabite.backend.classfile;
 
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.byteArrayToHexString;
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToHexString;
-
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import swp_compiler_ss13.javabite.backend.translation.Instruction;
 import swp_compiler_ss13.javabite.backend.translation.Mnemonic;
 import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
@@ -23,6 +10,15 @@ import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ClassfileAccessFl
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.FieldAccessFlag;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodAccessFlag;
+
+import java.io.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.byteArrayToHexString;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToHexString;
 
 /**
  * <h1>Classfile</h1>
@@ -45,7 +41,12 @@ public class Classfile {
 	// name of File
 	private final String name;
 	private final boolean isStruct;
+
+    // used only in main classfile
+    // TODO moar commentz
 	private final Set<String> toplevelStructs;
+    private final Set<String> sublevelStructs;
+    private final Map<String, String> structMemberArrayTypes;
 
 	/*
 	 * general classfile constant pool information being used while classfile
@@ -109,6 +110,8 @@ public class Classfile {
 		this.name = name;
 		this.isStruct = isStruct;
 		toplevelStructs = new HashSet<>();
+        sublevelStructs = new HashSet<>();
+        structMemberArrayTypes = new HashMap<>();
 		this.thisClassNameEIF = thisClassNameEIF;
 		this.superClassNameEIF = superClassNameEIF;
 		interfaceCount = 0;
@@ -138,6 +141,26 @@ public class Classfile {
 	public boolean isToplevelStruct(final String structName) {
 		return toplevelStructs.contains(structName);
 	}
+
+    public void addSublevelStruct(final String structName) {
+        sublevelStructs.add(structName);
+    }
+
+    public boolean isSublevelStruct(final String structName) {
+        return sublevelStructs.contains(structName);
+    }
+
+    public void addStructMemberArray(final String arrayPath, final String arrayType) {
+        structMemberArrayTypes.put(arrayPath, arrayType);
+    }
+
+    public String getStructMemberArrayType(final String arrayPath) {
+        return structMemberArrayTypes.get(arrayPath);
+    }
+
+    public boolean isStructArray(final String arrayPath) {
+        return structMemberArrayTypes.containsKey(arrayPath);
+    }
 
 	/**
 	 * <h1>initializeClassfile</h1>
@@ -385,9 +408,10 @@ public class Classfile {
 		return constantPool.generateConstantClassInfo(value);
 	}
 
-	public short addClassConstantToConstantPool(final Class<?> clazz) {
-		return addClassConstantToConstantPool(ClassfileUtils.getClassName(
-				clazz, false));
+	public short addClassConstantToConstantPool(
+			final ClassfileUtils.ClassSignature classSignature) {
+		return addClassConstantToConstantPool(classSignature
+				.getClassNameAsContainer());
 	}
 
 	/**
@@ -455,7 +479,8 @@ public class Classfile {
 	public short addFieldrefConstantToConstantPool(
 			final ClassfileUtils.FieldSignature signature) {
 		return addFieldrefConstantToConstantPool(signature.fieldName,
-				signature.fieldDescriptor, signature.fieldClass);
+				signature.fieldType.getClassNameAsType(),
+				signature.fieldClass.getClassNameAsContainer());
 	}
 
 	/**

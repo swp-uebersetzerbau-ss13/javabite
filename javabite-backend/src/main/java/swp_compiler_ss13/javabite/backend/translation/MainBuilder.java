@@ -1,19 +1,15 @@
 package swp_compiler_ss13.javabite.backend.translation;
 
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isIgnoreParam;
-
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
-
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.javabite.backend.classfile.Classfile;
 import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
 import swp_compiler_ss13.javabite.backend.utils.ConstantUtils;
+
+import java.io.PrintStream;
+import java.util.*;
+
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isIgnoreParam;
 
 /**
  * <h1>MainBuilder</h1>
@@ -97,7 +93,9 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 		if (q.getOperator() == Quadruple.Operator.STRUCT_GET_REFERENCE) {
 			structNameBuilder.append("_").append(q.getArgument2());
 			structChains.put(q.getResult(), structNameBuilder.toString());
-		}
+		} else if(q.getOperator() == Quadruple.Operator.ARRAY_GET_REFERENCE) {
+            structChains.put(q.getResult(), structNameBuilder.toString());
+        }
 		return classfile.getClassname() + structChains.get(q.getArgument1());
 	}
 
@@ -268,16 +266,27 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	}
 
 	/**
+	 * TODO javadoc
+	 * 
+	 * @param type
+	 * @return
+	 */
+	private Operation arrayCreateOp(final ClassfileUtils.JavaType type) {
+		return arrayCreateOp(type.className, type.isPrimitive(), type.value);
+	}
+
+	/**
 	 * Creates a new array. There are three types of arrays: single dimension
 	 * primitive type, single dimension object type, multi dimension object
 	 * type. Because multi dimensional arrays contain arrays, both primitive and
 	 * object types can be stored within.
 	 * 
-	 * @param type
-	 *            datatype of array contents
+	 * TODO javadoc
+	 * 
 	 * @return new operation instance
 	 */
-	private Operation arrayCreateOp(final ClassfileUtils.JavaType type) {
+	private Operation arrayCreateOp(final String arrayClassName,
+			final boolean isPrimitive, final byte primitiveType) {
 		assert !ConstantUtils.isIgnoreParam(arrayName)
 				&& !arrayDimensions.isEmpty();
 		final Operation.Builder op = Operation.Builder.newBuilder();
@@ -294,7 +303,7 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 			// if more than 1 dimension, create a multi dimensional array
 			// every multi dimensional array is an array of references
 			final String classSignature = new String(new char[dimensions])
-					.replace("\0", "[") + type.className;
+					.replace("\0", "[") + arrayClassName;
 			final short classIndex = classfile
 					.addClassConstantToConstantPool(classSignature);
 			assert classIndex > 0;
@@ -303,20 +312,39 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 			assert classIndexArray.length == 2;
 			op.add(Mnemonic.MULTIANEWARRAY, classIndexArray[0],
 					classIndexArray[1], dimensions);
-		} else if (type.isPrimitive()) {
+		} else if (isPrimitive) {
 			// if single dimensional and primitive, create with type tagByte
-			op.add(Mnemonic.NEWARRAY, type.value);
+			op.add(Mnemonic.NEWARRAY, primitiveType);
 		} else {
 			// if single dimensional and complex (object), create with
 			// class reference
 			final short classIndex = classfile
-					.addClassConstantToConstantPool(type.className);
+					.addClassConstantToConstantPool(arrayClassName);
 			op.add(Mnemonic.ANEWARRAY, ByteUtils.shortToByteArray(classIndex));
 		}
 
 		op.add(storeInstruction(arrayName,
 				ClassfileUtils.LocalVariableType.AREF));
 		return op.build();
+	}
+
+	/**
+	 * TODO javadoc
+	 * 
+	 * @param q
+	 * @return
+	 */
+	private Operation.Builder prepareArrayAccess(final Quadruple q) {
+		final Operation.Builder op = Operation.Builder.newBuilder();
+		// load lv array
+		op.add(loadInstruction(q.getArgument1(),
+				ClassfileUtils.LocalVariableType.AREF));
+		// load lv array index
+		op.add(loadInstruction(q.getArgument2(),
+				ClassfileUtils.LocalVariableType.LONG));
+		// convert array index to int
+		op.add(Mnemonic.L2I);
+		return op;
 	}
 
 	/**
@@ -332,14 +360,7 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 */
 	private Operation arrayGetOp(final Quadruple q,
 			final ClassfileUtils.LocalVariableType variableType) {
-		final Operation.Builder op = Operation.Builder.newBuilder();
-		final byte arrayIndex = classfile.getIndexOfVariableInMethod(
-				methodName, q.getArgument1());
-		assert arrayIndex > 0;
-		op.add(Mnemonic.ALOAD.withIndex(arrayIndex), arrayIndex);
-		op.add(loadInstruction(q.getArgument2(),
-				ClassfileUtils.LocalVariableType.LONG));
-		op.add(Mnemonic.L2I);
+		final Operation.Builder op = prepareArrayAccess(q);
 		op.add(variableType.arrayLoadOp);
 		op.add(storeInstruction(q.getResult(), variableType));
 		return op.build();
@@ -359,14 +380,7 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 */
 	private Operation arraySetOp(final Quadruple q,
 			final ClassfileUtils.LocalVariableType variableType) {
-		final Operation.Builder op = Operation.Builder.newBuilder();
-		final byte arrayIndex = classfile.getIndexOfVariableInMethod(
-				methodName, q.getArgument1());
-		assert arrayIndex > 0;
-		op.add(Mnemonic.ALOAD.withIndex(arrayIndex), arrayIndex);
-		op.add(loadInstruction(q.getArgument2(),
-				ClassfileUtils.LocalVariableType.LONG));
-		op.add(Mnemonic.L2I);
+		final Operation.Builder op = prepareArrayAccess(q);
 		op.add(loadInstruction(q.getResult(), variableType));
 		op.add(variableType.arrayStoreOp);
 		return op.build();
@@ -411,15 +425,25 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 		final Operation.Builder op = Operation.Builder.newBuilder();
 		op.add(loadInstruction(q.getArgument1(),
 				ClassfileUtils.LocalVariableType.AREF));
-		final String fieldType;
-		final boolean isPrimitive = variableType.isPrimitive();
+		final ClassfileUtils.ClassSignature fieldClass;
 		if (variableType.javaType != null) {
-			fieldType = variableType.javaType.className;
+			// field is primitive or string
+			fieldClass = new ClassfileUtils.ClassSignature(
+					variableType.javaType.className);
+		} else if (classfile.isSublevelStruct(structName + "_"
+				+ q.getArgument2())) {
+			// field is struct
+			fieldClass = new ClassfileUtils.ClassSignature(structName + "_"
+					+ q.getArgument2());
 		} else {
-			fieldType = structName + "_" + q.getArgument2();
+			// field is array
+			final String arrayPath = structName + "_" + q.getArgument2();
+			final String arrayType = classfile
+					.getStructMemberArrayType(arrayPath);
+			fieldClass = new ClassfileUtils.ClassSignature(arrayType);
 		}
 		final ClassfileUtils.FieldSignature fieldSignature = new ClassfileUtils.FieldSignature(
-				q.getArgument2(), structName, fieldType, isPrimitive);
+				q.getArgument2(), structName, fieldClass.getClassNameAsType());
 		final short fieldIndex = classfile
 				.addFieldrefConstantToConstantPool(fieldSignature);
 		assert fieldIndex > 0;
@@ -445,14 +469,13 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 				ClassfileUtils.LocalVariableType.AREF));
 		op.add(loadInstruction(q.getResult(), variableType));
 		final String fieldType;
-		final boolean isPrimitive = variableType.isPrimitive();
 		if (variableType.javaType != null) {
 			fieldType = variableType.javaType.className;
 		} else {
 			fieldType = structName + "_" + q.getArgument2();
 		}
 		final ClassfileUtils.FieldSignature fieldSignature = new ClassfileUtils.FieldSignature(
-				q.getArgument2(), structName, fieldType, isPrimitive);
+				q.getArgument2(), structName, fieldType);
 		final short fieldIndex = classfile
 				.addFieldrefConstantToConstantPool(fieldSignature);
 		assert fieldIndex > 0;
@@ -1635,7 +1658,7 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 		final short systemOutIndex = classfile
 				.addFieldrefConstantToConstantPool(SYSTEM_OUT_FIELD);
 
-		// add printOp methodref info to constant pool, if necessary
+		// add print methodref info to constant pool, if necessary
 		final short printIndex = classfile
 				.addMethodrefConstantToConstantPool(PRINTSTREAM_PRINT_METHOD);
 
@@ -1833,6 +1856,7 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	public MainBuilder arrayGetReference(final Quadruple q) {
 		assert q.getOperator() == Quadruple.Operator.ARRAY_GET_REFERENCE;
 		assert hasArgsCount(q, 3);
+        getCompoundStructName(q);
 		return add(arrayGetOp(q, ClassfileUtils.LocalVariableType.AREF));
 	}
 
@@ -2087,7 +2111,11 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 */
 	public MainBuilder declareStruct(final Quadruple q) {
 		assert q.getOperator() == Quadruple.Operator.DECLARE_STRUCT;
-		assert hasArgsCount(q, 3);
+		assert hasArgsCount(q, 1, 2, 3);
+
+		if (ConstantUtils.isIgnoreParam(q.getResult())) {
+			return add(arrayCreateOp(q.getArgument2(), false, (byte) 0));
+		}
 
 		// create the signature of the default constructor
 		final ClassfileUtils.MethodSignature constructor = new ClassfileUtils.MethodSignature(
@@ -2424,7 +2452,7 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 		final short stringBuilderToString = classfile
 				.addMethodrefConstantToConstantPool(STRINGBUILDER_TOSTRING_METHOD);
 
-		op.add(createOperation(STRINGBUILDER_NEW_METHOD, null));
+		op.add(newObjectOperation(STRINGBUILDER_NEW_METHOD, null));
 
 		if (!isIgnoreParam(q.getArgument1())) {
 			op.add(loadInstruction(q.getArgument1(),

@@ -1,18 +1,15 @@
 package swp_compiler_ss13.javabite.backend.translation;
 
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.convertBooleanConstant;
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isBooleanConstant;
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isConstant;
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.removeConstantSign;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.javabite.backend.classfile.Classfile;
 import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
 import swp_compiler_ss13.javabite.backend.utils.ConstantUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.*;
 
 public abstract class AbstractBuilder<T extends AbstractBuilder<?>> {
 
@@ -156,7 +153,7 @@ public abstract class AbstractBuilder<T extends AbstractBuilder<?>> {
 	 *            name of variable to store object instance in
 	 * @return new operation instance
 	 */
-	protected Operation createOperation(
+	protected Operation newObjectOperation(
 			final ClassfileUtils.MethodSignature constructor, final String store) {
 		final Operation.Builder op = Operation.Builder.newBuilder();
 		final short classIndex = classfile
@@ -174,8 +171,8 @@ public abstract class AbstractBuilder<T extends AbstractBuilder<?>> {
 		op.add(Mnemonic.INVOKESPECIAL, ByteUtils.shortToByteArray(cstrIndex));
 		if (store != null) {
 			final ClassfileUtils.FieldSignature fieldSignature = new ClassfileUtils.FieldSignature(
-					store, classfile.getClassname(), constructor.methodClass,
-					false);
+					store, classfile.getClassname(),
+					constructor.methodClass.getClassNameAsType());
 			final short fieldIndex = classfile
 					.addFieldrefConstantToConstantPool(fieldSignature);
 			assert fieldIndex > 0;
