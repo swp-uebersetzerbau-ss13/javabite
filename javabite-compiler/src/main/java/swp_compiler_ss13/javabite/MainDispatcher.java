@@ -63,7 +63,7 @@ public class MainDispatcher {
 			showHelp();
 		}
 	}
-
+	
 	private static void showHelp() {
 		System.out.println("Help:");
 		// TODO: write help

@@ -1,5 +1,7 @@
 package swp_compiler_ss13.javabite.gui.ast;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Queue;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -17,8 +19,9 @@ import com.mxgraph.view.mxGraph;
 public class ASTVisualizerJb extends JComponent implements ASTVisualization {
 	
 	private static final long serialVersionUID = 1L;
-	
+	Map<Object, String> tooltips1 = new HashMap<Object, String>();
 	public mxGraph graph;
+	mxGraph graph1;
 	mxGraphComponent frame;
 	Queue<Object> toVisit_celledCopy;
 	int x, y;
@@ -29,7 +32,8 @@ public class ASTVisualizerJb extends JComponent implements ASTVisualization {
 		graph = new mxGraph(){
 			public String getToolTipForCell(Object cell) {
 				if (cell!=null){
-					return "Test";
+					String s = tooltips1.get(cell);
+					return s;
 				}
 				return null;
 			}
@@ -38,6 +42,7 @@ public class ASTVisualizerJb extends JComponent implements ASTVisualization {
 		style.style();
 		CreateTree createTree=new CreateTree(graph);
 		createTree.initTree(ast);
+		tooltips1=createTree.tooltips;
 		KhaledGraphFrame k = new KhaledGraphFrame();
 		this.x = 167 * k.levelsCounter(ast);
 		this.y = 47 * k.maximumOfNodesInLevels();
@@ -52,6 +57,7 @@ public class ASTVisualizerJb extends JComponent implements ASTVisualization {
 		HidingSubTree h = new HidingSubTree(graph,frame,ast);
 		h.hiddenSubTree();
 	}
+	
 
 	public JScrollPane getFrame() {
 		return frame;
