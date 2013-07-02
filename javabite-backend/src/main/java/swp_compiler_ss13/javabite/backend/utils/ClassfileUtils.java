@@ -1,13 +1,14 @@
 package swp_compiler_ss13.javabite.backend.utils;
 
-import org.apache.commons.lang.StringUtils;
-import swp_compiler_ss13.common.backend.Quadruple;
-import swp_compiler_ss13.common.backend.Quadruple.Operator;
-import swp_compiler_ss13.javabite.backend.translation.Mnemonic;
-
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
+
+import swp_compiler_ss13.common.backend.Quadruple;
+import swp_compiler_ss13.common.backend.Quadruple.Operator;
+import swp_compiler_ss13.javabite.backend.translation.Mnemonic;
 
 public final class ClassfileUtils {
 
@@ -296,9 +297,9 @@ public final class ClassfileUtils {
 		public final boolean isArray;
 
 		public ClassSignature(final Class<?> clazz) {
-			this.isPrimitive = clazz.isPrimitive();
-			this.isArray = clazz.isArray();
-			this.className = getClassName(clazz);
+			isPrimitive = clazz.isPrimitive();
+			isArray = clazz.isArray();
+			className = getClassName(clazz);
 			if (isPrimitive || isArray)
 				typeClassName = className;
 			else
@@ -306,8 +307,8 @@ public final class ClassfileUtils {
 		}
 
 		public ClassSignature(final String className) {
-			this.isPrimitive = isPrimitiveClass(className);
-			this.isArray = isArray(className);
+			isPrimitive = isPrimitiveClass(className);
+			isArray = isArray(className);
 			this.className = className;
 			if (isPrimitive || isArray)
 				typeClassName = className;
@@ -317,15 +318,15 @@ public final class ClassfileUtils {
 
 		public ClassSignature(final String className, final int arrayDimensions) {
 			assert arrayDimensions > 0;
-			this.isPrimitive = isPrimitiveClass(className);
+			isPrimitive = isPrimitiveClass(className);
 			this.className = StringUtils.leftPad("", arrayDimensions, '[')
 					+ className;
-			this.isArray = true;
+			isArray = true;
 			if (isPrimitive) {
-				this.typeClassName = this.className;
+				typeClassName = this.className;
 			} else {
-				this.typeClassName = StringUtils.leftPad("", arrayDimensions,
-						'[') + classAsType(className, isPrimitive);
+				typeClassName = StringUtils.leftPad("", arrayDimensions, '[')
+						+ classAsType(className, isPrimitive);
 			}
 		}
 

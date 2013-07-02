@@ -1,21 +1,26 @@
 package swp_compiler_ss13.javabite.backend.translation;
 
-import swp_compiler_ss13.common.backend.Quadruple;
-import swp_compiler_ss13.common.backend.Quadruple.Operator;
-import swp_compiler_ss13.javabite.backend.classfile.Classfile;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.*;
-import swp_compiler_ss13.javabite.backend.utils.ConstantUtils;
-import swp_compiler_ss13.javabite.backend.utils.QuadrupleUtils;
-import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isConstant;
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.removeConstantSign;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.ListIterator;
 
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isConstant;
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.removeConstantSign;
+import swp_compiler_ss13.common.backend.Quadruple;
+import swp_compiler_ss13.common.backend.Quadruple.Operator;
+import swp_compiler_ss13.javabite.backend.classfile.Classfile;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ClassfileAccessFlag;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.FieldAccessFlag;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodAccessFlag;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodSignature;
+import swp_compiler_ss13.javabite.backend.utils.ConstantUtils;
+import swp_compiler_ss13.javabite.backend.utils.QuadrupleUtils;
+import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
 
 /**
  * <h1>Translator</h1>

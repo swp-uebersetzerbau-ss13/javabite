@@ -1,15 +1,19 @@
 package swp_compiler_ss13.javabite.backend.translation;
 
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isIgnoreParam;
+
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
+
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.javabite.backend.classfile.Classfile;
 import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
 import swp_compiler_ss13.javabite.backend.utils.ConstantUtils;
-
-import java.io.PrintStream;
-import java.util.*;
-
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isIgnoreParam;
 
 /**
  * <h1>MainBuilder</h1>
@@ -93,9 +97,9 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 		if (q.getOperator() == Quadruple.Operator.STRUCT_GET_REFERENCE) {
 			structNameBuilder.append("_").append(q.getArgument2());
 			structChains.put(q.getResult(), structNameBuilder.toString());
-		} else if(q.getOperator() == Quadruple.Operator.ARRAY_GET_REFERENCE) {
-            structChains.put(q.getResult(), structNameBuilder.toString());
-        }
+		} else if (q.getOperator() == Quadruple.Operator.ARRAY_GET_REFERENCE) {
+			structChains.put(q.getResult(), structNameBuilder.toString());
+		}
 		return classfile.getClassname() + structChains.get(q.getArgument1());
 	}
 
@@ -1856,7 +1860,7 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	public MainBuilder arrayGetReference(final Quadruple q) {
 		assert q.getOperator() == Quadruple.Operator.ARRAY_GET_REFERENCE;
 		assert hasArgsCount(q, 3);
-        getCompoundStructName(q);
+		getCompoundStructName(q);
 		return add(arrayGetOp(q, ClassfileUtils.LocalVariableType.AREF));
 	}
 

@@ -1,15 +1,18 @@
 package swp_compiler_ss13.javabite.backend.translation;
 
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.convertBooleanConstant;
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isBooleanConstant;
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isConstant;
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.removeConstantSign;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.javabite.backend.classfile.Classfile;
 import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
 import swp_compiler_ss13.javabite.backend.utils.ConstantUtils;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.*;
 
 public abstract class AbstractBuilder<T extends AbstractBuilder<?>> {
 

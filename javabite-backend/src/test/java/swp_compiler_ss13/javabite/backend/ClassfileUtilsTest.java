@@ -1,9 +1,10 @@
 package swp_compiler_ss13.javabite.backend;
 
-import org.junit.Test;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
-
 import java.io.PrintStream;
+
+import org.junit.Test;
+
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
 
 public class ClassfileUtilsTest {
 
@@ -14,7 +15,7 @@ public class ClassfileUtilsTest {
 		System.out
 				.println("class as container: " + c.getClassNameAsContainer());
 		System.out.println("class as type: " + c.getClassNameAsType());
-        System.out.println("is primitive: " + c.isPrimitive);
+		System.out.println("is primitive: " + c.isPrimitive);
 	}
 
 	@Test
@@ -24,7 +25,7 @@ public class ClassfileUtilsTest {
 		System.out
 				.println("class as container: " + c.getClassNameAsContainer());
 		System.out.println("class as type: " + c.getClassNameAsType());
-        System.out.println("is primitive: " + c.isPrimitive);
+		System.out.println("is primitive: " + c.isPrimitive);
 	}
 
 	@Test
@@ -34,7 +35,7 @@ public class ClassfileUtilsTest {
 		System.out
 				.println("class as container: " + c.getClassNameAsContainer());
 		System.out.println("class as type: " + c.getClassNameAsType());
-        System.out.println("is primitive: " + c.isPrimitive);
+		System.out.println("is primitive: " + c.isPrimitive);
 	}
 
 	@Test
@@ -44,7 +45,7 @@ public class ClassfileUtilsTest {
 		System.out
 				.println("class as container: " + c.getClassNameAsContainer());
 		System.out.println("class as type: " + c.getClassNameAsType());
-        System.out.println("is primitive: " + c.isPrimitive);
+		System.out.println("is primitive: " + c.isPrimitive);
 	}
 
 	@Test

@@ -1,12 +1,12 @@
 package swp_compiler_ss13.javabite.backend.translation;
 
+import java.util.Stack;
+
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.javabite.backend.classfile.Classfile;
 import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
 import swp_compiler_ss13.javabite.backend.utils.ConstantUtils;
-
-import java.util.Stack;
 
 public class StructBuilder extends AbstractBuilder<StructBuilder> {
 
@@ -17,7 +17,7 @@ public class StructBuilder extends AbstractBuilder<StructBuilder> {
 
 	public StructBuilder(final Classfile classfile, final String methodName) {
 		super(classfile, methodName);
-		this.arrayDimensions = new Stack<>();
+		arrayDimensions = new Stack<>();
 	}
 
 	@Override
@@ -72,7 +72,7 @@ public class StructBuilder extends AbstractBuilder<StructBuilder> {
 		final ClassfileUtils.ClassSignature arrayClass = new ClassfileUtils.ClassSignature(
 				type.className, dimensions);
 
-        op.add(Mnemonic.ALOAD_0);
+		op.add(Mnemonic.ALOAD_0);
 
 		// add all dimensions to stack for array creation
 		while (!arrayDimensions.isEmpty()) {
