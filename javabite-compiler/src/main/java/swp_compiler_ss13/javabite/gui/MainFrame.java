@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Insets;
+import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -320,6 +321,11 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 			}
 		});
 		
+		//Hotkey manager
+		HotkeyManager hotkeyManager = new HotkeyManager(fileManager,editorPaneSourcecode,this);
+		KeyboardFocusManager keyboardFocusManager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+		keyboardFocusManager.addKeyEventDispatcher(hotkeyManager);
+		
 		// undo redo manager
 		undoManager = new UndoCostumManager(editorPaneSourcecode);
 		
@@ -480,7 +486,7 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 	/**
 	 * Main entry point for the compile process
 	 * */
-	private void compile() {
+	public void compile() {
 		progressBar.setValue(0);
 		try {
 			if (!fileManager.saveFileIfChanged())
