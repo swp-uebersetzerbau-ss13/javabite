@@ -15,7 +15,10 @@ import java.awt.event.MouseEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -54,6 +57,7 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyledDocument;
 import javax.swing.text.Utilities;
 
+import org.apache.commons.io.HexDump;
 import org.apache.commons.io.IOUtils;
 
 import swp_compiler_ss13.common.ast.AST;
@@ -67,6 +71,7 @@ import swp_compiler_ss13.javabite.config.Configurable;
 import swp_compiler_ss13.javabite.config.JavabiteConfig;
 import swp_compiler_ss13.javabite.gui.ast.ASTVisualizerJb;
 import swp_compiler_ss13.javabite.gui.ast.fitted.KhaledGraphFrame;
+import swp_compiler_ss13.javabite.gui.bytecode.ByteCodeVisualizerJb;
 import swp_compiler_ss13.javabite.gui.config.SettingsPanel;
 import swp_compiler_ss13.javabite.gui.tac.TacVisualizerJb;
 import swp_compiler_ss13.javabite.runtime.JavaClassProcess;
@@ -80,6 +85,7 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 	
 	private boolean astVisualizationRequested = false;
 	private boolean tacVisualizationRequested = false;
+	private boolean byteCodeVisualizationRequested = false;
 	
 	// components
 	JMenuBar menuBar;
@@ -90,6 +96,7 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 	JMenu menuVisual;
 	JMenuItem menuVisualAst;
 	JMenuItem menuVisualTac;
+	JMenuItem menuVisualByteCode;
 	JButton buttonRunCompile;
 	JToolBar toolBar;
 	JPanel panelLabel;
@@ -109,6 +116,8 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 	
 	// file for opened sourcecode and changes listener
 	File openedFile = null;
+	// result file
+	File mainfile = null;
 	boolean fileChanged = false;
 	SourecodeDocumentListener sourceCodeListener;
 	FileManager fileManager;
@@ -346,6 +355,14 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 			}
 		});
 		menuVisual.add(menuVisualTac);
+		
+		menuVisualByteCode = new JMenuItem("ByteCode");
+		menuVisualByteCode.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				requestByteCodeVisualization();
+			}
+		});
+		menuVisual.add(menuVisualByteCode);
 		
 		buttonRunCompile = new JButton("\u25BA");
 		buttonRunCompile.addActionListener(new ActionListener() {
@@ -799,8 +816,9 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 				for (int i = 0; i < modelReportLogs.getRowCount(); i++) {
 					modelReportLogs.removeRow(i);
 				}
-				File mainFile = guiCompiler.compile(openedFile);
-				if (mainFile == null) {
+				
+				mainfile = guiCompiler.compile(openedFile);
+				if (mainfile == null) {
 					progressBar.setValue(100);
 					progressBar.setEnabled(false);
 					return;
@@ -816,7 +834,7 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 				textPaneConsole.setText(textPaneConsole.getText() + "\n[Compiler] execute program...");
 				toolBarLabel.setText("Execute program...");
 				Long startTime = System.currentTimeMillis();
-				JavaClassProcess p = guiCompiler.execute(mainFile);
+				JavaClassProcess p = guiCompiler.execute(mainfile);
 				Long stopTime = System.currentTimeMillis();
 				textPaneConsole.setText(textPaneConsole.getText() + "\n" + p.getProcessOutput());
 				textPaneConsole.setText(textPaneConsole.getText() + "\nReturn value: " + p.getReturnValue() + "\nExecution time: " + (stopTime - startTime) + "ms");
@@ -840,6 +858,19 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 			progressBar.setValue(0);
 			progressBar.setEnabled(false);
 		}
+	}
+	
+	private String dump(File classfile) {
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		
+		byte[] bytes;
+		try {
+			bytes = IOUtils.toByteArray(new FileInputStream(classfile));
+			HexDump.dump(bytes, 0, baos, 0);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return baos.toString();
 	}
 
 	/**
@@ -906,7 +937,27 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 		toolBarLabel.setText("Rendered AST.");
 	}
 	
-
+	private void requestByteCodeVisualization() {
+		byteCodeVisualizationRequested = true;
+		compile();
+	}
+	
+	private void showByteCodeVisualization(File mainClassfile) {
+		progressBar.setValue(0);
+		progressBar.setEnabled(false);
+		if (errorReported) {
+			JOptionPane.showMessageDialog(null, "While generating the Byte Code an error occoured.", "Compilation Errors", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		
+		byteCodeVisualizationRequested = false;
+		
+		String hexdump = dump(mainClassfile);
+		
+		
+		new ByteCodeVisualizerJb(mainClassfile).visualizeByteCode(hexdump);
+		toolBarLabel.setText("Rendered Byte Code.");
+	}
 
 	@Override
 	public void onConfigChanges(JavabiteConfig config) {
@@ -982,8 +1033,8 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 					showTacVisualization(tac);
 				return reportFailure();
 			}
-
-			if (tacVisualizationRequested) {
+			
+			if(tacVisualizationRequested){
 				showTacVisualization(tac);
 				return false;
 			}
@@ -999,6 +1050,12 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 			if (errorReported) {
 				return reportFailure();
 			}
+
+			if(byteCodeVisualizationRequested){
+				showByteCodeVisualization(mainClassFile);
+				return false;
+			}
+
 
 			progressBar.setValue(90);
 			textPaneLogs.setText(textPaneLogs.getText() + "\nCompilation successful. Main-file written to: " + mainClassFile.getAbsolutePath());
