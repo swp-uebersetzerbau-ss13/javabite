@@ -94,6 +94,11 @@ class GuiCompiler extends AbstractJavabiteCompiler {
 		if (mf.errorReported) {
 			return reportFailure();
 		}
+		
+		if (mf.byteCodeVisualizationRequested) {
+			mf.showByteCodeVisualization(mainClassFile);
+			return false;
+		}
 
 		mf.setProgress(90);
 		mf.appendToLogs("\nCompilation successful. Main-file written to: " + mainClassFile.getAbsolutePath());

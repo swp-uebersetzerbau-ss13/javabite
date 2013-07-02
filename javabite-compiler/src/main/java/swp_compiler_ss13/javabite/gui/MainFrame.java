@@ -590,6 +590,24 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 		toolBarLabel.setText("Rendered TAC.");
 	}
 	
+	private void requestByteCodeVisualization() {
+		byteCodeVisualizationRequested = true;
+		compile();
+	}
+	
+	void showByteCodeVisualization(File classfile) {
+		progressBar.setValue(0);
+		progressBar.setEnabled(false);
+		if (errorReported) {
+			JOptionPane.showMessageDialog(null, "While generating the Three Adress Code an error occoured.", "Compilation Errors", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		
+		byteCodeVisualizationRequested = false;
+		new ByteCodeVisualizerJb(classfile).visualizeByteCode(dump(classfile));
+		toolBarLabel.setText("Rendered ByteCode.");
+	}
+	
 	private void requestAstVisualization() {
 		astVisualizationRequested = true;
 		compile();
