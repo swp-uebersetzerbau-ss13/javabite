@@ -12,18 +12,8 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.Icon;
@@ -48,7 +38,6 @@ import javax.swing.ToolTipManager;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.DefaultStyledDocument;
 
-import org.apache.commons.io.HexDump;
 import org.apache.commons.io.IOUtils;
 
 import swp_compiler_ss13.common.ast.AST;
@@ -58,7 +47,6 @@ import swp_compiler_ss13.common.report.ReportLog;
 import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.javabite.config.Configurable;
 import swp_compiler_ss13.javabite.config.JavabiteConfig;
-
 import swp_compiler_ss13.javabite.gui.ast.ASTVisualizerJb;
 import swp_compiler_ss13.javabite.gui.ast.fitted.KhaledGraphFrame;
 import swp_compiler_ss13.javabite.gui.bytecode.ByteCodeVisualizerJb;
@@ -563,19 +551,6 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 		}
 	}
 
-	private String dump(File classfile) {
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		
-		byte[] bytes;
-		try {
-			bytes = IOUtils.toByteArray(new FileInputStream(classfile));
-			HexDump.dump(bytes, 0, baos, 0);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return baos.toString();
-	}
-
 	private void requestTacVisualization() {
 		tacVisualizationRequested = true;
 		compile();
@@ -603,12 +578,12 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 		progressBar.setValue(0);
 		progressBar.setEnabled(false);
 		if (errorReported) {
-			JOptionPane.showMessageDialog(null, "While generating the Three Adress Code an error occoured.", "Compilation Errors", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "While generating the Target Code an error occoured.", "Compilation Errors", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 		
 		byteCodeVisualizationRequested = false;
-		new ByteCodeVisualizerJb(classfile).visualizeByteCode(dump(classfile));
+		new ByteCodeVisualizerJb().visualizeByteCode(classfile);
 		toolBarLabel.setText("Rendered ByteCode.");
 	}
 	
