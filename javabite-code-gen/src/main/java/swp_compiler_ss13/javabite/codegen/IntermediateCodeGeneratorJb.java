@@ -25,7 +25,9 @@ import swp_compiler_ss13.javabite.codegen.converters.AssignmentNodeConverter;
 import swp_compiler_ss13.javabite.codegen.converters.BasicIdentifierNodeConverter;
 import swp_compiler_ss13.javabite.codegen.converters.BlockNodeConverter;
 import swp_compiler_ss13.javabite.codegen.converters.BranchNodeConverter;
+import swp_compiler_ss13.javabite.codegen.converters.BreakNodeConverter;
 import swp_compiler_ss13.javabite.codegen.converters.DeclarationNodeConverter;
+import swp_compiler_ss13.javabite.codegen.converters.DoWhileNodeConverter;
 import swp_compiler_ss13.javabite.codegen.converters.LiteralNodeConverter;
 import swp_compiler_ss13.javabite.codegen.converters.LogicBinaryExpressionNodeConverter;
 import swp_compiler_ss13.javabite.codegen.converters.LogicUnaryExpressionNodeConverter;
@@ -33,6 +35,7 @@ import swp_compiler_ss13.javabite.codegen.converters.PrintNodeConverter;
 import swp_compiler_ss13.javabite.codegen.converters.RelationExpressionNodeConverter;
 import swp_compiler_ss13.javabite.codegen.converters.ReturnNodeConverter;
 import swp_compiler_ss13.javabite.codegen.converters.StructIdentifierNodeConverter;
+import swp_compiler_ss13.javabite.codegen.converters.WhileNodeConverter;
 
 public class IntermediateCodeGeneratorJb implements
 		Ast2CodeConverterCompatibleGenerator {
@@ -42,24 +45,25 @@ public class IntermediateCodeGeneratorJb implements
 	private static final Class<?>[] converterClasses = {
 			ArithmeticBinaryExpressionNodeConverter.class,
 			ArithmeticUnaryExpressionNodeConverter.class,
-			ArrayIdentifierNodeConverter.class,
-			AssignmentNodeConverter.class, BasicIdentifierNodeConverter.class,
-			BlockNodeConverter.class, BranchNodeConverter.class,
-			DeclarationNodeConverter.class, LiteralNodeConverter.class,
+			ArrayIdentifierNodeConverter.class, AssignmentNodeConverter.class,
+			BasicIdentifierNodeConverter.class, BlockNodeConverter.class,
+			BranchNodeConverter.class, BreakNodeConverter.class,
+			DeclarationNodeConverter.class, DoWhileNodeConverter.class,
+			LiteralNodeConverter.class,
 			LogicBinaryExpressionNodeConverter.class,
 			LogicUnaryExpressionNodeConverter.class, PrintNodeConverter.class,
 			RelationExpressionNodeConverter.class, ReturnNodeConverter.class,
-			StructIdentifierNodeConverter.class};
+			StructIdentifierNodeConverter.class, WhileNodeConverter.class };
 
 	private static final String IDENTIFIER_GENERATION_PREFIX = "TMP";
 	private long identifierGenerationCounter = 0;
 
 	private static final String LABEL_PREFIX = "LABEL";
 	private long labelCounter = 0;
-	
+
 	private static final String REFERENCE_NAME = "ref";
 	private long referenceGeneratorCounter = 0;
-	
+
 	List<Quadruple> quadruples = new ArrayList<>(1000);
 
 	/**
