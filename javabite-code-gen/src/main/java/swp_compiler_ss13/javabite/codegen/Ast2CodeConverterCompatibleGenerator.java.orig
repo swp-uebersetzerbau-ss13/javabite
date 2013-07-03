@@ -103,4 +103,32 @@ public interface Ast2CodeConverterCompatibleGenerator extends
 	 * @return the reference name 
 	 */
 	String getNewReference();
+<<<<<<< HEAD
+	
+	void enterNewMemberAndReferenceScope();
+
+	void leaveLastMemberAndReferenceScope();
+	
+	void pushMembers(Member[] members);
+	
+	Member[] peekMembers();
+	
+	Member[] popMembers();
+	
+	boolean isInsideOfStruct();
+	
+	/**
+	 * pushes a reference on a special stack
+	 * @param reference
+	 */
+	void pushReference(String reference);
+	
+	/**
+	 * @return pop from reference stack
+	 */
+	String popReference();
+	
+	boolean isReferenceOnStack();
+=======
+>>>>>>> 834a8cb3e4269c4c496b83d6a7988bbe00e96c9c
 }

@@ -104,7 +104,7 @@ public class HotkeyManager implements KeyEventDispatcher {
 			}
 		}
 		
-		System.out.println(arg0.getKeyCode());
+		//System.out.println(arg0.getKeyCode());
 		return false;
 	}
 	private void selectAllText() {

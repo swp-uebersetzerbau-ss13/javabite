@@ -418,16 +418,37 @@ public class QuadrupleFactoryJb {
 	}
 	
 	public static Quadruple generateGetStructReference(String arrayName,
+<<<<<<< HEAD
+			String index, String reference) {
+		return new QuadrupleJb(Operator.STRUCT_GET_REFERENCE, arrayName, index,
+				reference);
+	}
+
+	public static Quadruple generateGetStruct(String arrayName, String index,
+=======
 			String fieldName, String reference) {
 		return new QuadrupleJb(Operator.STRUCT_GET_REFERENCE, arrayName, fieldName,
 				reference);
 	}
 
 	public static Quadruple generateGetStruct(String arrayName, String fieldName,
+>>>>>>> 834a8cb3e4269c4c496b83d6a7988bbe00e96c9c
 			IdentifierData data) throws IntermediateCodeGeneratorException {
 		switch (data.getType().getKind()) {
 		case BOOLEAN:
 			return new QuadrupleJb(Operator.STRUCT_GET_BOOLEAN, arrayName,
+<<<<<<< HEAD
+					index, data.getIdentifier());
+		case DOUBLE:
+			return new QuadrupleJb(Operator.STRUCT_GET_DOUBLE, arrayName,
+					index, data.getIdentifier());
+		case LONG:
+			return new QuadrupleJb(Operator.STRUCT_GET_LONG, arrayName,
+					index, data.getIdentifier());
+		case STRING:
+			return new QuadrupleJb(Operator.STRUCT_GET_STRING, arrayName,
+					index, data.getIdentifier());
+=======
 					fieldName, data.getIdentifier());
 		case DOUBLE:
 			return new QuadrupleJb(Operator.STRUCT_GET_DOUBLE, arrayName,
@@ -438,17 +459,34 @@ public class QuadrupleFactoryJb {
 		case STRING:
 			return new QuadrupleJb(Operator.STRUCT_GET_STRING, arrayName,
 					fieldName, data.getIdentifier());
+>>>>>>> 834a8cb3e4269c4c496b83d6a7988bbe00e96c9c
 		default:
 			throw new IntermediateCodeGeneratorException("Unsupported type: "
 					+ data.getType().getKind());
 		}
 	}
 	
+<<<<<<< HEAD
+	public static Quadruple generateSetStruct(String arrayName, String index,
+=======
 	public static Quadruple generateSetStruct(String arrayName, String fieldName,
+>>>>>>> 834a8cb3e4269c4c496b83d6a7988bbe00e96c9c
 			IdentifierData data) throws IntermediateCodeGeneratorException {
 		switch (data.getType().getKind()) {
 		case BOOLEAN:
 			return new QuadrupleJb(Operator.STRUCT_SET_BOOLEAN, arrayName,
+<<<<<<< HEAD
+					index, data.getIdentifier());
+		case DOUBLE:
+			return new QuadrupleJb(Operator.STRUCT_SET_DOUBLE, arrayName,
+					index, data.getIdentifier());
+		case LONG:
+			return new QuadrupleJb(Operator.STRUCT_SET_LONG, arrayName,
+					index, data.getIdentifier());
+		case STRING:
+			return new QuadrupleJb(Operator.STRUCT_SET_STRING, arrayName,
+					index, data.getIdentifier());
+=======
 					fieldName, data.getIdentifier());
 		case DOUBLE:
 			return new QuadrupleJb(Operator.STRUCT_SET_DOUBLE, arrayName,
@@ -459,6 +497,7 @@ public class QuadrupleFactoryJb {
 		case STRING:
 			return new QuadrupleJb(Operator.STRUCT_SET_STRING, arrayName,
 					fieldName, data.getIdentifier());
+>>>>>>> 834a8cb3e4269c4c496b83d6a7988bbe00e96c9c
 		default:
 			throw new IntermediateCodeGeneratorException("Unsupported type: "
 					+ data.getType().getKind());

@@ -1,5 +1,11 @@
 package swp_compiler_ss13.javabite.codegen.converters;
 
+<<<<<<< HEAD
+import java.util.ArrayDeque;
+import java.util.Deque;
+
+=======
+>>>>>>> 834a8cb3e4269c4c496b83d6a7988bbe00e96c9c
 import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.ASTNode.ASTNodeType;
 import swp_compiler_ss13.common.ast.nodes.IdentifierNode;
@@ -23,6 +29,61 @@ public class ArrayIdentifierNodeConverter extends AbstractAst2CodeConverter {
 			throw new IntermediateCodeGeneratorException();
 		ArrayIdentifierNode arrayIdentifierNode = (ArrayIdentifierNode) node;
 		
+<<<<<<< HEAD
+		Deque<ArrayIdentifierNode> stack = new ArrayDeque<>();
+		stack.push(arrayIdentifierNode);
+		IdentifierNode idNode = arrayIdentifierNode.getIdentifierNode();
+		while (idNode instanceof ArrayIdentifierNode) {
+			ArrayIdentifierNode ain = (ArrayIdentifierNode) idNode;
+			stack.push(ain);
+			idNode = ain.getIdentifierNode();
+		}
+		
+		boolean isEndNodeBasicIdentifier = idNode instanceof BasicIdentifierNode;
+		boolean isEndNodeStructIdentifier = idNode instanceof StructIdentifierNode;
+		
+		if (!isEndNodeBasicIdentifier && !isEndNodeStructIdentifier) {
+			throw new IntermediateCodeGeneratorException("Unexpected AST structure");
+		}
+		
+		//TODO: for index nodes we must open a new InsideOfStruct-scope
+		
+		String baseName;
+		if (icg.isInsideOfStruct()) {
+			//TODO: implement
+			throw new IntermediateCodeGeneratorException("Arrays inside of structs are not supported yet");
+		} else if (isEndNodeBasicIdentifier) {
+			baseName = ((BasicIdentifierNode)idNode).getIdentifier();
+		} else {
+			IdentifierNode structId = ((StructIdentifierNode)idNode).getIdentifierNode();
+			
+			if (!(structId instanceof BasicIdentifierNode)) {
+				throw new IntermediateCodeGeneratorException("Unexpected AST structure");
+			}
+			
+			baseName = ((BasicIdentifierNode)structId).getIdentifier();
+		}
+		
+		if (stack.size() > 1) {
+			icg.addQuadruple(null);
+			//TODO
+		} 
+	
+		
+		
+		
+		ASTNode parent = arrayIdentifierNode.getParentNode();
+		// if node is inside an array chain it use a reference and not the
+		// array-name which gets pushed up from lowest level
+		// to check if the node is inside the a chain the parent has to be an
+		// ArrayIdentifierNode and this node must be its IdentifierNode
+		boolean insideArrayChain = parent instanceof ArrayIdentifierNode
+				&& ((ArrayIdentifierNode) parent).getIdentifierNode() == arrayIdentifierNode;
+		// this is the bottom of the array chain (probably a one element chain) if
+		// IdentifierNode is not an ArrayIdentifierNode
+		boolean isBottomOfArrayChain = !(idNode instanceof ArrayIdentifierNode);
+		boolean childIsBasicIdentifier = idNode instanceof BasicIdentifierNode;
+=======
 		icg.processNode(arrayIdentifierNode.getIdentifierNode());
 		IdentifierData prefixId = icg.popIdentifierData();
 
@@ -36,6 +97,7 @@ public class ArrayIdentifierNodeConverter extends AbstractAst2CodeConverter {
 
 		icg.processNode(arrayIdentifierNode.getIndexNode());
 		IdentifierData indexId = icg.popIdentifierData();
+>>>>>>> 834a8cb3e4269c4c496b83d6a7988bbe00e96c9c
 		
 		if (!(indexId.getType() instanceof LongType)) {
 			throw new IntermediateCodeGeneratorException("Index expression is not of type Long");
