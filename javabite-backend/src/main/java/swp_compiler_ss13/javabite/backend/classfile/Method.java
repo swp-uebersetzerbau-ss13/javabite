@@ -149,9 +149,9 @@ class Method {
 	 * @see Code#addVariable(String,
 	 *      swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType)
 	 */
-	void addVariableToCodeAttribute(final String variableName,
+	byte addVariableToCodeAttribute(final String variableName,
 			final ClassfileUtils.LocalVariableType localVariableType) {
-		codeAttribute.addVariable(variableName, localVariableType);
+		return codeAttribute.addVariable(variableName, localVariableType);
 	}
 
 	/**
@@ -178,21 +178,17 @@ class Method {
 	 * <p>
 	 * This method adds a new Instruction object to the code area of the code
 	 * attribute of this method using the CodeAttribute's method
-	 * {@link Code#addInstruction(Instruction)}.
+	 * {@link Code#addInstructions(swp_compiler_ss13.javabite.backend.translation.Instruction...)}.
 	 * </p>
 	 * 
 	 * @since 30.04.2013
-	 * @param instruction
-	 *            instance of class Instruction
+	 * @param instructions
+	 *            instances of class Instruction
 	 * @see Code
-	 * @see Code#addInstruction(Instruction)
+	 * @see Code#addInstructions(swp_compiler_ss13.javabite.backend.translation.Instruction...)
 	 * @see Instruction
 	 */
-	void addInstructionToCodeAttribute(final Instruction instruction) {
-		codeAttribute.addInstruction(instruction);
-	}
-
-	void addInstructionsToCodeAttribute(final Instruction[] instructions) {
+	void addInstructionsToCodeAttribute(final Instruction... instructions) {
 		codeAttribute.addInstructions(instructions);
 	}
 }

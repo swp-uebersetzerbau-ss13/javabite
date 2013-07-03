@@ -28,6 +28,8 @@ public class QuadrupleReader {
 		final List<Quadruple> quadruples = new ArrayList<>();
 		String line;
 		while ((line = in.readLine()) != null) {
+			if (line.length() == 0)
+				continue;
 			final String[] parts = line.split(" ");
 			quadruples.add(new QuadrupleJb(
 					Quadruple.Operator.valueOf(parts[0]), parts[1], parts[2],

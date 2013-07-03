@@ -197,13 +197,19 @@ class Code {
 	 * @see swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType
 	 * @see #variableMap
 	 */
-	void addVariable(final String variableName,
+	byte addVariable(final String variableName,
 			final LocalVariableType localVariableType) {
 
+		final byte index;
 		if (!variableMap.containsKey(variableName)) {
 			variableMap.put(variableName, (byte) maxLocals);
+			index = (byte) maxLocals;
 			maxLocals += localVariableType.length;
+		} else {
+			index = variableMap.get(variableName);
 		}
+
+		return index;
 	}
 
 	/**
@@ -238,16 +244,12 @@ class Code {
 	 * </p>
 	 * 
 	 * @since 30.04.2013
-	 * @param instruction
-	 *            instance of class Instruction
+	 * @param instructions
+	 *            instances of class Instruction
 	 * @see #codeArea
 	 * @see Instruction
 	 */
-	void addInstruction(final Instruction instruction) {
-		codeArea.add(instruction);
-	}
-
-	void addInstructions(final Instruction[] instructions) {
+	void addInstructions(final Instruction... instructions) {
 		Collections.addAll(codeArea, instructions);
 	}
 

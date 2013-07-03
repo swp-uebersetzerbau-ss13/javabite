@@ -165,10 +165,6 @@ public class Classfile {
 		return structMemberArrayTypes.get(arrayPath);
 	}
 
-	public boolean isStructArray(final String arrayPath) {
-		return structMemberArrayTypes.containsKey(arrayPath);
-	}
-
 	/**
 	 * <h1>initializeClassfile</h1>
 	 * <p>
@@ -213,9 +209,7 @@ public class Classfile {
 			final Instruction InstrInvokespecial = new Instruction(
 					Mnemonic.INVOKESPECIAL, constructorIndex);
 			final Instruction InstrReturn = new Instruction(Mnemonic.RETURN);
-			addInstructionToMethodsCode("<init>", InstrAload);
-			addInstructionToMethodsCode("<init>", InstrInvokespecial);
-			addInstructionToMethodsCode("<init>", InstrReturn);
+			addInstructionsToMethodsCode("<init>", InstrAload, InstrInvokespecial, InstrReturn);
 		}
 	}
 
@@ -418,7 +412,7 @@ public class Classfile {
 	public short addClassConstantToConstantPool(
 			final ClassfileUtils.ClassSignature classSignature) {
 		return addClassConstantToConstantPool(classSignature
-				.getClassNameAsContainer());
+                .getClassNameAsContainer());
 	}
 
 	/**
@@ -480,14 +474,14 @@ public class Classfile {
 				fieldName, fieldNameDescriptor);
 		// add fieldref
 		return constantPool.generateConstantFieldrefInfo(classIndex, natIndex,
-				fieldName, classNameEIF);
+                fieldName, classNameEIF);
 	}
 
 	public short addFieldrefConstantToConstantPool(
 			final ClassfileUtils.FieldSignature signature) {
 		return addFieldrefConstantToConstantPool(signature.fieldName,
-				signature.fieldType.getClassNameAsType(),
-				signature.fieldClass.getClassNameAsContainer());
+                signature.fieldType.getClassNameAsType(),
+                signature.fieldClass.getClassNameAsContainer());
 	}
 
 	/**
@@ -561,11 +555,11 @@ public class Classfile {
 	 * @param localVariableType
 	 *            LocalVariableType variable type of the variable
 	 */
-	public void addVariableToMethodsCode(final String methodName,
+	public byte addVariableToMethodsCode(final String methodName,
 			final String variableName,
 			final ClassfileUtils.LocalVariableType localVariableType) {
 
-		methodArea.addVariableToMethodsCode(methodName, variableName,
+		return methodArea.addVariableToMethodsCode(methodName, variableName,
 				localVariableType);
 	}
 
@@ -684,29 +678,6 @@ public class Classfile {
 	}
 
 	/**
-	 * <h1>addInstructionToMethodsCode</h1>
-	 * <p>
-	 * This method adds a new Instruction to the code area of the code attribute
-	 * of the provided method of the method area of this classfile using the
-	 * method
-	 * {@link MethodArea#addInstructionToMethodsCode(String, Instruction)} .
-	 * </p>
-	 * 
-	 * @since 30.04.2013
-	 * @param methodName
-	 *            String name of the method
-	 * @param instruction
-	 *            instance of class Instruction
-	 * @see MethodArea
-	 * @see MethodArea#addInstructionToMethodsCode(String, Instruction)
-	 * @see Instruction
-	 */
-	public void addInstructionToMethodsCode(final String methodName,
-			final Instruction instruction) {
-		methodArea.addInstructionToMethodsCode(methodName, instruction);
-	}
-
-	/**
 	 * <h1>addInstructionsToMethodsCode</h1>
 	 * <p>
 	 * This method adds new Instructions to the code area of the code attribute
@@ -719,10 +690,10 @@ public class Classfile {
 	 *            String name of the method
 	 * @param instructions
 	 *            Collection of instances of class Instruction
-	 * @see Classfile#addInstructionToMethodsCode(String, Instruction)
+	 * @see Classfile#addInstructionsToMethodsCode(String, swp_compiler_ss13.javabite.backend.translation.Instruction[])
 	 */
 	public void addInstructionsToMethodsCode(final String methodName,
-			final Instruction[] instructions) {
+			final Instruction... instructions) {
 		methodArea.addInstructionsToMethodsCode(methodName, instructions);
 	}
 
@@ -752,17 +723,4 @@ public class Classfile {
 		fieldArea.addField(fieldNameIndex, fieldDescriptorIndex, accessFlags);
 	}
 
-	/**
-	 * <h1>isStruct</h1>
-	 * <p>
-	 * This method determines, whether this classfile is a main classfile or a
-	 * struct classfile.
-	 * </p>
-	 * 
-	 * @since 27.06.2013
-	 * @return true, if struct classfile, false if main classfile
-	 */
-	public boolean isStruct() {
-		return isStruct;
-	}
 }

@@ -159,9 +159,6 @@ public final class ClassfileUtils {
 			this.arrayStoreOp = arrayStoreOp;
 		}
 
-		public boolean isPrimitive() {
-			return javaType != null && javaType.isPrimitive();
-		}
 	}
 
 	/**
@@ -232,7 +229,7 @@ public final class ClassfileUtils {
 
 		JavaType(final int value, final String className) {
 			this.value = (byte) value;
-			this.classSignature = new ClassSignature(className);
+			classSignature = new ClassSignature(className);
 		}
 
 		JavaType(final String classEif) {
@@ -258,7 +255,8 @@ public final class ClassfileUtils {
 	}
 
 	public static String typeByQuadruples(final Quadruple quad) {
-		return JavaType.getByOperator(quad.getOperator()).classSignature.getClassNameAsType();
+		return JavaType.getByOperator(quad.getOperator()).classSignature
+				.getClassNameAsType();
 	}
 
 	public static String typeByQuadruples(final List<Quadruple> tac) {
@@ -287,39 +285,28 @@ public final class ClassfileUtils {
 		public final String typeClassName;
 		public final boolean isPrimitive;
 		public final boolean isArray;
+        public final int arrayDimensions;
 
 		public ClassSignature(final Class<?> clazz) {
-			isPrimitive = clazz.isPrimitive();
-			isArray = clazz.isArray();
-			className = getClassName(clazz);
-			if (isPrimitive || isArray)
-				typeClassName = className;
-			else
-				typeClassName = classAsType(className, isPrimitive);
+			this(getClassName(clazz));
 		}
 
 		public ClassSignature(final String className) {
-			isPrimitive = isPrimitiveClass(className);
-			isArray = isArray(className);
-			this.className = className;
-			if (isPrimitive || isArray)
-				typeClassName = className;
-			else
-				typeClassName = classAsType(className, isPrimitive);
+            this(className, countArrayDimensions(className));
 		}
 
 		public ClassSignature(final String className, final int arrayDimensions) {
-			assert arrayDimensions > 0;
 			isPrimitive = isPrimitiveClass(className);
 			this.className = StringUtils.leftPad("", arrayDimensions, '[')
 					+ className;
-			isArray = true;
+			isArray = arrayDimensions > 0;
 			if (isPrimitive) {
 				typeClassName = this.className;
 			} else {
 				typeClassName = StringUtils.leftPad("", arrayDimensions, '[')
 						+ classAsType(className, isPrimitive);
 			}
+            this.arrayDimensions = arrayDimensions;
 		}
 
 		public String getClassNameAsContainer() {
@@ -365,9 +352,9 @@ public final class ClassfileUtils {
 			return s.length() == 1 && "VIJDZBCFS".contains(s);
 		}
 
-		public static boolean isArray(final String s) {
-			return s.startsWith("[");
-		}
+        public static int countArrayDimensions(final String s) {
+            return StringUtils.countMatches(s, "[");
+        }
 
 		public static String classAsType(final String className,
 				final boolean isPrimitive) {

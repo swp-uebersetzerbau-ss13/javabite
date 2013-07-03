@@ -140,11 +140,12 @@ class MethodArea {
 	 * @see Method#addVariableToCodeAttribute(String,
 	 *      swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType)
 	 */
-	void addVariableToMethodsCode(final String methodName,
+	byte addVariableToMethodsCode(final String methodName,
 			final String variableName, final LocalVariableType localVariableType) {
 
 		final Method method = getMethodByMethodName(methodName);
-		method.addVariableToCodeAttribute(variableName, localVariableType);
+		return method.addVariableToCodeAttribute(variableName,
+				localVariableType);
 	}
 
 	/**
@@ -180,27 +181,21 @@ class MethodArea {
 	 * this classfile using the method {@link #getMethodByMethodName(String)}
 	 * and adds a new Instruction to the code area of the code attribute of the
 	 * looked up Method object using the objects method
-	 * {@link Method#addInstructionToCodeAttribute(Instruction)}.
+	 * {@link Method#addInstructionsToCodeAttribute(swp_compiler_ss13.javabite.backend.translation.Instruction...)}.
 	 * </p>
 	 * 
 	 * @since 30.04.2013
 	 * @param methodName
 	 *            String name of the method
-	 * @param instruction
+	 * @param instructions
 	 *            instance of class Instruction
 	 * @see #getMethodByMethodName(String)
 	 * @see Method
-	 * @see Method#addInstructionToCodeAttribute(Instruction)
+	 * @see Method#addInstructionsToCodeAttribute(swp_compiler_ss13.javabite.backend.translation.Instruction...)
 	 * @see Instruction
 	 */
-	void addInstructionToMethodsCode(final String methodName,
-			final Instruction instruction) {
-		final Method method = getMethodByMethodName(methodName);
-		method.addInstructionToCodeAttribute(instruction);
-	}
-
 	void addInstructionsToMethodsCode(final String methodName,
-			final Instruction[] instructions) {
+			final Instruction... instructions) {
 		final Method method = getMethodByMethodName(methodName);
 		method.addInstructionsToCodeAttribute(instructions);
 	}

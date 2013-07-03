@@ -48,16 +48,6 @@ public class Instruction {
 	}
 
 	/**
-	 * Create a new instruction class instance
-	 * 
-	 * @param mnemonic
-	 *            mnemonic of opcode
-	 */
-	public Instruction(final Mnemonic mnemonic) {
-		this(mnemonic, null);
-	}
-
-	/**
 	 * Write this instructions bytes to an output stream
 	 * 
 	 * @param outputStream
@@ -144,20 +134,6 @@ public class Instruction {
 	public void setMnemonic(final Mnemonic mnemonic) {
 		this.mnemonic = mnemonic;
 		byteCount = 1 + mnemonic.getArgsCount();
-	}
-
-	/**
-	 * Returns a byte array of this instruction
-	 * 
-	 * @return the byte array
-	 */
-	public byte[] toByteArray() {
-		final byte[] bytes = new byte[byteCount];
-		bytes[0] = mnemonic.getBytecode();
-		if (arguments != null) {
-			System.arraycopy(arguments, 0, bytes, 1, arguments.length);
-		}
-		return bytes;
 	}
 
 	/**

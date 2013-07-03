@@ -1,18 +1,15 @@
 package swp_compiler_ss13.javabite.backend.translation;
 
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.convertBooleanConstant;
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isBooleanConstant;
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isConstant;
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.removeConstantSign;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.javabite.backend.classfile.Classfile;
 import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
 import swp_compiler_ss13.javabite.backend.utils.ConstantUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.*;
 
 public abstract class AbstractBuilder<T extends AbstractBuilder<?>> {
 
@@ -91,6 +88,12 @@ public abstract class AbstractBuilder<T extends AbstractBuilder<?>> {
 
 	// INSTRUCTION CREATORS ------------------------------------------------
 
+	protected static Instruction localLoadVariableInstruction(final byte index,
+			final ClassfileUtils.LocalVariableType variableType) {
+		assert index > 0;
+		return new Instruction(variableType.varLoadOp.withIndex(index), index);
+	}
+
 	/**
 	 * Creates a load instruction, that can be added to a program flow. This
 	 * operation can distinguish between constants and variables, but needs
@@ -101,7 +104,7 @@ public abstract class AbstractBuilder<T extends AbstractBuilder<?>> {
 	 * @param variableType
 	 *            type of variable/constant to load
 	 */
-	protected Instruction loadInstruction(final String arg1,
+	protected Instruction localLoadInstruction(final String arg1,
 			final ClassfileUtils.LocalVariableType variableType) {
 		if (isBooleanConstant(arg1)) {
 			return new Instruction(convertBooleanConstant(arg1));
@@ -122,10 +125,22 @@ public abstract class AbstractBuilder<T extends AbstractBuilder<?>> {
 		} else {
 			final byte index = classfile.getIndexOfVariableInMethod(methodName,
 					arg1);
-			assert index > 0;
-			return new Instruction(variableType.varLoadOp.withIndex(index),
-					index);
+			return localLoadVariableInstruction(index, variableType);
 		}
+	}
+
+	/**
+	 * TODO javadoc
+	 * 
+	 * @param index
+	 * @param variableType
+	 * @return
+	 */
+	protected static Instruction localStoreVariableInstruction(
+			final byte index,
+			final ClassfileUtils.LocalVariableType variableType) {
+		assert index > 0;
+		return new Instruction(variableType.varStoreOp.withIndex(index), index);
 	}
 
 	/**
@@ -138,12 +153,11 @@ public abstract class AbstractBuilder<T extends AbstractBuilder<?>> {
 	 *            type of variable/constant to store
 	 * @return new instruction
 	 */
-	protected Instruction storeInstruction(final String result,
+	protected Instruction localStoreInstruction(final String result,
 			final ClassfileUtils.LocalVariableType variableType) {
 		final byte index = classfile.getIndexOfVariableInMethod(methodName,
 				result);
-		assert index > 0;
-		return new Instruction(variableType.varStoreOp.withIndex(index), index);
+		return localStoreVariableInstruction(index, variableType);
 	}
 
 	/**

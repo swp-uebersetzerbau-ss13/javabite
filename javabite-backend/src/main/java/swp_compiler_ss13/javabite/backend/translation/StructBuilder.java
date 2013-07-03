@@ -39,7 +39,7 @@ public class StructBuilder extends AbstractBuilder<StructBuilder> {
 			final ClassfileUtils.LocalVariableType variableType) {
 		final Operation.Builder op = Operation.Builder.newBuilder();
 		op.add(Mnemonic.ALOAD_0);
-		op.add(loadInstruction(q.getArgument1(), variableType));
+		op.add(localLoadInstruction(q.getArgument1(), variableType));
 		final String structName = classfile.getClassname();
 		final String fieldType;
 		if (variableType.javaType != null) {
@@ -64,7 +64,7 @@ public class StructBuilder extends AbstractBuilder<StructBuilder> {
 	 *            datatype of array contents
 	 * @return new operation instance
 	 */
-	private Operation arrayCreateOp(final ClassfileUtils.JavaType type) {
+	private Operation fieldArrayCreateOp(final ClassfileUtils.JavaType type) {
 		assert !ConstantUtils.isIgnoreParam(arrayName)
 				&& !arrayDimensions.isEmpty();
 		final Operation.Builder op = Operation.Builder.newBuilder();
@@ -77,7 +77,7 @@ public class StructBuilder extends AbstractBuilder<StructBuilder> {
 
 		// add all dimensions to stack for array creation
 		while (!arrayDimensions.isEmpty()) {
-			op.add(loadInstruction(arrayDimensions.pop(),
+			op.add(localLoadInstruction(arrayDimensions.pop(),
 					ClassfileUtils.LocalVariableType.LONG));
 			op.add(Mnemonic.L2I);
 		}
@@ -114,45 +114,80 @@ public class StructBuilder extends AbstractBuilder<StructBuilder> {
 
 	// OPERATIONS ----------------------------------------------------------
 
-	public StructBuilder declareLong(final Quadruple q) {
+	/**
+	 * Initializes a long field in a struct class
+	 * 
+	 * @param q
+	 *            quadruple of operation
+	 * @return this builders instance
+	 */
+	public StructBuilder fieldDeclareLong(final Quadruple q) {
 		assert q.getOperator() == Quadruple.Operator.DECLARE_LONG;
 		assert hasArgsCount(q, 0, 1, 2);
 		if (ConstantUtils.isIgnoreParam(q.getResult())) {
-			return add(arrayCreateOp(ClassfileUtils.JavaType.LONG));
+			return add(fieldArrayCreateOp(ClassfileUtils.JavaType.LONG));
 		}
 		return add(structInitField(q, ClassfileUtils.LocalVariableType.LONG));
 	}
 
-	public StructBuilder declareDouble(final Quadruple q) {
+	/**
+	 * Initializes a double field in a struct class
+	 * 
+	 * @param q
+	 *            quadruple of operation
+	 * @return this builders instance
+	 */
+	public StructBuilder fieldDeclareDouble(final Quadruple q) {
 		assert q.getOperator() == Quadruple.Operator.DECLARE_DOUBLE;
 		assert hasArgsCount(q, 0, 1, 2);
 		if (ConstantUtils.isIgnoreParam(q.getResult())) {
-			return add(arrayCreateOp(ClassfileUtils.JavaType.DOUBLE));
+			return add(fieldArrayCreateOp(ClassfileUtils.JavaType.DOUBLE));
 		}
 		return add(structInitField(q, ClassfileUtils.LocalVariableType.DOUBLE));
 	}
 
-	public StructBuilder declareString(final Quadruple q) {
+	/**
+	 * Initializes a string field in a struct class
+	 * 
+	 * @param q
+	 *            quadruple of operation
+	 * @return this builders instance
+	 */
+	public StructBuilder fieldDeclareString(final Quadruple q) {
 		assert q.getOperator() == Quadruple.Operator.DECLARE_STRING;
 		assert hasArgsCount(q, 0, 1, 2);
 		if (ConstantUtils.isIgnoreParam(q.getResult())) {
-			return add(arrayCreateOp(ClassfileUtils.JavaType.STRING));
+			return add(fieldArrayCreateOp(ClassfileUtils.JavaType.STRING));
 		}
 		return add(structInitField(q, ClassfileUtils.LocalVariableType.STRING));
 	}
 
-	public StructBuilder declareBoolean(final Quadruple q) {
+	/**
+	 * Initializes a boolean field in a struct class
+	 * 
+	 * @param q
+	 *            quadruple of operation
+	 * @return this builders instance
+	 */
+	public StructBuilder fieldDeclareBoolean(final Quadruple q) {
 		assert q.getOperator() == Quadruple.Operator.DECLARE_BOOLEAN;
 		assert hasArgsCount(q, 0, 1, 2);
 		if (ConstantUtils.isIgnoreParam(q.getResult())) {
-			return add(arrayCreateOp(ClassfileUtils.JavaType.BOOLEAN));
+			return add(fieldArrayCreateOp(ClassfileUtils.JavaType.BOOLEAN));
 		}
 		return add(structInitField(q, ClassfileUtils.LocalVariableType.BOOLEAN));
 	}
 
-	public StructBuilder declareArray(final Quadruple q) {
+	/**
+	 * Initializes an array field in a struct class
+	 * 
+	 * @param q
+	 *            quadruple of operation
+	 * @return this builders instance
+	 */
+	public StructBuilder fieldDeclareArray(final Quadruple q) {
 		assert q.getOperator() == Quadruple.Operator.DECLARE_ARRAY;
-		assert hasArgsCount(q, 2);
+		assert hasArgsCount(q, 1, 2);
 		if (!ConstantUtils.isIgnoreParam(q.getResult())) {
 			arrayName = q.getResult();
 		}
@@ -160,12 +195,25 @@ public class StructBuilder extends AbstractBuilder<StructBuilder> {
 		return this;
 	}
 
-	public StructBuilder declareStruct(final Quadruple q) {
+	/**
+	 * Initializes a struct field in a struct class
+	 * 
+	 * @param q
+	 *            quadruple of operation
+	 * @return this builders instance
+	 */
+	public StructBuilder fieldDeclareStruct(final Quadruple q) {
 		assert q.getOperator() == Quadruple.Operator.DECLARE_STRUCT;
-		assert hasArgsCount(q, 2);
-		final ClassfileUtils.MethodSignature constructor = new ClassfileUtils.MethodSignature(
-				"<init>", classfile.getClassname() + "_" + q.getResult(),
-				void.class);
+		assert hasArgsCount(q, 1, 2);
+
+		final ClassfileUtils.MethodSignature constructor;
+		if (ConstantUtils.isIgnoreParam(q.getResult()))
+			constructor = new ClassfileUtils.MethodSignature("<init>",
+					q.getArgument2(), void.class);
+		else
+			constructor = new ClassfileUtils.MethodSignature("<init>",
+					classfile.getClassname() + "_" + q.getResult(), void.class);
+
 		return add(newObjectOperation(constructor, q.getResult()));
 	}
 

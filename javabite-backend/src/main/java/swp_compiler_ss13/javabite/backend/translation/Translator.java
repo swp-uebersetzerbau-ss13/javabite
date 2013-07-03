@@ -283,7 +283,7 @@ public class Translator {
 			for (final ListIterator<Quadruple> tacIter = structTac
 					.listIterator(); tacIter.hasNext();) {
 
-				final Quadruple quad = tacIter.next();
+				Quadruple quad = tacIter.next();
 				final String name = quad.getResult();
 				final Operator op = quad.getOperator();
 				final String arg1 = quad.getArgument1();
@@ -296,26 +296,29 @@ public class Translator {
 					final List<Quadruple> arrayTAC = new ArrayList<>();
 					arrayTAC.add(quad);
 					constructorTAC.add(quad);
-					int dimensions = 1;
 
 					// get rest of arrays tac
-					Quadruple arrayQuad = tacIter.next();
-					while (arrayQuad.getOperator() == Operator.DECLARE_ARRAY) {
-						arrayTAC.add(arrayQuad);
-						constructorTAC.add(arrayQuad);
-						arrayQuad = tacIter.next();
-						dimensions++;
+					while (quad.getOperator() == Operator.DECLARE_ARRAY) {
+						arrayTAC.add(quad);
+						constructorTAC.add(quad);
+						quad = tacIter.next();
 					}
 
-					if (arrayQuad.getOperator() == Operator.DECLARE_STRUCT) {
-						arrayTAC.add(arrayQuad);
-						constructorTAC.add(arrayQuad);
-
+					if (quad.getOperator() == Operator.DECLARE_STRUCT) {
 						List<Quadruple> structTACwithoutFirstDecl;
+
+						// assemble struct name
+						final String structClassName = className + "_" + name;
+						quad = QuadrupleUtils.copyQuadruple(quad, null, null,
+								structClassName, null);
+						tacIter.set(quad);
+
+						arrayTAC.add(quad);
+						constructorTAC.add(quad);
 
 						// get struct's tac
 						final long structMemberVarsCount = Long
-								.parseLong(removeConstantSign(arrayQuad
+								.parseLong(removeConstantSign(quad
 										.getArgument1()));
 
 						structTACwithoutFirstDecl = getStructsTac(tacIter,
@@ -323,12 +326,11 @@ public class Translator {
 						arrayTAC.addAll(structTACwithoutFirstDecl);
 
 						// generate classfile for structTACwithoutFirstDecl
-						final String structClassName = className + "_" + name;
 						translateStructIntoClassfile(mainClassfile,
 								structTACwithoutFirstDecl, structClassName);
 					} else {
-						arrayTAC.add(arrayQuad);
-						constructorTAC.add(arrayQuad);
+						arrayTAC.add(quad);
+						constructorTAC.add(quad);
 					}
 
 					// getDescriptor using arrayTAC
@@ -350,21 +352,20 @@ public class Translator {
 					break;
 				case DECLARE_STRUCT:
 					// temp variables for found struct's tac
-					// TODO remoav
-					final List<Quadruple> structTAC = new ArrayList<>();
-
-					structTAC.add(quad);
-					constructorTAC.add(quad);
 
 					// get struct's tac
 					final long structMemberVarsCount = Long
 							.parseLong(removeConstantSign(quad.getArgument1()));
 					final List<Quadruple> structTACwithoutFirstDecl = getStructsTac(
 							tacIter, structMemberVarsCount);
-					structTAC.addAll(structTACwithoutFirstDecl);
 
 					// generate classfile for structTACwithoutFirstDecl
 					final String structClassName = className + "_" + name;
+					quad = QuadrupleUtils.copyQuadruple(quad, null, null,
+							structClassName, null);
+					tacIter.set(quad);
+					constructorTAC.add(quad);
+
 					translateStructIntoClassfile(mainClassfile,
 							structTACwithoutFirstDecl, structClassName);
 
@@ -373,7 +374,8 @@ public class Translator {
 
 					// getDescriptor using structTAC
 					// TODO delete
-					// descriptor = ClassfileUtils.typeByQuadruples(structTAC);
+					// descriptor =
+					// ClassfileUtils.typeByQuadruples(structTAC);
 					descriptor = "L" + structClassName + ";";
 					structClassfile.addFieldToFieldArea(name, descriptor,
 							FieldAccessFlag.ACC_PUBLIC);
@@ -840,25 +842,25 @@ public class Translator {
 		for (final Quadruple quad : constructorTAC) {
 			switch (quad.getOperator()) {
 			case DECLARE_ARRAY:
-				pb.declareArray(quad);
+				pb.fieldDeclareArray(quad);
 				break;
 			case DECLARE_STRUCT:
-				pb.declareStruct(quad);
+				pb.fieldDeclareStruct(quad);
 				break;
 			case DECLARE_BOOLEAN:
 			case ASSIGN_BOOLEAN:
-				pb.declareBoolean(quad);
+				pb.fieldDeclareBoolean(quad);
 				break;
 			case DECLARE_STRING:
 			case ASSIGN_STRING:
-				pb.declareString(quad);
+				pb.fieldDeclareString(quad);
 				break;
 			case DECLARE_DOUBLE:
 			case ASSIGN_DOUBLE:
-				pb.declareDouble(quad);
+				pb.fieldDeclareDouble(quad);
 				break;
 			case DECLARE_LONG:
-				pb.declareLong(quad);
+				pb.fieldDeclareLong(quad);
 				break;
 			default:
 				break;
@@ -869,9 +871,7 @@ public class Translator {
 		final Instruction InstrAload = new Instruction(Mnemonic.ALOAD_0);
 		final Instruction InstrInvokespecial = new Instruction(
 				Mnemonic.INVOKESPECIAL, structClassfile.getConstructorIndex());
-		structClassfile.addInstructionToMethodsCode("<init>", InstrAload);
-		structClassfile.addInstructionToMethodsCode("<init>",
-				InstrInvokespecial);
+		structClassfile.addInstructionsToMethodsCode("<init>", InstrAload, InstrInvokespecial);
 		structClassfile.addInstructionsToMethodsCode("<init>",
 				pr.toInstructionsArray());
 	}
