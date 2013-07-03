@@ -54,7 +54,6 @@ public class IntermediateCodeGeneratorJb implements
 			LogicUnaryExpressionNodeConverter.class, PrintNodeConverter.class,
 			RelationExpressionNodeConverter.class, ReturnNodeConverter.class,
 			StructIdentifierNodeConverter.class, WhileNodeConverter.class };
-
 	private static final String IDENTIFIER_GENERATION_PREFIX = "TMP";
 	private long identifierGenerationCounter = 0;
 
