@@ -18,9 +18,9 @@ import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.types.Type;
-import swp_compiler_ss13.common.types.derived.Member;
 import swp_compiler_ss13.javabite.codegen.converters.ArithmeticBinaryExpressionNodeConverter;
 import swp_compiler_ss13.javabite.codegen.converters.ArithmeticUnaryExpressionNodeConverter;
+import swp_compiler_ss13.javabite.codegen.converters.ArrayIdentifierNodeConverter;
 import swp_compiler_ss13.javabite.codegen.converters.AssignmentNodeConverter;
 import swp_compiler_ss13.javabite.codegen.converters.BasicIdentifierNodeConverter;
 import swp_compiler_ss13.javabite.codegen.converters.BlockNodeConverter;
@@ -32,6 +32,7 @@ import swp_compiler_ss13.javabite.codegen.converters.LogicUnaryExpressionNodeCon
 import swp_compiler_ss13.javabite.codegen.converters.PrintNodeConverter;
 import swp_compiler_ss13.javabite.codegen.converters.RelationExpressionNodeConverter;
 import swp_compiler_ss13.javabite.codegen.converters.ReturnNodeConverter;
+import swp_compiler_ss13.javabite.codegen.converters.StructIdentifierNodeConverter;
 
 public class IntermediateCodeGeneratorJb implements
 		Ast2CodeConverterCompatibleGenerator {
@@ -41,12 +42,14 @@ public class IntermediateCodeGeneratorJb implements
 	private static final Class<?>[] converterClasses = {
 			ArithmeticBinaryExpressionNodeConverter.class,
 			ArithmeticUnaryExpressionNodeConverter.class,
+			ArrayIdentifierNodeConverter.class,
 			AssignmentNodeConverter.class, BasicIdentifierNodeConverter.class,
 			BlockNodeConverter.class, BranchNodeConverter.class,
 			DeclarationNodeConverter.class, LiteralNodeConverter.class,
 			LogicBinaryExpressionNodeConverter.class,
 			LogicUnaryExpressionNodeConverter.class, PrintNodeConverter.class,
-			RelationExpressionNodeConverter.class, ReturnNodeConverter.class };
+			RelationExpressionNodeConverter.class, ReturnNodeConverter.class,
+			StructIdentifierNodeConverter.class};
 
 	private static final String IDENTIFIER_GENERATION_PREFIX = "TMP";
 	private long identifierGenerationCounter = 0;
@@ -55,6 +58,7 @@ public class IntermediateCodeGeneratorJb implements
 	private long labelCounter = 0;
 	
 	private static final String REFERENCE_NAME = "ref";
+	private long referenceGeneratorCounter = 0;
 	
 	List<Quadruple> quadruples = new ArrayList<>(1000);
 
@@ -83,9 +87,6 @@ public class IntermediateCodeGeneratorJb implements
 	 * s All available converters for the AST
 	 */
 	private final Map<ASTNode.ASTNodeType, Ast2CodeConverter> converters = new HashMap<>();
-
-	private final Deque<Deque<Member[]>> memberArrays = new ArrayDeque<>();
-	final Deque<Deque<String>> referenceStack = new ArrayDeque<>();
 
 	public IntermediateCodeGeneratorJb() {
 		initConverters();
@@ -213,11 +214,8 @@ public class IntermediateCodeGeneratorJb implements
 		identifierDataStack.clear();
 		identifierGenerationCounter = 0;
 		breakLabelStack.clear();
-		memberArrays.clear();
-		memberArrays.push(new ArrayDeque<Member[]>());
-		referenceStack.clear();
-		referenceStack.push(new ArrayDeque<String>());
 		labelCounter = 0;
+		referenceGeneratorCounter = 0;
 	}
 
 	@Override
@@ -242,55 +240,8 @@ public class IntermediateCodeGeneratorJb implements
 
 	@Override
 	public String getNewReference() {
-		String ref = REFERENCE_NAME + identifierGenerationCounter++;
+		String ref = REFERENCE_NAME + referenceGeneratorCounter++;
 		addQuadruple(QuadrupleFactoryJb.generateReferenceDeclaring(ref));
 		return ref;
-	}
-
-	@Override
-	public void pushMembers(Member[] members) {
-		memberArrays.peek().push(members);
-	}
-
-	@Override
-	public Member[] peekMembers() {
-		return memberArrays.peek().peek();
-	}
-
-	@Override
-	public Member[] popMembers() {
-		return memberArrays.peek().pop();
-	}
-	
-	@Override
-	public boolean isInsideOfStruct() {
-		return !memberArrays.peek().isEmpty();
-	}
-
-	@Override
-	public void pushReference(String reference) {
-		referenceStack.peek().push(reference);
-	}
-
-	@Override
-	public String popReference() {
-		return referenceStack.peek().pop();
-	}
-
-	@Override
-	public boolean isReferenceOnStack() {
-		return !referenceStack.peek().isEmpty();
-	}
-
-	@Override
-	public void enterNewMemberAndReferenceScope() {
-		memberArrays.push(new ArrayDeque<Member[]>());
-		referenceStack.push(new ArrayDeque<String>());
-	}
-
-	@Override
-	public void leaveLastMemberAndReferenceScope() {
-		memberArrays.pop();
-		referenceStack.pop();
 	}
 }

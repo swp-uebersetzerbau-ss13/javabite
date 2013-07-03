@@ -1,7 +1,6 @@
 package swp_compiler_ss13.javabite.codegen;
 
 import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -9,15 +8,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-
-import swp_compiler_ss13.common.ast.ASTNode;
-import swp_compiler_ss13.common.ast.nodes.IdentifierNode;
-import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
-import swp_compiler_ss13.common.types.Type;
 import swp_compiler_ss13.common.types.primitive.LongType;
 import swp_compiler_ss13.javabite.ast.nodes.leaf.BasicIdentifierNodeJb;
 import swp_compiler_ss13.javabite.codegen.converters.ReturnNodeConverter;

@@ -9,10 +9,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import swp_compiler_ss13.common.ast.ASTNode;
-import swp_compiler_ss13.common.ast.nodes.ExpressionNode;
-import swp_compiler_ss13.common.ast.nodes.IdentifierNode;
-import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
