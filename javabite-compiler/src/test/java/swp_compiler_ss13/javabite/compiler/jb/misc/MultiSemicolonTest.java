@@ -1,6 +1,7 @@
 package swp_compiler_ss13.javabite.compiler.jb.misc;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 
 import swp_compiler_ss13.common.report.ReportType;
@@ -26,7 +27,7 @@ public class MultiSemicolonTest extends AbstractCompilerTest {
 
 	@Override
 	public List<ReportType> getErrorList() {
-		return null;
+		return Arrays.asList(ReportType.WORD_NOT_IN_GRAMMAR);
 	}
 
 }

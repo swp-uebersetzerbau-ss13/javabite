@@ -1,5 +1,6 @@
 package swp_compiler_ss13.javabite.backend.utils;
 
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 
@@ -157,6 +158,10 @@ public final class ClassfileUtils {
 			this.varStoreOp = varStoreOp;
 			this.arrayStoreOp = arrayStoreOp;
 		}
+
+		public boolean isPrimitive() {
+			return javaType != null && javaType.isPrimitive();
+		}
 	}
 
 	/**
@@ -274,8 +279,7 @@ public final class ClassfileUtils {
 				}
 			}
 			return StringUtils.leftPad("", dimensions, '[')
-					+ JavaType.getByOperator(tac.get(tac.size() - 1)
-							.getOperator()).className;
+					+ typeByQuadruples(tac.get(tac.size() - 1));
 
 		case DECLARE_STRUCT:
 			return tac.get(0).getResult();
@@ -285,41 +289,147 @@ public final class ClassfileUtils {
 		}
 	}
 
+	public static class ClassSignature {
+
+		public final String className;
+		public final String typeClassName;
+		public final boolean isPrimitive;
+		public final boolean isArray;
+
+		public ClassSignature(final Class<?> clazz) {
+			isPrimitive = clazz.isPrimitive();
+			isArray = clazz.isArray();
+			className = getClassName(clazz);
+			if (isPrimitive || isArray)
+				typeClassName = className;
+			else
+				typeClassName = classAsType(className, isPrimitive);
+		}
+
+		public ClassSignature(final String className) {
+			isPrimitive = isPrimitiveClass(className);
+			isArray = isArray(className);
+			this.className = className;
+			if (isPrimitive || isArray)
+				typeClassName = className;
+			else
+				typeClassName = classAsType(className, isPrimitive);
+		}
+
+		public ClassSignature(final String className, final int arrayDimensions) {
+			assert arrayDimensions > 0;
+			isPrimitive = isPrimitiveClass(className);
+			this.className = StringUtils.leftPad("", arrayDimensions, '[')
+					+ className;
+			isArray = true;
+			if (isPrimitive) {
+				typeClassName = this.className;
+			} else {
+				typeClassName = StringUtils.leftPad("", arrayDimensions, '[')
+						+ classAsType(className, isPrimitive);
+			}
+		}
+
+		public String getClassNameAsContainer() {
+			return className;
+		}
+
+		public String getClassNameAsType() {
+			return typeClassName;
+		}
+
+		@Override
+		public String toString() {
+			return getClassNameAsContainer();
+		}
+
+		public static String getClassName(final Class<?> clazz) {
+			if (clazz.isPrimitive()) {
+				if (clazz == void.class)
+					return "V";
+				if (clazz == int.class)
+					return "I";
+				if (clazz == long.class)
+					return "J";
+				if (clazz == double.class)
+					return "D";
+				if (clazz == boolean.class)
+					return "Z";
+				if (clazz == byte.class)
+					return "B";
+				if (clazz == char.class)
+					return "C";
+				if (clazz == float.class)
+					return "F";
+				if (clazz == short.class)
+					return "S";
+				return null;
+			} else {
+				return clazz.getName().replaceAll("\\.", "/");
+			}
+		}
+
+		public static boolean isPrimitiveClass(final String s) {
+			return s.length() == 1 && "VIJDZBCFS".contains(s);
+		}
+
+		public static boolean isArray(final String s) {
+			return s.startsWith("[");
+		}
+
+		public static String classAsType(final String className,
+				final boolean isPrimitive) {
+			if (isPrimitive)
+				return className;
+			return (!className.startsWith("L") ? "L" : "") + className
+					+ (!className.endsWith(";") ? ";" : "");
+		}
+
+	}
+
 	public static class MethodSignature {
 
-		public final String methodClass;
+		public final ClassSignature methodClass;
+		public final ClassSignature methodReturnClass;
+		public final List<ClassSignature> methodArgsClasses;
+		public final String methodArgs;
 		public final String methodName;
-		public final String methodReturnClass;
-		public final String[] methodArgsClasses;
 		public final String methodDescriptor;
 
 		public MethodSignature(final String methodName,
 				final String methodClass, final Class<?> methodReturnClass,
 				final Class<?>... params) {
-			this.methodClass = methodClass;
+			this.methodClass = methodClass != null ? new ClassSignature(
+					methodClass) : null;
 			this.methodName = methodName;
-			this.methodReturnClass = getClassName(methodReturnClass, true);
+			this.methodReturnClass = new ClassSignature(methodReturnClass);
 			if (params == null) {
 				methodArgsClasses = null;
+				methodArgs = null;
 			} else {
-				methodArgsClasses = new String[params.length];
-				for (int i = 0; i < params.length; i++) {
-					methodArgsClasses[i] = getClassName(params[i], true);
+				final StringBuilder descriptor = new StringBuilder();
+				methodArgsClasses = new ArrayList<>(params.length);
+				for (final Class<?> argsClass : params) {
+					final ClassSignature args = new ClassSignature(argsClass);
+					methodArgsClasses.add(args);
+					descriptor.append(args.getClassNameAsType());
 				}
+				methodArgs = descriptor.toString();
 			}
-			methodDescriptor = "(" + StringUtils.join(methodArgsClasses) + ")"
-					+ this.methodReturnClass;
+			methodDescriptor = "(" + methodArgs + ")"
+					+ this.methodReturnClass.getClassNameAsType();
 		}
 
 		public MethodSignature(final String methodName,
 				final Class<?> methodClass, final Class<?> methodReturnClass,
 				final Class<?>... params) {
-			this(methodName, getClassName(methodClass, false),
+			this(methodName, ClassSignature.getClassName(methodClass),
 					methodReturnClass, params);
 		}
 
 		@Override
 		public String toString() {
+			// example: java/lang/Integer.toString:(I)Ljava/lang/String;
 			return (methodClass != null ? methodClass + "." : "") + methodName
 					+ ":" + methodDescriptor;
 		}
@@ -328,67 +438,30 @@ public final class ClassfileUtils {
 
 	public static class FieldSignature {
 
-		public final String fieldClass;
+		public final ClassSignature fieldClass;
 		public final String fieldName;
-		public final String fieldDescriptor;
+		public final ClassSignature fieldType;
 
-		public FieldSignature(final String fieldName,
-				final String containerClass, final String fieldClass) {
+		public FieldSignature(final String fieldName, final String fieldClass,
+				final String fieldType) {
 			this.fieldName = fieldName;
-			this.fieldClass = containerClass;
-			fieldDescriptor = fieldClass
-					+ (fieldClass.endsWith(";") ? "" : ";");
+			this.fieldClass = new ClassSignature(fieldClass);
+			this.fieldType = new ClassSignature(fieldType);
 		}
 
 		public FieldSignature(final String fieldName,
-				final Class<?> containerClass, final Class<?> fieldClass) {
-			this.fieldClass = getClassName(containerClass, false);
+				final Class<?> fieldClass, final Class<?> fieldType) {
+			this.fieldClass = new ClassSignature(fieldClass);
 			this.fieldName = fieldName;
-			fieldDescriptor = getClassName(fieldClass, true);
+			this.fieldType = new ClassSignature(fieldType);
 		}
 
 		@Override
 		public String toString() {
+			// example: java/lang/System.out:Ljava/lang/PrintStream;
 			return (fieldClass != null ? fieldClass + "." : "") + fieldName
-					+ ":" + fieldDescriptor;
+					+ ":" + fieldType.getClassNameAsType();
 		}
-	}
-
-	public static String getClassName(final Class<?> clazz,
-			final boolean isParam) {
-		if (clazz == null)
-			return null;
-		if (clazz.isPrimitive()) {
-			return getPrimitiveClassName(clazz);
-		}
-		if (isParam) {
-			if (clazz.isArray())
-				return clazz.getName().replaceAll("\\.", "/");
-			return "L" + clazz.getName().replaceAll("\\.", "/") + ";";
-		}
-		return clazz.getName().replaceAll("\\.", "/");
-	}
-
-	public static String getPrimitiveClassName(final Class<?> clazz) {
-		if (clazz == void.class)
-			return "V";
-		if (clazz == int.class)
-			return "I";
-		if (clazz == long.class)
-			return "J";
-		if (clazz == double.class)
-			return "D";
-		if (clazz == boolean.class)
-			return "Z";
-		if (clazz == byte.class)
-			return "B";
-		if (clazz == char.class)
-			return "C";
-		if (clazz == float.class)
-			return "F";
-		if (clazz == short.class)
-			return "S";
-		return null;
 	}
 
 	private ClassfileUtils() {

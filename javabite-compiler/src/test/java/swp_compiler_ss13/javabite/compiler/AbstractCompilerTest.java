@@ -26,15 +26,21 @@ public abstract class AbstractCompilerTest {
 		File main = testCompiler.compile(new File(ClassLoader.getSystemClassLoader().getResource(getProgFile()).toURI().getPath()));
 		List<ReportType> errors = getErrorList();
 		if (errors != null && !errors.isEmpty()) {
-			assertEquals(errors, testCompiler.errorList);
+			assertEquals("Expected errors do not match found errors.", errors, testCompiler.errorList);
 		} else {
 			if (main == null || !testCompiler.errorList.isEmpty()) {
 				System.out.println(testCompiler.errorList);
-				fail("Unexpected compilation error for " + getProgFile());	
+				StringBuilder sb = new StringBuilder("Unexpected compilation error for ");
+				sb.append(getProgFile());
+				sb.append("\n\n main generated: ");
+				sb.append(main != null);
+				sb.append("\n\n Error list should be empty but found " + testCompiler.errorList);
+				
+				fail(sb.toString());	
 			}
 			JavaClassProcess process = testCompiler.execute(main);
-			assertEquals(getOutput(), process.getProcessOutput());
-			assertEquals(getResultValue(), process.getReturnValue());
+			assertEquals("Output of programm execution does not match", getOutput(), process.getProcessOutput());
+			assertEquals("Return value does not match", getResultValue(), process.getReturnValue());
 		}
 	}
 

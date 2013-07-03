@@ -1,0 +1,5 @@
+DECLARE_LONG ! ! l
+DECLARE_LONG ! ! t1
+ADD_LONG #3 #3 t1
+ASSIGN_LONG t1 ! l
+RETURN l ! !

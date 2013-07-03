@@ -1,0 +1,5 @@
+DECLARE_STRING #\"hello \" ! datLeftString
+DECLARE_STRING #\"world!\" ! datRightString
+DECLARE_STRING ! ! result0r
+CONCAT_STRING datLeftString datRightString result0r
+PRINT_STRING result0r ! !

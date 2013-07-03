@@ -1,0 +1,5 @@
+DECLARE_STRUCT #1 ! srobert
+DECLARE_STRING #\"bla\" ! l
+DECLARE_STRING ! ! s
+STRUCT_GET_STRING srobert l s
+PRINT_STRING s ! !
