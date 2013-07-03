@@ -1,7 +1,5 @@
 package swp_compiler_ss13.javabite.codegen;
 
-import java.util.List;
-
 import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
@@ -107,6 +105,18 @@ public interface Ast2CodeConverterCompatibleGenerator extends
 	 */
 	String getNewReference();
 	
+	void enterNewMemberAndReferenceScope();
+
+	void leaveLastMemberAndReferenceScope();
+	
+	void pushMembers(Member[] members);
+	
+	Member[] peekMembers();
+	
+	Member[] popMembers();
+	
+	boolean isInsideOfStruct();
+	
 	/**
 	 * pushes a reference on a special stack
 	 * @param reference
@@ -118,14 +128,5 @@ public interface Ast2CodeConverterCompatibleGenerator extends
 	 */
 	String popReference();
 	
-	/**
-	 * @return 
-	 */
 	boolean isReferenceOnStack();
-	
-	void pushMembers(Member[] members);
-	
-	Member[] peekMembers();
-	
-	Member[] popMembers();
 }

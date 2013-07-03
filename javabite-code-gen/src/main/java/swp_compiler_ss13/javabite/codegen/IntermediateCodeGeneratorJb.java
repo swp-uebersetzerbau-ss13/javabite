@@ -84,8 +84,8 @@ public class IntermediateCodeGeneratorJb implements
 	 */
 	private final Map<ASTNode.ASTNodeType, Ast2CodeConverter> converters = new HashMap<>();
 
-	private final Deque<Member[]> memberArrays = new ArrayDeque<>();
-	final Deque<String> referenceStack = new ArrayDeque<>();
+	private final Deque<Deque<Member[]>> memberArrays = new ArrayDeque<>();
+	final Deque<Deque<String>> referenceStack = new ArrayDeque<>();
 
 	public IntermediateCodeGeneratorJb() {
 		initConverters();
@@ -214,7 +214,9 @@ public class IntermediateCodeGeneratorJb implements
 		identifierGenerationCounter = 0;
 		breakLabelStack.clear();
 		memberArrays.clear();
+		memberArrays.push(new ArrayDeque<Member[]>());
 		referenceStack.clear();
+		referenceStack.push(new ArrayDeque<String>());
 		labelCounter = 0;
 	}
 
@@ -247,31 +249,48 @@ public class IntermediateCodeGeneratorJb implements
 
 	@Override
 	public void pushMembers(Member[] members) {
-		memberArrays.push(members);
+		memberArrays.peek().push(members);
 	}
 
 	@Override
 	public Member[] peekMembers() {
-		return memberArrays.peek();
+		return memberArrays.peek().peek();
 	}
 
 	@Override
 	public Member[] popMembers() {
-		return memberArrays.pop();
+		return memberArrays.peek().pop();
+	}
+	
+	@Override
+	public boolean isInsideOfStruct() {
+		return !memberArrays.peek().isEmpty();
 	}
 
 	@Override
 	public void pushReference(String reference) {
-		referenceStack.push(reference);
+		referenceStack.peek().push(reference);
 	}
 
 	@Override
 	public String popReference() {
-		return referenceStack.pop();
+		return referenceStack.peek().pop();
 	}
 
 	@Override
 	public boolean isReferenceOnStack() {
-		return !referenceStack.isEmpty();
+		return !referenceStack.peek().isEmpty();
+	}
+
+	@Override
+	public void enterNewMemberAndReferenceScope() {
+		memberArrays.push(new ArrayDeque<Member[]>());
+		referenceStack.push(new ArrayDeque<String>());
+	}
+
+	@Override
+	public void leaveLastMemberAndReferenceScope() {
+		memberArrays.pop();
+		referenceStack.pop();
 	}
 }
