@@ -276,7 +276,7 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return
 	 */
 	private Operation arrayCreateOp(final ClassfileUtils.JavaType type) {
-		return arrayCreateOp(type.className, type.isPrimitive(), type.value);
+		return arrayCreateOp(type.classSignature.getClassNameAsContainer(), type.isPrimitive(), type.value);
 	}
 
 	/**
@@ -432,8 +432,7 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 		final ClassfileUtils.ClassSignature fieldClass;
 		if (variableType.javaType != null) {
 			// field is primitive or string
-			fieldClass = new ClassfileUtils.ClassSignature(
-					variableType.javaType.className);
+			fieldClass = variableType.javaType.classSignature;
 		} else if (classfile.isSublevelStruct(structName + "_"
 				+ q.getArgument2())) {
 			// field is struct
@@ -474,7 +473,7 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 		op.add(loadInstruction(q.getResult(), variableType));
 		final String fieldType;
 		if (variableType.javaType != null) {
-			fieldType = variableType.javaType.className;
+			fieldType = variableType.javaType.classSignature.getClassNameAsContainer();
 		} else {
 			fieldType = structName + "_" + q.getArgument2();
 		}

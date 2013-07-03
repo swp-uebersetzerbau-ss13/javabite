@@ -1,12 +1,12 @@
 package swp_compiler_ss13.javabite.backend.translation;
 
-import java.util.Stack;
-
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.javabite.backend.classfile.Classfile;
 import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
 import swp_compiler_ss13.javabite.backend.utils.ConstantUtils;
+
+import java.util.Stack;
 
 public class StructBuilder extends AbstractBuilder<StructBuilder> {
 
@@ -43,7 +43,8 @@ public class StructBuilder extends AbstractBuilder<StructBuilder> {
 		final String structName = classfile.getClassname();
 		final String fieldType;
 		if (variableType.javaType != null) {
-			fieldType = variableType.javaType.className;
+			fieldType = variableType.javaType.classSignature
+					.getClassNameAsType();
 		} else {
 			fieldType = structName + "_" + q.getArgument2();
 		}
@@ -70,7 +71,7 @@ public class StructBuilder extends AbstractBuilder<StructBuilder> {
 		final byte dimensions = (byte) arrayDimensions.size();
 
 		final ClassfileUtils.ClassSignature arrayClass = new ClassfileUtils.ClassSignature(
-				type.className, dimensions);
+				type.classSignature.getClassNameAsContainer(), dimensions);
 
 		op.add(Mnemonic.ALOAD_0);
 
@@ -101,7 +102,7 @@ public class StructBuilder extends AbstractBuilder<StructBuilder> {
 			// if single dimensional and complex (object), create with
 			// class reference
 			final short classIndex = classfile
-					.addClassConstantToConstantPool(type.className);
+					.addClassConstantToConstantPool(type.classSignature);
 			op.add(Mnemonic.ANEWARRAY, ByteUtils.shortToByteArray(classIndex));
 		}
 		final ClassfileUtils.FieldSignature fieldSignature = new ClassfileUtils.FieldSignature(

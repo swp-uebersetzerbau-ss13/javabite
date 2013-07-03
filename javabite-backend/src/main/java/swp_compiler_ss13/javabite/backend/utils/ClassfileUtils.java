@@ -228,11 +228,11 @@ public final class ClassfileUtils {
 				"java/lang/String");
 
 		public final byte value;
-		public final String className;
+		public final ClassSignature classSignature;
 
 		JavaType(final int value, final String className) {
 			this.value = (byte) value;
-			this.className = className;
+			this.classSignature = new ClassSignature(className);
 		}
 
 		JavaType(final String classEif) {
@@ -257,16 +257,8 @@ public final class ClassfileUtils {
 
 	}
 
-	public static boolean isPrimitive(final Operator operator) {
-		return !OPERATOR_STRING_TYPES.contains(operator);
-	}
-
 	public static String typeByQuadruples(final Quadruple quad) {
-		if (isPrimitive(quad.getOperator()))
-			return JavaType.getByOperator(quad.getOperator()).className;
-		else
-			return "L" + JavaType.getByOperator(quad.getOperator()).className
-					+ ";";
+		return JavaType.getByOperator(quad.getOperator()).classSignature.getClassNameAsType();
 	}
 
 	public static String typeByQuadruples(final List<Quadruple> tac) {
