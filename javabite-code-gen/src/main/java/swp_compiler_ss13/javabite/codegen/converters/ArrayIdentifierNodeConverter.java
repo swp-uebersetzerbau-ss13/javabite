@@ -1,16 +1,14 @@
 package swp_compiler_ss13.javabite.codegen.converters;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Deque;
-import java.util.List;
 
 import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.ASTNode.ASTNodeType;
 import swp_compiler_ss13.common.ast.nodes.IdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ArrayIdentifierNode;
-import swp_compiler_ss13.common.backend.Quadruple;
+import swp_compiler_ss13.common.ast.nodes.unary.StructIdentifierNode;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.types.Type;
 import swp_compiler_ss13.common.types.derived.ArrayType;
@@ -25,14 +23,45 @@ public class ArrayIdentifierNodeConverter extends AbstractAst2CodeConverter {
 			throw new IntermediateCodeGeneratorException();
 		ArrayIdentifierNode arrayIdentifierNode = (ArrayIdentifierNode) node;
 		
-		IdentifierNode idNode = arrayIdentifierNode.getIdentifierNode();
-		
-		List<Quadruple> replacementList = new ArrayList<>();
-		List<Quadruple> hijackedQuadruples = icg
-				.hijackQuadrupleList(replacementList);
-
 		Deque<ArrayIdentifierNode> stack = new ArrayDeque<>();
+		stack.push(arrayIdentifierNode);
+		IdentifierNode idNode = arrayIdentifierNode.getIdentifierNode();
+		while (idNode instanceof ArrayIdentifierNode) {
+			ArrayIdentifierNode ain = (ArrayIdentifierNode) idNode;
+			stack.push(ain);
+			idNode = ain.getIdentifierNode();
+		}
 		
+		boolean isEndNodeBasicIdentifier = idNode instanceof BasicIdentifierNode;
+		boolean isEndNodeStructIdentifier = idNode instanceof StructIdentifierNode;
+		
+		if (!isEndNodeBasicIdentifier && !isEndNodeStructIdentifier) {
+			throw new IntermediateCodeGeneratorException("Unexpected AST structure");
+		}
+		
+		//TODO: for index nodes we must open a new InsideOfStruct-scope
+		
+		String baseName;
+		if (icg.isInsideOfStruct()) {
+			//TODO: implement
+			throw new IntermediateCodeGeneratorException("Arrays inside of structs are not supported yet");
+		} else if (isEndNodeBasicIdentifier) {
+			baseName = ((BasicIdentifierNode)idNode).getIdentifier();
+		} else {
+			IdentifierNode structId = ((StructIdentifierNode)idNode).getIdentifierNode();
+			
+			if (!(structId instanceof BasicIdentifierNode)) {
+				throw new IntermediateCodeGeneratorException("Unexpected AST structure");
+			}
+			
+			baseName = ((BasicIdentifierNode)structId).getIdentifier();
+		}
+		
+		if (stack.size() > 1) {
+			icg.addQuadruple(null);
+			//TODO
+		} 
+	
 		
 		
 		
