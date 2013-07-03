@@ -418,47 +418,47 @@ public class QuadrupleFactoryJb {
 	}
 	
 	public static Quadruple generateGetStructReference(String arrayName,
-			String index, String reference) {
-		return new QuadrupleJb(Operator.STRUCT_GET_REFERENCE, arrayName, index,
+			String fieldName, String reference) {
+		return new QuadrupleJb(Operator.STRUCT_GET_REFERENCE, arrayName, fieldName,
 				reference);
 	}
 
-	public static Quadruple generateGetStruct(String arrayName, String index,
+	public static Quadruple generateGetStruct(String arrayName, String fieldName,
 			IdentifierData data) throws IntermediateCodeGeneratorException {
 		switch (data.getType().getKind()) {
 		case BOOLEAN:
 			return new QuadrupleJb(Operator.STRUCT_GET_BOOLEAN, arrayName,
-					index, data.getIdentifier());
+					fieldName, data.getIdentifier());
 		case DOUBLE:
 			return new QuadrupleJb(Operator.STRUCT_GET_DOUBLE, arrayName,
-					index, data.getIdentifier());
+					fieldName, data.getIdentifier());
 		case LONG:
 			return new QuadrupleJb(Operator.STRUCT_GET_LONG, arrayName,
-					index, data.getIdentifier());
+					fieldName, data.getIdentifier());
 		case STRING:
 			return new QuadrupleJb(Operator.STRUCT_GET_STRING, arrayName,
-					index, data.getIdentifier());
+					fieldName, data.getIdentifier());
 		default:
 			throw new IntermediateCodeGeneratorException("Unsupported type: "
 					+ data.getType().getKind());
 		}
 	}
 	
-	public static Quadruple generateSetStruct(String arrayName, String index,
+	public static Quadruple generateSetStruct(String arrayName, String fieldName,
 			IdentifierData data) throws IntermediateCodeGeneratorException {
 		switch (data.getType().getKind()) {
 		case BOOLEAN:
 			return new QuadrupleJb(Operator.STRUCT_SET_BOOLEAN, arrayName,
-					index, data.getIdentifier());
+					fieldName, data.getIdentifier());
 		case DOUBLE:
 			return new QuadrupleJb(Operator.STRUCT_SET_DOUBLE, arrayName,
-					index, data.getIdentifier());
+					fieldName, data.getIdentifier());
 		case LONG:
 			return new QuadrupleJb(Operator.STRUCT_SET_LONG, arrayName,
-					index, data.getIdentifier());
+					fieldName, data.getIdentifier());
 		case STRING:
 			return new QuadrupleJb(Operator.STRUCT_SET_STRING, arrayName,
-					index, data.getIdentifier());
+					fieldName, data.getIdentifier());
 		default:
 			throw new IntermediateCodeGeneratorException("Unsupported type: "
 					+ data.getType().getKind());

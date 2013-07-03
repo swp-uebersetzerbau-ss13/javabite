@@ -5,7 +5,6 @@ import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.ir.IntermediateCodeGenerator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.types.Type;
-import swp_compiler_ss13.common.types.derived.Member;
 
 public interface Ast2CodeConverterCompatibleGenerator extends
 		IntermediateCodeGenerator {
@@ -104,29 +103,4 @@ public interface Ast2CodeConverterCompatibleGenerator extends
 	 * @return the reference name 
 	 */
 	String getNewReference();
-	
-	void enterNewMemberAndReferenceScope();
-
-	void leaveLastMemberAndReferenceScope();
-	
-	void pushMembers(Member[] members);
-	
-	Member[] peekMembers();
-	
-	Member[] popMembers();
-	
-	boolean isInsideOfStruct();
-	
-	/**
-	 * pushes a reference on a special stack
-	 * @param reference
-	 */
-	void pushReference(String reference);
-	
-	/**
-	 * @return pop from reference stack
-	 */
-	String popReference();
-	
-	boolean isReferenceOnStack();
 }
