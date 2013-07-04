@@ -32,68 +32,68 @@ public class vertexAttributes {
 	
 	public void addAttributes(ASTNode ast) {
 		if (ast instanceof BasicIdentifierNode) {
-			value = "Id= " + ((BasicIdentifierNode) ast).getIdentifier();
+			value = "BasicIdentifierNode"+"\nId= " + ((BasicIdentifierNode) ast).getIdentifier();
 			color = colorAttributes+"0000ff";
 			getToken(ast);
 		} else if (ast instanceof ArithmeticBinaryExpressionNode) {
 			opr =new OperationSymbol(ast);
-			value = opr.getOperationSymbol();
+			value = "ArithmeticBinary\nExpressionNode"+ "\n"+ opr.getOperationSymbol();
 			color = colorAttributes+"cyan";
 			getToken(ast);
 		} else if (ast instanceof ArithmeticUnaryExpressionNode) {
 			opr =new OperationSymbol(ast);
-			value = opr.getOperationSymbol();
+			value ="ArithmeticUnary\nExpressionNode"+ "\n"+ opr.getOperationSymbol();
 			color = colorAttributes+"blue";
 			getToken(ast);
 		} else if (ast instanceof LiteralNode) {
-			value = "Type= " + ((LiteralNode) ast).getLiteralType()
+			value = "LiteralNode"+"\nType= " + ((LiteralNode) ast).getLiteralType()
 					+ "\nLiteral= " + ((LiteralNode) ast).getLiteral();
 			color = colorAttributes+"yellow";
 			getToken(ast);
 		} else if (ast instanceof AssignmentNode) {
-			value = "Assignment";
+			value = "AssignmentNode";
 			color = colorAttributes+"white";
 			getToken(ast);
 
 		} else if (ast instanceof LogicBinaryExpressionNode) {
 		    opr =new OperationSymbol(ast);
-			value = opr.getOperationSymbol();
+			value ="LogicBinary\nExpressionNode"+ "\n"+ opr.getOperationSymbol();
 			color = colorAttributes+"blue";
 			getToken(ast);
 
 		} else if (ast instanceof ReturnNode) {
-			value = "Return";
+			value = "ReturnNode";
 			color = colorAttributes+"orange";
 			getToken(ast);
 		} else if (ast instanceof DeclarationNode) {
-			value = "Type= " + ((DeclarationNode) ast).getType() + "\nId= "
+			value = "DeclarationNode"+"\nType= " + ((DeclarationNode) ast).getType() + "\nId= "
 					+ ((DeclarationNode) ast).getIdentifier();
 			color = colorAttributes+"magenta";
 		} else if (ast instanceof BlockNode) {
-			value = "Statements= " + ((BlockNode) ast).getNumberOfStatements()
+			value ="BlockNode"+"\nStatements= " + ((BlockNode) ast).getNumberOfStatements()
 					+ "\nDeclarations= "
 					+ ((BlockNode) ast).getNumberOfDeclarations();
 			color = colorAttributes+"pink";
 		} else if (ast instanceof ArrayIdentifierNode) {
-			value = "Index= " + ((ArrayIdentifierNode) ast).getIdentifierNode();
+			value ="ArrayIdentifierNode"+"\nIndex= " + ((ArrayIdentifierNode) ast).getIdentifierNode();
 			color = colorAttributes+"black";
 			getToken(ast);
 		} else if (ast instanceof StructIdentifierNode) {
-			value = "Index= "
+			value = "StructIdentifierNode"+"\nIndex= "
 					+ ((StructIdentifierNode) ast).getIdentifierNode();
 			color = colorAttributes+"red";
 			getToken(ast);
 		} else if (ast instanceof LoopNode) {
-			value = "Condition= " + ((LoopNode) ast).getCondition() + "\nBody"
+			value = "LoopNode"+"\nCondition= " + ((LoopNode) ast).getCondition() + "\nBody"
 					+ ((LoopNode) ast).getLoopBody();
 			color = colorAttributes+"violet";
 			getToken(ast);
 		} else if (ast instanceof ReturnNode) {
-			value = "" + ((ReturnNode) ast).getRightValue();
+			value = "ReturnNode\n" + ((ReturnNode) ast).getRightValue();
 			color = colorAttributes+"navy";
 			getToken(ast);
 		} else if (ast instanceof BranchNode) {
-			value = "Condition" + ((BranchNode) ast).getCondition();
+			value = "BranchNode\n" +"Condition" + ((BranchNode) ast).getCondition();
 			color = colorAttributes+"yellow";
 			getToken(ast);
 		} 

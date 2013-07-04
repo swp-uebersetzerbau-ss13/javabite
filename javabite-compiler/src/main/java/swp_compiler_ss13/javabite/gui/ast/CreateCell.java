@@ -35,7 +35,7 @@ public class CreateCell {
 		String value=ver.value;
 		String color=ver.color;
 		returnVal = 
-		graph.insertVertex(graph.getDefaultParent(),null,value,20,40,100,35,color);	
+		graph.insertVertex(graph.getDefaultParent(),null,value,20,40,140,55,color);	
 		tooltips.put(returnVal, str);
 		str="";
         return returnVal;
