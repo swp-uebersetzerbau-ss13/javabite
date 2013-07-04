@@ -12,6 +12,7 @@ import org.mockito.Mockito;
 
 import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
 import swp_compiler_ss13.common.ast.nodes.binary.RelationExpressionNode;
+import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.types.derived.ArrayType;
@@ -288,16 +289,21 @@ public class RelationExpressionNodeConverterTest {
 	        when(converter.icg.popIdentifierData()).thenReturn(
 	                new IdentifierData("test1", new BooleanType()) ,
 	                new IdentifierData("test2", new BooleanType()));
-	        IdentifierData tmp = new IdentifierData("tmp", new BooleanType());
+	        IdentifierData tmp1 = new IdentifierData("tmp1", new BooleanType());
+	        IdentifierData tmp2 = new IdentifierData("tmp2", new BooleanType());
+	        IdentifierData tmp3 = new IdentifierData("tmp3", new BooleanType());
 	        when(converter.icg.generateTempIdentifier(any(BooleanType.class)))
-	        .thenReturn(tmp);
+	        .thenReturn(tmp1,tmp2,tmp3);
 	           
 	        when(node.getOperator()).thenReturn(BinaryOperator.EQUAL);
 	       
 	        converter.convert(node);
-	       
-	        verify(converter.icg).pushIdentifierData(tmp);
-	        fail();
+	        verify(converter.icg).addQuadruple(new QuadrupleJb(Operator.AND_BOOLEAN, "test1", "test2", "tmp1"));
+	        verify(converter.icg).addQuadruple(new QuadrupleJb(Operator.NOT_BOOLEAN, "test1", Quadruple.EmptyArgument, "tmp2"));
+	        verify(converter.icg).addQuadruple(new QuadrupleJb(Operator.NOT_BOOLEAN, "test2", Quadruple.EmptyArgument, "tmp3"));
+	        verify(converter.icg).addQuadruple(new QuadrupleJb(Operator.AND_BOOLEAN, "tmp2", "tmp3", "tmp3"));
+	        verify(converter.icg).addQuadruple(new QuadrupleJb(Operator.OR_BOOLEAN, "tmp1", "tmp3", "tmp1"));
+	        verify(converter.icg).pushIdentifierData(tmp1);
 		} catch (IntermediateCodeGeneratorException e) {
 
 		}
