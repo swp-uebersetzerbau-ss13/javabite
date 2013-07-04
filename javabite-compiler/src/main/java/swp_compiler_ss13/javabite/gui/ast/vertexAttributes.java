@@ -5,6 +5,7 @@ import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
 import swp_compiler_ss13.common.ast.nodes.binary.LogicBinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.LoopNode;
+import swp_compiler_ss13.common.ast.nodes.binary.RelationExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
@@ -93,10 +94,21 @@ public class vertexAttributes {
 			color = colorAttributes+"navy";
 			getToken(ast);
 		} else if (ast instanceof BranchNode) {
-			value = "BranchNode\n" +"Condition" + ((BranchNode) ast).getCondition();
+			value = "BranchNode";
 			color = colorAttributes+"yellow";
 			getToken(ast);
 		} 
+		else if (ast instanceof BranchNode) {
+			value = "BranchNode";
+			color = colorAttributes+"white";
+			getToken(ast);
+		}
+		else if (ast instanceof RelationExpressionNode) {
+			value = "RelationExpressionNode\n" +strA;
+			color = colorAttributes+"white";
+			getToken(ast);
+		}
+		
 		else {
 			value = ast.toString();
 			color = colorAttributes+"white";
@@ -107,7 +119,7 @@ public class vertexAttributes {
 	
 	void getToken(ASTNode ast){
 		for(Token t:ast.coverage()){
-			strA+=t.getValue();
+			strA=strA+" "+t.getValue();
 		}
 		
 	}

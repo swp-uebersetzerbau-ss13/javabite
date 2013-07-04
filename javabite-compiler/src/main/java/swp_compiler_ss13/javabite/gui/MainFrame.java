@@ -656,7 +656,7 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 		frame.setVisible(true);
 		KhaledGraphFrame k= new KhaledGraphFrame();
 		
-		frame.setSize(167*k.levelsCounter(ast), 55*k.maximumOfNodesInLevels());
+		frame.setSize(220*k.levelsCounter(ast), 75*k.maximumOfNodesInLevels());
 		frame.getContentPane().add(ast_frame);
 		frame.setVisible(true);
 		toolBarLabel.setText("Rendered AST.");
