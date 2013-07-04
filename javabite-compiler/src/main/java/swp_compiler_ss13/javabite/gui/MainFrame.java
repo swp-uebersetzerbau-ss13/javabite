@@ -331,8 +331,8 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 		tableReportLogs.setEnabled(false);
 		modelReportLogs.addColumn("");
 		modelReportLogs.addColumn("Type");
-		modelReportLogs.addColumn("Line");
-		modelReportLogs.addColumn("Column");
+		modelReportLogs.addColumn("Start");
+		modelReportLogs.addColumn("End");
 		modelReportLogs.addColumn("Message");
 		tableReportLogs.setFillsViewportHeight(true);
 		scrollPaneReportLogs.setViewportView(tableReportLogs);
@@ -464,14 +464,20 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 	@Override
 	public void reportError(ReportType type, List<Token> tokens, String message) {
 		errorReported = true;
-		int line = 0;
-		int column = 0;
-		if (tokens != null && !tokens.isEmpty()) {
-			line = tokens.get(0).getLine();
-			column = tokens.get(0).getColumn();
-		}
+		int start_line = 0;
+		int start_column = 0;
+		int end_line = 0;
+		int end_column = 0;
 		
-		modelReportLogs.addRow(new Object[] { "Error", type, line, column, message });
+		if (tokens != null && !tokens.isEmpty()) {
+			start_line = tokens.get(0).getLine();
+			start_column = tokens.get(0).getColumn();
+			end_line = tokens.get(tokens.size()-1).getLine();
+			end_column = tokens.get(tokens.size()-1).getColumn()+tokens.get(tokens.size()-1).getValue().length();
+			
+		}
+		System.out.println(tokens);
+		modelReportLogs.addRow(new Object[] { "Error", type, start_line+":"+start_column, end_line+":"+end_column, message });
 		styleManager.underlineToken(tokens, Color.RED);
 	}
 

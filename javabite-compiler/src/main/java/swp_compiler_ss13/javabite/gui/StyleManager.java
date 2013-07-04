@@ -91,7 +91,7 @@ public class StyleManager extends DocumentFilter {
 		StyleConstants.setForeground(attributes, color);
 		StyleConstants.setUnderline(attributes, true);
 		TextRange range = getTextRangeOf(tokens);
-		mf.doc.setCharacterAttributes(range.from, range.to, attributes, true);
+		mf.doc.setCharacterAttributes(range.from, range.to-range.from, attributes, true);
 		mf.fileManager.isProcessing = false;
 	}
 	
@@ -120,42 +120,36 @@ public class StyleManager extends DocumentFilter {
 		return -1;
 	}
 	
-	TextRange getTextRangeOf(List<Token> tokens) {
-		int from = 0;
-		int to = 0;
-		if (tokens != null && !tokens.isEmpty()) {
-			int currentPos = 0;
-			int line = 1;
-			int startLine = tokens.get(0).getLine();
-			int startColumn = tokens.get(0).getColumn();
-			int endLine = tokens.get(tokens.size()-1).getLine();
-			int endColumn = tokens.get(tokens.size()-1).getColumn() + tokens.get(tokens.size()-1).getValue().length();
-			
+	TextRange getTextRange(Token token){
+		int sl=token.getLine();
+		int sc=token.getColumn();
+		int ec=sc+token.getValue().length();
+		int curr_line=1;
+		int curr_pos=0;
+		while (curr_line != sl) {
 			try {
-				while (startLine != line) {
-					currentPos = Utilities.getRowEnd(mf.editorPaneSourcecode,
-							currentPos)+1;
-					line++;
-				}
-				from = currentPos + startColumn - 1;
-	
-				if (startLine != endLine) {
-					while (endLine != line) {
-						currentPos = Utilities.getRowEnd(mf.editorPaneSourcecode,
-								currentPos);
-						line++;
-					}
-	
-					to = currentPos + endColumn - 1;
-				} else {
-					to = currentPos + endColumn - startColumn;
-				}
+				curr_pos = Utilities.getRowEnd(mf.editorPaneSourcecode,
+						curr_pos)+1;
 			} catch (BadLocationException e) {
 				e.printStackTrace();
 			}
+
+			curr_line++;
 		}
-		
-		return new TextRange(from, to);
+		return new TextRange(curr_pos+sc-1, curr_pos+ec-1);
+	}
+	
+	
+	TextRange getTextRangeOf(List<Token> tokens) {
+		int min=Integer.MAX_VALUE;
+		int max=Integer.MIN_VALUE;
+		// get the smallest interval, which includes the range of each token
+		for (Token t : tokens){
+			TextRange range=getTextRange(t);
+			min=Math.min(range.from, min);
+			max=Math.max(range.to, max);
+		}
+		return new TextRange(min, max);
 	}
 	
 	void showToolTip(Point loc) {
