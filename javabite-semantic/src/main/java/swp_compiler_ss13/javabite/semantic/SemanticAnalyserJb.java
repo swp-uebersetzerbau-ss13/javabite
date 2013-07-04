@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.mockito.exceptions.Reporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +55,7 @@ import swp_compiler_ss13.common.types.Type.Kind;
 import swp_compiler_ss13.common.types.derived.ArrayType;
 import swp_compiler_ss13.common.types.derived.Member;
 import swp_compiler_ss13.common.types.derived.StructType;
+import swp_compiler_ss13.javabite.ast.SymbolTableJb;
 import swp_compiler_ss13.javabite.semantic.attributes.ArithmeticAttribute;
 import swp_compiler_ss13.javabite.semantic.attributes.AttributingAttribute;
 import swp_compiler_ss13.javabite.semantic.attributes.BreakValidnessAttribute;
@@ -438,10 +440,11 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 				SYNTHESIZED, true);
 		if (val != null) {
 			set(n, val.mul(new ValueAttribute(-1L)), SYNTHESIZED);
-			if (val.getNumber().doubleValue()<0) errorLog.reportWarning(ReportType.UNDEFINED, n.coverage(),
-					"expression can be simplified to " + val.getNumber());
+			if (val.getNumber().doubleValue() < 0)
+				errorLog.reportWarning(ReportType.UNDEFINED, n.coverage(),
+						"expression can be simplified to " + val.getNumber());
 		}
-		
+
 	}
 
 	private void evalInheritedAttributes(ArithmeticUnaryExpressionNode n) {
@@ -455,20 +458,27 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 	private void evalSynthesizedAttributes(ArrayIdentifierNode n) {
 		if (is(n.getIndexNode(), INTEGER, SYNTHESIZED)) {
 			Type type = get(n.getIdentifierNode(), Type.class, SYNTHESIZED);
-			
+
 			if (type.getKind() != Kind.ARRAY) {
 				wrongType(n.getIdentifierNode(),
 						get(n.getIdentifierNode(), Type.class, SYNTHESIZED)
 								.getKind(), Type.Kind.ARRAY);
 				set(n, INTEGER, SYNTHESIZED);
 			} else {
-				ValueAttribute index_value=get(n.getIndexNode(),ValueAttribute.class,SYNTHESIZED,true);
+				ValueAttribute index_value = get(n.getIndexNode(),
+						ValueAttribute.class, SYNTHESIZED, true);
 				ArrayType arrType = (ArrayType) type;
 				set(n, arrType.getInnerType(), Type.class, SYNTHESIZED);
 				setAccordingToType(n, arrType.getInnerType());
-				if (index_value!=null){
-					if (index_value.getNumber().intValue()<0 || index_value.getNumber().intValue()>= arrType.getLength()){
-						errorLog.reportError(ReportType.INVALID_ARRAY_ACCESS, n.getIndexNode().coverage(), "Array index must be in range 0 inclusive to declared length exclusive( was "+index_value.getNumber().intValue()+")");
+				if (index_value != null) {
+					if (index_value.getNumber().intValue() < 0
+							|| index_value.getNumber().intValue() >= arrType
+									.getLength()) {
+						errorLog.reportError(ReportType.INVALID_ARRAY_ACCESS, n
+								.getIndexNode().coverage(),
+								"Array index must be in range 0 inclusive to declared length exclusive( was "
+										+ index_value.getNumber().intValue()
+										+ ")");
 					}
 				}
 			}
@@ -497,9 +507,11 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 				ArithmeticAttribute.class, SYNTHESIZED);
 		if (a_expr.isNumeric() && a_id.isNumeric()) {
 			set(n, a_id, SYNTHESIZED);
-		} else if ( a_id == ArithmeticAttribute.ARRAY || a_id == ArithmeticAttribute.STRUCT) {
+		} else if (a_id == ArithmeticAttribute.ARRAY
+				|| a_id == ArithmeticAttribute.STRUCT) {
 			// not valid
-			errorLog.reportError(ReportType.TYPE_MISMATCH, n.getLeftValue().coverage(), "assignment to non-primitives is not possible");
+			errorLog.reportError(ReportType.TYPE_MISMATCH, n.getLeftValue()
+					.coverage(), "assignment to non-primitives is not possible");
 			set(n, a_id, SYNTHESIZED);
 		} else if (a_expr == a_id) {
 			set(n, a_id, SYNTHESIZED);
@@ -579,17 +591,19 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 	}
 
 	private void evalIntermediateAttributes(BlockNode n) {
+		SymbolTableJb newSymbolTable = new SymbolTableJb();
+		newSymbolTable.setParentSymbolTable(get(n, SymbolTable.class,
+				INHERITED, true));
+
 		for (ASTNode child : n.getChildren()) {
-			set(child, (SymbolTable) n.getSymbolTable(), SymbolTable.class,
-					INHERITED);
+			set(child, newSymbolTable, SymbolTable.class, INHERITED);
 		}
 
-		// we have to treat different it if it is the root node
+		// we have to treat it different if it is the root node
 		if (n.getParentNode() == null) {
 			set(n, NOT_IN_LOOP, INHERITED);
 		}
 
-		// all but the last statement is a valid return statement
 		for (ASTNode child : n.getStatementList()) {
 			copyAttributeFromTo(BreakValidnessAttribute.class, n, child,
 					INHERITED);
@@ -669,6 +683,11 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 
 	private void evalSynthesizedAttributes(BreakNode n) {
 		set(n, FLOW_INTERRUPT, SYNTHESIZED);
+		if (!is(n, IN_LOOP, INHERITED)) {
+			errorLog.reportError(ReportType.INVALID_BREAK_POSITION,
+					n.coverage(),
+					"break-statement is just valid in a loop environment");
+		}
 	}
 
 	private void evalInheritedAttributes(BreakNode n) {
@@ -677,6 +696,14 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 
 	private void evalIntermediateAttributes(DeclarationNode n) {
 		SymbolTable t = get(n, SymbolTable.class, INHERITED);
+		if (t.isDeclared(n.getIdentifier())) {
+			errorLog.reportError(
+					ReportType.DOUBLE_DECLARATION,
+					n.coverage(),
+					"Variable name \"" + n.getIdentifier()
+							+ "\" is already used ( declared as "
+							+ t.lookupType(n.getIdentifier()) + "" + ")");
+		}
 		t.insert(n.getIdentifier(), n.getType());
 	}
 
@@ -806,14 +833,16 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 		if (n.getOperator() == BinaryOperator.EQUAL
 				|| n.getOperator() == BinaryOperator.INEQUAL) {
 			// numeric or boolean possible
-			
-			if (expr_left  == BOOLEAN ){
-				if (expr_right!=BOOLEAN) wrongType(n.getRightValue(), BOOLEAN, expr_right);
+
+			if (expr_left == BOOLEAN) {
+				if (expr_right != BOOLEAN)
+					wrongType(n.getRightValue(), BOOLEAN, expr_right);
 			}
-			if (expr_right  == BOOLEAN ){
-				if (expr_left!=BOOLEAN) wrongType(n.getLeftValue(), BOOLEAN, expr_left);
+			if (expr_right == BOOLEAN) {
+				if (expr_left != BOOLEAN)
+					wrongType(n.getLeftValue(), BOOLEAN, expr_left);
 			}
-			
+
 		} else {
 			// just numeric possible
 			if (!expr_left.isNumeric()) {
