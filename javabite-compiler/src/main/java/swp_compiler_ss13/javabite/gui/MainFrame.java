@@ -35,6 +35,8 @@ import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.JToolBar;
 import javax.swing.ToolTipManager;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.DefaultStyledDocument;
 
@@ -53,6 +55,8 @@ import swp_compiler_ss13.javabite.gui.bytecode.ByteCodeVisualizerJb;
 import swp_compiler_ss13.javabite.gui.config.SettingsPanel;
 import swp_compiler_ss13.javabite.gui.tac.TacVisualizerJb;
 import swp_compiler_ss13.javabite.runtime.JavaClassProcess;
+import java.awt.Cursor;
+import java.awt.Component;
 
 public class MainFrame extends JFrame implements ReportLog, Configurable {
 	
@@ -92,8 +96,10 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 	JButton buttonRunCompile;
 	JToolBar toolBar;
 	JPanel panelLabel;
+	JPanel panelLineColumn;
 	JPanel panelProgressBar;
 	JLabel toolBarLabel;
+	JLabel columnLineLabel;
 	JProgressBar progressBar;
 	JSplitPane splitPane;
 	JTextPane textPaneConsole;
@@ -285,7 +291,14 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 		toolBarLabel = new JLabel("Compiler started");
 		panelLabel.add(toolBarLabel);
 		
+		panelLineColumn = new JPanel();
+		toolBar.add(panelLineColumn);
+		
+		columnLineLabel = new JLabel("1:1");
+		panelLineColumn.add(columnLineLabel);
+		
 		panelProgressBar = new JPanel();
+		panelProgressBar.setToolTipText("Progressbar to show compilation process");
 		FlowLayout flowLayout = (FlowLayout) panelProgressBar.getLayout();
 		flowLayout.setAlignment(FlowLayout.RIGHT);
 		toolBar.add(panelProgressBar);
@@ -329,7 +342,26 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 		
 		// sourcecode with syntax highlighting
 		editorPaneSourcecode = new JTextPane(doc);
+		editorPaneSourcecode.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
 		scrollPane.setViewportView(editorPaneSourcecode);
+		editorPaneSourcecode.addCaretListener(new CaretListener(){
+			@Override
+			public void caretUpdate(CaretEvent e) {
+				int pos = e.getDot();
+				int row = 1, column=0;
+				int lastNewline=-1;
+				String text = editorPaneSourcecode.getText().replaceAll("\r", "");
+				for(int i=0;i<pos;i++){
+					if(text.charAt(i)==10){
+						row++;
+						lastNewline=i;
+					}
+				}
+				
+				column=pos-lastNewline;
+				setLineColumn(column, row);
+			}
+		});
 		
 		// add listener for sourcecode colorization 
 		editorPaneSourcecode.addKeyListener(new KeyAdapter() {
@@ -397,6 +429,10 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 			e.printStackTrace();
 		}
 		toolBarLabel.setIcon(icon);
+	}
+	
+	public void setLineColumn(int column, int row) {
+		columnLineLabel.setText(row + ":" + column);
 	}
 	
 	public void setProgress(int progress) {
