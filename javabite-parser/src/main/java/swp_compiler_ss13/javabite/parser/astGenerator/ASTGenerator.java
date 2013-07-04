@@ -1,6 +1,7 @@
 package swp_compiler_ss13.javabite.parser.astGenerator;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
@@ -85,6 +86,9 @@ public class ASTGenerator {
 	// stack holding blocknodes, top: current block
 	Stack<BlockNodeJb> currentBlocks;
 
+	// 
+	List<Object> nonDisposedTokenConsumer=new LinkedList<>();
+	
 	public ASTGenerator(List<TargetGrammar.Reduction> reductions) {
 		this.reductions = reductions;
 		this.currentBlocks = new Stack<>();
@@ -162,7 +166,7 @@ public class ASTGenerator {
 		switch (thisReduction.toString()) {
 		case "decls -> decls decl":
 			this.useDeclsProduction();
-			DeclarationNode decl = this.useDeclProduction();
+			DeclarationNodeJb decl = this.useDeclProduction();
 			BlockNodeJb currentBlock = this.currentBlocks.peek();
 			currentBlock.addDeclaration(decl);
 			break;
@@ -175,7 +179,7 @@ public class ASTGenerator {
 		
 	}
 
-	private DeclarationNode useDeclProduction() {
+	private DeclarationNodeJb useDeclProduction() {
 		if (debug){
 			logger.info("process \"decl\" \treduction on reductions {}",reductions);
 		}
@@ -188,7 +192,11 @@ public class ASTGenerator {
 		switch (thisReduction.toString()) {
 		case "decl -> type ID SEMICOLON":
 			decl=new DeclarationNodeJb();
-			decl.setType(useTypeProduction());
+			DeclarationNodeJb type_wrapper=useDeclarationTypeProduction();
+			decl.setType(type_wrapper.getType());
+			decl.addToCoverage(type_wrapper.coverage());
+			decl.addToCoverage((Token)thisReduction.getRightSide().get(1));
+			decl.addToCoverage((Token)thisReduction.getRightSide().get(2));
 			String id=(((Token)thisReduction.getRightSide().get(1)).getValue());
 			decl.setIdentifier(id);
 			break;
@@ -196,41 +204,52 @@ public class ASTGenerator {
 			logger.error("[Decl] thisReduction : {} , matches no case",thisReduction);
 			
 		}
-		decl.putAllTokens(thisReduction.getRightSide());
 		return decl;
 	}
 	
-	private Type useTypeProduction() {
+	private DeclarationNodeJb useDeclarationTypeProduction() {
 		if (debug){
 			logger.info("process \"type\" \treduction on reductions {}",reductions);
 		}
 		// get next reductions' list production and delete it from it
 		TargetGrammar.Reduction thisReduction = this.reductions.get(0);
 		this.reductions.remove(0);
+		DeclarationNodeJb type_wrapper=new DeclarationNodeJb();
 		Type type = null;
+		List<Token> additionals=new LinkedList<>();
 		
 		// use decl productions functions according to the specific production
 		switch (thisReduction.toString()) {
 		// primitive "basic" cases
 		case "type -> LONG_SYMBOL":
 			type=new LongType();
+			additionals.add((Token)thisReduction.getRightSide().get(0));
 			break;
 		case "type -> DOUBLE_SYMBOL":
 			type=new DoubleType();
+			additionals.add((Token)thisReduction.getRightSide().get(0));
 			break;
 		case "type -> STRING_SYMBOL":
 			type=new StringType(-1l);
+			additionals.add((Token)thisReduction.getRightSide().get(0));
 			break;
 		case "type -> BOOL_SYMBOL":
+			additionals.add((Token)thisReduction.getRightSide().get(0));
 			type=new BooleanType();
 			break;
 		case "type -> type LEFT_BRACKET NUM RIGHT_BRACKET":
-			Type arrayType=useTypeProduction();
+			DeclarationNodeJb type_wrapper_arr=useDeclarationTypeProduction();
+			Type arrayType=type_wrapper_arr.getType();
 			NumToken num=(NumToken)thisReduction.getRightSide().get(2);
 			
 			LiteralNodeJb numNode = new LiteralNodeJb();
 			numNode.setLiteral(num.getValue());
 			numNode.setLiteralType(new LongType());
+			
+			additionals.addAll(type_wrapper_arr.coverage());
+			additionals.add((Token)thisReduction.getRightSide().get(1));
+			additionals.add((Token)thisReduction.getRightSide().get(2));
+			additionals.add((Token)thisReduction.getRightSide().get(3));
 			
 			type=new ArrayType(arrayType, Integer.parseInt(numNode.getLiteral()));
 			break;
@@ -242,14 +261,23 @@ public class ASTGenerator {
 			for (DeclarationNode decl : recordDecls.getDeclarationList()){
 				membersList.add(new Member(decl.getIdentifier(),decl.getType()));
 			}
+			// set tokens
+			additionals.add((Token)thisReduction.getRightSide().get(0));
+			additionals.add((Token)thisReduction.getRightSide().get(1));
+			additionals.addAll(recordDecls.coverage());
+			additionals.add((Token)thisReduction.getRightSide().get(3));
+			
 			type=new StructType(membersList.toArray(new Member[membersList.size()]));
 			break;
 		default:
-			logger.error("[Type] thisReduction : {} , matches no case",thisReduction);
-			
+			logger.error("[Type] thisReduction : {} , matches no case",thisReduction);			
 		}
+		type_wrapper.addToCoverage(additionals);
+		
+		
+		type_wrapper.setType(type);
 
-		return type;
+		return type_wrapper;
 	}
 
 	private void useStmtsProduction() {

@@ -76,12 +76,13 @@ public class vertexAttributes {
 		} else if (ast instanceof DeclarationNode) {
 			value = "DeclarationNode";
 			color = colorAttributes+"magenta";
-			//getToken(ast);
+			getToken(ast);
 		} else if (ast instanceof BlockNode) {
 			value ="BlockNode"+"\nStatements= " + ((BlockNode) ast).getNumberOfStatements()
 					+ "\nDeclarations= "
 					+ ((BlockNode) ast).getNumberOfDeclarations();
 			color = colorAttributes+"pink";
+			getToken(ast);	
 		} else if (ast instanceof ArrayIdentifierNode) {
 			value ="ArrayIdentifierNode";
 			color = colorAttributes+"black";
@@ -124,10 +125,10 @@ public class vertexAttributes {
 	}
 	
 	void getToken(ASTNode ast){
+		
 		for(Token t:ast.coverage()){
 			strA=strA+" "+t.getValue();
 		}
-		
 	}
 
 }
