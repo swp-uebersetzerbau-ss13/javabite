@@ -26,6 +26,9 @@ public class OperationSymbol {
 			while (!(((ArithmeticBinaryExpressionNode) ast).getOperator())
 					.toString().equals(operation[i])) {
 				i++;
+				if(i==operation.length){
+					return "";
+				}
 			}
 			return operationSymbole[i];
 		}
@@ -33,6 +36,9 @@ public class OperationSymbol {
 			while (!(((LogicBinaryExpressionNode) ast).getOperator())
 					.toString().equals(operation[i])) {
 				i++;
+				if(i==operation.length){
+					return "";
+				}
 			}
 			return operationSymbole[i];
 		}
@@ -40,6 +46,9 @@ public class OperationSymbol {
 			while (!(((ArithmeticUnaryExpressionNode) ast).getOperator())
 					.toString().equals(operation[i])) {
 				i++;
+				if(i==operation.length){
+					return "";
+				}
 			}
 			return operationSymbole[i];
 		}
@@ -47,6 +56,9 @@ public class OperationSymbol {
 			while (!(((RelationExpressionNode) ast).getOperator())
 					.toString().equals(operation[i])) {
 				i++;
+				if(i==operation.length){
+					return "";
+				}
 			}
 			return operationSymbole[i];
 		}
