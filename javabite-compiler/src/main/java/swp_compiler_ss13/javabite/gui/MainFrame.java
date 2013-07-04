@@ -83,6 +83,7 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 	JMenu menuFile;
 	JMenuItem menuFileOpen;
 	JMenuItem menuFileSave;
+	JMenuItem menuFileSaveAs;
 	JMenuItem menuFileClose;
 	JMenu menuVisual;
 	JMenuItem menuVisualAst;
@@ -166,6 +167,14 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 			}
 		});
 		menuFile.add(menuFileSave);
+		
+		menuFileSaveAs = new JMenuItem("Save As");
+		menuFileSaveAs.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				fileManager.saveFileIn();
+			}
+		});
+		menuFile.add(menuFileSaveAs);
 		
 		menuFileClose = new JMenuItem("Close");
 		menuFileClose.addActionListener(new ActionListener() {
