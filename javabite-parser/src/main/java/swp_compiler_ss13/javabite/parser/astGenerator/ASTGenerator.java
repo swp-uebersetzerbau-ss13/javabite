@@ -172,6 +172,7 @@ public class ASTGenerator {
 		default:
 			logger.error("[Decls] thisReduction : {} , matches no case",thisReduction);	
 		}
+		
 	}
 
 	private DeclarationNode useDeclProduction() {
@@ -241,7 +242,7 @@ public class ASTGenerator {
 			for (DeclarationNode decl : recordDecls.getDeclarationList()){
 				membersList.add(new Member(decl.getIdentifier(),decl.getType()));
 			}
-			type=new StructType("Struct is not reusable, why should it have a name?!",membersList.toArray(new Member[membersList.size()]));
+			type=new StructType(membersList.toArray(new Member[membersList.size()]));
 			break;
 		default:
 			logger.error("[Type] thisReduction : {} , matches no case",thisReduction);
