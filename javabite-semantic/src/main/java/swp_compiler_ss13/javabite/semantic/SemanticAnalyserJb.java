@@ -499,6 +499,10 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 				ArithmeticAttribute.class, SYNTHESIZED);
 		if (a_expr.isNumeric() && a_id.isNumeric()) {
 			set(n, a_id, SYNTHESIZED);
+		} else if ( a_id == ArithmeticAttribute.ARRAY || a_id == ArithmeticAttribute.STRUCT) {
+			// not valid
+			errorLog.reportError(ReportType.TYPE_MISMATCH, n.getLeftValue().coverage(), "assignment to non-primitives is not possible");
+			set(n, a_id, SYNTHESIZED);
 		} else if (a_expr == a_id) {
 			set(n, a_id, SYNTHESIZED);
 		} else if (a_id == STRING) {
