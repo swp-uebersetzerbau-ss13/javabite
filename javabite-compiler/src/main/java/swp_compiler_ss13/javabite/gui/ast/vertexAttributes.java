@@ -39,12 +39,12 @@ public class vertexAttributes {
 			getToken(ast);
 		} else if (ast instanceof ArithmeticBinaryExpressionNode) {
 			opr =new OperationSymbol(ast);
-			value = "ArithmeticBinary\nExpressionNode"+ "\n"+ opr.getOperationSymbol();
+			value = "ArithmeticBinary\nExpressionNode";
 			color = colorAttributes+"cyan";
 			getToken(ast);
 		} else if (ast instanceof ArithmeticUnaryExpressionNode) {
 			opr =new OperationSymbol(ast);
-			value ="ArithmeticUnary\nExpressionNode"+ "\n"+ opr.getOperationSymbol();
+			value ="ArithmeticUnary\nExpressionNode";
 			color = colorAttributes+"blue";
 			getToken(ast);
 		}else if (ast instanceof PrintNode) {
@@ -65,7 +65,7 @@ public class vertexAttributes {
 
 		} else if (ast instanceof LogicBinaryExpressionNode) {
 		    opr =new OperationSymbol(ast);
-			value ="LogicBinary\nExpressionNode"+ "\n"+ opr.getOperationSymbol();
+			value ="LogicBinary\nExpressionNode";
 			color = colorAttributes+"blue";
 			getToken(ast);
 
@@ -109,13 +109,13 @@ public class vertexAttributes {
 			getToken(ast);
 		}
 		else if (ast instanceof RelationExpressionNode) {
-			value = "RelationExpressionNode\n" +strA;
+			value = "RelationExpressionNode";
 			color = colorAttributes+"pink";
 			getToken(ast);
 		}
 		
 		else {
-			value = ast.toString();
+			value = ast.getNodeType().toString();
 			color = colorAttributes+"white";
 			getToken(ast);
 		}

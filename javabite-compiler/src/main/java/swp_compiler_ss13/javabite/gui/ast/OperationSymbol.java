@@ -11,7 +11,7 @@ public class OperationSymbol {
 			"DIVISION", "LESSTHAN", "LESSTHANEQUAL", "GREATERTHAN",
 			"GREATERTHANEQUAL", "EQUAL", "INEQUAL", "LOGICAL_AND", "LOGICAL_OR" };
 	String[] operationSymbole = { "+", "-", "*", "/", "<", "<=", ">", ">=", "=",
-			"=!", "UND", "ODER" };
+			"!=", "UND", "ODER" };
 	
 	OperationSymbol(ASTNode ast){
 		 this.ast=ast;
