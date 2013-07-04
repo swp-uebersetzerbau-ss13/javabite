@@ -13,6 +13,7 @@ import swp_compiler_ss13.common.ast.nodes.ternary.BranchNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ArithmeticUnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ArrayIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
+import swp_compiler_ss13.common.ast.nodes.unary.PrintNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.ast.nodes.unary.StructIdentifierNode;
 import swp_compiler_ss13.common.lexer.Token;
@@ -46,14 +47,20 @@ public class vertexAttributes {
 			value ="ArithmeticUnary\nExpressionNode"+ "\n"+ opr.getOperationSymbol();
 			color = colorAttributes+"blue";
 			getToken(ast);
-		} else if (ast instanceof LiteralNode) {
+		}else if (ast instanceof PrintNode) {
+			value ="PrintNode";
+			color = colorAttributes+"0000ff";
+			getToken(ast);
+		} 
+		
+		else if (ast instanceof LiteralNode) {
 			value = "LiteralNode"+"\nType= " + ((LiteralNode) ast).getLiteralType()
 					+ "\nLiteral= " + ((LiteralNode) ast).getLiteral();
 			color = colorAttributes+"yellow";
 			getToken(ast);
 		} else if (ast instanceof AssignmentNode) {
 			value = "AssignmentNode";
-			color = colorAttributes+"white";
+			color = colorAttributes+"red";
 			getToken(ast);
 
 		} else if (ast instanceof LogicBinaryExpressionNode) {
@@ -67,8 +74,8 @@ public class vertexAttributes {
 			color = colorAttributes+"orange";
 			getToken(ast);
 		} else if (ast instanceof DeclarationNode) {
-			value = "DeclarationNode"+"\nType= " + ((DeclarationNode) ast).getType() + "\nId= "
-					+ ((DeclarationNode) ast).getIdentifier();
+			value = "DeclarationNode";
+			strA="Type= " + ((DeclarationNode) ast).getType() + "\nId= " + ((DeclarationNode) ast).getIdentifier();
 			color = colorAttributes+"magenta";
 		} else if (ast instanceof BlockNode) {
 			value ="BlockNode"+"\nStatements= " + ((BlockNode) ast).getNumberOfStatements()
@@ -76,17 +83,15 @@ public class vertexAttributes {
 					+ ((BlockNode) ast).getNumberOfDeclarations();
 			color = colorAttributes+"pink";
 		} else if (ast instanceof ArrayIdentifierNode) {
-			value ="ArrayIdentifierNode"+"\nIndex= " + ((ArrayIdentifierNode) ast).getIdentifierNode();
+			value ="ArrayIdentifierNode";
 			color = colorAttributes+"black";
 			getToken(ast);
 		} else if (ast instanceof StructIdentifierNode) {
-			value = "StructIdentifierNode"+"\nIndex= "
-					+ ((StructIdentifierNode) ast).getIdentifierNode();
+			value = "StructIdentifierNode";
 			color = colorAttributes+"red";
 			getToken(ast);
 		} else if (ast instanceof LoopNode) {
-			value = "LoopNode"+"\nCondition= " + ((LoopNode) ast).getCondition() + "\nBody"
-					+ ((LoopNode) ast).getLoopBody();
+			value = "LoopNode";
 			color = colorAttributes+"violet";
 			getToken(ast);
 		} else if (ast instanceof ReturnNode) {
@@ -100,12 +105,12 @@ public class vertexAttributes {
 		} 
 		else if (ast instanceof BranchNode) {
 			value = "BranchNode";
-			color = colorAttributes+"white";
+			color = colorAttributes+"pink";
 			getToken(ast);
 		}
 		else if (ast instanceof RelationExpressionNode) {
 			value = "RelationExpressionNode\n" +strA;
-			color = colorAttributes+"white";
+			color = colorAttributes+"pink";
 			getToken(ast);
 		}
 		
