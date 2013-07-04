@@ -75,8 +75,8 @@ public class vertexAttributes {
 			getToken(ast);
 		} else if (ast instanceof DeclarationNode) {
 			value = "DeclarationNode";
-			strA="Type= " + ((DeclarationNode) ast).getType() + "\nId= " + ((DeclarationNode) ast).getIdentifier();
 			color = colorAttributes+"magenta";
+			//getToken(ast);
 		} else if (ast instanceof BlockNode) {
 			value ="BlockNode"+"\nStatements= " + ((BlockNode) ast).getNumberOfStatements()
 					+ "\nDeclarations= "

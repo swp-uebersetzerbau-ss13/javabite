@@ -12,9 +12,9 @@ public class OperationSymbol {
 	
 	String[] operation = { "ADDITION", "SUBSTRACTION", "MULTIPLICATION",
 			"DIVISION", "LESSTHAN", "LESSTHANEQUAL", "GREATERTHAN",
-			"GREATERTHANEQUAL", "EQUAL", "INEQUAL", "LOGICAL_AND", "LOGICAL_OR" };
+			"GREATERTHANEQUAL", "EQUAL", "INEQUAL", "LOGICAL_AND", "LOGICAL_OR","MINUS" };
 	String[] operationSymbole = { "+", "-", "*", "/", "<", "<=", ">", ">=", "=",
-			"!=", "AND", "OR" };
+			"!=", "AND", "OR","MINUS" };
 	
 	OperationSymbol(ASTNode ast){
 		 this.ast=ast;
@@ -22,6 +22,7 @@ public class OperationSymbol {
 	
 	public String getOperationSymbol(){
 		if (ast instanceof ArithmeticBinaryExpressionNode){
+			
 			while (!(((ArithmeticBinaryExpressionNode) ast).getOperator())
 					.toString().equals(operation[i])) {
 				i++;
@@ -51,6 +52,7 @@ public class OperationSymbol {
 		}
 		else return "";
 		}
+	
 	}
 
 
