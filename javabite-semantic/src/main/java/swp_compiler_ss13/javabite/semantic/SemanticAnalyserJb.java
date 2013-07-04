@@ -638,7 +638,8 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 		if (n.getStatementNodeOnFalse() != null) {
 			children.add(n.getStatementNodeOnFalse());
 		}
-		if (applyForAll(children, FLOW_INTERRUPT, SYNTHESIZED)) {
+		// if both logical ( conditional) discjunct stops flow -> flow is broken at this node  
+		if (applyForAll(children, FLOW_INTERRUPT, SYNTHESIZED) && children.size()==2) {
 			set(n, FLOW_INTERRUPT, SYNTHESIZED);
 		} else {
 			set(n, FLOW_CONTINUE, SYNTHESIZED);
