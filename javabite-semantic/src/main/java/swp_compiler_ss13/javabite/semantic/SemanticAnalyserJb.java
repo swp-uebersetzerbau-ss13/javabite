@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.mockito.exceptions.Reporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,11 +28,11 @@ import swp_compiler_ss13.common.ast.nodes.IdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.StatementNode;
 import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
+import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
 import swp_compiler_ss13.common.ast.nodes.binary.DoWhileNode;
 import swp_compiler_ss13.common.ast.nodes.binary.LogicBinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.RelationExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.WhileNode;
-import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.BreakNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
@@ -46,7 +45,6 @@ import swp_compiler_ss13.common.ast.nodes.unary.LogicUnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.PrintNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.ast.nodes.unary.StructIdentifierNode;
-import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.common.parser.SymbolTable;
 import swp_compiler_ss13.common.report.ReportLog;
 import swp_compiler_ss13.common.report.ReportType;
@@ -663,7 +661,6 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 	}
 
 	private void evalInheritedAttributes(BranchNode n) {
-		// TODO: Implement
 	}
 
 	private void evalIntermediateAttributes(BreakNode n) {
@@ -675,7 +672,7 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 	}
 
 	private void evalInheritedAttributes(BreakNode n) {
-		// TODO: Implement
+
 	}
 
 	private void evalIntermediateAttributes(DeclarationNode n) {
@@ -684,7 +681,6 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 	}
 
 	private void evalSynthesizedAttributes(DeclarationNode n) {
-		// TODO: Implement
 	}
 
 	private void evalInheritedAttributes(DeclarationNode n) {
@@ -706,7 +702,6 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 	}
 
 	private void evalInheritedAttributes(DoWhileNode n) {
-		// TODO: Implement
 	}
 
 	private void evalIntermediateAttributes(LiteralNode n) {
@@ -748,7 +743,6 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 	}
 
 	private void evalInheritedAttributes(LiteralNode n) {
-		// TODO: Implement
 	}
 
 	private void evalIntermediateAttributes(LogicBinaryExpressionNode n) {
@@ -772,7 +766,6 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 	}
 
 	private void evalInheritedAttributes(LogicBinaryExpressionNode n) {
-		// TODO: Implement
 	}
 
 	private void evalIntermediateAttributes(LogicUnaryExpressionNode n) {
@@ -789,7 +782,6 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 	}
 
 	private void evalInheritedAttributes(LogicUnaryExpressionNode n) {
-		// TODO: Implement
 	}
 
 	private void evalIntermediateAttributes(PrintNode n) {
@@ -797,11 +789,9 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 	}
 
 	private void evalSynthesizedAttributes(PrintNode n) {
-		// TODO: Implement
 	}
 
 	private void evalInheritedAttributes(PrintNode n) {
-		// TODO: Implement
 	}
 
 	private void evalIntermediateAttributes(RelationExpressionNode n) {
@@ -835,7 +825,6 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 	}
 
 	private void evalInheritedAttributes(ReturnNode n) {
-		// TODO: Implement
 	}
 
 	private void evalIntermediateAttributes(ReturnNode n) {
@@ -856,7 +845,6 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 	}
 
 	private void evalInheritedAttributes(RelationExpressionNode n) {
-		// TODO: Implement
 	}
 
 	private void evalIntermediateAttributes(StructIdentifierNode n) {
@@ -887,7 +875,6 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 	}
 
 	private void evalInheritedAttributes(StructIdentifierNode n) {
-		// TODO: Implement
 	}
 
 	private void evalIntermediateAttributes(WhileNode n) {
