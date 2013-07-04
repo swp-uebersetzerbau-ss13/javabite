@@ -316,7 +316,7 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 		
 		textPaneConsole = new JTextPane();
 		textPaneConsole.setText("");
-		tabbedPaneLog.addTab("Console", null, textPaneConsole, null);
+		tabbedPaneLog.addTab("Console", null, new JScrollPane(textPaneConsole), null);
 		
 		textPaneLogs = new JTextPane();
 		textPaneLogs.setText("");
