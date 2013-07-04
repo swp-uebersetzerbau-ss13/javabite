@@ -2,12 +2,10 @@ package swp_compiler_ss13.javabite.compiler;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.junit.Before;
@@ -27,7 +25,7 @@ public abstract class AbstractCompilerTest {
 	@Test
 	public void test() throws URISyntaxException {
 		File main = testCompiler.compile(new File(ClassLoader.getSystemClassLoader().getResource(getProgFile()).toURI().getPath()));
-		List<ReportType> errors = getErrorList();
+		List<ReportType> errors = getErrorList()!=null ? getErrorList(): new LinkedList<ReportType>();
 		if (errors != null && !errors.isEmpty()) {
 			assertEquals("Expected errors do not match found errors.", errors, testCompiler.errorList);
 		} else {
@@ -42,5 +40,9 @@ public abstract class AbstractCompilerTest {
 	public abstract String getProgFile();
 	public abstract String getOutput();
 	public abstract Integer getResultValue();
+	/**
+	 * 
+	 * @return the list of errors or null, which means no errors
+	 */
 	public abstract List<ReportType> getErrorList();
 }
