@@ -32,6 +32,7 @@ import swp_compiler_ss13.common.ast.nodes.binary.DoWhileNode;
 import swp_compiler_ss13.common.ast.nodes.binary.LogicBinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.RelationExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.WhileNode;
+import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.BreakNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
@@ -44,6 +45,7 @@ import swp_compiler_ss13.common.ast.nodes.unary.LogicUnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.PrintNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.ast.nodes.unary.StructIdentifierNode;
+import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.common.parser.SymbolTable;
 import swp_compiler_ss13.common.report.ReportLog;
 import swp_compiler_ss13.common.report.ReportType;
@@ -490,10 +492,9 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 			set(n, a_id, SYNTHESIZED);
 		} else if (a_expr == a_id) {
 			set(n, a_id, SYNTHESIZED);
-		} else if (a_id== STRING){
-			set(n, STRING,SYNTHESIZED);
-		}
-		else {
+		} else if (a_id == STRING) {
+			set(n, STRING, SYNTHESIZED);
+		} else {
 			wrongType(
 					n.getRightValue(),
 					get(n.getRightValue(), ArithmeticAttribute.class,
@@ -638,8 +639,10 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 		if (n.getStatementNodeOnFalse() != null) {
 			children.add(n.getStatementNodeOnFalse());
 		}
-		// if both logical ( conditional) discjunct stops flow -> flow is broken at this node  
-		if (applyForAll(children, FLOW_INTERRUPT, SYNTHESIZED) && children.size()==2) {
+		// if both logical ( conditional) discjunct stops flow -> flow is broken
+		// at this node
+		if (applyForAll(children, FLOW_INTERRUPT, SYNTHESIZED)
+				&& children.size() == 2) {
 			set(n, FLOW_INTERRUPT, SYNTHESIZED);
 		} else {
 			set(n, FLOW_CONTINUE, SYNTHESIZED);
@@ -797,10 +800,24 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 				ArithmeticAttribute.class, SYNTHESIZED);
 		ArithmeticAttribute expr_right = get(n.getRightValue(),
 				ArithmeticAttribute.class, SYNTHESIZED);
-		if (!expr_left.isNumeric()) {
-			wrongType(n.getLeftValue(), expr_left, INTEGER,FLOAT);
-		} else if (!expr_right.isNumeric()) {
-			wrongType(n.getRightValue(), expr_right, INTEGER,FLOAT);
+		if (n.getOperator() == BinaryOperator.EQUAL
+				|| n.getOperator() == BinaryOperator.INEQUAL) {
+			// numeric or boolean possible
+			
+			if (expr_left  == BOOLEAN ){
+				if (expr_right!=BOOLEAN) wrongType(n.getRightValue(), BOOLEAN, expr_right);
+			}
+			if (expr_right  == BOOLEAN ){
+				if (expr_left!=BOOLEAN) wrongType(n.getLeftValue(), BOOLEAN, expr_left);
+			}
+			
+		} else {
+			// just numeric possible
+			if (!expr_left.isNumeric()) {
+				wrongType(n.getLeftValue(), expr_left, INTEGER, FLOAT);
+			} else if (!expr_right.isNumeric()) {
+				wrongType(n.getRightValue(), expr_right, INTEGER, FLOAT);
+			}
 		}
 	}
 
@@ -817,7 +834,10 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 		if (n.getRightValue() != null) {
 			IdentifierNode returnVal = n.getRightValue();
 			if (!is(returnVal, INTEGER, SYNTHESIZED)) {
-				wrongType(n.getRightValue(), get(n.getRightValue(),ArithmeticAttribute.class,SYNTHESIZED),INTEGER);
+				wrongType(
+						n.getRightValue(),
+						get(n.getRightValue(), ArithmeticAttribute.class,
+								SYNTHESIZED), INTEGER);
 			}
 		}
 	}
