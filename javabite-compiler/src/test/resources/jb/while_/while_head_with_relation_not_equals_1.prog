@@ -1,8 +1,11 @@
 long l1;
 long l2;
+long err;
+err=-1;
 l1 = 1;
 l2 = 1;
 
 while(l1 != l2) {
-	return l;
+	return err;
 }
+return l1;

@@ -4,5 +4,6 @@ l1 = 2;
 l2 = 1;
 
 while(l1 >= l2) {
-	return l;
+	return l2;
 }
+return l1;
