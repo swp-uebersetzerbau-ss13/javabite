@@ -76,7 +76,7 @@ public class LogicUnaryExpressionNodeConverterTest {
 	}
 	
 	/**
-	 * Test to put a "minus" (subtraction) in front of a Logic Unary Expression, which has the type Double.
+	 * Test to put a "minus" (subtraction) in front of a Logic Unary Expression, which has the type String.
 	 */
 	@Test
 	public void testLogicUnaryExpressionString(){
