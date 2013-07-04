@@ -476,7 +476,6 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 			end_column = tokens.get(tokens.size()-1).getColumn()+tokens.get(tokens.size()-1).getValue().length();
 			
 		}
-		System.out.println(tokens);
 		modelReportLogs.addRow(new Object[] { "Error", type, start_line+":"+start_column, end_line+":"+end_column, message });
 		styleManager.underlineToken(tokens, Color.RED);
 	}
