@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.mockito.exceptions.Reporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -425,13 +426,6 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 	private void evalSynthesizedAttributes(ArithmeticUnaryExpressionNode n) {
 		if (is(n.getRightValue(), FLOAT, SYNTHESIZED)) {
 			set(n, FLOAT, SYNTHESIZED);
-			ValueAttribute val = get(n.getRightValue(), ValueAttribute.class,
-					SYNTHESIZED, true);
-			if (val != null) {
-				set(n, val.mul(new ValueAttribute(-1L)), SYNTHESIZED);
-				errorLog.reportWarning(ReportType.UNDEFINED, n.coverage(),
-						"expression can be simplified to " + val.getNumber());
-			}
 		} else if (is(n.getRightValue(), INTEGER, SYNTHESIZED)) {
 			set(n, INTEGER, SYNTHESIZED);
 		} else {
@@ -439,8 +433,17 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 					n.getRightValue(),
 					get(n.getRightValue(), ArithmeticAttribute.class,
 							SYNTHESIZED), INTEGER, FLOAT);
+
+			set(n, INTEGER, SYNTHESIZED);
 		}
-		set(n, INTEGER, SYNTHESIZED);
+		ValueAttribute val = get(n.getRightValue(), ValueAttribute.class,
+				SYNTHESIZED, true);
+		if (val != null) {
+			set(n, val.mul(new ValueAttribute(-1L)), SYNTHESIZED);
+			if (val.getNumber().doubleValue()<0) errorLog.reportWarning(ReportType.UNDEFINED, n.coverage(),
+					"expression can be simplified to " + val.getNumber());
+		}
+		
 	}
 
 	private void evalInheritedAttributes(ArithmeticUnaryExpressionNode n) {
@@ -452,18 +455,24 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 	}
 
 	private void evalSynthesizedAttributes(ArrayIdentifierNode n) {
-		if (is(n.getIndexNode(), INTEGER, SYNTHESIZED)
-				|| is(n.getIndexNode(), INTEGER, SYNTHESIZED)) {
+		if (is(n.getIndexNode(), INTEGER, SYNTHESIZED)) {
 			Type type = get(n.getIdentifierNode(), Type.class, SYNTHESIZED);
+			
 			if (type.getKind() != Kind.ARRAY) {
 				wrongType(n.getIdentifierNode(),
 						get(n.getIdentifierNode(), Type.class, SYNTHESIZED)
 								.getKind(), Type.Kind.ARRAY);
 				set(n, INTEGER, SYNTHESIZED);
 			} else {
+				ValueAttribute index_value=get(n.getIndexNode(),ValueAttribute.class,SYNTHESIZED,true);
 				ArrayType arrType = (ArrayType) type;
 				set(n, arrType.getInnerType(), Type.class, SYNTHESIZED);
 				setAccordingToType(n, arrType.getInnerType());
+				if (index_value!=null){
+					if (index_value.getNumber().intValue()<0 || index_value.getNumber().intValue()>= arrType.getLength()){
+						errorLog.reportError(ReportType.INVALID_ARRAY_ACCESS, n.getIndexNode().coverage(), "Array index must be in range 0 inclusive to declared length exclusive( was "+index_value.getNumber().intValue()+")");
+					}
+				}
 			}
 		} else {
 			wrongType(
@@ -972,31 +981,4 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 		set(to, get(from, attribute_clazz, fashion), fashion);
 	}
 
-	// ----------------------------------------------------------------------------------
-
-	/*
-	 * JUST FOR DIRTY TESTING public static void main(String[] args) throws
-	 * FileNotFoundException { File f = new
-	 * File("/Users/Till/Desktop/test.prog"); Lexer lex = new LexerJb();
-	 * System.out.println("build"); lex.setSourceStream(new FileInputStream(f));
-	 * ParserJb parser = new ParserJb(); parser.setLexer(lex); ReportLog
-	 * reportLog = new ReportLog() {
-	 * 
-	 * @Override public void reportWarning(ReportType type, List<Token> tokens,
-	 * String message) { System.err.println("warning");
-	 * System.err.println(type); System.err.println(tokens);
-	 * System.err.println(message);
-	 * 
-	 * }
-	 * 
-	 * @Override public void reportError(ReportType type, List<Token> tokens,
-	 * String message) { System.err.println("error"); System.err.println(type);
-	 * System.err.println(tokens); System.err.println(message);
-	 * 
-	 * } };
-	 * 
-	 * parser.setReportLog(reportLog); AST ast = parser.getParsedAST();
-	 * SemanticAnalyser sa = new MonolithicSemanticAnalyzer();
-	 * sa.setReportLog(reportLog); sa.analyse(ast); }
-	 */
 }
