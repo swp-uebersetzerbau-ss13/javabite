@@ -1,10 +1,13 @@
 package swp_compiler_ss13.javabite.compiler;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Before;
@@ -28,16 +31,8 @@ public abstract class AbstractCompilerTest {
 		if (errors != null && !errors.isEmpty()) {
 			assertEquals("Expected errors do not match found errors.", errors, testCompiler.errorList);
 		} else {
-			if (main == null || !testCompiler.errorList.isEmpty()) {
-				System.out.println(testCompiler.errorList);
-				StringBuilder sb = new StringBuilder("Unexpected compilation error for ");
-				sb.append(getProgFile());
-				sb.append("\n\n main generated: ");
-				sb.append(main != null);
-				sb.append("\n\n Error list should be empty but found " + testCompiler.errorList);
-				
-				fail(sb.toString());	
-			}
+			assertEquals("Unexpected errors found", errors,testCompiler.errorList);
+			assertNotNull("No target code", main);
 			JavaClassProcess process = testCompiler.execute(main);
 			assertEquals("Output of programm execution does not match", getOutput(), process.getProcessOutput());
 			assertEquals("Return value does not match", getResultValue(), process.getReturnValue());
