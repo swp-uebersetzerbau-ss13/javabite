@@ -294,15 +294,13 @@ public class Translator {
 				case DECLARE_ARRAY:
 					// temp variable for found array's tac
 					final List<Quadruple> arrayTAC = new ArrayList<>();
-					arrayTAC.add(quad);
-					constructorTAC.add(quad);
 
 					// get rest of arrays tac
-					while (quad.getOperator() == Operator.DECLARE_ARRAY) {
+					do {
 						arrayTAC.add(quad);
 						constructorTAC.add(quad);
 						quad = tacIter.next();
-					}
+					} while (quad.getOperator() == Operator.DECLARE_ARRAY);
 
 					if (quad.getOperator() == Operator.DECLARE_STRUCT) {
 						List<Quadruple> structTACwithoutFirstDecl;
@@ -871,7 +869,8 @@ public class Translator {
 		final Instruction InstrAload = new Instruction(Mnemonic.ALOAD_0);
 		final Instruction InstrInvokespecial = new Instruction(
 				Mnemonic.INVOKESPECIAL, structClassfile.getConstructorIndex());
-		structClassfile.addInstructionsToMethodsCode("<init>", InstrAload, InstrInvokespecial);
+		structClassfile.addInstructionsToMethodsCode("<init>", InstrAload,
+				InstrInvokespecial);
 		structClassfile.addInstructionsToMethodsCode("<init>",
 				pr.toInstructionsArray());
 	}

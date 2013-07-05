@@ -178,7 +178,8 @@ class Method {
 	 * <p>
 	 * This method adds a new Instruction object to the code area of the code
 	 * attribute of this method using the CodeAttribute's method
-	 * {@link Code#addInstructions(swp_compiler_ss13.javabite.backend.translation.Instruction...)}.
+	 * {@link Code#addInstructions(swp_compiler_ss13.javabite.backend.translation.Instruction...)}
+	 * .
 	 * </p>
 	 * 
 	 * @since 30.04.2013

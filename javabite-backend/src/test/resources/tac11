@@ -1,2 +1,2 @@
-DECLARE_STRING #\"hello world!\na new line\" ! s
+DECLARE_STRING #"hello_world!\na_new_line" ! s
 PRINT_STRING s ! !

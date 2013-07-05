@@ -2,9 +2,9 @@ package swp_compiler_ss13.javabite.backend;
 
 import java.io.InputStream;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 import swp_compiler_ss13.common.backend.Backend;
 import swp_compiler_ss13.common.backend.BackendException;
@@ -97,7 +97,7 @@ public class BackendJb implements Backend {
 	 */
 	private static Map<String, InputStream> createTargetCodeStreams(
 			final Collection<Classfile> classfiles) {
-		final Map<String, InputStream> targetCodeIS = new HashMap<>();
+		final Map<String, InputStream> targetCodeIS = new TreeMap<>();
 
 		for (final Classfile classfile : classfiles) {
 			targetCodeIS.put(classfile.getFilename(),

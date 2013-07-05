@@ -1,4 +1,4 @@
-DECLARE_STRING #\"hello world\" ! s
+DECLARE_STRING #"hello_world" ! s
 PRINT_STRING s ! !
 DECLARE_BOOLEAN #false ! b
 BOOLEAN_TO_STRING b ! s

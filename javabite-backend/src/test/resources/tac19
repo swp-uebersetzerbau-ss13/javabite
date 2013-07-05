@@ -1,4 +1,4 @@
 DECLARE_STRUCT #1 ! srobert
 DECLARE_STRING ! ! l
-DECLARE_STRING #\"something\" ! s
+DECLARE_STRING #"something" ! s
 STRUCT_SET_STRING srobert l s

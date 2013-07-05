@@ -209,7 +209,8 @@ public class Classfile {
 			final Instruction InstrInvokespecial = new Instruction(
 					Mnemonic.INVOKESPECIAL, constructorIndex);
 			final Instruction InstrReturn = new Instruction(Mnemonic.RETURN);
-			addInstructionsToMethodsCode("<init>", InstrAload, InstrInvokespecial, InstrReturn);
+			addInstructionsToMethodsCode("<init>", InstrAload,
+					InstrInvokespecial, InstrReturn);
 		}
 	}
 
@@ -412,7 +413,7 @@ public class Classfile {
 	public short addClassConstantToConstantPool(
 			final ClassfileUtils.ClassSignature classSignature) {
 		return addClassConstantToConstantPool(classSignature
-                .getClassNameAsContainer());
+				.getClassNameAsContainer());
 	}
 
 	/**
@@ -474,14 +475,14 @@ public class Classfile {
 				fieldName, fieldNameDescriptor);
 		// add fieldref
 		return constantPool.generateConstantFieldrefInfo(classIndex, natIndex,
-                fieldName, classNameEIF);
+				fieldName, classNameEIF);
 	}
 
 	public short addFieldrefConstantToConstantPool(
 			final ClassfileUtils.FieldSignature signature) {
 		return addFieldrefConstantToConstantPool(signature.fieldName,
-                signature.fieldType.getClassNameAsType(),
-                signature.fieldClass.getClassNameAsContainer());
+				signature.fieldType.getClassNameAsType(),
+				signature.fieldClass.getClassNameAsContainer());
 	}
 
 	/**
@@ -656,28 +657,6 @@ public class Classfile {
 	}
 
 	/**
-	 * <h1>getIndexOfVariableInMethod</h1>
-	 * <p>
-	 * This method looks up the index of a variable in the local variable space
-	 * of the code attribute of the specified method and returns it.
-	 * </p>
-	 * 
-	 * @since 30.04.2013
-	 * @param methodName
-	 *            String name of the method
-	 * @param variableName
-	 *            String name of the variable
-	 * @return index of the variable in local variable space of the code
-	 *         attribute of the specified method. variable space has a size of 1
-	 *         byte
-	 */
-	public byte getIndexOfVariableInMethod(final String methodName,
-			final String variableName) {
-
-		return methodArea.getIndexOfVariableInMethod(methodName, variableName);
-	}
-
-	/**
 	 * <h1>addInstructionsToMethodsCode</h1>
 	 * <p>
 	 * This method adds new Instructions to the code area of the code attribute
@@ -690,7 +669,8 @@ public class Classfile {
 	 *            String name of the method
 	 * @param instructions
 	 *            Collection of instances of class Instruction
-	 * @see Classfile#addInstructionsToMethodsCode(String, swp_compiler_ss13.javabite.backend.translation.Instruction[])
+	 * @see Classfile#addInstructionsToMethodsCode(String,
+	 *      swp_compiler_ss13.javabite.backend.translation.Instruction[])
 	 */
 	public void addInstructionsToMethodsCode(final String methodName,
 			final Instruction... instructions) {

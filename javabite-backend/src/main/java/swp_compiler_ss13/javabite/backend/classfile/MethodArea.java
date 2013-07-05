@@ -181,7 +181,8 @@ class MethodArea {
 	 * this classfile using the method {@link #getMethodByMethodName(String)}
 	 * and adds a new Instruction to the code area of the code attribute of the
 	 * looked up Method object using the objects method
-	 * {@link Method#addInstructionsToCodeAttribute(swp_compiler_ss13.javabite.backend.translation.Instruction...)}.
+	 * {@link Method#addInstructionsToCodeAttribute(swp_compiler_ss13.javabite.backend.translation.Instruction...)}
+	 * .
 	 * </p>
 	 * 
 	 * @since 30.04.2013

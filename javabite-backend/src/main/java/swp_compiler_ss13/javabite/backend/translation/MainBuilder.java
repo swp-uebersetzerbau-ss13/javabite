@@ -1,15 +1,16 @@
 package swp_compiler_ss13.javabite.backend.translation;
 
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isIgnoreParam;
+
+import java.io.PrintStream;
+import java.util.HashMap;
+import java.util.Map;
+
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.javabite.backend.classfile.Classfile;
 import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
 import swp_compiler_ss13.javabite.backend.utils.ConstantUtils;
-
-import java.io.PrintStream;
-import java.util.*;
-
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isIgnoreParam;
 
 /**
  * <h1>MainBuilder</h1>
@@ -22,18 +23,6 @@ import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isIgnorePar
  */
 public class MainBuilder extends AbstractBuilder<MainBuilder> {
 
-	// saves all jump targets (labels) for jump instruction creation
-	private final Map<String, Instruction> jumpTargets;
-	// saves all jump instructions for later offset calculation
-	private final List<JumpInstruction> jumpInstructions;
-	// sizes of last array declaration, in reverse order on the stack
-	private final Stack<String> arrayLengths;
-	// label name of last label
-	private final Stack<String> labelNames;
-	// indicates last instruction was a label, denoting a jump location
-	private boolean labelFlag;
-	// name of last array seen
-	private String arrayName;
 	// gathers all struct name parts when accessing structs and substructs
 	private final StringBuilder structNameBuilder;
 	// stores struct names for reference variables
@@ -41,47 +30,9 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 
 	public MainBuilder(final Classfile classfile, final String methodName) {
 		super(classfile, methodName);
-		jumpTargets = new HashMap<>();
-		jumpInstructions = new ArrayList<>();
-		arrayLengths = new Stack<>();
-		labelNames = new Stack<>();
 		returnFlag = false;
 		structNameBuilder = new StringBuilder();
 		structChains = new HashMap<>();
-	}
-
-	@Override
-	protected MainBuilder add(final Operation operation) {
-		super.add(operation);
-		if (labelFlag) {
-			labelFlag = false;
-			while (!labelNames.isEmpty()) {
-				jumpTargets.put(labelNames.pop(), operation.getInstruction(0));
-			}
-		}
-		return this;
-	}
-
-	@Override
-	protected void prepareBuild() {
-		// caluclate jump offset for every jump, set as argument of jump
-		for (final JumpInstruction in : jumpInstructions) {
-			Instruction target = in.getTargetInstruction();
-			if (target == null) {
-				// target instruction is null -> target label is set
-				// get instruction by label name
-				target = jumpTargets.get(in.getTargetLabel());
-			}
-			assert target != null;
-			// calculate offset delta from jump instruction to target
-			final int offset = target.getOffset() - in.getOffset();
-			if (offset > Short.MAX_VALUE) {
-				in.setMnemonic(Mnemonic.GOTO_W);
-				in.setArguments(ByteUtils.intToByteArray(offset));
-			} else {
-				in.setArguments(ByteUtils.shortToByteArray((short) offset));
-			}
-		}
 	}
 
 	private String getCompoundStructName(final Quadruple q) {
@@ -156,9 +107,9 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 		if (convertOp != null) {
 			op.add(convertOp);
 		}
-		op.add(localStoreInstruction(q.getResult(), storeVariableType != null
-                ? storeVariableType
-                : loadVariableType));
+		op.add(localStoreInstruction(q.getResult(),
+				storeVariableType != null ? storeVariableType
+						: loadVariableType));
 		return op.build();
 	}
 
@@ -227,16 +178,14 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 		final Instruction loadFalse = new Instruction(Mnemonic.ICONST_0);
 		final JumpInstruction jumpFalse = new JumpInstruction(jumpOp, loadFalse);
 		op.add(jumpFalse);
-		jumpInstructions.add(jumpFalse);
 		// 5: load 1 (true) onto the stack
 		op.add(Mnemonic.ICONST_1);
 		// 6: execute an unconditional jump with target line 8
 		final Instruction storeRes = localStoreInstruction(q.getResult(),
-                ClassfileUtils.LocalVariableType.BOOLEAN);
+				ClassfileUtils.LocalVariableType.BOOLEAN);
 		final JumpInstruction jumpStore = new JumpInstruction(Mnemonic.GOTO,
 				storeRes);
 		op.add(jumpStore);
-		jumpInstructions.add(jumpStore);
 		// 7: load 0 (false) onto the stack
 		op.add(loadFalse);
 		// 8: store result 1/0 into variable
@@ -256,83 +205,12 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	private Operation localBooleanOp(final Quadruple q, final Mnemonic mnemonic) {
 		final Operation.Builder op = Operation.Builder.newBuilder();
 		op.add(localLoadInstruction(q.getArgument1(),
-                ClassfileUtils.LocalVariableType.BOOLEAN));
+				ClassfileUtils.LocalVariableType.BOOLEAN));
 		op.add(localLoadInstruction(q.getArgument2(),
-                ClassfileUtils.LocalVariableType.BOOLEAN));
+				ClassfileUtils.LocalVariableType.BOOLEAN));
 		op.add(mnemonic);
 		op.add(localStoreInstruction(q.getResult(),
-                ClassfileUtils.LocalVariableType.BOOLEAN));
-		return op.build();
-	}
-
-	/**
-	 * TODO javadoc
-	 * 
-	 * @param type
-	 * @return
-	 */
-	private Operation localArrayCreateOp(final ClassfileUtils.JavaType type) {
-		return localArrayCreateOp(type.classSignature, type.isPrimitive(),
-				type.value, null);
-	}
-
-	/**
-	 * Creates a new array. There are three types of arrays: single dimension
-	 * primitive type, single dimension object type, multi dimension object
-	 * type. Because multi dimensional arrays contain arrays, both primitive and
-	 * object types can be stored within.
-	 * 
-	 * TODO javadoc
-	 * 
-	 * @return new operation instance
-	 */
-	private Operation localArrayCreateOp(
-			final ClassfileUtils.ClassSignature arrayClass,
-			final boolean isPrimitive, final byte primitiveType,
-			final Byte arrayVarIndex) {
-		assert !ConstantUtils.isIgnoreParam(arrayName)
-				&& !arrayLengths.isEmpty();
-		final Operation.Builder op = Operation.Builder.newBuilder();
-		final byte dimensions = (byte) arrayLengths.size();
-
-		// add all dimensions to stack for array creation
-		while (!arrayLengths.isEmpty()) {
-			op.add(localLoadInstruction(arrayLengths.pop(),
-                    ClassfileUtils.LocalVariableType.LONG));
-			op.add(Mnemonic.L2I);
-		}
-
-		if (dimensions > 1) {
-			// if more than 1 dimension, create a multi dimensional array
-			// every multi dimensional array is an array of references
-			final String classSignature = new String(new char[dimensions])
-					.replace("\0", "[") + arrayClass.getClassNameAsType();
-			final short classIndex = classfile
-					.addClassConstantToConstantPool(classSignature);
-			assert classIndex > 0;
-			final byte[] classIndexArray = ByteUtils
-					.shortToByteArray(classIndex);
-			assert classIndexArray.length == 2;
-			op.add(Mnemonic.MULTIANEWARRAY, classIndexArray[0],
-					classIndexArray[1], dimensions);
-		} else if (isPrimitive) {
-			// if single dimensional and primitive, create with type tagByte
-			op.add(Mnemonic.NEWARRAY, primitiveType);
-		} else {
-			// if single dimensional and complex (object), create with
-			// class reference
-			final short classIndex = classfile
-					.addClassConstantToConstantPool(arrayClass);
-			op.add(Mnemonic.ANEWARRAY, ByteUtils.shortToByteArray(classIndex));
-		}
-
-		if (arrayVarIndex == null)
-			op.add(localStoreInstruction(arrayName,
-                    ClassfileUtils.LocalVariableType.AREF));
-		else
-			op.add(localStoreVariableInstruction(arrayVarIndex,
-                    ClassfileUtils.LocalVariableType.AREF));
-
+				ClassfileUtils.LocalVariableType.BOOLEAN));
 		return op.build();
 	}
 
@@ -352,10 +230,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 		final Operation.Builder op = Operation.Builder.newBuilder();
 		// load lv array
 		op.add(localLoadInstruction(q.getArgument1(),
-                ClassfileUtils.LocalVariableType.AREF));
+				ClassfileUtils.LocalVariableType.AREF));
 		// load lv array index
 		op.add(localLoadInstruction(q.getArgument2(),
-                ClassfileUtils.LocalVariableType.LONG));
+				ClassfileUtils.LocalVariableType.LONG));
 		// convert array index to int
 		op.add(Mnemonic.L2I);
 		op.add(variableType.arrayLoadOp);
@@ -380,10 +258,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 		final Operation.Builder op = Operation.Builder.newBuilder();
 		// load lv array
 		op.add(localLoadInstruction(q.getArgument1(),
-                ClassfileUtils.LocalVariableType.AREF));
+				ClassfileUtils.LocalVariableType.AREF));
 		// load lv array index
 		op.add(localLoadInstruction(q.getArgument2(),
-                ClassfileUtils.LocalVariableType.LONG));
+				ClassfileUtils.LocalVariableType.LONG));
 		// convert array index to int
 		op.add(Mnemonic.L2I);
 		op.add(localLoadInstruction(q.getResult(), variableType));
@@ -407,11 +285,11 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 		final Operation.Builder op = Operation.Builder.newBuilder();
 		final short toStringIndex = classfile
 				.addMethodrefConstantToConstantPool(toStringSig);
-		assert toStringIndex > 0;
+		assert toStringIndex > 0 : "index is zero";
 		op.add(localLoadInstruction(q.getArgument1(), variableType));
 		op.add(Mnemonic.INVOKESTATIC, ByteUtils.shortToByteArray(toStringIndex));
 		op.add(localStoreInstruction(q.getResult(),
-                ClassfileUtils.LocalVariableType.STRING));
+				ClassfileUtils.LocalVariableType.STRING));
 		return op.build();
 	}
 
@@ -429,7 +307,7 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 		final String structName = getCompoundStructName(q);
 		final Operation.Builder op = Operation.Builder.newBuilder();
 		op.add(localLoadInstruction(q.getArgument1(),
-                ClassfileUtils.LocalVariableType.AREF));
+				ClassfileUtils.LocalVariableType.AREF));
 		final ClassfileUtils.ClassSignature fieldClass;
 		if (variableType.javaType != null) {
 			// field is primitive or string
@@ -450,43 +328,41 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 				q.getArgument2(), structName, fieldClass.getClassNameAsType());
 		final short fieldIndex = classfile
 				.addFieldrefConstantToConstantPool(fieldSignature);
-		assert fieldIndex > 0;
+		assert fieldIndex > 0 : "index is zero";
 		op.add(Mnemonic.GETFIELD, ByteUtils.shortToByteArray(fieldIndex));
 		op.add(localStoreInstruction(q.getResult(), variableType));
 		return op.build();
 	}
 
-	/**
-	 * Sets a value into a structs field
-	 * 
-	 * @param q
-	 *            quadruple of operation
-	 * @param variableType
-	 *            type of variable/constant to load
-	 * @return new operation instance
-	 */
-	private Operation localStructSetFieldOp(final Quadruple q,
-			final ClassfileUtils.LocalVariableType variableType) {
-		final String structName = getCompoundStructName(q);
-		final Operation.Builder op = Operation.Builder.newBuilder();
-		op.add(localLoadInstruction(q.getArgument1(),
-                ClassfileUtils.LocalVariableType.AREF));
-		op.add(localLoadInstruction(q.getResult(), variableType));
-		final String fieldType;
-		if (variableType.javaType != null) {
-			fieldType = variableType.javaType.classSignature
-					.getClassNameAsContainer();
-		} else {
-			fieldType = structName + "_" + q.getArgument2();
-		}
-		final ClassfileUtils.FieldSignature fieldSignature = new ClassfileUtils.FieldSignature(
-				q.getArgument2(), structName, fieldType);
-		final short fieldIndex = classfile
-				.addFieldrefConstantToConstantPool(fieldSignature);
-		assert fieldIndex > 0;
-		op.add(Mnemonic.PUTFIELD, ByteUtils.shortToByteArray(fieldIndex));
-		return op.build();
-	}
+	// private Operation localStructSetFieldOp(final Quadruple q,
+	// final ClassfileUtils.LocalVariableType variableType) {
+	//
+	// return localStructSetFieldOp(getCompoundStructName(q),
+	// q.getArgument1(), q.getArgument2(), variableType);
+	//
+	// final String structName = getCompoundStructName(q);
+	// final Operation.Builder op = Operation.Builder.newBuilder();
+	// op.add(localLoadInstruction(q.getArgument1(),
+	// ClassfileUtils.LocalVariableType.AREF));
+	//
+	// op.add(localLoadInstruction(q.getResult(), variableType));
+	// final String fieldType;
+	// if (variableType.javaType != null) {
+	// fieldType = variableType.javaType.classSignature
+	// .getClassNameAsContainer();
+	// } else {
+	// fieldType = structName + "_" + q.getArgument2();
+	// }
+	// final ClassfileUtils.FieldSignature fieldSignature = new
+	// ClassfileUtils.FieldSignature(
+	// q.getArgument2(), structName, fieldType);
+	// op.add(fieldStoreInstruction(fieldSignature));
+	// final short fieldIndex = classfile
+	// .addFieldrefConstantToConstantPool(fieldSignature);
+	// assert fieldIndex > 0;
+	// op.add(Mnemonic.PUTFIELD, ByteUtils.shortToByteArray(fieldIndex));
+	// return op.build();
+	// }
 
 	// OPERATIONS ----------------------------------------------------------
 
@@ -511,10 +387,12 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this builders instance
 	 */
 	public MainBuilder declareLong(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.DECLARE_LONG;
-		assert hasArgsCount(q, 0, 1, 2);
+		assert q.getOperator() == Quadruple.Operator.DECLARE_LONG : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 0, 1, 2) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		if (ConstantUtils.isIgnoreParam(q.getResult())) {
-			return add(localArrayCreateOp(ClassfileUtils.JavaType.LONG));
+			add(localArrayCreateOp(ClassfileUtils.JavaType.LONG));
 		}
 
 		return this;
@@ -532,8 +410,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this builders instance
 	 */
 	public MainBuilder declareDouble(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.DECLARE_DOUBLE;
-		assert hasArgsCount(q, 0, 1, 2);
+		assert q.getOperator() == Quadruple.Operator.DECLARE_DOUBLE : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 0, 1, 2) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		if (ConstantUtils.isIgnoreParam(q.getResult())) {
 			return add(localArrayCreateOp(ClassfileUtils.JavaType.DOUBLE));
 		}
@@ -553,8 +433,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this builders instance
 	 */
 	public MainBuilder declareString(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.DECLARE_STRING;
-		assert hasArgsCount(q, 0, 1, 2);
+		assert q.getOperator() == Quadruple.Operator.DECLARE_STRING : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 0, 1, 2) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		if (ConstantUtils.isIgnoreParam(q.getResult())) {
 			return add(localArrayCreateOp(ClassfileUtils.JavaType.STRING));
 		}
@@ -574,8 +456,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this builders instance
 	 */
 	public MainBuilder declareBoolean(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.DECLARE_BOOLEAN;
-		assert hasArgsCount(q, 0, 1, 2);
+		assert q.getOperator() == Quadruple.Operator.DECLARE_BOOLEAN : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 0, 1, 2) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		if (ConstantUtils.isIgnoreParam(q.getResult())) {
 			return add(localArrayCreateOp(ClassfileUtils.JavaType.BOOLEAN));
 		}
@@ -610,8 +494,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder longToDouble(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.LONG_TO_DOUBLE;
-		assert hasArgsCount(q, 2);
+		assert q.getOperator() == Quadruple.Operator.LONG_TO_DOUBLE : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 2) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(localValueAssignOp(q, ClassfileUtils.LocalVariableType.LONG,
 				Mnemonic.L2D, ClassfileUtils.LocalVariableType.DOUBLE));
 	}
@@ -643,8 +529,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder doubleToLong(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.DOUBLE_TO_LONG;
-		assert hasArgsCount(q, 2);
+		assert q.getOperator() == Quadruple.Operator.DOUBLE_TO_LONG : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 2) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(localValueAssignOp(q,
 				ClassfileUtils.LocalVariableType.DOUBLE, Mnemonic.D2L,
 				ClassfileUtils.LocalVariableType.LONG));
@@ -677,8 +565,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder assignLong(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.ASSIGN_LONG;
-		assert hasArgsCount(q, 2);
+		assert q.getOperator() == Quadruple.Operator.ASSIGN_LONG : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 2) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(localValueAssignOp(q, ClassfileUtils.LocalVariableType.LONG,
 				null, null));
 	}
@@ -710,8 +600,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder assignDouble(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.ASSIGN_DOUBLE;
-		assert hasArgsCount(q, 2);
+		assert q.getOperator() == Quadruple.Operator.ASSIGN_DOUBLE : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 2) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(localValueAssignOp(q,
 				ClassfileUtils.LocalVariableType.DOUBLE, null, null));
 	}
@@ -743,8 +635,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder assignString(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.ASSIGN_STRING;
-		assert hasArgsCount(q, 2);
+		assert q.getOperator() == Quadruple.Operator.ASSIGN_STRING : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 2) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(localValueAssignOp(q,
 				ClassfileUtils.LocalVariableType.STRING, null, null));
 	}
@@ -776,13 +670,15 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder assignBoolean(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.ASSIGN_BOOLEAN;
-		assert hasArgsCount(q, 2);
+		assert q.getOperator() == Quadruple.Operator.ASSIGN_BOOLEAN : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 2) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		final Operation.Builder op = Operation.Builder.newBuilder();
 		op.add(localLoadInstruction(q.getArgument1(),
-                ClassfileUtils.LocalVariableType.BOOLEAN));
+				ClassfileUtils.LocalVariableType.BOOLEAN));
 		op.add(localStoreInstruction(q.getResult(),
-                ClassfileUtils.LocalVariableType.BOOLEAN));
+				ClassfileUtils.LocalVariableType.BOOLEAN));
 		return add(op.build());
 	}
 
@@ -813,8 +709,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder addLong(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.ADD_LONG;
-		assert hasArgsCount(q, 3);
+		assert q.getOperator() == Quadruple.Operator.ADD_LONG : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(localNumberCalculateOp(q,
 				ClassfileUtils.LocalVariableType.LONG, Mnemonic.LADD));
 	}
@@ -846,8 +744,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder addDouble(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.ADD_DOUBLE;
-		assert hasArgsCount(q, 3);
+		assert q.getOperator() == Quadruple.Operator.ADD_DOUBLE : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(localNumberCalculateOp(q,
 				ClassfileUtils.LocalVariableType.DOUBLE, Mnemonic.DADD));
 	}
@@ -879,8 +779,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder subLong(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.SUB_LONG;
-		assert hasArgsCount(q, 3);
+		assert q.getOperator() == Quadruple.Operator.SUB_LONG : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(localNumberCalculateOp(q,
 				ClassfileUtils.LocalVariableType.LONG, Mnemonic.LSUB));
 	}
@@ -912,8 +814,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder subDouble(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.SUB_DOUBLE;
-		assert hasArgsCount(q, 3);
+		assert q.getOperator() == Quadruple.Operator.SUB_DOUBLE : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(localNumberCalculateOp(q,
 				ClassfileUtils.LocalVariableType.DOUBLE, Mnemonic.DSUB));
 	}
@@ -945,8 +849,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder mulLong(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.MUL_LONG;
-		assert hasArgsCount(q, 3);
+		assert q.getOperator() == Quadruple.Operator.MUL_LONG : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(localNumberCalculateOp(q,
 				ClassfileUtils.LocalVariableType.LONG, Mnemonic.LMUL));
 	}
@@ -978,8 +884,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder mulDouble(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.MUL_DOUBLE;
-		assert hasArgsCount(q, 3);
+		assert q.getOperator() == Quadruple.Operator.MUL_DOUBLE : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(localNumberCalculateOp(q,
 				ClassfileUtils.LocalVariableType.DOUBLE, Mnemonic.DMUL));
 	}
@@ -1011,8 +919,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder divLong(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.DIV_LONG;
-		assert hasArgsCount(q, 3);
+		assert q.getOperator() == Quadruple.Operator.DIV_LONG : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(localNumberCalculateOp(q,
 				ClassfileUtils.LocalVariableType.LONG, Mnemonic.LDIV));
 	}
@@ -1044,8 +954,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder divDouble(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.DIV_DOUBLE;
-		assert hasArgsCount(q, 3);
+		assert q.getOperator() == Quadruple.Operator.DIV_DOUBLE : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(localNumberCalculateOp(q,
 				ClassfileUtils.LocalVariableType.DOUBLE, Mnemonic.DDIV));
 	}
@@ -1077,14 +989,16 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder returnLong(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.RETURN;
-		assert hasArgsCount(q, 1);
+		assert q.getOperator() == Quadruple.Operator.RETURN : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 1) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		returnFlag = true;
 		final short systemExitIndex = classfile
 				.addMethodrefConstantToConstantPool(SYSTEM_EXIT_METHOD);
 		final Operation.Builder op = Operation.Builder.newBuilder();
 		op.add(localLoadInstruction(q.getArgument1(),
-                ClassfileUtils.LocalVariableType.LONG));
+				ClassfileUtils.LocalVariableType.LONG));
 		op.add(Mnemonic.L2I);
 		op.add(Mnemonic.INVOKESTATIC,
 				ByteUtils.shortToByteArray(systemExitIndex));
@@ -1128,25 +1042,25 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder notBoolean(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.NOT_BOOLEAN;
-		assert hasArgsCount(q, 2);
+		assert q.getOperator() == Quadruple.Operator.NOT_BOOLEAN : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 2) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		final Operation.Builder op = Operation.Builder.newBuilder();
 
 		final Instruction falseOp = new Instruction(Mnemonic.ICONST_0);
 		final Instruction storeOp = localStoreInstruction(q.getResult(),
-                ClassfileUtils.LocalVariableType.BOOLEAN);
+				ClassfileUtils.LocalVariableType.BOOLEAN);
 		final JumpInstruction jumpFalse = new JumpInstruction(Mnemonic.IFNE,
 				falseOp);
 		final JumpInstruction jumpTrue = new JumpInstruction(Mnemonic.GOTO,
 				storeOp);
 
 		op.add(localLoadInstruction(q.getArgument1(),
-                ClassfileUtils.LocalVariableType.BOOLEAN));
+				ClassfileUtils.LocalVariableType.BOOLEAN));
 		op.add(jumpFalse);
-		jumpInstructions.add(jumpFalse);
 		op.add(Mnemonic.ICONST_1);
 		op.add(jumpTrue);
-		jumpInstructions.add(jumpTrue);
 		op.add(falseOp);
 		op.add(storeOp);
 		return add(op.build());
@@ -1177,8 +1091,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder orBoolean(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.OR_BOOLEAN;
-		assert hasArgsCount(q, 3);
+		assert q.getOperator() == Quadruple.Operator.OR_BOOLEAN : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(localBooleanOp(q, Mnemonic.IOR));
 	}
 
@@ -1207,8 +1123,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder andBoolean(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.AND_BOOLEAN;
-		assert hasArgsCount(q, 3);
+		assert q.getOperator() == Quadruple.Operator.AND_BOOLEAN : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(localBooleanOp(q, Mnemonic.IAND));
 	}
 
@@ -1239,8 +1157,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder compareLongE(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.COMPARE_LONG_E;
-		assert hasArgsCount(q, 3);
+		assert q.getOperator() == Quadruple.Operator.COMPARE_LONG_E : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(localNumberCompareOp(q,
 				ClassfileUtils.LocalVariableType.LONG, Mnemonic.LCMP,
 				Mnemonic.IFNE));
@@ -1272,8 +1192,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder compareLongG(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.COMPARE_LONG_G;
-		assert hasArgsCount(q, 3);
+		assert q.getOperator() == Quadruple.Operator.COMPARE_LONG_G : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(localNumberCompareOp(q,
 				ClassfileUtils.LocalVariableType.LONG, Mnemonic.LCMP,
 				Mnemonic.IFLE));
@@ -1305,8 +1227,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder compareLongL(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.COMPARE_LONG_L;
-		assert hasArgsCount(q, 3);
+		assert q.getOperator() == Quadruple.Operator.COMPARE_LONG_L : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(localNumberCompareOp(q,
 				ClassfileUtils.LocalVariableType.LONG, Mnemonic.LCMP,
 				Mnemonic.IFGE));
@@ -1339,8 +1263,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder compareLongGE(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.COMPARE_LONG_GE;
-		assert hasArgsCount(q, 3);
+		assert q.getOperator() == Quadruple.Operator.COMPARE_LONG_GE : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(localNumberCompareOp(q,
 				ClassfileUtils.LocalVariableType.LONG, Mnemonic.LCMP,
 				Mnemonic.IFLT));
@@ -1372,8 +1298,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder compareLongLE(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.COMPARE_LONG_LE;
-		assert hasArgsCount(q, 3);
+		assert q.getOperator() == Quadruple.Operator.COMPARE_LONG_LE : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(localNumberCompareOp(q,
 				ClassfileUtils.LocalVariableType.LONG, Mnemonic.LCMP,
 				Mnemonic.IFGT));
@@ -1406,8 +1334,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder compareDoubleE(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.COMPARE_DOUBLE_E;
-		assert hasArgsCount(q, 3);
+		assert q.getOperator() == Quadruple.Operator.COMPARE_DOUBLE_E : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(localNumberCompareOp(q,
 				ClassfileUtils.LocalVariableType.DOUBLE, Mnemonic.DCMPL,
 				Mnemonic.IFNE));
@@ -1439,8 +1369,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder compareDoubleG(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.COMPARE_DOUBLE_G;
-		assert hasArgsCount(q, 3);
+		assert q.getOperator() == Quadruple.Operator.COMPARE_DOUBLE_G : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(localNumberCompareOp(q,
 				ClassfileUtils.LocalVariableType.DOUBLE, Mnemonic.DCMPL,
 				Mnemonic.IFLE));
@@ -1472,8 +1404,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder compareDoubleL(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.COMPARE_DOUBLE_L;
-		assert hasArgsCount(q, 3);
+		assert q.getOperator() == Quadruple.Operator.COMPARE_DOUBLE_L : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(localNumberCompareOp(q,
 				ClassfileUtils.LocalVariableType.DOUBLE, Mnemonic.DCMPG,
 				Mnemonic.IFGE));
@@ -1505,8 +1439,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder compareDoubleGE(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.COMPARE_DOUBLE_GE;
-		assert hasArgsCount(q, 3);
+		assert q.getOperator() == Quadruple.Operator.COMPARE_DOUBLE_GE : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(localNumberCompareOp(q,
 				ClassfileUtils.LocalVariableType.DOUBLE, Mnemonic.DCMPL,
 				Mnemonic.IFLT));
@@ -1538,8 +1474,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder compareDoubleLE(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.COMPARE_DOUBLE_LE;
-		assert hasArgsCount(q, 3);
+		assert q.getOperator() == Quadruple.Operator.COMPARE_DOUBLE_LE : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(localNumberCompareOp(q,
 				ClassfileUtils.LocalVariableType.DOUBLE, Mnemonic.DCMPG,
 				Mnemonic.IFGT));
@@ -1571,10 +1509,11 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder label(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.LABEL;
-		assert hasArgsCount(q, 1);
-		labelFlag = true;
-		labelNames.push(q.getArgument1());
+		assert q.getOperator() == Quadruple.Operator.LABEL : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 1) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
+		addLabel(q.getArgument1());
 		return this;
 	}
 
@@ -1611,31 +1550,31 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder branch(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.BRANCH;
+		assert q.getOperator() == Quadruple.Operator.BRANCH : "quadruple has wrong operator: "
+				+ q.getOperator();
 		final Operation.Builder op = Operation.Builder.newBuilder();
 		if (ConstantUtils.isIgnoreParam(q.getResult())) {
 			// unconditional branch
-			assert hasArgsCount(q, 1);
+			assert ConstantUtils.hasArgsCount(q, 1) : "quadruple has wrong args count: "
+					+ ConstantUtils.getArgsCount(q);
 			final JumpInstruction jumpOp = new JumpInstruction(Mnemonic.GOTO,
 					q.getArgument1());
 			op.add(jumpOp);
-			jumpInstructions.add(jumpOp);
 		} else {
 			// conditional branch
-			assert hasArgsCount(q, 2, 3);
+			assert ConstantUtils.hasArgsCount(q, 2, 3) : "quadruple has wrong args count: "
+					+ ConstantUtils.getArgsCount(q);
 			op.add(localLoadInstruction(q.getResult(),
-                    ClassfileUtils.LocalVariableType.BOOLEAN));
+					ClassfileUtils.LocalVariableType.BOOLEAN));
 			if (!isIgnoreParam(q.getArgument1())) {
 				final JumpInstruction trueJump = new JumpInstruction(
 						Mnemonic.IFNE, q.getArgument1());
 				op.add(trueJump);
-				jumpInstructions.add(trueJump);
 			}
 			if (!isIgnoreParam(q.getArgument2())) {
 				final JumpInstruction falseJump = new JumpInstruction(
 						Mnemonic.GOTO, q.getArgument2());
 				op.add(falseJump);
-				jumpInstructions.add(falseJump);
 			}
 		}
 		return add(op.build());
@@ -1667,8 +1606,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder printString(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.PRINT_STRING;
-		assert hasArgsCount(q, 1);
+		assert q.getOperator() == Quadruple.Operator.PRINT_STRING : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 1) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		final Operation.Builder op = Operation.Builder.newBuilder();
 
 		final short systemOutIndex = classfile
@@ -1680,7 +1621,7 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 
 		op.add(Mnemonic.GETSTATIC, ByteUtils.shortToByteArray(systemOutIndex));
 		op.add(localLoadInstruction(q.getArgument1(),
-                ClassfileUtils.LocalVariableType.STRING));
+				ClassfileUtils.LocalVariableType.STRING));
 		op.add(Mnemonic.INVOKEVIRTUAL, ByteUtils.shortToByteArray(printIndex));
 		return add(op.build());
 	}
@@ -1711,8 +1652,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder declareArray(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.DECLARE_ARRAY;
-		assert hasArgsCount(q, 1, 2);
+		assert q.getOperator() == Quadruple.Operator.DECLARE_ARRAY : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 1, 2) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		if (!ConstantUtils.isIgnoreParam(q.getResult())) {
 			arrayName = q.getResult();
 		}
@@ -1746,8 +1689,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder arrayGetLong(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.ARRAY_GET_LONG;
-		assert hasArgsCount(q, 3);
+		assert q.getOperator() == Quadruple.Operator.ARRAY_GET_LONG : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(localArrayGetOp(q, ClassfileUtils.LocalVariableType.LONG));
 	}
 
@@ -1777,8 +1722,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder arrayGetDouble(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.ARRAY_GET_DOUBLE;
-		assert hasArgsCount(q, 3);
+		assert q.getOperator() == Quadruple.Operator.ARRAY_GET_DOUBLE : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(localArrayGetOp(q, ClassfileUtils.LocalVariableType.DOUBLE));
 	}
 
@@ -1808,8 +1755,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder arrayGetBoolean(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.ARRAY_GET_BOOLEAN;
-		assert hasArgsCount(q, 3);
+		assert q.getOperator() == Quadruple.Operator.ARRAY_GET_BOOLEAN : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(localArrayGetOp(q, ClassfileUtils.LocalVariableType.BOOLEAN));
 	}
 
@@ -1839,8 +1788,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder arrayGetString(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.ARRAY_GET_STRING;
-		assert hasArgsCount(q, 3);
+		assert q.getOperator() == Quadruple.Operator.ARRAY_GET_STRING : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(localArrayGetOp(q, ClassfileUtils.LocalVariableType.STRING));
 	}
 
@@ -1870,8 +1821,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder arrayGetReference(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.ARRAY_GET_REFERENCE;
-		assert hasArgsCount(q, 3);
+		assert q.getOperator() == Quadruple.Operator.ARRAY_GET_REFERENCE : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		getCompoundStructName(q);
 		return add(localArrayGetOp(q, ClassfileUtils.LocalVariableType.AREF));
 	}
@@ -1902,8 +1855,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder arraySetLong(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.ARRAY_SET_LONG;
-		assert hasArgsCount(q, 3);
+		assert q.getOperator() == Quadruple.Operator.ARRAY_SET_LONG : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(localArraySetOp(q, ClassfileUtils.LocalVariableType.LONG));
 	}
 
@@ -1933,8 +1888,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder arraySetDouble(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.ARRAY_SET_DOUBLE;
-		assert hasArgsCount(q, 3);
+		assert q.getOperator() == Quadruple.Operator.ARRAY_SET_DOUBLE : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(localArraySetOp(q, ClassfileUtils.LocalVariableType.DOUBLE));
 	}
 
@@ -1964,8 +1921,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder arraySetBoolean(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.ARRAY_SET_BOOLEAN;
-		assert hasArgsCount(q, 3);
+		assert q.getOperator() == Quadruple.Operator.ARRAY_SET_BOOLEAN : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(localArraySetOp(q, ClassfileUtils.LocalVariableType.BOOLEAN));
 	}
 
@@ -1995,8 +1954,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder arraySetString(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.ARRAY_SET_STRING;
-		assert hasArgsCount(q, 3);
+		assert q.getOperator() == Quadruple.Operator.ARRAY_SET_STRING : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(localArraySetOp(q, ClassfileUtils.LocalVariableType.STRING));
 	}
 
@@ -2030,8 +1991,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder booleanToString(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.BOOLEAN_TO_STRING;
-		assert hasArgsCount(q, 2);
+		assert q.getOperator() == Quadruple.Operator.BOOLEAN_TO_STRING : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 2) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(toStringOp(q, BOOLEAN_TOSTRING_METHOD,
 				ClassfileUtils.LocalVariableType.BOOLEAN));
 	}
@@ -2062,8 +2025,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder longToString(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.LONG_TO_STRING;
-		assert hasArgsCount(q, 2);
+		assert q.getOperator() == Quadruple.Operator.LONG_TO_STRING : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 2) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(toStringOp(q, LONG_TOSTRING_METHOD,
 				ClassfileUtils.LocalVariableType.LONG));
 	}
@@ -2094,80 +2059,12 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder doubleToString(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.DOUBLE_TO_STRING;
-		assert hasArgsCount(q, 2);
+		assert q.getOperator() == Quadruple.Operator.DOUBLE_TO_STRING : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 2) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(toStringOp(q, DOUBLE_TOSTRING_METHOD,
 				ClassfileUtils.LocalVariableType.DOUBLE));
-	}
-
-	public Operation initArray(final byte arrayVarIndex,
-			final short classCpoolIndex, final short classCstrCpoolIndex,
-			final int dimensionsLeft, List<Byte> localVars, final boolean last) {
-		final Operation.Builder op = Operation.Builder.newBuilder();
-		if (localVars == null)
-			localVars = new ArrayList<>(dimensionsLeft);
-
-		if (!last) {
-
-			op.add(Mnemonic.ICONST_0);
-
-			final byte currentVarIndex = classfile.addVariableToMethodsCode(
-					methodName, UUID.randomUUID().toString(),
-					ClassfileUtils.LocalVariableType.BOOLEAN);
-
-			op.add(localStoreVariableInstruction(currentVarIndex,
-                    ClassfileUtils.LocalVariableType.BOOLEAN));
-
-			final Instruction varLoadInstruction = localLoadVariableInstruction(
-                    currentVarIndex, ClassfileUtils.LocalVariableType.BOOLEAN);
-			op.add(varLoadInstruction);
-
-			op.add(Mnemonic.ALOAD.withIndex(arrayVarIndex), arrayVarIndex);
-
-			for (final byte varIndex : localVars) {
-				op.add(Mnemonic.ILOAD.withIndex(varIndex), varIndex);
-				op.add(Mnemonic.AALOAD);
-			}
-
-			op.add(Mnemonic.ARRAYLENGTH);
-
-			final Instruction cmpTarget = new Instruction(Mnemonic.NOP);
-			final JumpInstruction zeroCmp = new JumpInstruction(
-					Mnemonic.IF_ICMPGE, cmpTarget);
-			op.add(zeroCmp);
-			jumpInstructions.add(zeroCmp);
-
-			localVars.add(currentVarIndex);
-			op.add(initArray(arrayVarIndex, classCpoolIndex,
-					classCstrCpoolIndex, dimensionsLeft - 1, localVars,
-					dimensionsLeft == 1));
-
-			op.add(Mnemonic.IINC, currentVarIndex, (byte) 1);
-			final JumpInstruction ji = new JumpInstruction(Mnemonic.GOTO,
-					varLoadInstruction);
-			op.add(ji);
-			jumpInstructions.add(ji);
-
-			op.add(cmpTarget);
-
-		} else {
-			op.add(Mnemonic.ALOAD.withIndex(arrayVarIndex), arrayVarIndex);
-
-			for (int i = 0, lastIndex = localVars.size() - 1; i <= lastIndex; i++) {
-				final byte varIndex = localVars.get(i);
-				op.add(Mnemonic.ILOAD.withIndex(varIndex), varIndex);
-				if (i < lastIndex)
-					op.add(Mnemonic.AALOAD);
-			}
-
-			op.add(Mnemonic.NEW, ByteUtils.shortToByteArray(classCpoolIndex));
-			op.add(Mnemonic.DUP);
-			op.add(Mnemonic.INVOKESPECIAL,
-					ByteUtils.shortToByteArray(classCstrCpoolIndex));
-			op.add(Mnemonic.AASTORE);
-		}
-
-		return op.build();
 	}
 
 	/**
@@ -2196,41 +2093,40 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder declareStruct(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.DECLARE_STRUCT;
-		assert hasArgsCount(q, 1, 2, 3);
+		assert q.getOperator() == Quadruple.Operator.DECLARE_STRUCT : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 1, 2, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 
 		// create the signature of the default constructor
 		final ClassfileUtils.MethodSignature constructor = new ClassfileUtils.MethodSignature(
 				"<init>", q.getArgument2(), void.class);
 		final short classIndex = classfile
 				.addClassConstantToConstantPool(constructor.methodClass);
-		assert classIndex > 0;
+		assert classIndex > 0 : "index is zero";
 		final short cstrIndex = classfile
 				.addMethodrefConstantToConstantPool(constructor);
+		assert cstrIndex > 0 : "index is zero";
 
 		if (ConstantUtils.isIgnoreParam(q.getResult())) {
-			final byte arrayVarIndex = classfile.addVariableToMethodsCode(
-					methodName, arrayName,
-					ClassfileUtils.LocalVariableType.AREF);
-
 			final int arrayDimensions = arrayLengths.size();
 			final ClassfileUtils.ClassSignature arrayClass = new ClassfileUtils.ClassSignature(
 					q.getArgument2(), arrayDimensions);
-			add(localArrayCreateOp(arrayClass, false, (byte) 0, arrayVarIndex));
+			add(localArrayCreateOp(arrayClass, (byte) 0));
 
-			return add(initArray(arrayVarIndex, classIndex, cstrIndex,
-					arrayDimensions, null, false));
+			return add(localArrayInit(classIndex, cstrIndex, arrayDimensions,
+					null, false));
 		}
 		// instantiate a new object with classname from arg2, the
 		// constructor signature, and store the new instance in result
 
 		final Operation.Builder op = Operation.Builder.newBuilder();
-		assert cstrIndex > 0;
+		assert cstrIndex > 0 : "index is zero";
 		op.add(Mnemonic.NEW, ByteUtils.shortToByteArray(classIndex));
 		op.add(Mnemonic.DUP);
 		op.add(Mnemonic.INVOKESPECIAL, ByteUtils.shortToByteArray(cstrIndex));
 		op.add(localStoreInstruction(q.getResult(),
-                ClassfileUtils.LocalVariableType.AREF));
+				ClassfileUtils.LocalVariableType.AREF));
 		return add(op.build());
 	}
 
@@ -2260,8 +2156,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder structGetLong(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.STRUCT_GET_LONG;
-		assert hasArgsCount(q, 3);
+		assert q.getOperator() == Quadruple.Operator.STRUCT_GET_LONG : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(localStructGetFieldOp(q,
 				ClassfileUtils.LocalVariableType.LONG));
 	}
@@ -2292,8 +2190,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder structGetDouble(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.STRUCT_GET_DOUBLE;
-		assert hasArgsCount(q, 3);
+		assert q.getOperator() == Quadruple.Operator.STRUCT_GET_DOUBLE : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(localStructGetFieldOp(q,
 				ClassfileUtils.LocalVariableType.DOUBLE));
 	}
@@ -2324,8 +2224,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder structGetBoolean(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.STRUCT_GET_BOOLEAN;
-		assert hasArgsCount(q, 3);
+		assert q.getOperator() == Quadruple.Operator.STRUCT_GET_BOOLEAN : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(localStructGetFieldOp(q,
 				ClassfileUtils.LocalVariableType.BOOLEAN));
 	}
@@ -2356,8 +2258,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder structGetString(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.STRUCT_GET_STRING;
-		assert hasArgsCount(q, 3);
+		assert q.getOperator() == Quadruple.Operator.STRUCT_GET_STRING : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(localStructGetFieldOp(q,
 				ClassfileUtils.LocalVariableType.STRING));
 	}
@@ -2389,8 +2293,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder structGetReference(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.STRUCT_GET_REFERENCE;
-		assert hasArgsCount(q, 3);
+		assert q.getOperator() == Quadruple.Operator.STRUCT_GET_REFERENCE : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		return add(localStructGetFieldOp(q,
 				ClassfileUtils.LocalVariableType.AREF));
 	}
@@ -2421,9 +2327,14 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder structSetLong(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.STRUCT_SET_LONG;
-		assert hasArgsCount(q, 3);
-		return add(localStructSetFieldOp(q,
+		assert q.getOperator() == Quadruple.Operator.STRUCT_SET_LONG : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
+		// return add(localStructSetFieldOp(q,
+		// ClassfileUtils.LocalVariableType.LONG));
+		return add(localStructSetFieldOp(q.getResult(),
+				getCompoundStructName(q), q.getArgument1(), q.getArgument2(),
 				ClassfileUtils.LocalVariableType.LONG));
 	}
 
@@ -2453,9 +2364,14 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder structSetDouble(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.STRUCT_SET_DOUBLE;
-		assert hasArgsCount(q, 3);
-		return add(localStructSetFieldOp(q,
+		assert q.getOperator() == Quadruple.Operator.STRUCT_SET_DOUBLE : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
+		// return add(localStructSetFieldOp(q,
+		// ClassfileUtils.LocalVariableType.DOUBLE));
+		return add(localStructSetFieldOp(q.getResult(),
+				getCompoundStructName(q), q.getArgument1(), q.getArgument2(),
 				ClassfileUtils.LocalVariableType.DOUBLE));
 	}
 
@@ -2485,9 +2401,14 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder structSetBoolean(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.STRUCT_SET_BOOLEAN;
-		assert hasArgsCount(q, 3);
-		return add(localStructSetFieldOp(q,
+		assert q.getOperator() == Quadruple.Operator.STRUCT_SET_BOOLEAN : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
+		// return add(localStructSetFieldOp(q,
+		// ClassfileUtils.LocalVariableType.BOOLEAN));
+		return add(localStructSetFieldOp(q.getResult(),
+				getCompoundStructName(q), q.getArgument1(), q.getArgument2(),
 				ClassfileUtils.LocalVariableType.BOOLEAN));
 	}
 
@@ -2517,9 +2438,14 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder structSetString(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.STRUCT_SET_STRING;
-		assert hasArgsCount(q, 3);
-		return add(localStructSetFieldOp(q,
+		assert q.getOperator() == Quadruple.Operator.STRUCT_SET_STRING : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
+		// return add(localStructSetFieldOp(q,
+		// ClassfileUtils.LocalVariableType.STRING));
+		return add(localStructSetFieldOp(q.getResult(),
+				getCompoundStructName(q), q.getArgument1(), q.getArgument2(),
 				ClassfileUtils.LocalVariableType.STRING));
 	}
 
@@ -2549,8 +2475,10 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 	 * @return this program builders instance
 	 */
 	public MainBuilder concatString(final Quadruple q) {
-		assert q.getOperator() == Quadruple.Operator.CONCAT_STRING;
-		assert hasArgsCount(q, 3);
+		assert q.getOperator() == Quadruple.Operator.CONCAT_STRING : "quadruple has wrong operator: "
+				+ q.getOperator();
+		assert ConstantUtils.hasArgsCount(q, 3) : "quadruple has wrong args count: "
+				+ ConstantUtils.getArgsCount(q);
 		final Operation.Builder op = Operation.Builder.newBuilder();
 		final short appendMethod = classfile
 				.addMethodrefConstantToConstantPool(STRINGBUILDER_APPEND_METHOD);
@@ -2561,14 +2489,14 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 
 		if (!isIgnoreParam(q.getArgument1())) {
 			op.add(localLoadInstruction(q.getArgument1(),
-                    ClassfileUtils.LocalVariableType.STRING));
+					ClassfileUtils.LocalVariableType.STRING));
 			op.add(Mnemonic.INVOKEVIRTUAL,
 					ByteUtils.shortToByteArray(appendMethod));
 		}
 
 		if (!isIgnoreParam(q.getArgument2())) {
 			op.add(localLoadInstruction(q.getArgument2(),
-                    ClassfileUtils.LocalVariableType.STRING));
+					ClassfileUtils.LocalVariableType.STRING));
 			op.add(Mnemonic.INVOKEVIRTUAL,
 					ByteUtils.shortToByteArray(appendMethod));
 		}
@@ -2577,7 +2505,7 @@ public class MainBuilder extends AbstractBuilder<MainBuilder> {
 			op.add(Mnemonic.INVOKEVIRTUAL,
 					ByteUtils.shortToByteArray(stringBuilderToString));
 			op.add(localStoreInstruction(q.getResult(),
-                    ClassfileUtils.LocalVariableType.STRING));
+					ClassfileUtils.LocalVariableType.STRING));
 		}
 		return add(op.build());
 	}

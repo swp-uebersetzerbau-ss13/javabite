@@ -129,8 +129,8 @@ public final class ClassfileUtils {
 				ConstantPoolType.STRING, JavaType.STRING, Mnemonic.LDC,
 				Mnemonic.ALOAD, Mnemonic.AALOAD, Mnemonic.ASTORE,
 				Mnemonic.AASTORE), BOOLEAN(1, null, JavaType.BOOLEAN, null,
-				Mnemonic.ILOAD, Mnemonic.IALOAD, Mnemonic.ISTORE,
-				Mnemonic.IASTORE), AREF(1, null, null, null, Mnemonic.ALOAD,
+				Mnemonic.ILOAD, Mnemonic.BALOAD, Mnemonic.ISTORE,
+				Mnemonic.BASTORE), AREF(1, null, null, null, Mnemonic.ALOAD,
 				Mnemonic.AALOAD, Mnemonic.ASTORE, Mnemonic.AASTORE);
 
 		public final short length;
@@ -236,10 +236,6 @@ public final class ClassfileUtils {
 			this(0, classEif);
 		}
 
-		public boolean isPrimitive() {
-			return value != 0;
-		}
-
 		public static JavaType getByOperator(final Operator operator) {
 			if (OPERATOR_LONG_TYPES.contains(operator))
 				return LONG;
@@ -268,6 +264,7 @@ public final class ClassfileUtils {
 					dimensions++;
 				}
 			}
+			// TODO ändern
 			return StringUtils.leftPad("", dimensions, '[')
 					+ typeByQuadruples(tac.get(tac.size() - 1));
 
@@ -281,32 +278,44 @@ public final class ClassfileUtils {
 
 	public static class ClassSignature {
 
+		public final String baseClassName;
 		public final String className;
 		public final String typeClassName;
 		public final boolean isPrimitive;
 		public final boolean isArray;
-        public final int arrayDimensions;
+		public final byte arrayDimensions;
 
 		public ClassSignature(final Class<?> clazz) {
-			this(getClassName(clazz));
+			this(getClassName(clazz), null, clazz.isPrimitive());
 		}
 
 		public ClassSignature(final String className) {
-            this(className, countArrayDimensions(className));
+			this(className, null, false);
 		}
 
 		public ClassSignature(final String className, final int arrayDimensions) {
-			isPrimitive = isPrimitiveClass(className);
-			this.className = StringUtils.leftPad("", arrayDimensions, '[')
-					+ className;
-			isArray = arrayDimensions > 0;
+			this(className, arrayDimensions, false);
+		}
+
+		private ClassSignature(final String className,
+				final Integer arrayDimensions, final boolean isPrimitive) {
+			this.isPrimitive = isPrimitive || isPrimitiveClass(className);
+
+			final int dimensions = arrayDimensions == null ? countArrayDimensions(className)
+					: arrayDimensions;
+			final String cleanClassName = cleanClassName(className);
+			baseClassName = cleanClassName;
+			this.className = classNameWithDimensions(cleanClassName, dimensions);
+
+			isArray = dimensions > 0;
+
 			if (isPrimitive) {
 				typeClassName = this.className;
 			} else {
-				typeClassName = StringUtils.leftPad("", arrayDimensions, '[')
-						+ classAsType(className, isPrimitive);
+				typeClassName = StringUtils.leftPad("", dimensions, '[')
+						+ classAsType(cleanClassName);
 			}
-            this.arrayDimensions = arrayDimensions;
+			this.arrayDimensions = (byte) dimensions;
 		}
 
 		public String getClassNameAsContainer() {
@@ -344,7 +353,12 @@ public final class ClassfileUtils {
 					return "S";
 				return null;
 			} else {
-				return clazz.getName().replaceAll("\\.", "/");
+				String className = clazz.getName().replaceAll("\\.", "/");
+				if (className.endsWith(";")) {
+					className = className.substring(0, className.length() - 1)
+							.replaceFirst("L", "");
+				}
+				return className;
 			}
 		}
 
@@ -352,16 +366,29 @@ public final class ClassfileUtils {
 			return s.length() == 1 && "VIJDZBCFS".contains(s);
 		}
 
-        public static int countArrayDimensions(final String s) {
-            return StringUtils.countMatches(s, "[");
-        }
+		public static int countArrayDimensions(final String s) {
+			return StringUtils.countMatches(s, "[");
+		}
 
-		public static String classAsType(final String className,
-				final boolean isPrimitive) {
-			if (isPrimitive)
+		public static String classAsType(final String className) {
+			if (isPrimitiveClass(className))
 				return className;
 			return (!className.startsWith("L") ? "L" : "") + className
 					+ (!className.endsWith(";") ? ";" : "");
+		}
+
+		public static String cleanClassName(String className) {
+			className = className.replaceAll("\\[*", "");
+			if (className.endsWith(";")) {
+				className = className.substring(1, className.length() - 1);
+			}
+			return className;
+		}
+
+		private static String classNameWithDimensions(
+				final String cleanClassName, final int arrayDimensions) {
+			return StringUtils.leftPad("", arrayDimensions, '[')
+					+ cleanClassName;
 		}
 
 	}

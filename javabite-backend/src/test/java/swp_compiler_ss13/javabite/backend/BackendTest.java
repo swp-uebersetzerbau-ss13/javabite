@@ -1,14 +1,8 @@
 package swp_compiler_ss13.javabite.backend;
 
-import org.apache.commons.io.IOUtils;
-import org.junit.Before;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import swp_compiler_ss13.common.backend.Backend;
-import swp_compiler_ss13.common.backend.BackendException;
-import swp_compiler_ss13.common.backend.Quadruple;
-import swp_compiler_ss13.javabite.runtime.JavaClassProcess;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -18,7 +12,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import static org.junit.Assert.*;
+import org.apache.commons.io.IOUtils;
+import org.junit.Before;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import swp_compiler_ss13.common.backend.Backend;
+import swp_compiler_ss13.common.backend.BackendException;
+import swp_compiler_ss13.common.backend.Quadruple;
+import swp_compiler_ss13.javabite.runtime.JavaClassProcess;
 
 public class BackendTest {
 
@@ -38,20 +41,18 @@ public class BackendTest {
 	}
 
 	@Test
-	public void testSimpleAddTacTranslation() throws BackendException,
-			IOException {
+	public void testTac2ReturnVal() throws BackendException, IOException {
 		assertEquals(6, testToReturnValueOfTac("tac02", 1));
 	}
 
 	@Test
-	public void testSimpleMulTacTranslation() throws BackendException,
-			IOException {
-		assertEquals(9, testToReturnValueOfTac("tac03", 1));
+	public void testTac3ReturnVal() throws BackendException, IOException {
+		assertEquals(6, testToReturnValueOfTac("tac03", 1));
 	}
 
 	@Test
 	public void testTac4ReturnVal() throws BackendException, IOException {
-		assertEquals(0, testToReturnValueOfTac("tac04", 1));
+		assertEquals(9, testToReturnValueOfTac("tac04", 1));
 	}
 
 	@Test
@@ -86,17 +87,17 @@ public class BackendTest {
 
 	@Test
 	public void testTac11ReturnVal() throws BackendException, IOException {
-		assertEquals(10, testToReturnValueOfTac("tac11", 1));
+		assertEquals(0, testToReturnValueOfTac("tac11", 1));
 	}
 
 	@Test
 	public void testTac12ReturnVal() throws BackendException, IOException {
-		assertEquals(5, testToReturnValueOfTac("tac12", 1));
+		assertEquals(10, testToReturnValueOfTac("tac12", 1));
 	}
 
 	@Test
 	public void testTac13ReturnVal() throws BackendException, IOException {
-		assertEquals(0, testToReturnValueOfTac("tac13", 1));
+		assertEquals(5, testToReturnValueOfTac("tac13", 1));
 	}
 
 	@Test
@@ -116,12 +117,12 @@ public class BackendTest {
 
 	@Test
 	public void testTac17ReturnVal() throws BackendException, IOException {
-		assertEquals(0, testToReturnValueOfTac("tac17", 1));
+		assertEquals(0, testToReturnValueOfTac("tac17", 3));
 	}
 
 	@Test
 	public void testTac18ReturnVal() throws BackendException, IOException {
-		assertEquals(0, testToReturnValueOfTac("tac18", 2));
+		assertEquals(0, testToReturnValueOfTac("tac18", 1));
 	}
 
 	@Test
@@ -136,7 +137,7 @@ public class BackendTest {
 
 	@Test
 	public void testTac21ReturnVal() throws BackendException, IOException {
-		assertEquals(0, testToReturnValueOfTac("tac21", 2));
+		assertEquals(20, testToReturnValueOfTac("tac21", 2));
 	}
 
 	@Test

@@ -31,12 +31,33 @@ public final class ConstantUtils {
 	}
 
 	public static String removeConstantSign(final String s) {
-		return s.substring(1);
+		return s.startsWith("#") ? s.substring(1) : s;
 	}
 
 	public static Mnemonic convertBooleanConstant(final String arg) {
 		return CONSTANT_VALUE_TRUE.equalsIgnoreCase(arg) ? Mnemonic.ICONST_1
 				: Mnemonic.ICONST_0;
+	}
+
+	public static int getArgsCount(final Quadruple q) {
+		int argc = 0;
+		if (!ConstantUtils.SYMBOL_IGNORE_PARAM.equals(q.getArgument1()))
+			argc++;
+		if (!ConstantUtils.SYMBOL_IGNORE_PARAM.equals(q.getArgument2()))
+			argc++;
+		if (!ConstantUtils.SYMBOL_IGNORE_PARAM.equals(q.getResult()))
+			argc++;
+		return argc;
+	}
+
+	public static boolean hasArgsCount(final Quadruple q,
+			final int... argsCounts) {
+		final int argc = getArgsCount(q);
+		for (final int i : argsCounts) {
+			if (i == argc)
+				return true;
+		}
+		return false;
 	}
 
 	private ConstantUtils() {

@@ -87,19 +87,19 @@ public class DescriptorTest {
 	// @Test
 	public void testClassNames() {
 		Class<?> c = boolean[].class;
+		// System.out.printf(
+		// "getName(): %s%ngetCanonicalName(): %s%ngetSimpleName(): %s%n",
+		// c.getName(), c.getCanonicalName(), c.getSimpleName());
+
+		c = String[][][].class;
 		System.out.printf(
 				"getName(): %s%ngetCanonicalName(): %s%ngetSimpleName(): %s%n",
 				c.getName(), c.getCanonicalName(), c.getSimpleName());
 
-		c = String[].class;
-		System.out.printf(
-				"getName(): %s%ngetCanonicalName(): %s%ngetSimpleName(): %s%n",
-				c.getName(), c.getCanonicalName(), c.getSimpleName());
-
-		c = void.class;
-		System.out.printf(
-				"getName(): %s%ngetCanonicalName(): %s%ngetSimpleName(): %s%n",
-				c.getName(), c.getCanonicalName(), c.getSimpleName());
+		// c = void.class;
+		// System.out.printf(
+		// "getName(): %s%ngetCanonicalName(): %s%ngetSimpleName(): %s%n",
+		// c.getName(), c.getCanonicalName(), c.getSimpleName());
 	}
 
 	// @Test
@@ -160,7 +160,7 @@ public class DescriptorTest {
 		}
 	}
 
-	@Test
+	// @Test
 	public void testMethodSignature() {
 		final ClassfileUtils.MethodSignature m = new ClassfileUtils.MethodSignature(
 				"m", SimpleClass.class, String.class, int.class,
@@ -170,7 +170,7 @@ public class DescriptorTest {
 				m.toString());
 	}
 
-	@Test
+	// @Test
 	public void testFieldSignature() {
 		final ClassfileUtils.FieldSignature f = new ClassfileUtils.FieldSignature(
 				"l", SimpleClass.class, long[].class);
@@ -182,6 +182,31 @@ public class DescriptorTest {
 				"out", System.class, PrintStream.class);
 		Assert.assertEquals("java/lang/System.out:Ljava/io/PrintStream;",
 				out.toString());
+	}
+
+	@Test
+	public void testClassSignature() {
+		final Class<?>[] classes1 = { int.class, String.class, String[].class,
+				String[][].class, int[][].class };
+
+		final String[] classes2 = { "java/lang/String", "Ljava/lang/String;",
+				"[java/lang/String", "[Ljava/lang/String;" };
+
+		for (final Class<?> clazz : classes1) {
+			final ClassfileUtils.ClassSignature sig = new ClassfileUtils.ClassSignature(
+					clazz);
+			System.out.println(clazz + " as container: "
+					+ sig.getClassNameAsContainer());
+			System.out.println(clazz + " as type: " + sig.getClassNameAsType());
+		}
+
+		for (final String clazz : classes2) {
+			final ClassfileUtils.ClassSignature sig = new ClassfileUtils.ClassSignature(
+					clazz);
+			System.out.println(clazz + " as container: "
+					+ sig.getClassNameAsContainer());
+			System.out.println(clazz + " as type: " + sig.getClassNameAsType());
+		}
 	}
 
 }

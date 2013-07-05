@@ -3,11 +3,11 @@ DECLARE_DOUBLE ! ! d
 DECLARE_STRING ! ! s
 DECLARE_BOOLEAN ! ! b
 DECLARE_STRING ! ! linebreak
-ASSIGN_STRING #\"\n\" ! linebreak
+ASSIGN_STRING #"\n" ! linebreak
 ASSIGN_BOOLEAN #TRUE ! b
 ASSIGN_LONG #18121313223 ! l
 ASSIGN_DOUBLE #-23.23e-100 ! d
-ASSIGN_STRING #\"jagÄrEttString\\n\" ! s
+ASSIGN_STRING #"jagÄrEttString\n" ! s
 BOOLEAN_TO_STRING b ! s
 PRINT_STRING s ! !
 PRINT_STRING linebreak ! !
