@@ -46,9 +46,7 @@ public class DoWhileNodeConverterTest {
 			verify(converter.icg).addQuadruple(
 					new QuadrupleJb(Operator.LABEL, "startLabel", Quadruple.EmptyArgument,
 							Quadruple.EmptyArgument));
-			verify(converter.icg).addQuadruple(
-					new QuadrupleJb(Operator.LABEL, "startLabel", Quadruple.EmptyArgument,
-							Quadruple.EmptyArgument));
+			
 			verify(converter.icg).addQuadruple(
 					new QuadrupleJb(Operator.BRANCH, "startLabel", "endLabel",
 							"condition"));
