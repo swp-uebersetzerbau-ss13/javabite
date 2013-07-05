@@ -16,6 +16,7 @@ import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
 import swp_compiler_ss13.common.types.Type;
+import swp_compiler_ss13.common.types.primitive.BooleanType;
 import swp_compiler_ss13.common.types.primitive.DoubleType;
 import swp_compiler_ss13.javabite.codegen.converters.DoWhileNodeConverter;
 import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
@@ -35,9 +36,11 @@ public class DoWhileNodeConverterTest {
     	try {
 	    	DoWhileNode node = Mockito.mock(DoWhileNode.class);
 	    	when(converter.icg.getNewLabel()).thenReturn("startLabel","endLabel");
-	    	when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test", any(Type.class)));
-	    	when(node.getLoopBody()).thenReturn(any(StatementNode.class));
-	    	when(node.getCondition()).thenReturn(any(ExpressionNode.class));
+	    	when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("condition", new BooleanType()));
+	    	StatementNode statementNode = Mockito.mock(StatementNode.class);
+	    	when(node.getLoopBody()).thenReturn(statementNode);
+	    	ExpressionNode expressionNode = Mockito.mock(ExpressionNode.class);
+	    	when(node.getCondition()).thenReturn(expressionNode);
 			converter.convert(node);
 			verify(converter.icg).enterLoop("endLabel");
 			verify(converter.icg).addQuadruple(
@@ -48,7 +51,7 @@ public class DoWhileNodeConverterTest {
 							Quadruple.EmptyArgument));
 			verify(converter.icg).addQuadruple(
 					new QuadrupleJb(Operator.BRANCH, "startLabel", "endLabel",
-							"test"));
+							"condition"));
 			verify(converter.icg).addQuadruple(
 					new QuadrupleJb(Operator.LABEL, "endLabel", Quadruple.EmptyArgument,
 							Quadruple.EmptyArgument));
