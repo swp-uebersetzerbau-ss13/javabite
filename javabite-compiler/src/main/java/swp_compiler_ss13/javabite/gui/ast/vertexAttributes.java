@@ -1,5 +1,8 @@
 package swp_compiler_ss13.javabite.gui.ast;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
@@ -31,6 +34,8 @@ public class vertexAttributes {
 	String color = null;
 	ASTNode ast=null;
 	String strA= "";
+	String strAtt; //important
+	List<String> strList = new ArrayList<String>(); //important
 	
 	public void addAttributes(ASTNode ast) {
 		if (ast instanceof BasicIdentifierNode) {
@@ -74,8 +79,25 @@ public class vertexAttributes {
 			color = colorAttributes+"orange";
 			getToken(ast);
 		} else if (ast instanceof DeclarationNode) {
-			value = "DeclarationNode\n" + ((DeclarationNode) ast).getIdentifier() +":" 
-					+((DeclarationNode) ast).getType()+"\n";
+			String tValue = "";
+			strAtt=((DeclarationNode) ast).getIdentifier() +":" +((DeclarationNode) ast).getType();
+			if (strAtt.length()>23){
+				StringBuffer s = new StringBuffer(strAtt);
+				while(!s.toString().isEmpty()){
+					StringBuffer afterRemove= s.delete(0,24);
+					String newString=strAtt.replace(afterRemove.toString(), "");
+					strList.add(newString);
+					strAtt=afterRemove.toString();
+				 }
+				for(String k:strList){
+					tValue=tValue+k+"\n";
+				}
+				value = "DeclarationNode\n"+tValue;
+			}
+			else{
+				value = "DeclarationNode\n" + ((DeclarationNode) ast).getIdentifier() +":" 
+						+((DeclarationNode) ast).getType()+"\n";
+			}
 			color = colorAttributes+"magenta";			
 			getToken(ast);
 		} else if (ast instanceof BlockNode) {
@@ -96,20 +118,11 @@ public class vertexAttributes {
 			value = "LoopNode";
 			color = colorAttributes+"violet";
 			getToken(ast);
-		} else if (ast instanceof ReturnNode) {
-			value = "ReturnNode\n" + ((ReturnNode) ast).getRightValue();
-			color = colorAttributes+"navy";
-			getToken(ast);
 		} else if (ast instanceof BranchNode) {
 			value = "BranchNode";
 			color = colorAttributes+"yellow";
 			getToken(ast);
 		} 
-		else if (ast instanceof BranchNode) {
-			value = "BranchNode";
-			color = colorAttributes+"pink";
-			getToken(ast);
-		}
 		else if (ast instanceof RelationExpressionNode) {
 			opr =new OperationSymbol(ast);
 			value = "Relation\nExpressionNode\n"+opr.getOperationSymbol();
@@ -122,7 +135,6 @@ public class vertexAttributes {
 			color = colorAttributes+"white";
 			getToken(ast);
 		}
-
 	}
 	
 	void getToken(ASTNode ast){
