@@ -9,7 +9,7 @@ import org.mockito.Mockito;
 
 import swp_compiler_ss13.common.ast.nodes.ExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.StatementNode;
-import swp_compiler_ss13.common.ast.nodes.binary.DoWhileNode;
+import swp_compiler_ss13.common.ast.nodes.binary.WhileNode;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.common.ir.IntermediateCodeGeneratorException;
@@ -30,7 +30,7 @@ public class WhileNodeConverterTest {
     @Test
     public void testWhileNodeConverter(){
     	try {
-	    	DoWhileNode node = Mockito.mock(DoWhileNode.class);
+	    	WhileNode node = Mockito.mock(WhileNode.class);
 	    	when(converter.icg.getNewLabel()).thenReturn("startLabel", "trueLabel","endLabel");
 	    	when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("condition", new BooleanType()));
 	    	StatementNode statementNode = Mockito.mock(StatementNode.class);
