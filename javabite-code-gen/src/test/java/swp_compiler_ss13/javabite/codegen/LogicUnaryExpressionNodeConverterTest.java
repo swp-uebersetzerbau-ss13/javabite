@@ -123,7 +123,6 @@ public class LogicUnaryExpressionNodeConverterTest {
 		try {
 			LogicUnaryExpressionNode node = Mockito.mock(LogicUnaryExpressionNode.class);
 			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("testOld", new StructType(
-					null,
 					new Member[] { new Member("",
 							new LongType()) })));
 			when(converter.icg.generateTempIdentifier(any(BooleanType.class)))

@@ -142,7 +142,7 @@ public class PrintNodeConverterTest {
 		try {
 			PrintNode node = Mockito.mock(PrintNode.class);
 			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test", new StructType(
-					null, new Member[] { new Member("", new DoubleType()) })));
+					new Member[] { new Member("", new DoubleType()) })));
 			when(converter.icg.generateTempIdentifier(any(StringType.class)))
 					.thenReturn(new IdentifierData("tmp", new StringType(0L)));
 			converter.convert(node);

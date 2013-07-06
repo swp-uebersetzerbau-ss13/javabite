@@ -113,7 +113,6 @@ public class LiteralNodeConverterTest {
 			LiteralNode node = Mockito.mock(LiteralNode.class);
 			node.setLiteral("test");
 			node.setLiteralType(new StructType(
-					null,
 					new Member[] { new Member("",
 							new LongType()) }));
 			converter.convert(node);

@@ -1,6 +1,5 @@
 package swp_compiler_ss13.javabite.codegen;
 
-import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -9,7 +8,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
 import swp_compiler_ss13.common.ast.nodes.unary.StructIdentifierNode;
@@ -37,7 +35,6 @@ public class StructIdentifierNodeConverterTest {
     	try {
 	    	StructIdentifierNode node = Mockito.mock(StructIdentifierNode.class);
 	    	when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("testStruct", new StructType(
-					null,
 					new Member[] { new Member("",
 							new LongType()) })));
 	    	when(node.getFieldName()).thenReturn("structField");
@@ -60,7 +57,6 @@ public class StructIdentifierNodeConverterTest {
     	try {
 	    	StructIdentifierNode node = Mockito.mock(StructIdentifierNode.class);
 	    	when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("testStruct", new StructType(
-					null,
 					new Member[] { new Member("",
 							new LongType()) })));
 	    	when(node.getFieldName()).thenReturn("structField");
@@ -83,7 +79,6 @@ public class StructIdentifierNodeConverterTest {
     	try {
 	    	StructIdentifierNode node = Mockito.mock(StructIdentifierNode.class);
 	    	when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("testStruct", new StructType(
-					null,
 					new Member[] { new Member("",
 							new LongType()) })));
 	    	when(node.getFieldName()).thenReturn("structField");
