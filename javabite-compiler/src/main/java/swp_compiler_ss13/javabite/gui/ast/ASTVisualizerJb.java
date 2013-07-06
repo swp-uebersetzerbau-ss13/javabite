@@ -1,6 +1,8 @@
 package swp_compiler_ss13.javabite.gui.ast;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import javax.swing.JComponent;
@@ -21,6 +23,7 @@ public class ASTVisualizerJb extends JComponent implements ASTVisualization {
 	private static final long serialVersionUID = 1L;
 	Map<Object, String> tooltips = new HashMap<Object, String>();
 	public mxGraph graph;
+	public List<Integer> intArray= new ArrayList<Integer>();
 	mxGraph graph1;
 	mxGraphComponent frame;
 	Queue<Object> toVisit_celledCopy;
@@ -56,6 +59,7 @@ public class ASTVisualizerJb extends JComponent implements ASTVisualization {
 		frame.setToolTips(true);
 		HidingSubTree h = new HidingSubTree(graph,frame,ast);
 		h.hiddenSubTree();
+		intArray=createTree.intArray;
 	}
 	
 

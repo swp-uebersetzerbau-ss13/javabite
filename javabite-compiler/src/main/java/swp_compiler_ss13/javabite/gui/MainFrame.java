@@ -14,6 +14,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.Icon;
@@ -63,6 +64,7 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 	private static final long serialVersionUID = 1673088367851101738L;
 	
 	private static final String BASE_TITLE = "Javabite Compiler - ";
+	List<Integer> intArray= new ArrayList<Integer>();
 	
 	// class to setup styles for our sourcecode
 	DefaultStyledDocument doc = new DefaultStyledDocument();
@@ -659,9 +661,25 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 		JFrame frame = new JFrame();
 		JScrollPane ast_frame=visualizer.getFrame();
 		frame.setVisible(true);
+		ASTVisualizerJb v= new ASTVisualizerJb();
+		v.visualizeAST(ast);
+		intArray =v.intArray;
+		int smaller;
+		int bigger=intArray.get(0);
+		for (int i=0;i<intArray.size();i++){
+			smaller=intArray.get(i);
+			if (smaller>bigger){
+				bigger=smaller;
+			}
+		}
 		KhaledGraphFrame k= new KhaledGraphFrame();
-		
-		frame.setSize(220*k.levelsCounter(ast), 80*k.maximumOfNodesInLevels());
+		if (bigger>1){
+			System.out.println(bigger);
+			frame.setSize(220*k.levelsCounter(ast), bigger*25+80*k.maximumOfNodesInLevels());
+		}
+		else{
+			frame.setSize(220*k.levelsCounter(ast), 80*k.maximumOfNodesInLevels());
+		}
 		frame.getContentPane().add(ast_frame);
 		frame.setVisible(true);
 		toolBarLabel.setText("Rendered AST.");

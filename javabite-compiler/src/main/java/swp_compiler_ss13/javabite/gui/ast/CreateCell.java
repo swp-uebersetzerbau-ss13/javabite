@@ -16,6 +16,7 @@ public class CreateCell {
 	Map<Object, String> tooltips = new HashMap<Object, String>();
 	String str= "";
 	int counter=0;
+	List<Integer> intArray= new ArrayList<Integer>();
 	
 	public CreateCell(mxGraph graph){
 		this.graph=graph;
@@ -32,8 +33,9 @@ public class CreateCell {
 	Object asCell(ASTNode ast) {
 		Object returnVal;
 		vertexAttributes ver = new vertexAttributes();
-		List<String> strList=ver.strList;
 		ver.addAttributes(ast);
+		List<String> strList=ver.strList;
+		intArray.add(strList.size());
 		str=ver.strA;
 		String value=ver.value;
 		String color=ver.color;
