@@ -2112,7 +2112,7 @@ public class MainBuilder extends AbstractBuilder {
 		if (ConstantUtils.isIgnoreParam(q.getResult())) {
 			final int arrayDimensions = arrayLengths.size();
 			final ClassSignature arrayClass = new ClassSignature(
-					q.getArgument2(), arrayDimensions);
+					arrayDimensions, q.getArgument2());
 			add(localArrayCreateOp(arrayClass, (byte) 0));
 
 			add(localArrayInit(classIndex, cstrIndex, arrayDimensions, null,

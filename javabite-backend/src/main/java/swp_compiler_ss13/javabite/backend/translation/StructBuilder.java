@@ -148,7 +148,7 @@ public class StructBuilder extends AbstractBuilder {
 
 			final int arrayDimensions = arrayLengths.size();
 			final ClassSignature arrayClass = new ClassSignature(
-					q.getArgument2(), arrayDimensions);
+					arrayDimensions, q.getArgument2());
 
 			add(fieldArrayCreateOp(arrayClass, (byte) 0));
 			add(fieldArrayInit(arrayClass, classIndex, cstrIndex,

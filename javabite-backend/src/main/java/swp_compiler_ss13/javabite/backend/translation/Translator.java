@@ -1,6 +1,5 @@
 package swp_compiler_ss13.javabite.backend.translation;
 
-import org.apache.commons.lang.StringUtils;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.classfile.Classfile;
@@ -8,10 +7,7 @@ import swp_compiler_ss13.javabite.backend.utils.*;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.*;
 import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 
 import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isConstant;
 import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.removeConstantSign;
@@ -33,6 +29,10 @@ public class Translator {
 
 	public static final ClassSignature OBJECT_CLASS = new ClassSignature(
 			Object.class);
+
+	static final EnumSet<Operator> ARRAY_SET_OPERATORS = EnumSet.of(
+			Operator.ARRAY_SET_BOOLEAN, Operator.ARRAY_SET_DOUBLE,
+			Operator.ARRAY_SET_LONG, Operator.ARRAY_SET_STRING);
 
 	Collection<Classfile> classfiles;
 
@@ -163,7 +163,7 @@ public class Translator {
 				// get struct's tac
 				final long memberVarsCount = Long
 						.parseLong(removeConstantSign(quad.getArgument1()));
-				List<Quadruple> structTAC = structTAC = tac.subList(
+				List<Quadruple> structTAC = tac.subList(
 						listIndex + 1,
 						listIndex
 								+ 1
@@ -260,12 +260,8 @@ public class Translator {
 				listIndex++;
 				Quadruple quad = tacIter.next();
 				final String name = quad.getResult();
-				final Operator op = quad.getOperator();
-				final String arg1 = quad.getArgument1();
 
-				final String descriptor;
-
-				switch (op) {
+				switch (quad.getOperator()) {
 				case DECLARE_ARRAY:
 					// temp variable for found array's tac
 					int arrayDimensions = 0;
@@ -278,11 +274,16 @@ public class Translator {
 					} while (quad.getOperator() == Operator.DECLARE_ARRAY);
 					listIndex += arrayDimensions;
 
+					final ClassSignature fieldTypeSig;
+
 					if (quad.getOperator() == Operator.DECLARE_STRUCT) {
 						// assemble struct name
-						final String structClassName = className + "_" + name;
+
+						fieldTypeSig = new ClassSignature(arrayDimensions,
+								className, name);
+
 						quad = QuadrupleUtils.copyQuadruple(quad, null, null,
-								structClassName, null);
+								fieldTypeSig.baseClassName, null);
 						tacIter.set(quad);
 
 						constructorTAC.add(quad);
@@ -303,40 +304,38 @@ public class Translator {
 
 						// generate classfile for structTACwithoutFirstDecl
 						translateStructIntoClassfile(mainClassfile,
-								structTACwithoutFirstDecl, structClassName);
-
-						descriptor = StringUtils.leftPad("", arrayDimensions,
-								'[') + "L" + structClassName + ";";
+								structTACwithoutFirstDecl,
+								fieldTypeSig.className);
 					} else {
 						constructorTAC.add(quad);
 
-						descriptor = StringUtils.leftPad("", arrayDimensions,
-								'[')
-								+ JavaType.getByOperator(quad.getOperator()).classSignature.typeClassName;
+						fieldTypeSig = new ClassSignature(
+								arrayDimensions,
+								JavaType.getByOperator(quad.getOperator()).classSignature.className);
 					}
 
 					// getDescriptor using arrayTAC
-					structClassfile.addFieldToFieldArea(name, descriptor,
+					final FieldSignature arrayFieldSig = new FieldSignature(
+							name, className, fieldTypeSig.typeClassName);
+					structClassfile.addFieldToFieldArea(arrayFieldSig,
 							FieldAccessFlag.ACC_PUBLIC);
 
 					// register array of current struct with its dimensions
 					mainClassfile.addStructMemberArray(className + "_" + name,
-							descriptor);
+							fieldTypeSig.typeClassName);
 
 					/*
 					 * generate field reference info structure in the constant
 					 * pool, which will be used in the constructor for
 					 * initialization
 					 */
-					structClassfile.addFieldrefConstantToConstantPool(name,
-							descriptor, className);
+					structClassfile
+							.addFieldrefConstantToConstantPool(arrayFieldSig);
 					break;
 				case DECLARE_STRUCT:
 					// generate classfile for structTACwithoutFirstDecl
 					final ClassSignature structClassSig = new ClassSignature(
-							className + "_" + name);
-					// final String structClassName = className + "_" +
-					// name;
+							className, name);
 					quad = QuadrupleUtils.copyQuadruple(quad, null, null,
 							structClassSig.className, null);
 					tacIter.set(quad);
@@ -360,8 +359,9 @@ public class Translator {
 					mainClassfile.addSublevelStruct(structClassSig.className);
 
 					// getDescriptor using structTAC
-					descriptor = structClassSig.typeClassName;
-					structClassfile.addFieldToFieldArea(name, descriptor,
+					final FieldSignature structFieldSig = new FieldSignature(
+							name, className, structClassSig.typeClassName);
+					structClassfile.addFieldToFieldArea(structFieldSig,
 							FieldAccessFlag.ACC_PUBLIC);
 
 					/*
@@ -369,21 +369,22 @@ public class Translator {
 					 * pool, which will be used in the constructor for
 					 * initialization
 					 */
-					structClassfile.addFieldrefConstantToConstantPool(name,
-							descriptor, className);
+					structClassfile
+							.addFieldrefConstantToConstantPool(structFieldSig);
 					break;
 				default:
 					// getDescriptor using quad
-					descriptor = ClassfileUtils.typeByQuadruples(quad);
+					final FieldSignature fieldSig = new FieldSignature(name,
+							className, ClassfileUtils.typeByQuadruples(quad));
 					// add field to field area
-					structClassfile.addFieldToFieldArea(name, descriptor,
+					structClassfile.addFieldToFieldArea(fieldSig,
 							FieldAccessFlag.ACC_PUBLIC);
 
 					/*
 					 * without initial value, initialization in constructor will
 					 * not be necessary
 					 */
-					if (!ConstantUtils.isIgnoreParam(arg1)) {
+					if (!ConstantUtils.isIgnoreParam(quad.getArgument1())) {
 						// add to constructor tac
 						constructorTAC.add(quad);
 
@@ -392,8 +393,8 @@ public class Translator {
 						 * constant pool, which will be used in the constructor
 						 * for initialization
 						 */
-						structClassfile.addFieldrefConstantToConstantPool(name,
-								descriptor, className);
+						structClassfile
+								.addFieldrefConstantToConstantPool(fieldSig);
 					}
 				}
 			}
@@ -432,7 +433,7 @@ public class Translator {
 			 * if the operator is an array_set-operator, it'll have to be
 			 * examined separately
 			 */
-			if (operator.name().startsWith("ARRAY_SET")) {
+			if (ARRAY_SET_OPERATORS.contains(operator)) {
 				// argument 2 is a long constant
 				if (isConstant(arg2)) {
 					classFile.addLongConstantToConstantPool(Long

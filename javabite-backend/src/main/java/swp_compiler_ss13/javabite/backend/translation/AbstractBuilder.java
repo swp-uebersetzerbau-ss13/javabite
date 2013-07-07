@@ -384,8 +384,8 @@ public abstract class AbstractBuilder {
 
 	protected Operation fieldArrayCreateOp(final ClassfileUtils.JavaType type) {
 		final byte dimensions = (byte) arrayLengths.size();
-		final ClassSignature arrayClass = new ClassSignature(
-				type.classSignature.className, dimensions);
+		final ClassSignature arrayClass = new ClassSignature(dimensions,
+				type.classSignature.className);
 		return fieldArrayCreateOp(arrayClass, type.value);
 	}
 
@@ -400,8 +400,8 @@ public abstract class AbstractBuilder {
 
 	protected Operation localArrayCreateOp(final ClassfileUtils.JavaType type) {
 		final byte dimensions = (byte) arrayLengths.size();
-		final ClassSignature arrayClass = new ClassSignature(
-				type.classSignature.className, dimensions);
+		final ClassSignature arrayClass = new ClassSignature(dimensions,
+				type.classSignature.className);
 		return localArrayCreateOp(arrayClass, type.value);
 	}
 

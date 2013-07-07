@@ -447,33 +447,22 @@ public class Classfile {
 	 * </p>
 	 * 
 	 * @since 30.05.2013
-	 * @param fieldName
-	 *            string name of the field
-	 * @param fieldNameDescriptor
-	 *            string field descriptor as specified by the jvm specification
-	 * @param classNameEIF
-	 *            string describing the method's class' class name encoded in
-	 *            internal form according to the jvm specification
+	 * @param signature
+	 *            signature of field to add
 	 * @return short index of a fieldref info entry in the constant pool of this
 	 *         classfile meeting the parameters.
 	 */
-	public short addFieldrefConstantToConstantPool(final String fieldName,
-			final String fieldNameDescriptor, final String classNameEIF) {
-		// add class
-		final short classIndex = addClassConstantToConstantPool(classNameEIF);
-		// add NAT
-		final short natIndex = constantPool.generateConstantNameAndTypeInfo(
-				fieldName, fieldNameDescriptor);
-		// add fieldref
-		return constantPool.generateConstantFieldrefInfo(classIndex, natIndex,
-				fieldName, classNameEIF);
-	}
-
 	public short addFieldrefConstantToConstantPool(
 			final FieldSignature signature) {
-		return addFieldrefConstantToConstantPool(signature.fieldName,
-				signature.fieldType.typeClassName,
-				signature.fieldClass.className);
+
+		// add class
+		final short classIndex = addClassConstantToConstantPool(signature.fieldClass.className);
+		// add NAT
+		final short natIndex = constantPool.generateConstantNameAndTypeInfo(
+				signature.fieldName, signature.fieldType.typeClassName);
+		// add fieldref
+		return constantPool.generateConstantFieldrefInfo(classIndex, natIndex,
+				signature.fieldName, signature.fieldClass.className);
 	}
 
 	/**
@@ -556,98 +545,6 @@ public class Classfile {
 	}
 
 	/**
-	 * <h1>addLongVariableToMethodsCode</h1>
-	 * <p>
-	 * This method adds explicitly a LONG variable to a methods code using the
-	 * Classfile method addVariableToMethodsCode with an appropriate variable
-	 * type.
-	 * </p>
-	 * 
-	 * @since 25.05.2013
-	 * @param methodName
-	 *            String name of the method
-	 * @param variableName
-	 *            String name of the variable
-	 * @see Classfile#addVariableToMethodsCode(String, String,
-	 *      swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType)
-	 */
-	public void addLongVariableToMethodsCode(final String methodName,
-			final String variableName) {
-
-		addVariableToMethodsCode(methodName, variableName,
-				ClassfileUtils.LocalVariableType.LONG);
-	}
-
-	/**
-	 * <h1>addDoubleVariableToMethodsCode</h1>
-	 * <p>
-	 * This method adds explicitly a DOUBLE variable to a methods code using the
-	 * Classfile method addVariableToMethodsCode with an appropriate variable
-	 * type.
-	 * </p>
-	 * 
-	 * @since 25.05.2013
-	 * @param methodName
-	 *            String name of the method
-	 * @param variableName
-	 *            String name of the variable
-	 * @see Classfile#addVariableToMethodsCode(String, String,
-	 *      swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType)
-	 */
-	public void addDoubleVariableToMethodsCode(final String methodName,
-			final String variableName) {
-
-		addVariableToMethodsCode(methodName, variableName,
-				ClassfileUtils.LocalVariableType.DOUBLE);
-	}
-
-	/**
-	 * <h1>addStringVariableToMethodsCode</h1>
-	 * <p>
-	 * This method adds explicitly a STRING variable to a methods code using the
-	 * Classfile method addVariableToMethodsCode with an appropriate variable
-	 * type.
-	 * </p>
-	 * 
-	 * @since 25.05.2013
-	 * @param methodName
-	 *            String name of the method
-	 * @param variableName
-	 *            String name of the variable
-	 * @see Classfile#addVariableToMethodsCode(String, String,
-	 *      swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType)
-	 */
-	public void addStringVariableToMethodsCode(final String methodName,
-			final String variableName) {
-
-		addVariableToMethodsCode(methodName, variableName,
-				ClassfileUtils.LocalVariableType.STRING);
-	}
-
-	/**
-	 * <h1>addBooleanVariableToMethodsCode</h1>
-	 * <p>
-	 * This method adds explicitly a BOOLEAN variable to a methods code using
-	 * the Classfile method addVariableToMethodsCode with an appropriate
-	 * variable type.
-	 * </p>
-	 * 
-	 * @since 25.05.2013
-	 * @param methodName
-	 *            String name of the method
-	 * @param variableName
-	 *            String name of the variable
-	 * @see Classfile#addVariableToMethodsCode(String, String,
-	 *      swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType)
-	 */
-	public void addBooleanVariableToMethodsCode(final String methodName,
-			final String variableName) {
-
-		addVariableToMethodsCode(methodName, variableName,
-				ClassfileUtils.LocalVariableType.BOOLEAN);
-	}
-
-	/**
 	 * <h1>addInstructionsToMethodsCode</h1>
 	 * <p>
 	 * This method adds new Instructions to the code area of the code attribute
@@ -676,20 +573,18 @@ public class Classfile {
 	 * </p>
 	 * 
 	 * @since 24.06.2013
-	 * @param fieldName
-	 *            String name of the field
-	 * @param fieldDescriptor
-	 *            String descriptor of the field
+	 * @param signature
+	 *            signature of field to add
 	 * @param accessFlags
 	 *            list of access flags for the field
 	 */
-	public void addFieldToFieldArea(final String fieldName,
-			final String fieldDescriptor, final FieldAccessFlag... accessFlags) {
+	public void addFieldToFieldArea(final FieldSignature signature,
+			final FieldAccessFlag... accessFlags) {
 		// first generate appropriate constants in the constant pool
 		final short fieldNameIndex = constantPool
-				.generateConstantUTF8Info(fieldName);
+				.generateConstantUTF8Info(signature.fieldName);
 		final short fieldDescriptorIndex = constantPool
-				.generateConstantUTF8Info(fieldDescriptor);
+				.generateConstantUTF8Info(signature.fieldType.typeClassName);
 		// add fields
 		fieldArea.addField(fieldNameIndex, fieldDescriptorIndex, accessFlags);
 	}

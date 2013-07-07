@@ -19,16 +19,25 @@ public class ClassSignature {
 		this(getClassName(clazz), null, clazz.isPrimitive());
 	}
 
+	public ClassSignature(final String... classNameParts) {
+		this(StringUtils.join(classNameParts, '_'), null, false);
+	}
+
 	public ClassSignature(final String className) {
 		this(className, null, false);
 	}
 
-	public ClassSignature(final String className, final int arrayDimensions) {
+	public ClassSignature(final int arrayDimensions,
+			final String... classNameParts) {
+		this(StringUtils.join(classNameParts, '_'), arrayDimensions, false);
+	}
+
+	public ClassSignature(final int arrayDimensions, final String className) {
 		this(className, arrayDimensions, false);
 	}
 
-	ClassSignature(final String className, final Integer arrayDimensions,
-			final boolean isPrimitive) {
+	private ClassSignature(final String className,
+			final Integer arrayDimensions, final boolean isPrimitive) {
 		this.isPrimitive = isPrimitive || isPrimitiveClass(className);
 
 		final int dimensions = arrayDimensions == null ? countArrayDimensions(className)

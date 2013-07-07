@@ -8,6 +8,7 @@ import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.classfile.Classfile;
 import swp_compiler_ss13.javabite.backend.translation.MainBuilder;
 import swp_compiler_ss13.javabite.backend.translation.Program;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ClassfileAccessFlag;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodAccessFlag;
 import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
@@ -25,7 +26,8 @@ public class ProgramTests {
 
 	private void addBooleanVariable(final String... vars) {
 		for (final String v : vars) {
-			classfile.addBooleanVariableToMethodsCode(methodName, v);
+			classfile.addVariableToMethodsCode(methodName, v,
+					ClassfileUtils.LocalVariableType.BOOLEAN);
 		}
 	}
 
@@ -37,7 +39,8 @@ public class ProgramTests {
 
 	private void addDoubleVariable(final String... vars) {
 		for (final String v : vars) {
-			classfile.addDoubleVariableToMethodsCode(methodName, v);
+			classfile.addVariableToMethodsCode(methodName, v,
+					ClassfileUtils.LocalVariableType.DOUBLE);
 		}
 	}
 
@@ -49,7 +52,8 @@ public class ProgramTests {
 
 	private void addLongVariable(final String... vars) {
 		for (final String v : vars) {
-			classfile.addLongVariableToMethodsCode(methodName, v);
+			classfile.addVariableToMethodsCode(methodName, v,
+					ClassfileUtils.LocalVariableType.LONG);
 		}
 	}
 
@@ -61,7 +65,8 @@ public class ProgramTests {
 
 	private void addStringVariable(final String... vars) {
 		for (final String v : vars) {
-			classfile.addStringVariableToMethodsCode(methodName, v);
+			classfile.addVariableToMethodsCode(methodName, v,
+					ClassfileUtils.LocalVariableType.STRING);
 		}
 	}
 
