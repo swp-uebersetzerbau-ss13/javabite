@@ -39,7 +39,7 @@ public class AssignmentNodeConverter extends CastingAst2CodeConverter {
 			icg.addQuadruple(QuadrupleFactoryJb.generateSetStruct(leftData.getIdentifier(), fieldName.getIdentifier(), rightData));
 		} else if (targetNode instanceof ArrayIdentifierNode) {
 			IdentifierData index = icg.popIdentifierData();
-			icg.addQuadruple(QuadrupleFactoryJb.generateSetStruct(leftData.getIdentifier(), index.getIdentifier(), rightData));
+			icg.addQuadruple(QuadrupleFactoryJb.generateSetArray(leftData.getIdentifier(), index.getIdentifier(), rightData));
 		} else if (targetNode instanceof BasicIdentifierNode){
 			icg.addQuadruple(QuadrupleFactoryJb.generateAssignment(leftData, rightData));	
 		} else {
