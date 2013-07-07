@@ -46,8 +46,9 @@ public abstract class AbstractBuilder {
 	 * @return new program instance
 	 */
 	public Program build() {
-		boolean needsReturn = !(operations.isEmpty() || operations
-				.get(operations.size() - 1).getLastInstruction().getMnemonic() == Mnemonic.RETURN);
+		boolean needsReturn = operations.isEmpty()
+				|| operations.get(operations.size() - 1).getLastInstruction()
+						.getMnemonic() != Mnemonic.RETURN;
 
 		// check, whether there is a return instruction in the end
 		// if not, set it
