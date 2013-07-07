@@ -14,6 +14,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.Icon;
@@ -35,6 +36,8 @@ import javax.swing.JTable;
 import javax.swing.JTextPane;
 import javax.swing.JToolBar;
 import javax.swing.ToolTipManager;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.DefaultStyledDocument;
 
@@ -53,12 +56,15 @@ import swp_compiler_ss13.javabite.gui.bytecode.ByteCodeVisualizerJb;
 import swp_compiler_ss13.javabite.gui.config.SettingsPanel;
 import swp_compiler_ss13.javabite.gui.tac.TacVisualizerJb;
 import swp_compiler_ss13.javabite.runtime.JavaClassProcess;
+import java.awt.Cursor;
+import java.awt.Component;
 
 public class MainFrame extends JFrame implements ReportLog, Configurable {
 	
 	private static final long serialVersionUID = 1673088367851101738L;
 	
 	private static final String BASE_TITLE = "Javabite Compiler - ";
+	List<Integer> intArray= new ArrayList<Integer>();
 	
 	// class to setup styles for our sourcecode
 	DefaultStyledDocument doc = new DefaultStyledDocument();
@@ -83,6 +89,7 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 	JMenu menuFile;
 	JMenuItem menuFileOpen;
 	JMenuItem menuFileSave;
+	JMenuItem menuFileSaveAs;
 	JMenuItem menuFileClose;
 	JMenu menuVisual;
 	JMenuItem menuVisualAst;
@@ -91,8 +98,10 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 	JButton buttonRunCompile;
 	JToolBar toolBar;
 	JPanel panelLabel;
+	JPanel panelLineColumn;
 	JPanel panelProgressBar;
 	JLabel toolBarLabel;
+	JLabel columnLineLabel;
 	JProgressBar progressBar;
 	JSplitPane splitPane;
 	JTextPane textPaneConsole;
@@ -166,6 +175,14 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 			}
 		});
 		menuFile.add(menuFileSave);
+		
+		menuFileSaveAs = new JMenuItem("Save As");
+		menuFileSaveAs.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				fileManager.saveFileIn();
+			}
+		});
+		menuFile.add(menuFileSaveAs);
 		
 		menuFileClose = new JMenuItem("Close");
 		menuFileClose.addActionListener(new ActionListener() {
@@ -276,7 +293,14 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 		toolBarLabel = new JLabel("Compiler started");
 		panelLabel.add(toolBarLabel);
 		
+		panelLineColumn = new JPanel();
+		toolBar.add(panelLineColumn);
+		
+		columnLineLabel = new JLabel("1:1");
+		panelLineColumn.add(columnLineLabel);
+		
 		panelProgressBar = new JPanel();
+		panelProgressBar.setToolTipText("Progressbar to show compilation process");
 		FlowLayout flowLayout = (FlowLayout) panelProgressBar.getLayout();
 		flowLayout.setAlignment(FlowLayout.RIGHT);
 		toolBar.add(panelProgressBar);
@@ -294,7 +318,7 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 		
 		textPaneConsole = new JTextPane();
 		textPaneConsole.setText("");
-		tabbedPaneLog.addTab("Console", null, textPaneConsole, null);
+		tabbedPaneLog.addTab("Console", null, new JScrollPane(textPaneConsole), null);
 		
 		textPaneLogs = new JTextPane();
 		textPaneLogs.setText("");
@@ -309,8 +333,8 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 		tableReportLogs.setEnabled(false);
 		modelReportLogs.addColumn("");
 		modelReportLogs.addColumn("Type");
-		modelReportLogs.addColumn("Line");
-		modelReportLogs.addColumn("Column");
+		modelReportLogs.addColumn("Start");
+		modelReportLogs.addColumn("End");
 		modelReportLogs.addColumn("Message");
 		tableReportLogs.setFillsViewportHeight(true);
 		scrollPaneReportLogs.setViewportView(tableReportLogs);
@@ -320,7 +344,26 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 		
 		// sourcecode with syntax highlighting
 		editorPaneSourcecode = new JTextPane(doc);
+		editorPaneSourcecode.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
 		scrollPane.setViewportView(editorPaneSourcecode);
+		editorPaneSourcecode.addCaretListener(new CaretListener(){
+			@Override
+			public void caretUpdate(CaretEvent e) {
+				int pos = e.getDot();
+				int row = 1, column=0;
+				int lastNewline=-1;
+				String text = editorPaneSourcecode.getText().replaceAll("\r", "");
+				for(int i=0;i<pos;i++){
+					if(text.charAt(i)==10){
+						row++;
+						lastNewline=i;
+					}
+				}
+				
+				column=pos-lastNewline;
+				setLineColumn(column, row);
+			}
+		});
 		
 		// add listener for sourcecode colorization 
 		editorPaneSourcecode.addKeyListener(new KeyAdapter() {
@@ -390,6 +433,10 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 		toolBarLabel.setIcon(icon);
 	}
 	
+	public void setLineColumn(int column, int row) {
+		columnLineLabel.setText(row + ":" + column);
+	}
+	
 	public void setProgress(int progress) {
 		if (progress >= 100) {
 			progressBar.setEnabled(false);
@@ -419,14 +466,19 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 	@Override
 	public void reportError(ReportType type, List<Token> tokens, String message) {
 		errorReported = true;
-		int line = 0;
-		int column = 0;
-		if (tokens != null && !tokens.isEmpty()) {
-			line = tokens.get(0).getLine();
-			column = tokens.get(0).getColumn();
-		}
+		int start_line = 0;
+		int start_column = 0;
+		int end_line = 0;
+		int end_column = 0;
 		
-		modelReportLogs.addRow(new Object[] { "Error", type, line, column, message });
+		if (tokens != null && !tokens.isEmpty()) {
+			start_line = tokens.get(0).getLine();
+			start_column = tokens.get(0).getColumn();
+			end_line = tokens.get(tokens.size()-1).getLine();
+			end_column = tokens.get(tokens.size()-1).getColumn()+tokens.get(tokens.size()-1).getValue().length();
+			
+		}
+		modelReportLogs.addRow(new Object[] { "Error", type, start_line+":"+start_column, end_line+":"+end_column, message });
 		styleManager.underlineToken(tokens, Color.RED);
 	}
 
@@ -609,9 +661,25 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 		JFrame frame = new JFrame();
 		JScrollPane ast_frame=visualizer.getFrame();
 		frame.setVisible(true);
+		ASTVisualizerJb v= new ASTVisualizerJb();
+		v.visualizeAST(ast);
+		intArray =v.intArray;
+		int smaller;
+		int bigger=intArray.get(0);
+		for (int i=0;i<intArray.size();i++){
+			smaller=intArray.get(i);
+			if (smaller>bigger){
+				bigger=smaller;
+			}
+		}
 		KhaledGraphFrame k= new KhaledGraphFrame();
-		
-		frame.setSize(167*k.levelsCounter(ast), 55*k.maximumOfNodesInLevels());
+		if (bigger>1){
+			System.out.println(bigger);
+			frame.setSize(220*k.levelsCounter(ast), bigger*25+80*k.maximumOfNodesInLevels());
+		}
+		else{
+			frame.setSize(220*k.levelsCounter(ast), 80*k.maximumOfNodesInLevels());
+		}
 		frame.getContentPane().add(ast_frame);
 		frame.setVisible(true);
 		toolBarLabel.setText("Rendered AST.");

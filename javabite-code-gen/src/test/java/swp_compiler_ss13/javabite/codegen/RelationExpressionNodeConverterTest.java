@@ -701,13 +701,13 @@ public class RelationExpressionNodeConverterTest {
 			RelationExpressionNode node =  mock(RelationExpressionNode.class);
 			   
 	        when(converter.icg.popIdentifierData()).thenReturn(
-	                new IdentifierData("test1", new StructType(null,
+	                new IdentifierData("test1", new StructType(
                             new Member[] { new Member("",
                                     new DoubleType()) })) ,
-	                new IdentifierData("test2", new StructType(null,
+	                new IdentifierData("test2", new StructType(
                             new Member[] { new Member("",
                                     new DoubleType()) })));
-	        IdentifierData tmp = new IdentifierData("tmp", new StructType(null,
+	        IdentifierData tmp = new IdentifierData("tmp", new StructType(
                     new Member[] { new Member("",
                             new DoubleType()) }));
 	        when(converter.icg.generateTempIdentifier(any(StructType.class)))
@@ -734,13 +734,13 @@ public class RelationExpressionNodeConverterTest {
 			RelationExpressionNode node =  mock(RelationExpressionNode.class);
 			   
 	        when(converter.icg.popIdentifierData()).thenReturn(
-	                new IdentifierData("test1", new StructType(null,
+	                new IdentifierData("test1", new StructType(
                             new Member[] { new Member("",
                                     new DoubleType()) })) ,
-	                new IdentifierData("test2", new StructType(null,
+	                new IdentifierData("test2", new StructType(
                             new Member[] { new Member("",
                                     new DoubleType()) })));
-	        IdentifierData tmp = new IdentifierData("tmp", new StructType(null,
+	        IdentifierData tmp = new IdentifierData("tmp", new StructType(
                     new Member[] { new Member("",
                             new DoubleType()) }));
 	        when(converter.icg.generateTempIdentifier(any(StructType.class)))
@@ -767,13 +767,13 @@ public class RelationExpressionNodeConverterTest {
 			RelationExpressionNode node =  mock(RelationExpressionNode.class);
 			   
 	        when(converter.icg.popIdentifierData()).thenReturn(
-	                new IdentifierData("test1", new StructType(null,
+	                new IdentifierData("test1", new StructType(
                             new Member[] { new Member("",
                                     new DoubleType()) })) ,
-	                new IdentifierData("test2", new StructType(null,
+	                new IdentifierData("test2", new StructType(
                             new Member[] { new Member("",
                                     new DoubleType()) })));
-	        IdentifierData tmp = new IdentifierData("tmp", new StructType(null,
+	        IdentifierData tmp = new IdentifierData("tmp", new StructType(
                     new Member[] { new Member("",
                             new DoubleType()) }));
 	        when(converter.icg.generateTempIdentifier(any(StructType.class)))
@@ -799,13 +799,13 @@ public class RelationExpressionNodeConverterTest {
 			RelationExpressionNode node =  mock(RelationExpressionNode.class);
 			   
 	        when(converter.icg.popIdentifierData()).thenReturn(
-	                new IdentifierData("test1", new StructType(null,
+	                new IdentifierData("test1", new StructType(
                             new Member[] { new Member("",
                                     new DoubleType()) })) ,
-	                new IdentifierData("test2", new StructType(null,
+	                new IdentifierData("test2", new StructType(
                             new Member[] { new Member("",
                                     new DoubleType()) })));
-	        IdentifierData tmp = new IdentifierData("tmp", new StructType(null,
+	        IdentifierData tmp = new IdentifierData("tmp", new StructType(
                     new Member[] { new Member("",
                             new DoubleType()) }));
 	        when(converter.icg.generateTempIdentifier(any(StructType.class)))
@@ -832,13 +832,13 @@ public class RelationExpressionNodeConverterTest {
 			RelationExpressionNode node =  mock(RelationExpressionNode.class);
 			   
 	        when(converter.icg.popIdentifierData()).thenReturn(
-	                new IdentifierData("test1", new StructType(null,
+	                new IdentifierData("test1", new StructType(
                             new Member[] { new Member("",
                                     new DoubleType()) })) ,
-	                new IdentifierData("test2", new StructType(null,
+	                new IdentifierData("test2", new StructType(
                             new Member[] { new Member("",
                                     new DoubleType()) })));
-	        IdentifierData tmp = new IdentifierData("tmp", new StructType(null,
+	        IdentifierData tmp = new IdentifierData("tmp", new StructType(
                     new Member[] { new Member("",
                             new DoubleType()) }));
 	        when(converter.icg.generateTempIdentifier(any(StructType.class)))

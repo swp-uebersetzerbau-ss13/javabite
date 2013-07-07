@@ -29,7 +29,8 @@ public class DeclarationNodeJb extends ASTNodeJb implements DeclarationNode {
 
 	protected String identifier;
 	protected Type type;
-
+	protected List<Token> myCoverage = new LinkedList<>();
+	
 	public DeclarationNodeJb() {
 		super(ASTNodeType.DeclarationNode);
 	}
@@ -42,12 +43,19 @@ public class DeclarationNodeJb extends ASTNodeJb implements DeclarationNode {
 
 	@Override
 	public List<Token> coverage() {
-		List<Token> res = new LinkedList<>();
-		res.add(getAssociatedTokenListFromTypeUnique(TokenType.BOOL_SYMBOL,
-				TokenType.DOUBLE_SYMBOL, TokenType.LONG_SYMBOL,
-				TokenType.STRING_SYMBOL));
-		res.add(getAssociatedTokenListFromTypeUnique(TokenType.ID));
-		res.add(getAssociatedTokenListFromTypeUnique(TokenType.SEMICOLON));
-		return res;
+		return myCoverage;
 	}
+	
+	public void setCompleteCoverage(List<Token> cov){
+		myCoverage=new LinkedList<>(cov);
+	}
+	
+	public void addToCoverage(List<Token> tok){
+		myCoverage.addAll(tok);
+	}
+	
+	public void addToCoverage(Token tok){
+		myCoverage.add(tok);
+	}
+	
 }

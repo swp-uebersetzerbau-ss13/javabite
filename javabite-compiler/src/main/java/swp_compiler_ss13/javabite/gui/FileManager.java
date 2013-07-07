@@ -26,7 +26,8 @@ public class FileManager implements DocumentListener {
 	public File currentFile;
 	public boolean hasUnsavedChanges = false;
 	
-	boolean isProcessing = false;
+	// should be volatile, highly concurrent access
+	volatile boolean isProcessing = false;
 	
 	public FileManager(MainFrame mf) {
 		this.mf = mf;

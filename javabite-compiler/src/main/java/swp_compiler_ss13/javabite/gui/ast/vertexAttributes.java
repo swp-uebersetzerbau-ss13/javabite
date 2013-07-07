@@ -1,10 +1,14 @@
 package swp_compiler_ss13.javabite.gui.ast;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
 import swp_compiler_ss13.common.ast.nodes.binary.LogicBinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.LoopNode;
+import swp_compiler_ss13.common.ast.nodes.binary.RelationExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.BasicIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.leaf.LiteralNode;
 import swp_compiler_ss13.common.ast.nodes.marynary.BlockNode;
@@ -12,6 +16,7 @@ import swp_compiler_ss13.common.ast.nodes.ternary.BranchNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ArithmeticUnaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ArrayIdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
+import swp_compiler_ss13.common.ast.nodes.unary.PrintNode;
 import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.ast.nodes.unary.StructIdentifierNode;
 import swp_compiler_ss13.common.lexer.Token;
@@ -29,87 +34,114 @@ public class vertexAttributes {
 	String color = null;
 	ASTNode ast=null;
 	String strA= "";
+	String strAtt; //important
+	List<String> strList = new ArrayList<String>(); //important
 	
 	public void addAttributes(ASTNode ast) {
 		if (ast instanceof BasicIdentifierNode) {
-			value = "Id= " + ((BasicIdentifierNode) ast).getIdentifier();
+			value = "BasicIdentifierNode"+"\nId= " + ((BasicIdentifierNode) ast).getIdentifier();
 			color = colorAttributes+"0000ff";
 			getToken(ast);
 		} else if (ast instanceof ArithmeticBinaryExpressionNode) {
 			opr =new OperationSymbol(ast);
-			value = opr.getOperationSymbol();
+			value = "ArithmeticBinary\nExpressionNode\n"+opr.getOperationSymbol();
 			color = colorAttributes+"cyan";
 			getToken(ast);
 		} else if (ast instanceof ArithmeticUnaryExpressionNode) {
 			opr =new OperationSymbol(ast);
-			value = opr.getOperationSymbol();
+			value = "ArithmeticUnary\nExpressionNode\n"+opr.getOperationSymbol();
 			color = colorAttributes+"blue";
 			getToken(ast);
-		} else if (ast instanceof LiteralNode) {
-			value = "Type= " + ((LiteralNode) ast).getLiteralType()
+		}else if (ast instanceof PrintNode) {
+			value ="PrintNode";
+			color = colorAttributes+"0000ff";
+			getToken(ast);
+		} 
+		
+		else if (ast instanceof LiteralNode) {
+			value = "LiteralNode"+"\nType= " + ((LiteralNode) ast).getLiteralType()
 					+ "\nLiteral= " + ((LiteralNode) ast).getLiteral();
 			color = colorAttributes+"yellow";
 			getToken(ast);
 		} else if (ast instanceof AssignmentNode) {
-			value = "Assignment";
-			color = colorAttributes+"white";
+			value = "AssignmentNode";
+			color = colorAttributes+"red";
 			getToken(ast);
 
 		} else if (ast instanceof LogicBinaryExpressionNode) {
-		    opr =new OperationSymbol(ast);
-			value = opr.getOperationSymbol();
+			opr =new OperationSymbol(ast);
+			value = "LogicBinary\nExpressionNode\n"+opr.getOperationSymbol();
 			color = colorAttributes+"blue";
 			getToken(ast);
 
 		} else if (ast instanceof ReturnNode) {
-			value = "Return";
+			value = "ReturnNode";
 			color = colorAttributes+"orange";
 			getToken(ast);
 		} else if (ast instanceof DeclarationNode) {
-			value = "Type= " + ((DeclarationNode) ast).getType() + "\nId= "
-					+ ((DeclarationNode) ast).getIdentifier();
-			color = colorAttributes+"magenta";
+			String tValue = "";
+			strAtt=((DeclarationNode) ast).getIdentifier() +":" +((DeclarationNode) ast).getType();
+			if (strAtt.length()>23){
+				StringBuffer s = new StringBuffer(strAtt);
+				while(!s.toString().isEmpty()){
+					StringBuffer afterRemove= s.delete(0,24);
+					String newString=strAtt.replace(afterRemove.toString(), "");
+					strList.add(newString);
+					strAtt=afterRemove.toString();
+				 }
+				for(String k:strList){
+					tValue=tValue+k+"\n";
+				}
+				value = "DeclarationNode\n"+tValue;
+			}
+			else{
+				value = "DeclarationNode\n" + ((DeclarationNode) ast).getIdentifier() +":" 
+						+((DeclarationNode) ast).getType()+"\n";
+			}
+			color = colorAttributes+"magenta";			
+			getToken(ast);
 		} else if (ast instanceof BlockNode) {
-			value = "Statements= " + ((BlockNode) ast).getNumberOfStatements()
+			value ="BlockNode"+"\nStatements= " + ((BlockNode) ast).getNumberOfStatements()
 					+ "\nDeclarations= "
 					+ ((BlockNode) ast).getNumberOfDeclarations();
 			color = colorAttributes+"pink";
+			getToken(ast);	
 		} else if (ast instanceof ArrayIdentifierNode) {
-			value = "Index= " + ((ArrayIdentifierNode) ast).getIdentifierNode();
+			value ="ArrayIdentifierNode";
 			color = colorAttributes+"black";
 			getToken(ast);
 		} else if (ast instanceof StructIdentifierNode) {
-			value = "Index= "
-					+ ((StructIdentifierNode) ast).getIdentifierNode();
+			value = "StructIdentifierNode";
 			color = colorAttributes+"red";
 			getToken(ast);
 		} else if (ast instanceof LoopNode) {
-			value = "Condition= " + ((LoopNode) ast).getCondition() + "\nBody"
-					+ ((LoopNode) ast).getLoopBody();
+			value = "LoopNode";
 			color = colorAttributes+"violet";
 			getToken(ast);
-		} else if (ast instanceof ReturnNode) {
-			value = "" + ((ReturnNode) ast).getRightValue();
-			color = colorAttributes+"navy";
-			getToken(ast);
 		} else if (ast instanceof BranchNode) {
-			value = "Condition" + ((BranchNode) ast).getCondition();
+			value = "BranchNode";
 			color = colorAttributes+"yellow";
 			getToken(ast);
 		} 
+		else if (ast instanceof RelationExpressionNode) {
+			opr =new OperationSymbol(ast);
+			value = "Relation\nExpressionNode\n"+opr.getOperationSymbol();
+			color = colorAttributes+"pink";
+			getToken(ast);
+		}
+		
 		else {
-			value = ast.toString();
+			value = ast.getNodeType().toString();
 			color = colorAttributes+"white";
 			getToken(ast);
 		}
-
 	}
 	
 	void getToken(ASTNode ast){
-		for(Token t:ast.coverage()){
-			strA+=t.getValue();
-		}
 		
+		for(Token t:ast.coverage()){
+			strA=strA+" "+t.getValue();
+		}
 	}
 
 }

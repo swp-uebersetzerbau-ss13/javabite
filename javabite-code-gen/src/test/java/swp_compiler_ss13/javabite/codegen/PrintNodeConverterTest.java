@@ -41,20 +41,16 @@ public class PrintNodeConverterTest {
 			throws IntermediateCodeGeneratorException {
 		try {
 			PrintNode node = Mockito.mock(PrintNode.class);
-			IdentifierData tmp = new IdentifierData("test", new LongType());
-			IdentifierData tmp2 = new IdentifierData("tmp", new StringType(0L));
-			when(converter.icg.popIdentifierData()).thenReturn(tmp);
+			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test", new LongType()));
 			when(converter.icg.generateTempIdentifier(any(StringType.class)))
-					.thenReturn(tmp2);
+					.thenReturn(new IdentifierData("tmp", new StringType(0L)));
 
 			converter.convert(node);
 			verify(converter.icg).addQuadruple(
-					new QuadrupleJb(Operator.LONG_TO_STRING, tmp
-							.getIdentifier(), Quadruple.EmptyArgument, tmp2
-							.getIdentifier()));
+					new QuadrupleJb(Operator.LONG_TO_STRING, "test", Quadruple.EmptyArgument, "tmp"));
 			verify(converter.icg).addQuadruple(
 					new QuadrupleJb(Operator.PRINT_STRING,
-							tmp2.getIdentifier(), Quadruple.EmptyArgument,
+							"tmp", Quadruple.EmptyArgument,
 							Quadruple.EmptyArgument));
 		} catch (IntermediateCodeGeneratorException e) {
 			fail();
@@ -70,20 +66,16 @@ public class PrintNodeConverterTest {
 			throws IntermediateCodeGeneratorException {
 		try {
 			PrintNode node = Mockito.mock(PrintNode.class);
-			IdentifierData tmp = new IdentifierData("test", new DoubleType());
-			IdentifierData tmp2 = new IdentifierData("tmp", new StringType(0L));
-			when(converter.icg.popIdentifierData()).thenReturn(tmp);
+			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test", new DoubleType()));
 			when(converter.icg.generateTempIdentifier(any(StringType.class)))
-					.thenReturn(tmp2);
+					.thenReturn(new IdentifierData("tmp", new StringType(0L)));
 
 			converter.convert(node);
 			verify(converter.icg).addQuadruple(
-					new QuadrupleJb(Operator.DOUBLE_TO_STRING, tmp
-							.getIdentifier(), Quadruple.EmptyArgument, tmp2
-							.getIdentifier()));
+					new QuadrupleJb(Operator.DOUBLE_TO_STRING, "test", Quadruple.EmptyArgument, "tmp"));
 			verify(converter.icg).addQuadruple(
 					new QuadrupleJb(Operator.PRINT_STRING,
-							tmp2.getIdentifier(), Quadruple.EmptyArgument,
+							"tmp", Quadruple.EmptyArgument,
 							Quadruple.EmptyArgument));
 		} catch (IntermediateCodeGeneratorException e) {
 			fail();
@@ -100,20 +92,16 @@ public class PrintNodeConverterTest {
 			throws IntermediateCodeGeneratorException {
 		try {
 			PrintNode node = Mockito.mock(PrintNode.class);
-			IdentifierData tmp = new IdentifierData("test", new BooleanType());
-			IdentifierData tmp2 = new IdentifierData("tmp", new StringType(0L));
-			when(converter.icg.popIdentifierData()).thenReturn(tmp);
+			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test", new BooleanType()));
 			when(converter.icg.generateTempIdentifier(any(StringType.class)))
-					.thenReturn(tmp2);
+					.thenReturn(new IdentifierData("tmp", new StringType(0L)));
 
 			converter.convert(node);
 			verify(converter.icg).addQuadruple(
-					new QuadrupleJb(Operator.BOOLEAN_TO_STRING, tmp
-							.getIdentifier(), Quadruple.EmptyArgument, tmp2
-							.getIdentifier()));
+					new QuadrupleJb(Operator.BOOLEAN_TO_STRING, "test", Quadruple.EmptyArgument, "tmp"));
 			verify(converter.icg).addQuadruple(
 					new QuadrupleJb(Operator.PRINT_STRING,
-							tmp2.getIdentifier(), Quadruple.EmptyArgument,
+							"tmp", Quadruple.EmptyArgument,
 							Quadruple.EmptyArgument));
 
 		} catch (IntermediateCodeGeneratorException e) {
@@ -131,12 +119,11 @@ public class PrintNodeConverterTest {
 			throws IntermediateCodeGeneratorException {
 		try {
 			PrintNode node = Mockito.mock(PrintNode.class);
-			IdentifierData tmp = new IdentifierData("test", new StringType(0L));
-			when(converter.icg.popIdentifierData()).thenReturn(tmp);
+			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test", new StringType(0L)));
 
 			converter.convert(node);
 			verify(converter.icg).addQuadruple(
-					new QuadrupleJb(Operator.PRINT_STRING, tmp.getIdentifier(),
+					new QuadrupleJb(Operator.PRINT_STRING, "test",
 							Quadruple.EmptyArgument, Quadruple.EmptyArgument));
 
 		} catch (IntermediateCodeGeneratorException e) {
@@ -154,12 +141,10 @@ public class PrintNodeConverterTest {
 			throws IntermediateCodeGeneratorException {
 		try {
 			PrintNode node = Mockito.mock(PrintNode.class);
-			IdentifierData tmp = new IdentifierData("test", new StructType(
-					null, new Member[] { new Member("", new DoubleType()) }));
-			IdentifierData tmp2 = new IdentifierData("tmp", new StringType(0L));
-			when(converter.icg.popIdentifierData()).thenReturn(tmp);
+			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test", new StructType(
+					new Member[] { new Member("", new DoubleType()) })));
 			when(converter.icg.generateTempIdentifier(any(StringType.class)))
-					.thenReturn(tmp2);
+					.thenReturn(new IdentifierData("tmp", new StringType(0L)));
 			converter.convert(node);
 			fail();
 		} catch (IntermediateCodeGeneratorException e) {
@@ -176,12 +161,10 @@ public class PrintNodeConverterTest {
 			throws IntermediateCodeGeneratorException {
 		try {
 			PrintNode node = Mockito.mock(PrintNode.class);
-			IdentifierData tmp = new IdentifierData("test", new ArrayType(
-					new LongType(), 0));
-			IdentifierData tmp2 = new IdentifierData("tmp", new StringType(0L));
-			when(converter.icg.popIdentifierData()).thenReturn(tmp);
+			when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("test", new ArrayType(
+					new LongType(), 0)));
 			when(converter.icg.generateTempIdentifier(any(StringType.class)))
-					.thenReturn(tmp2);
+					.thenReturn(new IdentifierData("tmp", new StringType(0L)));
 			converter.convert(node);
 			fail();
 		} catch (IntermediateCodeGeneratorException e) {

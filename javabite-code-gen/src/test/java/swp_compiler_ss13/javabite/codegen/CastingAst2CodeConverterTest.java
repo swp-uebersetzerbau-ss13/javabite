@@ -121,10 +121,10 @@ public class CastingAst2CodeConverterTest {
 		try {
 			when(converter.icg.generateTempIdentifier(any(StructType.class)))
 					.thenReturn(
-							new IdentifierData("tmp", new StructType(null,
+							new IdentifierData("tmp", new StructType(
 									new Member[] { new Member("",
 											new LongType()) })));
-			converter.cast(new StructType(null, new Member[] { new Member("",
+			converter.cast(new StructType( new Member[] { new Member("",
 					new LongType()) }), new IdentifierData("test",
 					new LongType()));
 			fail();
@@ -178,10 +178,10 @@ public class CastingAst2CodeConverterTest {
 		try {
 			when(converter.icg.generateTempIdentifier(any(StructType.class)))
 					.thenReturn(
-							new IdentifierData("tmp", new StructType(null,
+							new IdentifierData("tmp", new StructType(
 									new Member[] { new Member("",
 											new DoubleType()) })));
-			converter.cast(new StructType(null, new Member[] { new Member("",
+			converter.cast(new StructType( new Member[] { new Member("",
 					new LongType()) }), new IdentifierData("test",
 					new DoubleType()));
 			fail();
@@ -235,10 +235,10 @@ public class CastingAst2CodeConverterTest {
 		try {
 			when(converter.icg.generateTempIdentifier(any(StructType.class)))
 					.thenReturn(
-							new IdentifierData("tmp", new StructType(null,
+							new IdentifierData("tmp", new StructType(
 									new Member[] { new Member("",
 											new BooleanType()) })));
-			converter.cast(new StructType(null, new Member[] { new Member("",
+			converter.cast(new StructType( new Member[] { new Member("",
 					new LongType()) }), new IdentifierData("test",
 					new BooleanType()));
 			fail();
@@ -302,10 +302,10 @@ public class CastingAst2CodeConverterTest {
 	  try {
 	   when(converter.icg.generateTempIdentifier(any(StructType.class)))
 	     .thenReturn(
-	       new IdentifierData("tmp", new StructType(null,
+	       new IdentifierData("tmp", new StructType(
 	         new Member[] { new Member("",
 	           new StringType(0l)) })));
-	   converter.cast(new StructType(null, new Member[] { new Member("",
+	   converter.cast(new StructType( new Member[] { new Member("",
 	     new LongType()) }), new IdentifierData("test",
 	     new StringType(0l)));
 	   fail();
@@ -333,7 +333,7 @@ public class CastingAst2CodeConverterTest {
 			when(converter.icg.generateTempIdentifier(any(LongType.class)))
 					.thenReturn(new IdentifierData("tmp", new LongType()));
 			converter.cast(new LongType(), new IdentifierData("test", 
-					new StructType(null, new Member[] { new Member("",
+					new StructType( new Member[] { new Member("",
 					new LongType()) })));
 		}catch (IntermediateCodeGeneratorException e){
 			
@@ -346,7 +346,7 @@ public class CastingAst2CodeConverterTest {
 			when(converter.icg.generateTempIdentifier(any(DoubleType.class)))
 					.thenReturn(new IdentifierData("tmp", new DoubleType()));
 			converter.cast(new LongType(), new IdentifierData("test", 
-					new StructType(null, new Member[] { new Member("",
+					new StructType( new Member[] { new Member("",
 					new LongType()) })));
 		}catch (IntermediateCodeGeneratorException e){
 			
@@ -359,7 +359,7 @@ public class CastingAst2CodeConverterTest {
 			when(converter.icg.generateTempIdentifier(any(StringType.class)))
 					.thenReturn(new IdentifierData("tmp", new StringType(0l)));
 			converter.cast(new StringType(0l), new IdentifierData("test",
-					new StructType(null, new Member[] { new Member("",
+					new StructType( new Member[] { new Member("",
 							new LongType()) })));
 			fail();
 		} catch (IntermediateCodeGeneratorException e) {
@@ -372,7 +372,7 @@ public class CastingAst2CodeConverterTest {
 			when(converter.icg.generateTempIdentifier(any(BooleanType.class)))
 					.thenReturn(new IdentifierData("tmp", new BooleanType()));
 			converter.cast(new StringType(0l), new IdentifierData("test",
-					new StructType(null, new Member[] { new Member("",
+					new StructType( new Member[] { new Member("",
 							new LongType()) })));
 			fail();
 		} catch (IntermediateCodeGeneratorException e) {
@@ -386,7 +386,7 @@ public class CastingAst2CodeConverterTest {
 					.thenReturn(new IdentifierData("tmp",
 							new ArrayType(new LongType(), 0)));
 			converter.cast(new StringType(0l), new IdentifierData("test",
-					new StructType(null, new Member[] { new Member("",
+					new StructType( new Member[] { new Member("",
 							new LongType()) })));
 			fail();
 		} catch (IntermediateCodeGeneratorException e) {
@@ -451,10 +451,10 @@ public class CastingAst2CodeConverterTest {
 	   try {
 		   when(converter.icg.generateTempIdentifier(any(StructType.class)))
 		     .thenReturn(
-		       new IdentifierData("tmp", new StructType(null,
+		       new IdentifierData("tmp", new StructType(
 		         new Member[] { new Member("",
 		           new BooleanType()) })));
-		   converter.cast(new StructType(null, new Member[] { new Member("",
+		   converter.cast(new StructType( new Member[] { new Member("",
 		     new LongType()) }), new IdentifierData("test",
 		     new ArrayType(new LongType(), 0)));
 		   fail();

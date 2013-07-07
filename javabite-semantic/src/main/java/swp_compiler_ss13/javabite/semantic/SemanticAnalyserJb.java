@@ -28,6 +28,7 @@ import swp_compiler_ss13.common.ast.nodes.IdentifierNode;
 import swp_compiler_ss13.common.ast.nodes.StatementNode;
 import swp_compiler_ss13.common.ast.nodes.binary.ArithmeticBinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.AssignmentNode;
+import swp_compiler_ss13.common.ast.nodes.binary.BinaryExpressionNode.BinaryOperator;
 import swp_compiler_ss13.common.ast.nodes.binary.DoWhileNode;
 import swp_compiler_ss13.common.ast.nodes.binary.LogicBinaryExpressionNode;
 import swp_compiler_ss13.common.ast.nodes.binary.RelationExpressionNode;
@@ -53,6 +54,7 @@ import swp_compiler_ss13.common.types.Type.Kind;
 import swp_compiler_ss13.common.types.derived.ArrayType;
 import swp_compiler_ss13.common.types.derived.Member;
 import swp_compiler_ss13.common.types.derived.StructType;
+import swp_compiler_ss13.javabite.ast.SymbolTableJb;
 import swp_compiler_ss13.javabite.semantic.attributes.ArithmeticAttribute;
 import swp_compiler_ss13.javabite.semantic.attributes.AttributingAttribute;
 import swp_compiler_ss13.javabite.semantic.attributes.BreakValidnessAttribute;
@@ -423,13 +425,6 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 	private void evalSynthesizedAttributes(ArithmeticUnaryExpressionNode n) {
 		if (is(n.getRightValue(), FLOAT, SYNTHESIZED)) {
 			set(n, FLOAT, SYNTHESIZED);
-			ValueAttribute val = get(n.getRightValue(), ValueAttribute.class,
-					SYNTHESIZED, true);
-			if (val != null) {
-				set(n, val.mul(new ValueAttribute(-1L)), SYNTHESIZED);
-				errorLog.reportWarning(ReportType.UNDEFINED, n.coverage(),
-						"expression can be simplified to " + val.getNumber());
-			}
 		} else if (is(n.getRightValue(), INTEGER, SYNTHESIZED)) {
 			set(n, INTEGER, SYNTHESIZED);
 		} else {
@@ -437,8 +432,18 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 					n.getRightValue(),
 					get(n.getRightValue(), ArithmeticAttribute.class,
 							SYNTHESIZED), INTEGER, FLOAT);
+
+			set(n, INTEGER, SYNTHESIZED);
 		}
-		set(n, INTEGER, SYNTHESIZED);
+		ValueAttribute val = get(n.getRightValue(), ValueAttribute.class,
+				SYNTHESIZED, true);
+		if (val != null) {
+			set(n, val.mul(new ValueAttribute(-1L)), SYNTHESIZED);
+			if (val.getNumber().doubleValue() < 0)
+				errorLog.reportWarning(ReportType.UNDEFINED, n.coverage(),
+						"expression can be simplified to " + val.getNumber());
+		}
+
 	}
 
 	private void evalInheritedAttributes(ArithmeticUnaryExpressionNode n) {
@@ -450,18 +455,31 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 	}
 
 	private void evalSynthesizedAttributes(ArrayIdentifierNode n) {
-		if (is(n.getIndexNode(), INTEGER, SYNTHESIZED)
-				|| is(n.getIndexNode(), INTEGER, SYNTHESIZED)) {
+		if (is(n.getIndexNode(), INTEGER, SYNTHESIZED)) {
 			Type type = get(n.getIdentifierNode(), Type.class, SYNTHESIZED);
+
 			if (type.getKind() != Kind.ARRAY) {
 				wrongType(n.getIdentifierNode(),
 						get(n.getIdentifierNode(), Type.class, SYNTHESIZED)
 								.getKind(), Type.Kind.ARRAY);
 				set(n, INTEGER, SYNTHESIZED);
 			} else {
+				ValueAttribute index_value = get(n.getIndexNode(),
+						ValueAttribute.class, SYNTHESIZED, true);
 				ArrayType arrType = (ArrayType) type;
 				set(n, arrType.getInnerType(), Type.class, SYNTHESIZED);
 				setAccordingToType(n, arrType.getInnerType());
+				if (index_value != null) {
+					if (index_value.getNumber().intValue() < 0
+							|| index_value.getNumber().intValue() >= arrType
+									.getLength()) {
+						errorLog.reportError(ReportType.INVALID_ARRAY_ACCESS, n
+								.getIndexNode().coverage(),
+								"Array index must be in range 0 inclusive to declared length exclusive( was "
+										+ index_value.getNumber().intValue()
+										+ ")");
+					}
+				}
 			}
 		} else {
 			wrongType(
@@ -488,12 +506,17 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 				ArithmeticAttribute.class, SYNTHESIZED);
 		if (a_expr.isNumeric() && a_id.isNumeric()) {
 			set(n, a_id, SYNTHESIZED);
+		} else if (a_id == ArithmeticAttribute.ARRAY
+				|| a_id == ArithmeticAttribute.STRUCT) {
+			// not valid
+			errorLog.reportError(ReportType.TYPE_MISMATCH, n.getLeftValue()
+					.coverage(), "assignment to non-primitives is not possible");
+			set(n, a_id, SYNTHESIZED);
 		} else if (a_expr == a_id) {
 			set(n, a_id, SYNTHESIZED);
-		} else if (a_id== STRING){
-			set(n, STRING,SYNTHESIZED);
-		}
-		else {
+		} else if (a_id == STRING) {
+			set(n, STRING, SYNTHESIZED);
+		} else {
 			wrongType(
 					n.getRightValue(),
 					get(n.getRightValue(), ArithmeticAttribute.class,
@@ -567,17 +590,19 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 	}
 
 	private void evalIntermediateAttributes(BlockNode n) {
+		SymbolTableJb newSymbolTable = new SymbolTableJb();
+		newSymbolTable.setParentSymbolTable(get(n, SymbolTable.class,
+				INHERITED, true));
+
 		for (ASTNode child : n.getChildren()) {
-			set(child, (SymbolTable) n.getSymbolTable(), SymbolTable.class,
-					INHERITED);
+			set(child, newSymbolTable, SymbolTable.class, INHERITED);
 		}
 
-		// we have to treat different it if it is the root node
+		// we have to treat it different if it is the root node
 		if (n.getParentNode() == null) {
 			set(n, NOT_IN_LOOP, INHERITED);
 		}
 
-		// all but the last statement is a valid return statement
 		for (ASTNode child : n.getStatementList()) {
 			copyAttributeFromTo(BreakValidnessAttribute.class, n, child,
 					INHERITED);
@@ -638,7 +663,10 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 		if (n.getStatementNodeOnFalse() != null) {
 			children.add(n.getStatementNodeOnFalse());
 		}
-		if (applyForAll(children, FLOW_INTERRUPT, SYNTHESIZED)) {
+		// if both logical ( conditional) discjunct stops flow -> flow is broken
+		// at this node
+		if (applyForAll(children, FLOW_INTERRUPT, SYNTHESIZED)
+				&& children.size() == 2) {
 			set(n, FLOW_INTERRUPT, SYNTHESIZED);
 		} else {
 			set(n, FLOW_CONTINUE, SYNTHESIZED);
@@ -646,7 +674,6 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 	}
 
 	private void evalInheritedAttributes(BranchNode n) {
-		// TODO: Implement
 	}
 
 	private void evalIntermediateAttributes(BreakNode n) {
@@ -655,19 +682,31 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 
 	private void evalSynthesizedAttributes(BreakNode n) {
 		set(n, FLOW_INTERRUPT, SYNTHESIZED);
+		if (!is(n, IN_LOOP, INHERITED)) {
+			errorLog.reportError(ReportType.INVALID_BREAK_POSITION,
+					n.coverage(),
+					"break-statement is just valid in a loop environment");
+		}
 	}
 
 	private void evalInheritedAttributes(BreakNode n) {
-		// TODO: Implement
+
 	}
 
 	private void evalIntermediateAttributes(DeclarationNode n) {
 		SymbolTable t = get(n, SymbolTable.class, INHERITED);
+		if (t.isDeclared(n.getIdentifier())) {
+			errorLog.reportError(
+					ReportType.DOUBLE_DECLARATION,
+					n.coverage(),
+					"Variable name \"" + n.getIdentifier()
+							+ "\" is already used ( declared as "
+							+ t.lookupType(n.getIdentifier()) + "" + ")");
+		}
 		t.insert(n.getIdentifier(), n.getType());
 	}
 
 	private void evalSynthesizedAttributes(DeclarationNode n) {
-		// TODO: Implement
 	}
 
 	private void evalInheritedAttributes(DeclarationNode n) {
@@ -689,7 +728,6 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 	}
 
 	private void evalInheritedAttributes(DoWhileNode n) {
-		// TODO: Implement
 	}
 
 	private void evalIntermediateAttributes(LiteralNode n) {
@@ -731,7 +769,6 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 	}
 
 	private void evalInheritedAttributes(LiteralNode n) {
-		// TODO: Implement
 	}
 
 	private void evalIntermediateAttributes(LogicBinaryExpressionNode n) {
@@ -755,7 +792,6 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 	}
 
 	private void evalInheritedAttributes(LogicBinaryExpressionNode n) {
-		// TODO: Implement
 	}
 
 	private void evalIntermediateAttributes(LogicUnaryExpressionNode n) {
@@ -772,7 +808,6 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 	}
 
 	private void evalInheritedAttributes(LogicUnaryExpressionNode n) {
-		// TODO: Implement
 	}
 
 	private void evalIntermediateAttributes(PrintNode n) {
@@ -780,11 +815,9 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 	}
 
 	private void evalSynthesizedAttributes(PrintNode n) {
-		// TODO: Implement
 	}
 
 	private void evalInheritedAttributes(PrintNode n) {
-		// TODO: Implement
 	}
 
 	private void evalIntermediateAttributes(RelationExpressionNode n) {
@@ -796,15 +829,30 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 				ArithmeticAttribute.class, SYNTHESIZED);
 		ArithmeticAttribute expr_right = get(n.getRightValue(),
 				ArithmeticAttribute.class, SYNTHESIZED);
-		if (!expr_left.isNumeric()) {
-			wrongType(n.getLeftValue(), expr_left, INTEGER,FLOAT);
-		} else if (!expr_right.isNumeric()) {
-			wrongType(n.getRightValue(), expr_right, INTEGER,FLOAT);
+		if (n.getOperator() == BinaryOperator.EQUAL
+				|| n.getOperator() == BinaryOperator.INEQUAL) {
+			// numeric or boolean possible
+
+			if (expr_left == BOOLEAN) {
+				if (expr_right != BOOLEAN)
+					wrongType(n.getRightValue(), BOOLEAN, expr_right);
+			}
+			if (expr_right == BOOLEAN) {
+				if (expr_left != BOOLEAN)
+					wrongType(n.getLeftValue(), BOOLEAN, expr_left);
+			}
+
+		} else {
+			// just numeric possible
+			if (!expr_left.isNumeric()) {
+				wrongType(n.getLeftValue(), expr_left, INTEGER, FLOAT);
+			} else if (!expr_right.isNumeric()) {
+				wrongType(n.getRightValue(), expr_right, INTEGER, FLOAT);
+			}
 		}
 	}
 
 	private void evalInheritedAttributes(ReturnNode n) {
-		// TODO: Implement
 	}
 
 	private void evalIntermediateAttributes(ReturnNode n) {
@@ -816,13 +864,15 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 		if (n.getRightValue() != null) {
 			IdentifierNode returnVal = n.getRightValue();
 			if (!is(returnVal, INTEGER, SYNTHESIZED)) {
-				wrongType(n.getRightValue(), get(n.getRightValue(),ArithmeticAttribute.class,SYNTHESIZED),INTEGER);
+				wrongType(
+						n.getRightValue(),
+						get(n.getRightValue(), ArithmeticAttribute.class,
+								SYNTHESIZED), INTEGER);
 			}
 		}
 	}
 
 	private void evalInheritedAttributes(RelationExpressionNode n) {
-		// TODO: Implement
 	}
 
 	private void evalIntermediateAttributes(StructIdentifierNode n) {
@@ -853,7 +903,6 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 	}
 
 	private void evalInheritedAttributes(StructIdentifierNode n) {
-		// TODO: Implement
 	}
 
 	private void evalIntermediateAttributes(WhileNode n) {
@@ -951,31 +1000,4 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 		set(to, get(from, attribute_clazz, fashion), fashion);
 	}
 
-	// ----------------------------------------------------------------------------------
-
-	/*
-	 * JUST FOR DIRTY TESTING public static void main(String[] args) throws
-	 * FileNotFoundException { File f = new
-	 * File("/Users/Till/Desktop/test.prog"); Lexer lex = new LexerJb();
-	 * System.out.println("build"); lex.setSourceStream(new FileInputStream(f));
-	 * ParserJb parser = new ParserJb(); parser.setLexer(lex); ReportLog
-	 * reportLog = new ReportLog() {
-	 * 
-	 * @Override public void reportWarning(ReportType type, List<Token> tokens,
-	 * String message) { System.err.println("warning");
-	 * System.err.println(type); System.err.println(tokens);
-	 * System.err.println(message);
-	 * 
-	 * }
-	 * 
-	 * @Override public void reportError(ReportType type, List<Token> tokens,
-	 * String message) { System.err.println("error"); System.err.println(type);
-	 * System.err.println(tokens); System.err.println(message);
-	 * 
-	 * } };
-	 * 
-	 * parser.setReportLog(reportLog); AST ast = parser.getParsedAST();
-	 * SemanticAnalyser sa = new MonolithicSemanticAnalyzer();
-	 * sa.setReportLog(reportLog); sa.analyse(ast); }
-	 */
 }

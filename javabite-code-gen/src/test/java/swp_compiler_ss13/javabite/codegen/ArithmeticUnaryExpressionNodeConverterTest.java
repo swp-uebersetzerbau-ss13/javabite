@@ -110,13 +110,11 @@ public class ArithmeticUnaryExpressionNodeConverterTest {
 			ArithmeticUnaryExpressionNode node = Mockito.mock(ArithmeticUnaryExpressionNode.class);
 			//verify(converter.icg).processNode(any(ArithmeticUnaryExpressionNode.class));
 			IdentifierData oldData = new IdentifierData("test", new StructType(
-					null,
 					new Member[] { new Member("",
 							new LongType()) }));
 			when(converter.icg.popIdentifierData()).thenReturn(oldData);
 			when(converter.icg.generateTempIdentifier(any(StructType.class)))
 			.thenReturn(new IdentifierData("tmp", new StructType(
-					null,
 					new Member[] { new Member("",
 							new LongType()) })));
 			when(node.getOperator()).thenReturn(UnaryOperator.MINUS);

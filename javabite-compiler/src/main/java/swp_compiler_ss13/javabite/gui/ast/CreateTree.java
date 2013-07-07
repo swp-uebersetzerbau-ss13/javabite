@@ -1,7 +1,9 @@
 package swp_compiler_ss13.javabite.gui.ast;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 
@@ -15,6 +17,8 @@ public class CreateTree {
 	mxGraph graph;
 	Map<Object, String> tooltips = new HashMap<Object, String>();
 	Queue<Object> toVisit_celledCopy;
+	List<String> strList= new ArrayList<String>();
+	List<Integer> intArray= new ArrayList<Integer>();
 	CreateTree(mxGraph graph){
 		this.graph=graph;	
 	}
@@ -74,6 +78,7 @@ public class CreateTree {
 		}
 		this.toVisit_celledCopy = toVisit_celled;
 		this.tooltips=createCell.tooltips;
+		intArray=createCell.intArray;
 	}
 
 }

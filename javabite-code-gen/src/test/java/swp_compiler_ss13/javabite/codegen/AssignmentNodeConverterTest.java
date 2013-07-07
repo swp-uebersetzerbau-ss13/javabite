@@ -161,7 +161,7 @@ public class AssignmentNodeConverterTest {
 
 			IdentifierData leftData = new IdentifierData("testLeft", new LongType());
 			when(converter.icg.popIdentifierData()).thenReturn(
-                    new IdentifierData("testRight", new StructType(null,
+                    new IdentifierData("testRight", new StructType(
                             new Member[] { new Member("",
                                     new DoubleType()) })) ,
                     leftData);
@@ -301,7 +301,7 @@ public class AssignmentNodeConverterTest {
 
 			IdentifierData leftData = new IdentifierData("testLeft", new DoubleType());
 			when(converter.icg.popIdentifierData()).thenReturn(
-                    new IdentifierData("testRight", new StructType(null,
+                    new IdentifierData("testRight", new StructType(
                             new Member[] { new Member("",
                                     new DoubleType()) })) ,
                     leftData);
@@ -438,7 +438,7 @@ public class AssignmentNodeConverterTest {
 
 			IdentifierData leftData = new IdentifierData("testLeft", new BooleanType());
 			when(converter.icg.popIdentifierData()).thenReturn(
-                    new IdentifierData("testRight", new ArrayType(new StructType(null,
+                    new IdentifierData("testRight", new ArrayType(new StructType(
                             new Member[] { new Member("",
                                     new DoubleType()) }), 0)), leftData);
 			IdentifierData tmp = new IdentifierData("tmp", new BooleanType());
@@ -576,7 +576,7 @@ public class AssignmentNodeConverterTest {
 
 			IdentifierData leftData = new IdentifierData("testLeft", new StringType(0l));
 			when(converter.icg.popIdentifierData()).thenReturn(
-                    new IdentifierData("testRight", new StructType(null,
+                    new IdentifierData("testRight", new StructType(
                             new Member[] { new Member("",
                                     new DoubleType()) })), leftData);
 			IdentifierData tmp = new IdentifierData("tmp", new StringType(0l));
@@ -689,7 +689,7 @@ public class AssignmentNodeConverterTest {
 
 			IdentifierData leftData = new IdentifierData("testLeft", new ArrayType(new LongType(), 0));
 			when(converter.icg.popIdentifierData()).thenReturn(
-                    new IdentifierData("testRight", new ArrayType(new StructType(null,
+                    new IdentifierData("testRight", new ArrayType(new StructType(
                             new Member[] { new Member("",
                                     new DoubleType()) }), 0)));
 			IdentifierData tmp = new IdentifierData("tmp", new ArrayType(new LongType(), 0));
@@ -719,11 +719,11 @@ public class AssignmentNodeConverterTest {
 		try {
 			AssignmentNode node = Mockito.mock(AssignmentNode.class);
 
-			IdentifierData leftData = new IdentifierData("testLeft", new StructType(null,
+			IdentifierData leftData = new IdentifierData("testLeft", new StructType(
                     new Member[] { new Member("",
                             new DoubleType()) }));
 			when(converter.icg.popIdentifierData()).thenReturn(
-                    new IdentifierData("testRight", new StructType(null,
+                    new IdentifierData("testRight", new StructType(
                             new Member[] { new Member("",
                                     new DoubleType()) })) ,
                     leftData);
@@ -742,13 +742,13 @@ public class AssignmentNodeConverterTest {
 		try {
 			AssignmentNode node = Mockito.mock(AssignmentNode.class);
 
-			IdentifierData leftData = new IdentifierData("testLeft", new StructType(null,
+			IdentifierData leftData = new IdentifierData("testLeft", new StructType(
                     new Member[] { new Member("",
                             new DoubleType()) }));
 			when(converter.icg.popIdentifierData()).thenReturn(
                     new IdentifierData("testRight", new LongType()) ,
                     leftData);
-			IdentifierData tmp = new IdentifierData("tmp", new StructType(null,
+			IdentifierData tmp = new IdentifierData("tmp", new StructType(
                     new Member[] { new Member("",
                             new DoubleType()) }));
 			when(converter.icg.generateTempIdentifier(any(StructType.class)))
@@ -768,13 +768,13 @@ public class AssignmentNodeConverterTest {
 		try {
 			AssignmentNode node = Mockito.mock(AssignmentNode.class);
 
-			IdentifierData leftData = new IdentifierData("testLeft", new StructType(null,
+			IdentifierData leftData = new IdentifierData("testLeft", new StructType(
                     new Member[] { new Member("",
                             new DoubleType()) }));
 			when(converter.icg.popIdentifierData()).thenReturn(
                     new IdentifierData("testRight", new DoubleType()) ,
                     leftData);
-			IdentifierData tmp = new IdentifierData("tmp", new StructType(null,
+			IdentifierData tmp = new IdentifierData("tmp", new StructType(
                     new Member[] { new Member("",
                             new DoubleType()) }));
 			when(converter.icg.generateTempIdentifier(any(StructType.class)))
@@ -794,13 +794,13 @@ public class AssignmentNodeConverterTest {
 		try {
 			AssignmentNode node = Mockito.mock(AssignmentNode.class);
 
-			IdentifierData leftData = new IdentifierData("testLeft", new StructType(null,
+			IdentifierData leftData = new IdentifierData("testLeft", new StructType(
                     new Member[] { new Member("",
                             new DoubleType()) }));
 			when(converter.icg.popIdentifierData()).thenReturn(
                     new IdentifierData("testRight", new BooleanType()) ,
                     leftData);
-			IdentifierData tmp = new IdentifierData("tmp", new StructType(null,
+			IdentifierData tmp = new IdentifierData("tmp", new StructType(
                     new Member[] { new Member("",
                             new DoubleType()) }));
 			when(converter.icg.generateTempIdentifier(any(StructType.class)))
@@ -820,13 +820,13 @@ public class AssignmentNodeConverterTest {
 		try {
 			AssignmentNode node = Mockito.mock(AssignmentNode.class);
 
-			IdentifierData leftData = new IdentifierData("testLeft", new StructType(null,
+			IdentifierData leftData = new IdentifierData("testLeft", new StructType(
                     new Member[] { new Member("",
                             new DoubleType()) }));
 			when(converter.icg.popIdentifierData()).thenReturn(
                     new IdentifierData("testRight", new StringType(0l)) ,
                     leftData);
-			IdentifierData tmp = new IdentifierData("tmp", new StructType(null,
+			IdentifierData tmp = new IdentifierData("tmp", new StructType(
                     new Member[] { new Member("",
                             new DoubleType()) }));
 			when(converter.icg.generateTempIdentifier(any(StructType.class)))
@@ -846,13 +846,13 @@ public class AssignmentNodeConverterTest {
 		try {
 			AssignmentNode node = Mockito.mock(AssignmentNode.class);
 
-			IdentifierData leftData = new IdentifierData("testLeft", new StructType(null,
+			IdentifierData leftData = new IdentifierData("testLeft", new StructType(
                     new Member[] { new Member("",
                             new DoubleType()) }));
 			when(converter.icg.popIdentifierData()).thenReturn(
                     new IdentifierData("testRight", new ArrayType(new LongType(), 0)) ,
                     leftData);
-			IdentifierData tmp = new IdentifierData("tmp", new StructType(null,
+			IdentifierData tmp = new IdentifierData("tmp", new StructType(
                     new Member[] { new Member("",
                             new DoubleType()) }));
 			when(converter.icg.generateTempIdentifier(any(StructType.class)))

@@ -149,10 +149,10 @@ public class DeclarationNodeConverterTest {
 		try{
 			DeclarationNode node = Mockito.mock(DeclarationNode.class);
 			node.setIdentifier("test");
-			node.setType(new StructType(null,
+			node.setType(new StructType(
                     new Member[] { new Member("",
                             new DoubleType()) }));
-			IdentifierData data = new IdentifierData("test", new StructType(null,
+			IdentifierData data = new IdentifierData("test", new StructType(
                     new Member[] { new Member("",
                             new DoubleType()) }));
 			when(converter.icg.generateIdentifierMapping(node.getIdentifier(), node.getType())).

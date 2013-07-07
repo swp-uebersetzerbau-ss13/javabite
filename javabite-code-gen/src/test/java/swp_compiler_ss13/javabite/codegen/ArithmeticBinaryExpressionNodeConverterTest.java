@@ -640,14 +640,14 @@ ArithmeticBinaryExpressionNodeConverter converter;
        
             when(converter.icg.popIdentifierData()).thenReturn(
                     new IdentifierData("test1", new StringType(0l)) ,
-                    new IdentifierData("test2", new StructType(null,
+                    new IdentifierData("test2", new StructType(
                             new Member[] { new Member("",
                                     new DoubleType()) })));
             IdentifierData tmp = new IdentifierData("tmp", new StringType(0l));
             when(converter.icg.generateTempIdentifier(any(StringType.class)))
             .thenReturn(tmp);
            
-    //        when(((CastingAst2CodeConverter) converter.icg).cast(new StringType(0l), new IdentifierData("test2", new StructType(null,
+    //        when(((CastingAst2CodeConverter) converter.icg).cast(new StringType(0l), new IdentifierData("test2", new StructType(
     //                new Member[] { new Member("",
     //                        new DoubleType()) }))))
     //        .thenReturn(new IdentifierData("castTemp", new StringType(0l)));
@@ -670,20 +670,20 @@ ArithmeticBinaryExpressionNodeConverter converter;
             ArithmeticBinaryExpressionNode node =  mock(ArithmeticBinaryExpressionNode.class);
        
             when(converter.icg.popIdentifierData()).thenReturn(
-                            new IdentifierData("test1", new StructType(null,
+                            new IdentifierData("test1", new StructType(
                             new Member[] { new Member("",
                                     new DoubleType()) })),
                             new IdentifierData("test2", new StringType(0l)));
-            IdentifierData tmp = new IdentifierData("tmp", new StructType(null,
+            IdentifierData tmp = new IdentifierData("tmp", new StructType(
                     new Member[] { new Member("",
                             new DoubleType()) }));
             when(converter.icg.generateTempIdentifier(any(StructType.class)))
             .thenReturn(tmp);
            
-//            when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(null,
+//            when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(
 //                    new Member[] { new Member("",
 //                            new DoubleType()) }), new IdentifierData("test2", new StringType(0l))))
-//            .thenReturn(new IdentifierData("castTemp", new StructType(null,
+//            .thenReturn(new IdentifierData("castTemp", new StructType(
 //                    new Member[] { new Member("",
 //                            new DoubleType()) })));
                
@@ -961,14 +961,14 @@ ArithmeticBinaryExpressionNodeConverter converter;
        
             when(converter.icg.popIdentifierData()).thenReturn(
                     new IdentifierData("test1", new StringType(0l)) ,
-                    new IdentifierData("test2", new StructType(null,
+                    new IdentifierData("test2", new StructType(
                             new Member[] { new Member("",
                                     new DoubleType()) })));
             IdentifierData tmp = new IdentifierData("tmp", new StringType(0l));
             when(converter.icg.generateTempIdentifier(any(StringType.class)))
             .thenReturn(tmp);
            
-    //        when(((CastingAst2CodeConverter) converter.icg).cast(new StringType(0l), new IdentifierData("test2", new StructType(null,
+    //        when(((CastingAst2CodeConverter) converter.icg).cast(new StringType(0l), new IdentifierData("test2", new StructType(
     //                new Member[] { new Member("",
     //                        new DoubleType()) }))))
     //        .thenReturn(new IdentifierData("castTemp", new StringType(0l)));
@@ -991,20 +991,20 @@ ArithmeticBinaryExpressionNodeConverter converter;
             ArithmeticBinaryExpressionNode node =  mock(ArithmeticBinaryExpressionNode.class);
        
             when(converter.icg.popIdentifierData()).thenReturn(
-                            new IdentifierData("test1", new StructType(null,
+                            new IdentifierData("test1", new StructType(
                             new Member[] { new Member("",
                                     new DoubleType()) })),
                             new IdentifierData("test2", new StringType(0l)));
-            IdentifierData tmp = new IdentifierData("tmp", new StructType(null,
+            IdentifierData tmp = new IdentifierData("tmp", new StructType(
                     new Member[] { new Member("",
                             new DoubleType()) }));
             when(converter.icg.generateTempIdentifier(any(StructType.class)))
             .thenReturn(tmp);
            
-    //        when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(null,
+    //        when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(
     //                new Member[] { new Member("",
     //                        new DoubleType()) }), new IdentifierData("test2", new StringType(0l))))
-    //        .thenReturn(new IdentifierData("castTemp", new StructType(null,
+    //        .thenReturn(new IdentifierData("castTemp", new StructType(
     //                new Member[] { new Member("",
     //                        new DoubleType()) })));
                
@@ -1286,14 +1286,14 @@ ArithmeticBinaryExpressionNodeConverter converter;
        
             when(converter.icg.popIdentifierData()).thenReturn(
                     new IdentifierData("test1", new StringType(0l)) ,
-                    new IdentifierData("test2", new StructType(null,
+                    new IdentifierData("test2", new StructType(
                             new Member[] { new Member("",
                                     new DoubleType()) })));
             IdentifierData tmp = new IdentifierData("tmp", new StringType(0l));
             when(converter.icg.generateTempIdentifier(any(StringType.class)))
             .thenReturn(tmp);
            
-        //        when(((CastingAst2CodeConverter) converter.icg).cast(new StringType(0l), new IdentifierData("test2", new StructType(null,
+        //        when(((CastingAst2CodeConverter) converter.icg).cast(new StringType(0l), new IdentifierData("test2", new StructType(
         //                new Member[] { new Member("",
         //                        new DoubleType()) }))))
         //        .thenReturn(new IdentifierData("castTemp", new StringType(0l)));
@@ -1315,20 +1315,20 @@ ArithmeticBinaryExpressionNodeConverter converter;
             ArithmeticBinaryExpressionNode node =  mock(ArithmeticBinaryExpressionNode.class);
        
             when(converter.icg.popIdentifierData()).thenReturn(
-                            new IdentifierData("test1", new StructType(null,
+                            new IdentifierData("test1", new StructType(
                             new Member[] { new Member("",
                                     new DoubleType()) })),
                             new IdentifierData("test2", new StringType(0l)));
-            IdentifierData tmp = new IdentifierData("tmp", new StructType(null,
+            IdentifierData tmp = new IdentifierData("tmp", new StructType(
                     new Member[] { new Member("",
                             new DoubleType()) }));
             when(converter.icg.generateTempIdentifier(any(StructType.class)))
             .thenReturn(tmp);
            
-//            when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(null,
+//            when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(
 //                    new Member[] { new Member("",
 //                            new DoubleType()) }), new IdentifierData("test2", new StringType(0l))))
-//            .thenReturn(new IdentifierData("castTemp", new StructType(null,
+//            .thenReturn(new IdentifierData("castTemp", new StructType(
 //                    new Member[] { new Member("",
 //                            new DoubleType()) })));
                
@@ -1607,14 +1607,14 @@ ArithmeticBinaryExpressionNodeConverter converter;
        
             when(converter.icg.popIdentifierData()).thenReturn(
                     new IdentifierData("test1", new StringType(0l)) ,
-                    new IdentifierData("test2", new StructType(null,
+                    new IdentifierData("test2", new StructType(
                             new Member[] { new Member("",
                                     new DoubleType()) })));
             IdentifierData tmp = new IdentifierData("tmp", new StringType(0l));
             when(converter.icg.generateTempIdentifier(any(StringType.class)))
             .thenReturn(tmp);
            
-//            when(((CastingAst2CodeConverter) converter.icg).cast(new StringType(0l), new IdentifierData("test2", new StructType(null,
+//            when(((CastingAst2CodeConverter) converter.icg).cast(new StringType(0l), new IdentifierData("test2", new StructType(
 //                    new Member[] { new Member("",
 //                            new DoubleType()) }))))
 //            .thenReturn(new IdentifierData("castTemp", new StringType(0l)));
@@ -1637,20 +1637,20 @@ ArithmeticBinaryExpressionNodeConverter converter;
             ArithmeticBinaryExpressionNode node =  mock(ArithmeticBinaryExpressionNode.class);
        
             when(converter.icg.popIdentifierData()).thenReturn(
-                            new IdentifierData("test1", new StructType(null,
+                            new IdentifierData("test1", new StructType(
                             new Member[] { new Member("",
                                     new DoubleType()) })),
                             new IdentifierData("test2", new StringType(0l)));
-            IdentifierData tmp = new IdentifierData("tmp", new StructType(null,
+            IdentifierData tmp = new IdentifierData("tmp", new StructType(
                     new Member[] { new Member("",
                             new DoubleType()) }));
             when(converter.icg.generateTempIdentifier(any(StructType.class)))
             .thenReturn(tmp);
            
-//            when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(null,
+//            when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(
 //                    new Member[] { new Member("",
 //                            new DoubleType()) }), new IdentifierData("test2", new StringType(0l))))
-//            .thenReturn(new IdentifierData("castTemp", new StructType(null,
+//            .thenReturn(new IdentifierData("castTemp", new StructType(
 //                    new Member[] { new Member("",
 //                            new DoubleType()) })));
                
@@ -1920,11 +1920,10 @@ ArithmeticBinaryExpressionNodeConverter converter;
            
             when(converter.icg.popIdentifierData()).thenReturn(
                     new IdentifierData("test1", new StructType(
-                            null,
                             new Member[] { new Member("",
                                     new LongType())})),
                     new IdentifierData("test2", new BooleanType()));
-            IdentifierData tmp = new IdentifierData("tmp", new StructType(null,
+            IdentifierData tmp = new IdentifierData("tmp", new StructType(
                     new Member[] { new Member("",
                             new LongType())}));
             when(converter.icg.generateTempIdentifier(any(BooleanType.class)))
@@ -1951,11 +1950,9 @@ ArithmeticBinaryExpressionNodeConverter converter;
             when(converter.icg.popIdentifierData()).thenReturn(
                     new IdentifierData("test2", new BooleanType())); ///TODO
                     new IdentifierData("test1", new StructType(
-                            null,
                             new Member[] { new Member("",
                                     new LongType())}));
             IdentifierData tmp = new IdentifierData("tmp", new StructType(
-                    null,
                     new Member[] { new Member("",
                             new LongType())}));
             when(converter.icg.generateTempIdentifier(any(BooleanType.class)))
@@ -2167,11 +2164,10 @@ ArithmeticBinaryExpressionNodeConverter converter;
                        
             when(converter.icg.popIdentifierData()).thenReturn(
                     new IdentifierData("test1", new StructType(
-                            null,
                             new Member[] { new Member("",
                             new LongType())})),
                             new IdentifierData("test2", new BooleanType()));
-                    IdentifierData tmp = new IdentifierData("tmp", new StructType(null,
+                    IdentifierData tmp = new IdentifierData("tmp", new StructType(
                             new Member[] { new Member("",
                             new LongType())}));
             when(converter.icg.generateTempIdentifier(any(BooleanType.class)))
@@ -2198,7 +2194,6 @@ ArithmeticBinaryExpressionNodeConverter converter;
             when(converter.icg.popIdentifierData()).thenReturn(
                     new IdentifierData("test2", new BooleanType())); ///TODO
                     new IdentifierData("test1", new StructType(
-                            null,
                                     new Member[] { new Member("",
                                             new LongType())}));
             IdentifierData tmp = new IdentifierData("tmp", new BooleanType());
@@ -2408,12 +2403,10 @@ ArithmeticBinaryExpressionNodeConverter converter;
                        
             when(converter.icg.popIdentifierData()).thenReturn(
                     new IdentifierData("test1", new StructType(
-                            null,
                             new Member[] { new Member("",
                                     new LongType())})),
                     new IdentifierData("test2", new BooleanType()));
             IdentifierData tmp = new IdentifierData("tmp", new StructType(
-                    null,
                     new Member[] { new Member("",
                             new LongType())}));
             when(converter.icg.generateTempIdentifier(any(BooleanType.class)))
@@ -2440,7 +2433,6 @@ ArithmeticBinaryExpressionNodeConverter converter;
             when(converter.icg.popIdentifierData()).thenReturn(
                     new IdentifierData("test2", new BooleanType()));
                     new IdentifierData("test1", new StructType(
-                            null,
                             new Member[] { new Member("",
                                     new LongType())}));
             IdentifierData tmp = new IdentifierData("tmp", new BooleanType());
@@ -2649,12 +2641,10 @@ ArithmeticBinaryExpressionNodeConverter converter;
            
             when(converter.icg.popIdentifierData()).thenReturn(
                     new IdentifierData("test1", new StructType(
-                            null,
                             new Member[] { new Member("",
                                     new LongType())})),
                     new IdentifierData("test2", new BooleanType()));
             IdentifierData tmp = new IdentifierData("tmp", new StructType(
-                    null,
                     new Member[] { new Member("",
                             new LongType())}));
             when(converter.icg.generateTempIdentifier(any(BooleanType.class)))
@@ -2682,7 +2672,6 @@ ArithmeticBinaryExpressionNodeConverter converter;
             when(converter.icg.popIdentifierData()).thenReturn(
                     new IdentifierData("test2", new BooleanType())); ///TODO
                     new IdentifierData("test1", new StructType(
-                            null,
                             new Member[] { new Member("",
                                     new LongType())}));
             IdentifierData tmp = new IdentifierData("tmp", new BooleanType());
@@ -2724,7 +2713,6 @@ ArithmeticBinaryExpressionNodeConverter converter;
            
             when(converter.icg.popIdentifierData()).thenReturn(
                     new IdentifierData("test1", new StructType(
-                            null,
                             new Member[] { new Member("",
                                     new LongType()) })),
                     new IdentifierData("test2", new LongType()));
@@ -2732,7 +2720,7 @@ ArithmeticBinaryExpressionNodeConverter converter;
             when(converter.icg.generateTempIdentifier(any(LongType.class)))
             .thenReturn(tmp);
            
-//            when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(null,
+//            when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(
 //                    new Member[] { new Member("",
 //                            new DoubleType()) }), new IdentifierData("test2", new LongType())))
 //            .thenReturn(new IdentifierData("castTemp", new LongType()));
@@ -2761,7 +2749,6 @@ ArithmeticBinaryExpressionNodeConverter converter;
                 when(converter.icg.popIdentifierData()).thenReturn(
                         new IdentifierData("test2", new LongType()),
                         new IdentifierData("test1", new StructType(
-                                null,
                                 new Member[] { new Member("",
                                         new LongType()) })));
                        
@@ -2769,7 +2756,7 @@ ArithmeticBinaryExpressionNodeConverter converter;
                 when(converter.icg.generateTempIdentifier(any(LongType.class)))
                 .thenReturn(tmp);
                
-//                when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(null,
+//                when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(
 //                        new Member[] { new Member("",
 //                                new DoubleType()) }), new IdentifierData("test2", new LongType())))
 //                .thenReturn(new IdentifierData("castTemp", new LongType()));
@@ -2795,7 +2782,6 @@ ArithmeticBinaryExpressionNodeConverter converter;
            
             when(converter.icg.popIdentifierData()).thenReturn(
                     new IdentifierData("test1", new StructType(
-                            null,
                             new Member[] { new Member("",
                                     new LongType()) })),
                     new IdentifierData("test2", new LongType()));
@@ -2803,7 +2789,7 @@ ArithmeticBinaryExpressionNodeConverter converter;
             when(converter.icg.generateTempIdentifier(any(LongType.class)))
             .thenReturn(tmp);
            
-//            when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(null,
+//            when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(
 //                    new Member[] { new Member("",
 //                            new DoubleType()) }), new IdentifierData("test2", new LongType())))
 //            .thenReturn(new IdentifierData("castTemp", new LongType()));
@@ -2831,7 +2817,6 @@ ArithmeticBinaryExpressionNodeConverter converter;
                     when(converter.icg.popIdentifierData()).thenReturn(
                             new IdentifierData("test2", new DoubleType()),
                             new IdentifierData("test1", new StructType(
-                                    null,
                                     new Member[] { new Member("",
                                             new LongType()) })));
                            
@@ -2839,7 +2824,7 @@ ArithmeticBinaryExpressionNodeConverter converter;
                     when(converter.icg.generateTempIdentifier(any(LongType.class)))
                     .thenReturn(tmp);
                    
-//                    when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(null,
+//                    when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(
 //                            new Member[] { new Member("",
 //                                    new DoubleType()) }), new IdentifierData("test2", new LongType())))
 //                    .thenReturn(new IdentifierData("castTemp", new LongType()));
@@ -2866,7 +2851,6 @@ ArithmeticBinaryExpressionNodeConverter converter;
            
             when(converter.icg.popIdentifierData()).thenReturn(
                     new IdentifierData("test1", new StructType(
-                            null,
                             new Member[] { new Member("",
                                     new LongType()) })),
                     new IdentifierData("test2", new LongType()));
@@ -2874,7 +2858,7 @@ ArithmeticBinaryExpressionNodeConverter converter;
             when(converter.icg.generateTempIdentifier(any(LongType.class)))
             .thenReturn(tmp);
            
-//            when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(null,
+//            when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(
 //                    new Member[] { new Member("",
 //                            new DoubleType()) }), new IdentifierData("test2", new ArrayType(new LongType(), 0))))
 //            .thenReturn(new IdentifierData("castTemp", new LongType()));
@@ -2903,7 +2887,6 @@ ArithmeticBinaryExpressionNodeConverter converter;
                 when(converter.icg.popIdentifierData()).thenReturn(
                         new IdentifierData("test2", new ArrayType(new LongType(), 0)),
                         new IdentifierData("test1", new StructType(
-                                null,
                                 new Member[] { new Member("",
                                         new LongType()) })));
                        
@@ -2911,7 +2894,7 @@ ArithmeticBinaryExpressionNodeConverter converter;
                 when(converter.icg.generateTempIdentifier(any(LongType.class)))
                 .thenReturn(tmp);
                
-//                when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(null,
+//                when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(
 //                        new Member[] { new Member("",
 //                                new DoubleType()) }), new IdentifierData("test2", new LongType())))
 //                .thenReturn(new IdentifierData("castTemp", new LongType()));
@@ -2939,7 +2922,6 @@ ArithmeticBinaryExpressionNodeConverter converter;
            
             when(converter.icg.popIdentifierData()).thenReturn(
                     new IdentifierData("test1", new StructType(
-                            null,
                             new Member[] { new Member("",
                                     new LongType()) })),
                     new IdentifierData("test2", new LongType()));
@@ -2947,7 +2929,7 @@ ArithmeticBinaryExpressionNodeConverter converter;
             when(converter.icg.generateTempIdentifier(any(LongType.class)))
             .thenReturn(tmp);
            
-//            when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(null,
+//            when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(
 //                    new Member[] { new Member("",
 //                            new DoubleType()) }), new IdentifierData("test2", new ArrayType(new LongType(), 0))))
 //            .thenReturn(new IdentifierData("castTemp", new LongType()));
@@ -2975,7 +2957,6 @@ ArithmeticBinaryExpressionNodeConverter converter;
            
             when(converter.icg.popIdentifierData()).thenReturn(
                     new IdentifierData("test1", new StructType(
-                            null,
                             new Member[] { new Member("",
                                     new LongType()) })),
                     new IdentifierData("test2", new LongType()));
@@ -2983,7 +2964,7 @@ ArithmeticBinaryExpressionNodeConverter converter;
             when(converter.icg.generateTempIdentifier(any(LongType.class)))
             .thenReturn(tmp);
            
-//                when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(null,
+//                when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(
 //                        new Member[] { new Member("",
 //                                new DoubleType()) }), new IdentifierData("test2", new LongType())))
 //                .thenReturn(new IdentifierData("castTemp", new LongType()));
@@ -3012,7 +2993,6 @@ ArithmeticBinaryExpressionNodeConverter converter;
                 when(converter.icg.popIdentifierData()).thenReturn(
                         new IdentifierData("test2", new LongType()),
                         new IdentifierData("test1", new StructType(
-                                null,
                                 new Member[] { new Member("",
                                         new LongType()) })));
                        
@@ -3020,7 +3000,7 @@ ArithmeticBinaryExpressionNodeConverter converter;
                 when(converter.icg.generateTempIdentifier(any(LongType.class)))
                 .thenReturn(tmp);
                
-//                    when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(null,
+//                    when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(
 //                            new Member[] { new Member("",
 //                                    new DoubleType()) }), new IdentifierData("test2", new LongType())))
 //                    .thenReturn(new IdentifierData("castTemp", new LongType()));
@@ -3046,7 +3026,6 @@ ArithmeticBinaryExpressionNodeConverter converter;
        
         when(converter.icg.popIdentifierData()).thenReturn(
                 new IdentifierData("test1", new StructType(
-                        null,
                         new Member[] { new Member("",
                                 new LongType()) })),
                 new IdentifierData("test2", new LongType()));
@@ -3054,7 +3033,7 @@ ArithmeticBinaryExpressionNodeConverter converter;
         when(converter.icg.generateTempIdentifier(any(LongType.class)))
         .thenReturn(tmp);
        
-//            when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(null,
+//            when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(
 //                    new Member[] { new Member("",
 //                            new DoubleType()) }), new IdentifierData("test2", new LongType())))
 //            .thenReturn(new IdentifierData("castTemp", new LongType()));
@@ -3082,7 +3061,6 @@ ArithmeticBinaryExpressionNodeConverter converter;
             when(converter.icg.popIdentifierData()).thenReturn(
                     new IdentifierData("test2", new DoubleType()),
                     new IdentifierData("test1", new StructType(
-                            null,
                             new Member[] { new Member("",
                                     new LongType()) })));
                    
@@ -3090,7 +3068,7 @@ ArithmeticBinaryExpressionNodeConverter converter;
             when(converter.icg.generateTempIdentifier(any(LongType.class)))
             .thenReturn(tmp);
            
-//                        when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(null,
+//                        when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(
 //                                new Member[] { new Member("",
 //                                        new DoubleType()) }), new IdentifierData("test2", new LongType())))
 //                        .thenReturn(new IdentifierData("castTemp", new LongType()));
@@ -3117,7 +3095,6 @@ try {
    
     when(converter.icg.popIdentifierData()).thenReturn(
             new IdentifierData("test1", new StructType(
-                    null,
                     new Member[] { new Member("",
                             new LongType()) })),
             new IdentifierData("test2", new LongType()));
@@ -3125,7 +3102,7 @@ try {
     when(converter.icg.generateTempIdentifier(any(LongType.class)))
     .thenReturn(tmp);
    
-//                when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(null,
+//                when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(
 //                        new Member[] { new Member("",
 //                                new DoubleType()) }), new IdentifierData("test2", new ArrayType(new LongType(), 0))))
 //                .thenReturn(new IdentifierData("castTemp", new LongType()));
@@ -3155,7 +3132,6 @@ try {
     when(converter.icg.popIdentifierData()).thenReturn(
             new IdentifierData("test2", new ArrayType(new LongType(), 0)),
             new IdentifierData("test1", new StructType(
-                    null,
                     new Member[] { new Member("",
                             new LongType()) })));
            
@@ -3163,7 +3139,7 @@ try {
     when(converter.icg.generateTempIdentifier(any(LongType.class)))
     .thenReturn(tmp);
    
-//                when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(null,
+//                when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(
 //                        new Member[] { new Member("",
 //                                new DoubleType()) }), new IdentifierData("test2", new LongType())))
 //                .thenReturn(new IdentifierData("castTemp", new LongType()));
@@ -3190,7 +3166,6 @@ public void testArithmeticBinaryExpressionStructStruct_ADD() throws Intermediate
        
         when(converter.icg.popIdentifierData()).thenReturn(
                 new IdentifierData("test1", new StructType(
-                        null,
                         new Member[] { new Member("",
                                 new LongType()) })),
                 new IdentifierData("test2", new LongType()));
@@ -3198,7 +3173,7 @@ public void testArithmeticBinaryExpressionStructStruct_ADD() throws Intermediate
         when(converter.icg.generateTempIdentifier(any(LongType.class)))
         .thenReturn(tmp);
        
-//                    when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(null,
+//                    when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(
 //                            new Member[] { new Member("",
 //                                    new DoubleType()) }), new IdentifierData("test2", new ArrayType(new LongType(), 0))))
 //                    .thenReturn(new IdentifierData("castTemp", new LongType()));
@@ -3227,7 +3202,6 @@ try {
    
     when(converter.icg.popIdentifierData()).thenReturn(
             new IdentifierData("test1", new StructType(
-                    null,
                     new Member[] { new Member("",
                             new LongType()) })),
             new IdentifierData("test2", new LongType()));
@@ -3235,7 +3209,7 @@ try {
     when(converter.icg.generateTempIdentifier(any(LongType.class)))
     .thenReturn(tmp);
    
-//                when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(null,
+//                when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(
 //                        new Member[] { new Member("",
 //                                new DoubleType()) }), new IdentifierData("test2", new LongType())))
 //                .thenReturn(new IdentifierData("castTemp", new LongType()));
@@ -3264,7 +3238,6 @@ catch (IntermediateCodeGeneratorException e) {
             when(converter.icg.popIdentifierData()).thenReturn(
                     new IdentifierData("test2", new LongType()),
                     new IdentifierData("test1", new StructType(
-                            null,
                             new Member[] { new Member("",
                                     new LongType()) })));
                    
@@ -3272,7 +3245,7 @@ catch (IntermediateCodeGeneratorException e) {
             when(converter.icg.generateTempIdentifier(any(LongType.class)))
             .thenReturn(tmp);
            
-//                        when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(null,
+//                        when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(
 //                                new Member[] { new Member("",
 //                                        new DoubleType()) }), new IdentifierData("test2", new LongType())))
 //                        .thenReturn(new IdentifierData("castTemp", new LongType()));
@@ -3300,7 +3273,6 @@ public void testArithmeticBinaryExpressionStructDouble_MUL() throws Intermediate
        
         when(converter.icg.popIdentifierData()).thenReturn(
                 new IdentifierData("test1", new StructType(
-                        null,
                         new Member[] { new Member("",
                                 new LongType()) })),
                 new IdentifierData("test2", new LongType()));
@@ -3308,7 +3280,7 @@ public void testArithmeticBinaryExpressionStructDouble_MUL() throws Intermediate
         when(converter.icg.generateTempIdentifier(any(LongType.class)))
         .thenReturn(tmp);
        
-//                    when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(null,
+//                    when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(
 //                            new Member[] { new Member("",
 //                                    new DoubleType()) }), new IdentifierData("test2", new LongType())))
 //                    .thenReturn(new IdentifierData("castTemp", new LongType()));
@@ -3336,7 +3308,6 @@ public void testArithmeticBinaryExpressionStructDouble_MUL() throws Intermediate
             when(converter.icg.popIdentifierData()).thenReturn(
                     new IdentifierData("test2", new DoubleType()),
                     new IdentifierData("test1", new StructType(
-                            null,
                             new Member[] { new Member("",
                                     new LongType()) })));
                    
@@ -3344,7 +3315,7 @@ public void testArithmeticBinaryExpressionStructDouble_MUL() throws Intermediate
             when(converter.icg.generateTempIdentifier(any(LongType.class)))
             .thenReturn(tmp);
            
-//                        when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(null,
+//                        when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(
 //                                new Member[] { new Member("",
 //                                        new DoubleType()) }), new IdentifierData("test2", new LongType())))
 //                        .thenReturn(new IdentifierData("castTemp", new LongType()));
@@ -3371,7 +3342,6 @@ public void testArithmeticBinaryExpressionStructDouble_MUL() throws Intermediate
            
             when(converter.icg.popIdentifierData()).thenReturn(
                     new IdentifierData("test1", new StructType(
-                            null,
                             new Member[] { new Member("",
                                     new LongType()) })),
                     new IdentifierData("test2", new LongType()));
@@ -3379,7 +3349,7 @@ public void testArithmeticBinaryExpressionStructDouble_MUL() throws Intermediate
             when(converter.icg.generateTempIdentifier(any(LongType.class)))
             .thenReturn(tmp);
            
-//                        when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(null,
+//                        when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(
 //                                new Member[] { new Member("",
 //                                        new DoubleType()) }), new IdentifierData("test2", new ArrayType(new LongType(), 0))))
 //                        .thenReturn(new IdentifierData("castTemp", new LongType()));
@@ -3407,7 +3377,6 @@ public void testArithmeticBinaryExpressionStructDouble_MUL() throws Intermediate
             when(converter.icg.popIdentifierData()).thenReturn(
                     new IdentifierData("test2", new ArrayType(new LongType(), 0)),
                     new IdentifierData("test1", new StructType(
-                            null,
                             new Member[] { new Member("",
                                     new LongType()) })));
                    
@@ -3415,7 +3384,7 @@ public void testArithmeticBinaryExpressionStructDouble_MUL() throws Intermediate
             when(converter.icg.generateTempIdentifier(any(LongType.class)))
             .thenReturn(tmp);
            
-//                        when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(null,
+//                        when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(
 //                                new Member[] { new Member("",
 //                                        new DoubleType()) }), new IdentifierData("test2", new LongType())))
 //                        .thenReturn(new IdentifierData("castTemp", new LongType()));
@@ -3444,7 +3413,6 @@ public void testArithmeticBinaryExpressionStructDouble_MUL() throws Intermediate
            
             when(converter.icg.popIdentifierData()).thenReturn(
                     new IdentifierData("test1", new StructType(
-                            null,
                             new Member[] { new Member("",
                                     new LongType()) })),
                     new IdentifierData("test2", new LongType()));
@@ -3452,7 +3420,7 @@ public void testArithmeticBinaryExpressionStructDouble_MUL() throws Intermediate
             when(converter.icg.generateTempIdentifier(any(LongType.class)))
             .thenReturn(tmp);
            
-//                        when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(null,
+//                        when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(
 //                                new Member[] { new Member("",
 //                                        new DoubleType()) }), new IdentifierData("test2", new ArrayType(new LongType(), 0))))
 //                        .thenReturn(new IdentifierData("castTemp", new LongType()));
@@ -3480,7 +3448,6 @@ public void testArithmeticBinaryExpressionStructDouble_MUL() throws Intermediate
            
             when(converter.icg.popIdentifierData()).thenReturn(
                     new IdentifierData("test1", new StructType(
-                            null,
                             new Member[] { new Member("",
                                     new LongType()) })),
                     new IdentifierData("test2", new LongType()));
@@ -3488,7 +3455,7 @@ public void testArithmeticBinaryExpressionStructDouble_MUL() throws Intermediate
             when(converter.icg.generateTempIdentifier(any(LongType.class)))
             .thenReturn(tmp);
            
-//                        when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(null,
+//                        when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(
 //                                new Member[] { new Member("",
 //                                        new DoubleType()) }), new IdentifierData("test2", new LongType())))
 //                        .thenReturn(new IdentifierData("castTemp", new LongType()));
@@ -3517,7 +3484,6 @@ public void testArithmeticBinaryExpressionStructDouble_MUL() throws Intermediate
                 when(converter.icg.popIdentifierData()).thenReturn(
                         new IdentifierData("test2", new LongType()),
                         new IdentifierData("test1", new StructType(
-                                null,
                                 new Member[] { new Member("",
                                         new LongType()) })));
                        
@@ -3525,7 +3491,7 @@ public void testArithmeticBinaryExpressionStructDouble_MUL() throws Intermediate
                 when(converter.icg.generateTempIdentifier(any(LongType.class)))
                 .thenReturn(tmp);
                
-//                            when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(null,
+//                            when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(
 //                                    new Member[] { new Member("",
 //                                            new DoubleType()) }), new IdentifierData("test2", new LongType())))
 //                            .thenReturn(new IdentifierData("castTemp", new LongType()));
@@ -3552,7 +3518,6 @@ public void testArithmeticBinaryExpressionStructDouble_MUL() throws Intermediate
            
             when(converter.icg.popIdentifierData()).thenReturn(
                     new IdentifierData("test1", new StructType(
-                            null,
                             new Member[] { new Member("",
                                     new LongType()) })),
                     new IdentifierData("test2", new LongType()));
@@ -3560,7 +3525,7 @@ public void testArithmeticBinaryExpressionStructDouble_MUL() throws Intermediate
             when(converter.icg.generateTempIdentifier(any(LongType.class)))
             .thenReturn(tmp);
            
-//                        when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(null,
+//                        when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(
 //                                new Member[] { new Member("",
 //                                        new DoubleType()) }), new IdentifierData("test2", new LongType())))
 //                        .thenReturn(new IdentifierData("castTemp", new LongType()));
@@ -3588,7 +3553,6 @@ public void testArithmeticBinaryExpressionStructDouble_MUL() throws Intermediate
                     when(converter.icg.popIdentifierData()).thenReturn(
                             new IdentifierData("test2", new DoubleType()),
                             new IdentifierData("test1", new StructType(
-                                    null,
                                     new Member[] { new Member("",
                                             new LongType()) })));
                            
@@ -3596,7 +3560,7 @@ public void testArithmeticBinaryExpressionStructDouble_MUL() throws Intermediate
                     when(converter.icg.generateTempIdentifier(any(LongType.class)))
                     .thenReturn(tmp);
                    
-//                                when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(null,
+//                                when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(
 //                                        new Member[] { new Member("",
 //                                                new DoubleType()) }), new IdentifierData("test2", new LongType())))
 //                                .thenReturn(new IdentifierData("castTemp", new LongType()));
@@ -3623,7 +3587,6 @@ public void testArithmeticBinaryExpressionStructDouble_MUL() throws Intermediate
                
                 when(converter.icg.popIdentifierData()).thenReturn(
                         new IdentifierData("test1", new StructType(
-                                null,
                                 new Member[] { new Member("",
                                         new LongType()) })),
                         new IdentifierData("test2", new LongType()));
@@ -3631,7 +3594,7 @@ public void testArithmeticBinaryExpressionStructDouble_MUL() throws Intermediate
                 when(converter.icg.generateTempIdentifier(any(LongType.class)))
                 .thenReturn(tmp);
                
-//                            when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(null,
+//                            when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(
 //                                    new Member[] { new Member("",
 //                                            new DoubleType()) }), new IdentifierData("test2", new ArrayType(new LongType(), 0))))
 //                            .thenReturn(new IdentifierData("castTemp", new LongType()));
@@ -3659,7 +3622,6 @@ public void testArithmeticBinaryExpressionStructDouble_MUL() throws Intermediate
                 when(converter.icg.popIdentifierData()).thenReturn(
                         new IdentifierData("test2", new ArrayType(new LongType(), 0)),
                         new IdentifierData("test1", new StructType(
-                                null,
                                 new Member[] { new Member("",
                                         new LongType()) })));
                        
@@ -3667,7 +3629,7 @@ public void testArithmeticBinaryExpressionStructDouble_MUL() throws Intermediate
                 when(converter.icg.generateTempIdentifier(any(LongType.class)))
                 .thenReturn(tmp);
                
-//                            when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(null,
+//                            when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(
 //                                    new Member[] { new Member("",
 //                                            new DoubleType()) }), new IdentifierData("test2", new LongType())))
 //                            .thenReturn(new IdentifierData("castTemp", new LongType()));
@@ -3694,7 +3656,6 @@ public void testArithmeticBinaryExpressionStructDouble_MUL() throws Intermediate
                
                 when(converter.icg.popIdentifierData()).thenReturn(
                         new IdentifierData("test1", new StructType(
-                                null,
                                 new Member[] { new Member("",
                                         new LongType()) })),
                         new IdentifierData("test2", new LongType()));
@@ -3702,7 +3663,7 @@ public void testArithmeticBinaryExpressionStructDouble_MUL() throws Intermediate
                 when(converter.icg.generateTempIdentifier(any(LongType.class)))
                 .thenReturn(tmp);
                
-//                            when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(null,
+//                            when(((CastingAst2CodeConverter) converter.icg).cast(new StructType(
 //                                    new Member[] { new Member("",
 //                                            new DoubleType()) }), new IdentifierData("test2", new ArrayType(new LongType(), 0))))
 //                            .thenReturn(new IdentifierData("castTemp", new LongType()));
