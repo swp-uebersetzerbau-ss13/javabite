@@ -16,7 +16,7 @@ public class CastLongAssignedToDoubleArrayTest extends AbstractCompilerTest {
 
 	@Override
 	public String getOutput() {
-		return "123.0";
+		return "3.0";
 	}
 
 	@Override
