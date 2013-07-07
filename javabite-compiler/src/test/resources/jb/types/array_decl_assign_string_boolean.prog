@@ -3,3 +3,4 @@
 
 string[3][3] a;
 a[0][0] = true;
+print a[0][0];

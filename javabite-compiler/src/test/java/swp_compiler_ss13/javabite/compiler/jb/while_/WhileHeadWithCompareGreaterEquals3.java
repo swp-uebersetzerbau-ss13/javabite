@@ -21,7 +21,7 @@ public class WhileHeadWithCompareGreaterEquals3 extends AbstractCompilerTest{
 
 	@Override
 	public Integer getResultValue() {
-		return 0;
+		return 1;
 	}
 
 	@Override

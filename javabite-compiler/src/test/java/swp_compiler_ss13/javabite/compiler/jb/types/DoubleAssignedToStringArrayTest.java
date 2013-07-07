@@ -7,27 +7,26 @@ import java.util.List;
 import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.javabite.compiler.AbstractCompilerTest;
 
-public class ErrorLongAssignedToStringArrayTest extends AbstractCompilerTest {
+public class DoubleAssignedToStringArrayTest extends AbstractCompilerTest {
 
 	@Override
 	public String getProgFile() {
-		return "jb" + File.separator + "types" + File.separator + "error_type_mismatch_array_decl_assign_string_long.prog";
+		return "jb" + File.separator + "types" + File.separator + "array_decl_assign_string_double.prog";
 	}
 
 	@Override
 	public String getOutput() {
-		return "";
+		return "100.23";
 	}
 
 	@Override
 	public Integer getResultValue() {
-		return null;
+		return 0;
 	}
 
 	@Override
 	public List<ReportType> getErrorList() {
 		List<ReportType> errors = new ArrayList<>();
-		errors.add(ReportType.TYPE_MISMATCH);
 		return errors;
 	}
 

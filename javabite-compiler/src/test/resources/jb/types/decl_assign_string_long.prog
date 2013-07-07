@@ -3,3 +3,4 @@
 
 string b;
 b = 100;
+print b;

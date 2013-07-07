@@ -18,7 +18,7 @@ public class MatrixMultiplicationTest extends AbstractCompilerTest {
 
     @Override
     public String getOutput() {
-        return "14 46\n28 92\n42 138\n56 18";
+        return "14|46\n28|92\n42|138\n56|184\n";
     }
 
     @Override

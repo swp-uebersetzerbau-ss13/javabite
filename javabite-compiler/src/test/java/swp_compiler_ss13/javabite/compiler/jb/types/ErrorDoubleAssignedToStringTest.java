@@ -11,23 +11,22 @@ public class ErrorDoubleAssignedToStringTest extends AbstractCompilerTest {
 
 	@Override
 	public String getProgFile() {
-		return "jb" + File.separator + "types" + File.separator + "error_type_mismatch_decl_assign_string_double.prog";
+		return "jb" + File.separator + "types" + File.separator + "decl_assign_string_double.prog";
 	}
 
 	@Override
 	public String getOutput() {
-		return "";
+		return "100.23";
 	}
 
 	@Override
 	public Integer getResultValue() {
-		return null;
+		return 0;
 	}
 
 	@Override
 	public List<ReportType> getErrorList() {
 		List<ReportType> errors = new ArrayList<>();
-		errors.add(ReportType.TYPE_MISMATCH);
 		return errors;
 	}
 

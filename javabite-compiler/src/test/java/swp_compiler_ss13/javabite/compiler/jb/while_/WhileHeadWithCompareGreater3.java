@@ -11,7 +11,7 @@ public class WhileHeadWithCompareGreater3  extends AbstractCompilerTest{
 	
 	@Override
 	public String getProgFile() {
-		return "jb" + File.separator + "while_" + File.separator + "while_head_with_compare_3.prog";
+		return "jb" + File.separator + "while_" + File.separator + "while_head_with_compare_greater_3.prog";
 	}
 
 	@Override
@@ -21,7 +21,7 @@ public class WhileHeadWithCompareGreater3  extends AbstractCompilerTest{
 
 	@Override
 	public Integer getResultValue() {
-		return 0;
+		return 2;
 	}
 
 	@Override

@@ -11,7 +11,7 @@ public class WhileHeadWithRelationNotEquals1 extends AbstractCompilerTest{
 	
 	@Override
 	public String getProgFile() {
-		return "jb" + File.separator + "while_" + File.separator + "while_head_with_relation_not_equals_2.prog";
+		return "jb" + File.separator + "while_" + File.separator + "while_head_with_relation_not_equals_1.prog";
 	}
 
 	@Override
@@ -21,7 +21,7 @@ public class WhileHeadWithRelationNotEquals1 extends AbstractCompilerTest{
 
 	@Override
 	public Integer getResultValue() {
-		return 0;
+		return 1;
 	}
 
 	@Override

@@ -13,7 +13,7 @@ if (in <= 1) {
 	return in;
 }
 
-while (in >= 0) {
+while (in > 0) {
     result = prev + prevPrev;
     prevPrev = prev;
     prev = result;

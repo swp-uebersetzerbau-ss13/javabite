@@ -3,3 +3,4 @@
 
 string b;
 b = true;
+print b;

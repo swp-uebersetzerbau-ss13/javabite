@@ -15,12 +15,12 @@ public class FibonacciTest extends AbstractCompilerTest {
 
 	@Override
 	public String getOutput() {
-		return "5";
+		return "8";
 	}
 
 	@Override
 	public Integer getResultValue() {
-		return 5;
+		return 8;
 	}
 
 	@Override

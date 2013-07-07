@@ -4,5 +4,5 @@ l1 = 1;
 l2 = 1;
 
 while(l1 == l2) {
-	return l;
+	return l1;
 }

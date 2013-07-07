@@ -124,7 +124,6 @@ task runAllModules(type: JavaExec) {
 	main = 'swp_compiler_ss13.javabite.MainDispatcher'
 	classpath = files('bin/javabite-compiler-0.2.jar')
 	classpath += fucJarFiles()
-	println classpath*.toString()
 }
 /*
  * FUC

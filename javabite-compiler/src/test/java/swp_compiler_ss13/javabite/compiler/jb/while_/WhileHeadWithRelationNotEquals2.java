@@ -21,7 +21,7 @@ public class WhileHeadWithRelationNotEquals2 extends AbstractCompilerTest{
 
 	@Override
 	public Integer getResultValue() {
-		return 0;
+		return 2;
 	}
 
 	@Override

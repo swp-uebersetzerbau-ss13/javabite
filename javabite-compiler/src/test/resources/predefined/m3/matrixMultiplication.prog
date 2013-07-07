@@ -3,7 +3,7 @@
 # 14 46
 # 28 92
 # 42 138
-# 56 18
+# 56 184
 
 # constants
 long ax;
@@ -57,7 +57,6 @@ c[2][1]=0;
 c[3][1]=0;
 
 
-
 while (ix < ax ) {
       iy = 0;
       while (iy < by) {
@@ -66,8 +65,11 @@ while (ix < ax ) {
                   c[ix][iy] =
                             a[ix][i] * b[i][iy]
                             + c[ix][iy];
-            }      
+                  i = i + 1;
+            }
+            iy = iy + 1;      
       }
+      ix = ix + 1;
 }
 
 ix = 0;
@@ -77,8 +79,9 @@ while (ix < ax) {
             print c[ix][iy];
             if ( (iy+1) != by )
                print sep;
+            iy = iy + 1;
       }
+      ix = ix + 1;
       print br;
 }
-
 return;
