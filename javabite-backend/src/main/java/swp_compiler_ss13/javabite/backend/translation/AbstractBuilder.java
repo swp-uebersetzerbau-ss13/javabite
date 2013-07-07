@@ -1,23 +1,13 @@
 package swp_compiler_ss13.javabite.backend.translation;
 
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.convertBooleanConstant;
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isBooleanConstant;
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isConstant;
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.removeConstantSign;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Stack;
-import java.util.UUID;
-
 import swp_compiler_ss13.javabite.backend.classfile.Classfile;
-import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
-import swp_compiler_ss13.javabite.backend.utils.ConstantUtils;
+import swp_compiler_ss13.javabite.backend.utils.*;
 
-public abstract class AbstractBuilder<T extends AbstractBuilder<T>> {
+import java.util.*;
+
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.*;
+
+public abstract class AbstractBuilder {
 
 	// saves all jump instructions for later offset calculation
 	private final List<JumpInstruction> jumpInstructions;
@@ -51,6 +41,15 @@ public abstract class AbstractBuilder<T extends AbstractBuilder<T>> {
 		this.arrayLengths = new Stack<>();
 	}
 
+	/**
+	 * Builds the instance of the program. Various tasks are performed before
+	 * creation of the program instance. The default behavior is to 1. ensure a
+	 * return statement at the end of the program, 2. to calculate the effective
+	 * byte offset of each operation and 3. to replace all jumping instruction
+	 * placeholders with real instructions and their calculated offsets.
+	 * 
+	 * @return new program instance
+	 */
 	public Program build() {
 		// check, whether there is a return instruction in the end
 		// if not, set it
@@ -89,9 +88,19 @@ public abstract class AbstractBuilder<T extends AbstractBuilder<T>> {
 		return new Program(operations);
 	}
 
-	protected T add(final Operation operation) {
+	/**
+	 * Adds an operation to this program. Each operation is added to a list of
+	 * operations. Additionally, it is checked if labels were found before this
+	 * operation, then these operations are registered as jumping targets, or
+	 * contains jumping instructions, which are registered as such.
+	 * 
+	 * @param operation
+	 *            operation to add
+	 */
+	protected void add(final Operation operation) {
 		operations.add(operation);
 
+		// check if jumping targets are expected
 		if (labelFlag) {
 			labelFlag = false;
 			while (!labelNames.isEmpty()) {
@@ -99,28 +108,40 @@ public abstract class AbstractBuilder<T extends AbstractBuilder<T>> {
 			}
 		}
 
+		// check for jumping instructions
 		for (final Instruction instruction : operation.getInstructions()) {
 			if (instruction instanceof JumpInstruction) {
 				jumpInstructions.add((JumpInstruction) instruction);
 			}
 		}
-
-		return (T) this;
 	}
 
+	/**
+	 * adds a label to the stack of expected labels. Sets the label flag to
+	 * true, if not already true.
+	 * 
+	 * @param labelName
+	 *            name of label
+	 */
 	protected void addLabel(final String labelName) {
 		labelFlag = true;
 		labelNames.push(labelName);
 	}
 
+	/**
+	 * adds a return operation to the program.
+	 */
 	private void addReturnOp() {
-		final Operation.Builder op = Operation.Builder.newBuilder();
+		final Operation.Builder op = new Operation.Builder();
 		op.add(Mnemonic.RETURN);
 		add(op.build());
 	}
 
+	/**
+	 * adds a nop operation to the program.
+	 */
 	protected void addNop() {
-		final Operation.Builder op = Operation.Builder.newBuilder();
+		final Operation.Builder op = new Operation.Builder();
 		op.add(Mnemonic.NOP);
 		add(op.build());
 	}
@@ -168,13 +189,6 @@ public abstract class AbstractBuilder<T extends AbstractBuilder<T>> {
 		}
 	}
 
-	/**
-	 * TODO javadoc
-	 * 
-	 * @param index
-	 * @param variableType
-	 * @return
-	 */
 	protected static Instruction localStoreInstruction(final byte index,
 			final ClassfileUtils.LocalVariableType variableType) {
 		assert index > 0 : "index is zero";
@@ -198,8 +212,7 @@ public abstract class AbstractBuilder<T extends AbstractBuilder<T>> {
 		return localStoreInstruction(index, variableType);
 	}
 
-	protected Instruction fieldStoreInstruction(
-			final ClassfileUtils.FieldSignature signature) {
+	protected Instruction fieldStoreInstruction(final FieldSignature signature) {
 		final short fieldIndex = classfile
 				.addFieldrefConstantToConstantPool(signature);
 		assert fieldIndex > 0 : "index is zero";
@@ -217,9 +230,9 @@ public abstract class AbstractBuilder<T extends AbstractBuilder<T>> {
 	 *            name of variable to store object instance in
 	 * @return new operation instance
 	 */
-	protected Operation newObjectOperation(
-			final ClassfileUtils.MethodSignature constructor, final String store) {
-		final Operation.Builder op = Operation.Builder.newBuilder();
+	protected Operation newObjectOperation(final MethodSignature constructor,
+			final String store) {
+		final Operation.Builder op = new Operation.Builder();
 		final short classIndex = classfile
 				.addClassConstantToConstantPool(constructor.methodClass);
 		assert classIndex > 0 : "index is zero";
@@ -235,9 +248,9 @@ public abstract class AbstractBuilder<T extends AbstractBuilder<T>> {
 		op.add(Mnemonic.INVOKESPECIAL, ByteUtils.shortToByteArray(cstrIndex));
 		// TODO refactor
 		if (store != null) {
-			final ClassfileUtils.FieldSignature fieldSignature = new ClassfileUtils.FieldSignature(
-					store, classfile.getClassname(),
-					constructor.methodClass.getClassNameAsType());
+			final FieldSignature fieldSignature = new FieldSignature(store,
+					classfile.getClassname(),
+					constructor.methodClass.typeClassName);
 			final short fieldIndex = classfile
 					.addFieldrefConstantToConstantPool(fieldSignature);
 			assert fieldIndex > 0 : "index is zero";
@@ -246,21 +259,20 @@ public abstract class AbstractBuilder<T extends AbstractBuilder<T>> {
 		return op.build();
 	}
 
-	protected Operation fieldArrayInit(
-			final ClassfileUtils.ClassSignature arraySignature,
+	protected Operation fieldArrayInit(final ClassSignature arraySignature,
 			final short cpoolIndex, final short classCstrCpoolIndex,
 			final int dimensionsLeft, final List<Byte> indexVars,
 			final boolean last) {
-		final ClassfileUtils.FieldSignature arrayField = new ClassfileUtils.FieldSignature(
-				arrayName, classfile.getClassname(),
-				arraySignature.getClassNameAsType());
+		final FieldSignature arrayField = new FieldSignature(arrayName,
+				classfile.getClassname(), arraySignature.typeClassName);
 		final short arrayFieldIndex = classfile
 				.addFieldrefConstantToConstantPool(arrayField);
-		return arrayInit(
-				new Instruction(Mnemonic.GETFIELD,
-						ByteUtils.shortToByteArray(arrayFieldIndex)),
-				cpoolIndex, classCstrCpoolIndex, dimensionsLeft, indexVars,
-				last);
+		final Operation arrayLoad = new Operation.Builder()
+				.add(Mnemonic.ALOAD_0)
+				.add(Mnemonic.GETFIELD,
+						ByteUtils.shortToByteArray(arrayFieldIndex)).build();
+		return arrayInit(arrayLoad, cpoolIndex, classCstrCpoolIndex,
+				dimensionsLeft, indexVars, last);
 	}
 
 	protected Operation localArrayInit(final short cpoolIndex,
@@ -268,9 +280,9 @@ public abstract class AbstractBuilder<T extends AbstractBuilder<T>> {
 			final List<Byte> indexVars, final boolean last) {
 		final byte arrayVarIndex = classfile.addVariableToMethodsCode(
 				methodName, arrayName, ClassfileUtils.LocalVariableType.AREF);
-		return arrayInit(
-				new Instruction(Mnemonic.ALOAD.withIndex(arrayVarIndex),
-						arrayVarIndex), cpoolIndex, classCstrCpoolIndex,
+		final Operation arrayLoad = new Operation.Builder().add(
+				Mnemonic.ALOAD.withIndex(arrayVarIndex), arrayVarIndex).build();
+		return arrayInit(arrayLoad, cpoolIndex, classCstrCpoolIndex,
 				dimensionsLeft, indexVars, last);
 	}
 
@@ -291,10 +303,10 @@ public abstract class AbstractBuilder<T extends AbstractBuilder<T>> {
 	 *            recursion anchor, will be true if visiting last dimension
 	 * @return new operation sequence
 	 */
-	private Operation arrayInit(final Instruction arrayLoadInstruction,
+	private Operation arrayInit(final Operation arrayLoadOperation,
 			final short classCpoolIndex, final short classCstrCpoolIndex,
 			final int dimensionsLeft, List<Byte> indexVars, final boolean last) {
-		final Operation.Builder op = Operation.Builder.newBuilder();
+		final Operation.Builder op = new Operation.Builder();
 		if (indexVars == null)
 			indexVars = new ArrayList<>(dimensionsLeft);
 
@@ -312,7 +324,7 @@ public abstract class AbstractBuilder<T extends AbstractBuilder<T>> {
 					currentVarIndex, ClassfileUtils.LocalVariableType.BOOLEAN);
 			op.add(varLoadInstruction);
 
-			op.add(arrayLoadInstruction);
+			op.add(arrayLoadOperation);
 
 			for (final byte varIndex : indexVars) {
 				op.add(Mnemonic.ILOAD.withIndex(varIndex), varIndex);
@@ -328,7 +340,7 @@ public abstract class AbstractBuilder<T extends AbstractBuilder<T>> {
 			jumpInstructions.add(zeroCmp);
 
 			indexVars.add(currentVarIndex);
-			op.add(arrayInit(arrayLoadInstruction, classCpoolIndex,
+			op.add(arrayInit(arrayLoadOperation, classCpoolIndex,
 					classCstrCpoolIndex, dimensionsLeft - 1, indexVars,
 					dimensionsLeft == 1));
 
@@ -341,7 +353,7 @@ public abstract class AbstractBuilder<T extends AbstractBuilder<T>> {
 			op.add(cmpTarget);
 
 		} else {
-			op.add(arrayLoadInstruction);
+			op.add(arrayLoadOperation);
 
 			for (int i = 0, lastIndex = indexVars.size() - 1; i <= lastIndex; i++) {
 				final byte varIndex = indexVars.get(i);
@@ -360,13 +372,11 @@ public abstract class AbstractBuilder<T extends AbstractBuilder<T>> {
 		return op.build();
 	}
 
-	protected Operation fieldArrayCreateOp(
-			final ClassfileUtils.ClassSignature arraySignature,
+	protected Operation fieldArrayCreateOp(final ClassSignature arraySignature,
 			final byte primitiveTag) {
-		final Operation.Builder op = Operation.Builder.newBuilder();
-		final ClassfileUtils.FieldSignature arrayField = new ClassfileUtils.FieldSignature(
-				arrayName, classfile.getClassname(),
-				arraySignature.getClassNameAsType());
+		final Operation.Builder op = new Operation.Builder();
+		final FieldSignature arrayField = new FieldSignature(arrayName,
+				classfile.getClassname(), arraySignature.typeClassName);
 		op.add(arrayCreateOp(arraySignature, primitiveTag));
 		op.add(fieldStoreInstruction(arrayField));
 		return op.build();
@@ -374,15 +384,14 @@ public abstract class AbstractBuilder<T extends AbstractBuilder<T>> {
 
 	protected Operation fieldArrayCreateOp(final ClassfileUtils.JavaType type) {
 		final byte dimensions = (byte) arrayLengths.size();
-		final ClassfileUtils.ClassSignature arrayClass = new ClassfileUtils.ClassSignature(
-				type.classSignature.getClassNameAsContainer(), dimensions);
+		final ClassSignature arrayClass = new ClassSignature(
+				type.classSignature.className, dimensions);
 		return fieldArrayCreateOp(arrayClass, type.value);
 	}
 
-	protected Operation localArrayCreateOp(
-			final ClassfileUtils.ClassSignature arraySignature,
+	protected Operation localArrayCreateOp(final ClassSignature arraySignature,
 			final byte primitiveTag) {
-		final Operation.Builder op = Operation.Builder.newBuilder();
+		final Operation.Builder op = new Operation.Builder();
 		op.add(arrayCreateOp(arraySignature, primitiveTag));
 		op.add(localStoreInstruction(arrayName,
 				ClassfileUtils.LocalVariableType.AREF));
@@ -391,8 +400,8 @@ public abstract class AbstractBuilder<T extends AbstractBuilder<T>> {
 
 	protected Operation localArrayCreateOp(final ClassfileUtils.JavaType type) {
 		final byte dimensions = (byte) arrayLengths.size();
-		final ClassfileUtils.ClassSignature arrayClass = new ClassfileUtils.ClassSignature(
-				type.classSignature.getClassNameAsContainer(), dimensions);
+		final ClassSignature arrayClass = new ClassSignature(
+				type.classSignature.className, dimensions);
 		return localArrayCreateOp(arrayClass, type.value);
 	}
 
@@ -406,12 +415,11 @@ public abstract class AbstractBuilder<T extends AbstractBuilder<T>> {
 	 * 
 	 * @return new operation instance
 	 */
-	private Operation arrayCreateOp(
-			final ClassfileUtils.ClassSignature arrayClass,
+	private Operation arrayCreateOp(final ClassSignature arrayClass,
 			final byte primitiveTag) {
 		assert !ConstantUtils.isIgnoreParam(arrayName) : "array name is empty";
 		assert !arrayLengths.isEmpty() : "array has zero dimensions";
-		final Operation.Builder op = Operation.Builder.newBuilder();
+		final Operation.Builder op = new Operation.Builder();
 
 		op.add(Mnemonic.ALOAD_0);
 
@@ -426,8 +434,7 @@ public abstract class AbstractBuilder<T extends AbstractBuilder<T>> {
 			// if more than 1 dimension, create a multi dimensional array
 			// every multi dimensional array is an array of references
 			final short classIndex = classfile
-					.addClassConstantToConstantPool(arrayClass
-							.getClassNameAsType());
+					.addClassConstantToConstantPool(arrayClass.typeClassName);
 			assert classIndex > 0 : "index is zero";
 			final byte[] classIndexArray = ByteUtils
 					.shortToByteArray(classIndex);
@@ -449,41 +456,71 @@ public abstract class AbstractBuilder<T extends AbstractBuilder<T>> {
 		return op.build();
 	}
 
+	/**
+	 * Sets the field of a struct stored inside a field to a specified value.
+	 * 
+	 * @param valueName
+	 *            name (variable name or constant value) of value to set
+	 * @param structClassName
+	 *            class name of struct
+	 * @param fieldName
+	 *            field name of field to set
+	 * @param valueType
+	 *            data type of value
+	 * @return new operation instance
+	 */
 	protected Operation fieldStructSetFieldOp(final String valueName,
-			final String structName, final String fieldName,
-			final ClassfileUtils.LocalVariableType variableType) {
-		final Operation.Builder op = Operation.Builder.newBuilder();
+			final String structClassName, final String fieldName,
+			final ClassfileUtils.LocalVariableType valueType) {
+		final Operation.Builder op = new Operation.Builder();
 		op.add(Mnemonic.ALOAD_0);
-		op.add(localLoadInstruction(valueName, variableType));
-		op.add(structSetFieldOp(structName, fieldName, variableType));
+		op.add(localLoadInstruction(valueName, valueType));
+		op.add(structSetFieldOp(structClassName, fieldName, valueType));
 		return op.build();
 	}
 
+	/**
+	 * Sets the field of a struct stored inside a local variable to a specified
+	 * value. Because a field reference is needed to store a value inside a
+	 * struct field, both the struct classname and variable name are needed to
+	 * perform this action.
+	 * 
+	 * @param valueName
+	 *            name (variable name or constant value) of value to set
+	 * @param structClassName
+	 *            class name of struct
+	 * @param structVarName
+	 *            variable name of struct
+	 * @param fieldName
+	 *            field name of field to set
+	 * @param valueType
+	 *            data type of value
+	 * @return new operation instance
+	 */
 	protected Operation localStructSetFieldOp(final String valueName,
 			final String structClassName, final String structVarName,
 			final String fieldName,
-			final ClassfileUtils.LocalVariableType variableType) {
-		final Operation.Builder op = Operation.Builder.newBuilder();
+			final ClassfileUtils.LocalVariableType valueType) {
+		final Operation.Builder op = new Operation.Builder();
 		op.add(localLoadInstruction(structVarName,
 				ClassfileUtils.LocalVariableType.AREF));
-		op.add(localLoadInstruction(valueName, variableType));
-		op.add(structSetFieldOp(structClassName, fieldName, variableType));
+		op.add(localLoadInstruction(valueName, valueType));
+		op.add(structSetFieldOp(structClassName, fieldName, valueType));
 		return op.build();
 	}
 
 	private Operation structSetFieldOp(final String structName,
 			final String fieldName,
 			final ClassfileUtils.LocalVariableType variableType) {
-		final Operation.Builder op = Operation.Builder.newBuilder();
+		final Operation.Builder op = new Operation.Builder();
 		final String fieldType;
 		if (variableType.javaType != null) {
-			fieldType = variableType.javaType.classSignature
-					.getClassNameAsContainer();
+			fieldType = variableType.javaType.classSignature.className;
 		} else {
 			fieldType = structName + "_" + fieldName;
 		}
-		final ClassfileUtils.FieldSignature fieldSignature = new ClassfileUtils.FieldSignature(
-				fieldName, structName, fieldType);
+		final FieldSignature fieldSignature = new FieldSignature(fieldName,
+				structName, fieldType);
 		op.add(fieldStoreInstruction(fieldSignature));
 		return op.build();
 	}

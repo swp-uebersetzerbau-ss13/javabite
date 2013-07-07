@@ -1,5 +1,8 @@
 package swp_compiler_ss13.javabite.backend;
 
+import swp_compiler_ss13.common.backend.Quadruple;
+import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -7,9 +10,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
-import swp_compiler_ss13.common.backend.Quadruple;
-import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
 
 public class QuadrupleReader {
 

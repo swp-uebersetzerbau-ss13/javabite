@@ -1,16 +1,13 @@
 package swp_compiler_ss13.javabite.backend;
 
-import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Pattern;
-
 import org.junit.Assert;
 import org.junit.Test;
+import swp_compiler_ss13.javabite.backend.utils.ClassSignature;
+import swp_compiler_ss13.javabite.backend.utils.FieldSignature;
+import swp_compiler_ss13.javabite.backend.utils.MethodSignature;
 
-import swp_compiler_ss13.common.backend.Quadruple;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
-import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
+import java.io.PrintStream;
+import java.util.regex.Pattern;
 
 public class DescriptorTest {
 
@@ -35,7 +32,7 @@ public class DescriptorTest {
 		System.out.println();
 	}
 
-	// @Test
+	@Test
 	public void testDescribe() {
 		describe(boolean[][].class);
 		describe(java.math.RoundingMode.class);
@@ -78,78 +75,28 @@ public class DescriptorTest {
 		return sb.toString();
 	}
 
-	// @Test
+	@Test
 	public void testMethodDescriptor() {
 		System.out.println(getMethodDescriptor("<init>", Object.class, null,
 				"V"));
 	}
 
-	// @Test
+	@Test
 	public void testClassNames() {
 		Class<?> c = boolean[].class;
-		// System.out.printf(
-		// "getName(): %s%ngetCanonicalName(): %s%ngetSimpleName(): %s%n",
-		// c.getName(), c.getCanonicalName(), c.getSimpleName());
+		System.out.printf(
+				"getName(): %s%ngetCanonicalName(): %s%ngetSimpleName(): %s%n",
+				c.getName(), c.getCanonicalName(), c.getSimpleName());
 
 		c = String[][][].class;
 		System.out.printf(
 				"getName(): %s%ngetCanonicalName(): %s%ngetSimpleName(): %s%n",
 				c.getName(), c.getCanonicalName(), c.getSimpleName());
 
-		// c = void.class;
-		// System.out.printf(
-		// "getName(): %s%ngetCanonicalName(): %s%ngetSimpleName(): %s%n",
-		// c.getName(), c.getCanonicalName(), c.getSimpleName());
-	}
-
-	// @Test
-	public void testUtilsDescriptor() {
-		Assert.assertEquals("Z", ClassfileUtils
-				.typeByQuadruples(new QuadrupleJb(
-						Quadruple.Operator.DECLARE_BOOLEAN, "!", "!", "!")));
-
-		final List<Quadruple> tac1 = new ArrayList<>();
-		tac1.add(new QuadrupleJb(Quadruple.Operator.DECLARE_ARRAY, "!", "!",
-				"!"));
-		tac1.add(new QuadrupleJb(Quadruple.Operator.DECLARE_ARRAY, "!", "!",
-				"!"));
-		tac1.add(new QuadrupleJb(Quadruple.Operator.DECLARE_ARRAY, "!", "!",
-				"!"));
-		tac1.add(new QuadrupleJb(Quadruple.Operator.DECLARE_ARRAY, "!", "!",
-				"!"));
-		tac1.add(new QuadrupleJb(Quadruple.Operator.DECLARE_ARRAY, "!", "!",
-				"!"));
-		tac1.add(new QuadrupleJb(Quadruple.Operator.DECLARE_BOOLEAN, "!", "!",
-				"!"));
-
-		Assert.assertEquals("[[[[[Z", ClassfileUtils.typeByQuadruples(tac1));
-
-		final List<Quadruple> tac2 = new ArrayList<>();
-		tac2.add(new QuadrupleJb(Quadruple.Operator.DECLARE_ARRAY, "!", "!",
-				"!"));
-		tac2.add(new QuadrupleJb(Quadruple.Operator.DECLARE_STRING, "!", "!",
-				"!"));
-
-		Assert.assertEquals("[java/lang/String",
-				ClassfileUtils.typeByQuadruples(tac2));
-
-		final List<Quadruple> tac3 = new ArrayList<>();
-		tac3.add(new QuadrupleJb(Quadruple.Operator.DECLARE_STRUCT, "!", "!",
-				"someStruct"));
-		tac3.add(new QuadrupleJb(Quadruple.Operator.DECLARE_ARRAY, "!", "!",
-				"!"));
-		tac3.add(new QuadrupleJb(Quadruple.Operator.DECLARE_ARRAY, "!", "!",
-				"!"));
-		tac3.add(new QuadrupleJb(Quadruple.Operator.DECLARE_BOOLEAN, "!", "!",
-				"!"));
-		tac3.add(new QuadrupleJb(Quadruple.Operator.DECLARE_STRING, "!", "!",
-				"!"));
-		tac3.add(new QuadrupleJb(Quadruple.Operator.DECLARE_STRING, "!", "!",
-				"!"));
-		tac3.add(new QuadrupleJb(Quadruple.Operator.DECLARE_STRING, "!", "!",
-				"!"));
-
-		Assert.assertEquals("someStruct", ClassfileUtils.typeByQuadruples(tac3));
+		c = void.class;
+		System.out.printf(
+				"getName(): %s%ngetCanonicalName(): %s%ngetSimpleName(): %s%n",
+				c.getName(), c.getCanonicalName(), c.getSimpleName());
 	}
 
 	static class SimpleClass {
@@ -160,26 +107,25 @@ public class DescriptorTest {
 		}
 	}
 
-	// @Test
+	@Test
 	public void testMethodSignature() {
-		final ClassfileUtils.MethodSignature m = new ClassfileUtils.MethodSignature(
-				"m", SimpleClass.class, String.class, int.class,
-				boolean[].class, String.class);
+		final MethodSignature m = new MethodSignature("m", SimpleClass.class,
+				String.class, int.class, boolean[].class, String.class);
 		Assert.assertEquals(
 				"swp_compiler_ss13/javabite/backend/DescriptorTest$SimpleClass.m:(I[ZLjava/lang/String;)Ljava/lang/String;",
 				m.toString());
 	}
 
-	// @Test
+	@Test
 	public void testFieldSignature() {
-		final ClassfileUtils.FieldSignature f = new ClassfileUtils.FieldSignature(
-				"l", SimpleClass.class, long[].class);
+		final FieldSignature f = new FieldSignature("l", SimpleClass.class,
+				long[].class);
 		Assert.assertEquals(
 				"swp_compiler_ss13/javabite/backend/DescriptorTest$SimpleClass.l:[J",
 				f.toString());
 
-		final ClassfileUtils.FieldSignature out = new ClassfileUtils.FieldSignature(
-				"out", System.class, PrintStream.class);
+		final FieldSignature out = new FieldSignature("out", System.class,
+				PrintStream.class);
 		Assert.assertEquals("java/lang/System.out:Ljava/io/PrintStream;",
 				out.toString());
 	}
@@ -193,19 +139,15 @@ public class DescriptorTest {
 				"[java/lang/String", "[Ljava/lang/String;" };
 
 		for (final Class<?> clazz : classes1) {
-			final ClassfileUtils.ClassSignature sig = new ClassfileUtils.ClassSignature(
-					clazz);
-			System.out.println(clazz + " as container: "
-					+ sig.getClassNameAsContainer());
-			System.out.println(clazz + " as type: " + sig.getClassNameAsType());
+			final ClassSignature sig = new ClassSignature(clazz);
+			System.out.println(clazz + " as container: " + sig.className);
+			System.out.println(clazz + " as type: " + sig.typeClassName);
 		}
 
 		for (final String clazz : classes2) {
-			final ClassfileUtils.ClassSignature sig = new ClassfileUtils.ClassSignature(
-					clazz);
-			System.out.println(clazz + " as container: "
-					+ sig.getClassNameAsContainer());
-			System.out.println(clazz + " as type: " + sig.getClassNameAsType());
+			final ClassSignature sig = new ClassSignature(clazz);
+			System.out.println(clazz + " as container: " + sig.className);
+			System.out.println(clazz + " as type: " + sig.typeClassName);
 		}
 	}
 

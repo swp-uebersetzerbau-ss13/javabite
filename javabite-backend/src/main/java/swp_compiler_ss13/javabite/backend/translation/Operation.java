@@ -108,17 +108,8 @@ public class Operation {
 		private int size;
 		private final List<Instruction> instructions;
 
-		private Builder() {
+		public Builder() {
 			instructions = new ArrayList<>();
-		}
-
-		/**
-		 * Creates a new instance of this builder class
-		 * 
-		 * @return new builder instance
-		 */
-		public static Builder newBuilder() {
-			return new Builder();
 		}
 
 		/**

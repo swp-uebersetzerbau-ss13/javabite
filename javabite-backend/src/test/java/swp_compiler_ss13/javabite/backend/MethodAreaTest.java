@@ -1,22 +1,18 @@
 package swp_compiler_ss13.javabite.backend;
 
-import static junitx.util.PrivateAccessor.getField;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.util.HashMap;
-
 import junitx.util.PrivateAccessor;
-
 import org.junit.Before;
 import org.junit.Test;
-
 import swp_compiler_ss13.javabite.backend.classfile.Classfile;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ClassfileAccessFlag;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodAccessFlag;
+
+import java.util.HashMap;
+
+import static junitx.util.PrivateAccessor.getField;
+import static org.junit.Assert.*;
 
 public class MethodAreaTest {
 	// METHODAREA_TESTS:
@@ -32,8 +28,8 @@ public class MethodAreaTest {
 	@Before
 	public void setup() {
 		final Classfile classfile = new Classfile("classname",
-				"thisClassNameEIF", "superClassNameEIF", false,
-				ClassfileAccessFlag.ACC_PUBLIC, ClassfileAccessFlag.ACC_SUPER);
+				"superClassNameEIF", false, ClassfileAccessFlag.ACC_PUBLIC,
+				ClassfileAccessFlag.ACC_SUPER);
 		try {
 			methodArea = getField(classfile, "methodArea");
 			methodMap = (HashMap<String, Object>) PrivateAccessor.getField(

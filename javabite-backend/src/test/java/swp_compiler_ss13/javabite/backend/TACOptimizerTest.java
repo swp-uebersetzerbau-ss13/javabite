@@ -1,15 +1,15 @@
 package swp_compiler_ss13.javabite.backend;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
-
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.translation.TACOptimizer;
 import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
+
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class TACOptimizerTest {
 
@@ -50,6 +50,13 @@ public class TACOptimizerTest {
 		// expected: label is removed
 		tac.add(new QuadrupleJb(Operator.LABEL, "tunused", "!", "!"));
 
+		optimizer.optimize(tac);
+	}
+
+	@Test
+	public void testOptimizeConcatString() throws IOException {
+		final List<Quadruple> tac = new QuadrupleReader("opt_concat")
+				.readQuadruples();
 		optimizer.optimize(tac);
 	}
 

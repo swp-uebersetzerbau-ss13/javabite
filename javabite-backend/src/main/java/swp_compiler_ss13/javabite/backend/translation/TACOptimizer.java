@@ -1,15 +1,11 @@
 package swp_compiler_ss13.javabite.backend.translation;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Set;
-
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.utils.ConstantUtils;
 import swp_compiler_ss13.javabite.backend.utils.QuadrupleUtils;
+
+import java.util.*;
 
 /**
  * TACOptimizer class.
@@ -34,6 +30,8 @@ public class TACOptimizer {
 			switch (quad.getOperator()) {
 			case BRANCH:
 				checkBranch(quad);
+			case CONCAT_STRING:
+				checkConcatString(quad);
 			default:
 				break;
 			}
@@ -117,6 +115,31 @@ public class TACOptimizer {
 			iter.set(QuadrupleUtils.copyQuadruple(quad, null, arg1, arg2,
 					result));
 		}
+	}
+
+	private void checkConcatString(final Quadruple quad) {
+		final String result = quad.getResult();
+		do {
+			final Quadruple next = iter.peek();
+
+			// check if has next, next has operator CONCAT_STRING and next has
+			// same result as the current quadruple
+			if (next == null || next.getOperator() != Operator.CONCAT_STRING
+					|| !next.getResult().equals(result)) {
+				return;
+			}
+			iter.next();
+			final String arg1 = next.getArgument1().equals(result) ? "!" : null;
+			final String arg2 = next.getArgument2().equals(result)
+					&& arg1 == null ? "!" : null;
+
+			if (iter.hasNext() && iter.peek().getResult().equals(result))
+				iter.set(QuadrupleUtils.copyQuadruple(next, null, arg1, arg2,
+						"!"));
+			else
+				iter.set(QuadrupleUtils.copyQuadruple(next, null, arg1, arg2,
+						null));
+		} while (iter.hasNext());
 	}
 
 	private static class TacIterator implements ListIterator<Quadruple>,

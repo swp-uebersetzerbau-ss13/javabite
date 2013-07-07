@@ -1,13 +1,8 @@
 package swp_compiler_ss13.javabite.backend;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.FixMethodOrder;
-import org.junit.Rule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.rules.TestName;
 import org.junit.runners.MethodSorters;
-
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.common.backend.Quadruple.Operator;
 import swp_compiler_ss13.javabite.backend.classfile.Classfile;
@@ -77,9 +72,8 @@ public class ProgramTests {
 
 	@Before
 	public void setUp() {
-		classfile = new Classfile("main.class", "tests/example",
-				"java/lang/Object", false, ClassfileAccessFlag.ACC_PUBLIC,
-				ClassfileAccessFlag.ACC_SUPER);
+		classfile = new Classfile("main", "java/lang/Object", false,
+				ClassfileAccessFlag.ACC_PUBLIC, ClassfileAccessFlag.ACC_SUPER);
 		classfile.addMethodToMethodArea(methodName, "([Ljava/lang/String;])V",
 				MethodAccessFlag.ACC_PUBLIC, MethodAccessFlag.ACC_STATIC);
 		pb = new MainBuilder(classfile, methodName);

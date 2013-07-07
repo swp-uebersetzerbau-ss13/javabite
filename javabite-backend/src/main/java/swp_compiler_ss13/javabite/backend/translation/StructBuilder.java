@@ -2,38 +2,16 @@ package swp_compiler_ss13.javabite.backend.translation;
 
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.javabite.backend.classfile.Classfile;
+import swp_compiler_ss13.javabite.backend.utils.ClassSignature;
 import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
 import swp_compiler_ss13.javabite.backend.utils.ConstantUtils;
+import swp_compiler_ss13.javabite.backend.utils.MethodSignature;
 
-public class StructBuilder extends AbstractBuilder<StructBuilder> {
+public class StructBuilder extends AbstractBuilder {
 
 	public StructBuilder(final Classfile classfile, final String methodName) {
 		super(classfile, methodName);
 	}
-
-	// private Operation structInitField(final Quadruple q,
-	// final ClassfileUtils.LocalVariableType variableType) {
-	//
-	// return fieldStructSetFieldOp(q.getArgument1(),
-	// classfile.getClassname(), q.getResult(), variableType);
-	//
-	// final Operation.Builder op = Operation.Builder.newBuilder();
-	// op.add(Mnemonic.ALOAD_0);
-	// op.add(localLoadInstruction(q.getArgument1(), variableType));
-	// final String structName = classfile.getClassname();
-	// final String fieldType;
-	// if (variableType.javaType != null) {
-	// fieldType = variableType.javaType.classSignature
-	// .getClassNameAsType();
-	// } else {
-	// fieldType = structName + "_" + q.getArgument2();
-	// }
-	// final ClassfileUtils.FieldSignature fieldSignature = new
-	// ClassfileUtils.FieldSignature(
-	// q.getResult(), structName, fieldType);
-	// op.add(fieldStoreInstruction(fieldSignature));
-	// return op.build();
-	// }
 
 	// OPERATIONS ----------------------------------------------------------
 
@@ -50,13 +28,13 @@ public class StructBuilder extends AbstractBuilder<StructBuilder> {
 		assert ConstantUtils.hasArgsCount(q, 0, 1, 2) : "quadruple has wrong args count: "
 				+ ConstantUtils.getArgsCount(q);
 		if (ConstantUtils.isIgnoreParam(q.getResult())) {
-			return add(fieldArrayCreateOp(ClassfileUtils.JavaType.LONG));
+			add(fieldArrayCreateOp(ClassfileUtils.JavaType.LONG));
+		} else {
+			add(fieldStructSetFieldOp(q.getArgument1(),
+					classfile.getClassname(), q.getResult(),
+					ClassfileUtils.LocalVariableType.LONG));
 		}
-		// return add(structInitField(q,
-		// ClassfileUtils.LocalVariableType.LONG));
-		return add(fieldStructSetFieldOp(q.getArgument1(),
-				classfile.getClassname(), q.getResult(),
-				ClassfileUtils.LocalVariableType.LONG));
+		return this;
 	}
 
 	/**
@@ -72,13 +50,13 @@ public class StructBuilder extends AbstractBuilder<StructBuilder> {
 		assert ConstantUtils.hasArgsCount(q, 0, 1, 2) : "quadruple has wrong args count: "
 				+ ConstantUtils.getArgsCount(q);
 		if (ConstantUtils.isIgnoreParam(q.getResult())) {
-			return add(fieldArrayCreateOp(ClassfileUtils.JavaType.DOUBLE));
+			add(fieldArrayCreateOp(ClassfileUtils.JavaType.DOUBLE));
+		} else {
+			add(fieldStructSetFieldOp(q.getArgument1(),
+					classfile.getClassname(), q.getResult(),
+					ClassfileUtils.LocalVariableType.DOUBLE));
 		}
-		// return add(structInitField(q,
-		// ClassfileUtils.LocalVariableType.DOUBLE));
-		return add(fieldStructSetFieldOp(q.getArgument1(),
-				classfile.getClassname(), q.getResult(),
-				ClassfileUtils.LocalVariableType.DOUBLE));
+		return this;
 	}
 
 	/**
@@ -94,13 +72,13 @@ public class StructBuilder extends AbstractBuilder<StructBuilder> {
 		assert ConstantUtils.hasArgsCount(q, 0, 1, 2) : "quadruple has wrong args count: "
 				+ ConstantUtils.getArgsCount(q);
 		if (ConstantUtils.isIgnoreParam(q.getResult())) {
-			return add(fieldArrayCreateOp(ClassfileUtils.JavaType.STRING));
+			add(fieldArrayCreateOp(ClassfileUtils.JavaType.STRING));
+		} else {
+			add(fieldStructSetFieldOp(q.getArgument1(),
+					classfile.getClassname(), q.getResult(),
+					ClassfileUtils.LocalVariableType.STRING));
 		}
-		// return add(structInitField(q,
-		// ClassfileUtils.LocalVariableType.STRING));
-		return add(fieldStructSetFieldOp(q.getArgument1(),
-				classfile.getClassname(), q.getResult(),
-				ClassfileUtils.LocalVariableType.STRING));
+		return this;
 	}
 
 	/**
@@ -116,13 +94,13 @@ public class StructBuilder extends AbstractBuilder<StructBuilder> {
 		assert ConstantUtils.hasArgsCount(q, 0, 1, 2) : "quadruple has wrong args count: "
 				+ ConstantUtils.getArgsCount(q);
 		if (ConstantUtils.isIgnoreParam(q.getResult())) {
-			return add(fieldArrayCreateOp(ClassfileUtils.JavaType.BOOLEAN));
+			add(fieldArrayCreateOp(ClassfileUtils.JavaType.BOOLEAN));
+		} else {
+			add(fieldStructSetFieldOp(q.getArgument1(),
+					classfile.getClassname(), q.getResult(),
+					ClassfileUtils.LocalVariableType.BOOLEAN));
 		}
-		// return add(structInitField(q,
-		// ClassfileUtils.LocalVariableType.BOOLEAN));
-		return add(fieldStructSetFieldOp(q.getArgument1(),
-				classfile.getClassname(), q.getResult(),
-				ClassfileUtils.LocalVariableType.BOOLEAN));
+		return this;
 	}
 
 	/**
@@ -157,10 +135,10 @@ public class StructBuilder extends AbstractBuilder<StructBuilder> {
 		assert ConstantUtils.hasArgsCount(q, 1, 2, 3) : "quadruple has wrong args count: "
 				+ ConstantUtils.getArgsCount(q);
 
-		final ClassfileUtils.MethodSignature constructor;
+		final MethodSignature constructor;
 		if (ConstantUtils.isIgnoreParam(q.getResult())) {
-			constructor = new ClassfileUtils.MethodSignature("<init>",
-					q.getArgument2(), void.class);
+			constructor = new MethodSignature("<init>", q.getArgument2(),
+					void.class);
 			final short classIndex = classfile
 					.addClassConstantToConstantPool(constructor.methodClass);
 			assert classIndex > 0 : "index is zero";
@@ -169,18 +147,20 @@ public class StructBuilder extends AbstractBuilder<StructBuilder> {
 			assert cstrIndex > 0 : "index is zero";
 
 			final int arrayDimensions = arrayLengths.size();
-			final ClassfileUtils.ClassSignature arrayClass = new ClassfileUtils.ClassSignature(
+			final ClassSignature arrayClass = new ClassSignature(
 					q.getArgument2(), arrayDimensions);
 
 			add(fieldArrayCreateOp(arrayClass, (byte) 0));
 			add(fieldArrayInit(arrayClass, classIndex, cstrIndex,
 					arrayDimensions, null, false));
 
-		} else
-			constructor = new ClassfileUtils.MethodSignature("<init>",
+		} else {
+			constructor = new MethodSignature("<init>",
 					classfile.getClassname() + "_" + q.getResult(), void.class);
 
-		return add(newObjectOperation(constructor, q.getResult()));
+			add(newObjectOperation(constructor, q.getResult()));
+		}
+		return this;
 	}
 
 }

@@ -1,30 +1,23 @@
 package swp_compiler_ss13.javabite.backend.classfile;
 
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.byteArrayToHexString;
-import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToHexString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import swp_compiler_ss13.javabite.backend.translation.Instruction;
+import swp_compiler_ss13.javabite.backend.translation.Mnemonic;
+import swp_compiler_ss13.javabite.backend.utils.*;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ClassfileAccessFlag;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.FieldAccessFlag;
+import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodAccessFlag;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import swp_compiler_ss13.javabite.backend.translation.Instruction;
-import swp_compiler_ss13.javabite.backend.translation.Mnemonic;
-import swp_compiler_ss13.javabite.backend.utils.ByteUtils;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ClassfileAccessFlag;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.FieldAccessFlag;
-import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.MethodAccessFlag;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.byteArrayToHexString;
+import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToHexString;
 
 /**
  * <h1>Classfile</h1>
@@ -40,6 +33,8 @@ public class Classfile {
 	public static final byte[] MAJOR_VERSION_J2SE_7 = { (byte) 0, (byte) 51 };
 	public static final byte[] MAJOR_VERSION_J2SE_6 = { (byte) 0, (byte) 50 };
 	public static final byte[] MAJOR_VERSION_J2SE_5 = { (byte) 0, (byte) 49 };
+
+	public static final String FILE_EXTENSION_CLASS = ".class";
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(Classfile.class);
@@ -93,9 +88,6 @@ public class Classfile {
 	 * </p>
 	 * 
 	 * @since 27.04.2013
-	 * @param name
-	 *            string describing the classfile's name being used when the
-	 *            actual file is created.
 	 * @param thisClassNameEIF
 	 *            string describing this class name encoded in internal form
 	 *            according to the jvm specification.
@@ -108,12 +100,12 @@ public class Classfile {
 	 * @param accessFlags
 	 *            arbitrary amount of classfile access flags.
 	 */
-	public Classfile(final String name, final String thisClassNameEIF,
+	public Classfile(final String thisClassNameEIF,
 			final String superClassNameEIF, final boolean isStruct,
 			final ClassfileAccessFlag... accessFlags) {
 
 		// set basic parameters
-		this.name = name;
+		this.name = thisClassNameEIF + FILE_EXTENSION_CLASS;
 		this.isStruct = isStruct;
 		toplevelStructs = new HashSet<>();
 		sublevelStructs = new HashSet<>();
@@ -411,9 +403,8 @@ public class Classfile {
 	}
 
 	public short addClassConstantToConstantPool(
-			final ClassfileUtils.ClassSignature classSignature) {
-		return addClassConstantToConstantPool(classSignature
-				.getClassNameAsContainer());
+			final ClassSignature classSignature) {
+		return addClassConstantToConstantPool(classSignature.className);
 	}
 
 	/**
@@ -434,7 +425,7 @@ public class Classfile {
 	 *         this classfile meeting the parameters.
 	 */
 	public short addMethodrefConstantToConstantPool(
-			final ClassfileUtils.MethodSignature signature) {
+			final MethodSignature signature) {
 		// add class
 		final short classIndex = addClassConstantToConstantPool(signature.methodClass);
 		// add NAT
@@ -479,10 +470,10 @@ public class Classfile {
 	}
 
 	public short addFieldrefConstantToConstantPool(
-			final ClassfileUtils.FieldSignature signature) {
+			final FieldSignature signature) {
 		return addFieldrefConstantToConstantPool(signature.fieldName,
-				signature.fieldType.getClassNameAsType(),
-				signature.fieldClass.getClassNameAsContainer());
+				signature.fieldType.typeClassName,
+				signature.fieldClass.className);
 	}
 
 	/**
