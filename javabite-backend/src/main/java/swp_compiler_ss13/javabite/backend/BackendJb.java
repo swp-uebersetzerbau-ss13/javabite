@@ -4,8 +4,6 @@ import swp_compiler_ss13.common.backend.Backend;
 import swp_compiler_ss13.common.backend.BackendException;
 import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.javabite.backend.classfile.Classfile;
-import swp_compiler_ss13.javabite.backend.translation.TACOptimizer;
-import swp_compiler_ss13.javabite.backend.translation.TargetCodeOptimizer;
 import swp_compiler_ss13.javabite.backend.translation.Translator;
 
 import java.io.InputStream;
@@ -23,16 +21,7 @@ import java.util.TreeMap;
  */
 public class BackendJb implements Backend {
 
-	@SuppressWarnings("unused")
-	private final TACOptimizer tacOptimizer;
-	private final Translator translator;
-	@SuppressWarnings("unused")
-	private final TargetCodeOptimizer targetCodeOptimizer;
-
 	public BackendJb() {
-		tacOptimizer = new TACOptimizer();
-		translator = new Translator();
-		targetCodeOptimizer = new TargetCodeOptimizer();
 	}
 
 	/**
@@ -67,6 +56,10 @@ public class BackendJb implements Backend {
 	public Map<String, InputStream> generateTargetCode(String baseFileName,
 			final List<Quadruple> tac) throws BackendException {
 
+        //final TACOptimizer tacOptimizer = new TACOptimizer();
+        //final TargetCodeOptimizer targetCodeOptimizer = new TargetCodeOptimizer();
+        final Translator translator = new Translator();
+
 		baseFileName = rectifyJavaIdentifier(baseFileName);
 
 		// TAC Optimizer
@@ -79,12 +72,7 @@ public class BackendJb implements Backend {
 		// Target Code Optimizer
 		// targetCodeOptimizer.optimize(classfiles);
 
-		final Map<String, InputStream> targetCodeS = createTargetCodeStreams(classfiles);
-
-		// simple visualization
-		// visualizeTargetCode(targetCodeS);
-
-		return targetCodeS;
+		return createTargetCodeStreams(classfiles);
 	}
 
 	/**
