@@ -25,7 +25,6 @@ import javax.swing.event.ListSelectionListener;
 import swp_compiler_ss13.javabite.config.ConfigCategory;
 import swp_compiler_ss13.javabite.config.ConfigKey;
 import swp_compiler_ss13.javabite.config.JavabiteConfig;
-import swp_compiler_ss13.javabite.gui.ConfigFormFieldFactory;
 
 public class SettingsPanel extends JFrame {
 	private static final long serialVersionUID = 1L;
@@ -33,7 +32,7 @@ public class SettingsPanel extends JFrame {
 	List<ConfigFormField> formInputs = new ArrayList<>();
 	
 	public SettingsPanel() {
-		this.setMinimumSize(new Dimension(600, 400));
+		this.setMinimumSize(new Dimension(800, 600));
 		getContentPane().setLayout(new BorderLayout(0, 0));
 
 		JSplitPane splitPane = new JSplitPane();
@@ -87,14 +86,14 @@ public class SettingsPanel extends JFrame {
 					formInputs.add(ckfi);
 				}
 				
-				for (int i = configKeys.size(); i < 12; i++) {
+				for (int i = configKeys.size(); i < 18; i++) {
 					JLabel dummyLabel = new JLabel(" ");
 					formPanel.add(dummyLabel);
 					JLabel labeledLabel = new JLabel(" ");
 					dummyLabel.setLabelFor(labeledLabel);
 					formPanel.add(labeledLabel);
 				}
-				SpringUtilities.makeCompactGrid(formPanel, (configKeys.size() > 12)?configKeys.size():12, 2, 6, 6, 6, 6);
+				SpringUtilities.makeCompactGrid(formPanel, (configKeys.size() > 18)?configKeys.size():18, 2, 6, 6, 6, 6);
 				formPanel.updateUI();
 			}
 		});

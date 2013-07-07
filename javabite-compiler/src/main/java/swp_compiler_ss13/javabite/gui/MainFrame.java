@@ -554,7 +554,7 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 				return;
 			
 			textPaneLogs.setText("Compiler started.");
-			textPaneConsole.setText(textPaneConsole.getText() + "[Compiler] started");
+			appendToConsole("\n[Compiler] started");
 			progressBar.setValue(0);
 			progressBar.setEnabled(true);
 			errorReported = false;
@@ -574,14 +574,14 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 				return;
 			}
 			
-			textPaneLogs.setText(textPaneLogs.getText() + "\nExecute program...");
-			textPaneConsole.setText(textPaneConsole.getText() + "\n[Compiler] execute program...");
+			appendToLogs("\nExecute program...");
+			appendToConsole("\n[Compiler] execute program...");
 			toolBarLabel.setText("Execute program...");
 			Long startTime = System.currentTimeMillis();
 			JavaClassProcess p = guiCompiler.execute(mainFile);
 			Long stopTime = System.currentTimeMillis();
-			textPaneConsole.setText(textPaneConsole.getText() + "\n" + p.getProcessOutput());
-			textPaneConsole.setText(textPaneConsole.getText() + "\nReturn value: " + p.getReturnValue() + "\nExecution time: " + (stopTime - startTime) + "ms");
+			appendToConsole("\n" + p.getProcessOutput());
+			appendToConsole("\nReturn value: " + p.getReturnValue() + "\nExecution time: " + (stopTime - startTime) + "ms");
 			
 			toolBarLabel.setText("Execute program finished.");
 			progressBar.setValue(100);
