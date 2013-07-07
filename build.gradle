@@ -1,31 +1,29 @@
 import org.ajoberstar.gradle.git.tasks.*
 import org.eclipse.jgit.api.*
 import org.eclipse.jgit.api.errors.*
-import org.gradle.api.GradleException
 import org.gradle.api.tasks.*
 
-/*
- * all projects are java-based and eclipse is used as IDE by most team members
- * so we add support for that
- */
 apply plugin: 'eclipse'
-/*
- * fatjar helps to build jars with all files needed
- * gradle-git helps to get FUC for cross-tests
- */
-buildscript {
-	repositories {
-		mavenCentral()
-	}
 
+/*
+ * projects
+ */
+project(':javabite-compiler') {
+	apply plugin:'application'
+	
+	jar {
+		manifest { attributes 'Main-Class': 'swp_compiler_ss13.javabite.MainDispatcher' }
+		destinationDir = file('../bin')
+		from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+	}
+	mainClassName = 'swp_compiler_ss13.javabite.MainDispatcher'
 	dependencies {
-		classpath 'eu.appsatori:gradle-fatjar-plugin:0.2-rc1'
-		classpath 'org.ajoberstar:gradle-git:0.4.0'
+		compile 'org.tinyjee.jgraphx:jgraphx:1.10.4.1'
+		compile project(':jclasslib'), project(':javabite-common'), project(':javabite-lexer'), project(':javabite-parser'), project(':javabite-code-gen'), project(':javabite-backend'), project(':javabite-semantic')
 	}
 }
 configure(javabiteProjects()) {
 	apply plugin: 'java'
-	apply plugin: 'fatjar'
 	apply plugin: 'eclipse'
 
 	sourceCompatibility = 1.7
@@ -36,11 +34,7 @@ configure(javabiteProjects()) {
 			attributes 'Implementation-Title': title, 'Implementation-Version': version
 		}
 	}
-
-	repositories { 
-		mavenCentral()
-	}
-
+	repositories { mavenCentral() }
 	dependencies {
 		compile 'org.apache.commons:commons-io:1.3.2'
 		compile 'commons-lang:commons-lang:2.6'
@@ -53,111 +47,87 @@ configure(javabiteProjects()) {
 
 	test { systemProperties 'org.slf4j.simpleLogger.defaultLogLevel': 'debug' }
 }
-
-/*
- * BEGIN of project specific configs
- */
 project(':common'){
 	sourceSets {
-		main {
-			java { srcDir 'interfaces/src' }
-		}
-		test {
-			java { srcDir 'interfaces/test' }
-		}
+		main { java { srcDir 'interfaces/src' } }
+		test { java { srcDir 'interfaces/test' } }
 	}
 }
-
 project(':jclasslib') {
 	sourceSets {
-		main {
-			java {
-				srcDir 'src'
-			}
-		}
+		main { java { srcDir 'src' } }
 	}
-	
+
 	dependencies {
 		runtime files('lib-compile/antnbm.jar',
-			'lib-compile/docbook.zip',
-			'lib-compile/java.jar',
-			'lib-compile/openide.jar')
+				'lib-compile/docbook.zip',
+				'lib-compile/java.jar',
+				'lib-compile/openide.jar')
 	}
 }
-
-project(':javabite-compiler') {
-	
-	apply plugin:'application'
-
-	jar {
-		manifest {
-			attributes 'Main-Class': 'swp_compiler_ss13.javabite.MainDispatcher'
-		}
-	}
-	
-	fatJar {
-		manifest {
-			attributes 'Main-Class': 'swp_compiler_ss13.javabite.MainDispatcher'
-		}
-	}
-	
-	mainClassName = 'swp_compiler_ss13.javabite.MainDispatcher'
-
-	dependencies {
-		compile 'org.tinyjee.jgraphx:jgraphx:1.10.4.1'
-		compile project(':jclasslib'), project(':javabite-common'), project(':javabite-lexer'), project(':javabite-parser'), project(':javabite-code-gen'), project(':javabite-backend'), project(':javabite-semantic')
-	}
-	
-	sourceSets {
-		// Note that just declaring this sourceset creates two configurations.
-		crossTest {
-				java {
-					srcDir 'src/cross-test/java'
-				}
-				resources {
-					srcDir 'src/test/resources'
-				}
-				compileClasspath += sourceSets.main.runtimeClasspath
-				compileClasspath += sourceSets.test.runtimeClasspath
-		}
-	}
-	
-	task crossTest(type:Test){
-		description = "Run cross tests"
-		testClassesDir = project.sourceSets.crossTest.output.classesDir
-		classpath += project.sourceSets.crossTest.runtimeClasspath
-		classpath += fucJarFiles()
-	}
-}
-
 project(':javabite-lexer') {
-	dependencies { 
-		compile project(':javabite-common') 
+	dependencies {
+		compile project(':javabite-common')
 		testCompile project(':common').sourceSets.test.output
 	}
 }
-
 project(':javabite-parser') {
 	dependencies { compile project(':javabite-common') }
 }
-
 project(':javabite-semantic') {
 	dependencies { compile project(':javabite-common') }
 }
-
 project(':javabite-code-gen') {
 	dependencies { compile project(':javabite-common') }
 }
-
 project(':javabite-backend') {
 	dependencies { compile project(':javabite-common') }
 }
-
 project(':javabite-common') {
 	dependencies { compile project(':common') }
 }
 /*
- * Cross-tests
+ * main tasks
+ */
+task clean(type: Delete, dependsOn: javabiteProjects().clean) {
+	delete fileTree('bin')
+}
+task buildCompiler(type: Copy, dependsOn: [clean, ':javabite-compiler:jar']) {
+}
+task buildCompilerWithFuc(type: Copy, dependsOn: [clean, ':fuc:dist',':javabite-compiler:jarIncludingFuc']) {
+	from 'javabite-compiler/build/libs'
+	into 'bin'
+	include 'javabite-compiler-0.1-standalone.jar'
+	rename { String fileName ->
+		fileName.replace('-standalone', '')
+	}
+}
+task buildModules(type: Copy, dependsOn: [clean, basicJavabiteProjects().jar]) {
+	basicJavabiteProjects().each { project ->
+		from ("${project.name}/build/libs") {
+			include 'javabite-*.jar'
+		}
+	}
+	into 'bin'
+}
+task buildForCrossTest(dependsOn: buildModules)
+task buildAll(dependsOn: [buildModules, buildCompiler])
+task run(type: JavaExec) {
+	main = 'swp_compiler_ss13.javabite.MainDispatcher'
+	classpath = files('bin/javabite-compiler-0.2.jar')
+}
+task runWithBuild(type: JavaExec, dependsOn: buildCompiler) {
+	main = 'swp_compiler_ss13.javabite.MainDispatcher'
+	classpath = files('bin/javabite-compiler-0.2.jar')
+}
+task runAllModules(type: JavaExec) {
+	main = 'swp_compiler_ss13.javabite.MainDispatcher'
+	classpath = files('bin/javabite-compiler-0.2.jar')
+	classpath += fucJarFiles()
+	println classpath*.toString()
+}
+/*
+ * FUC
  */
 task cloneFuc(type: GitClone) {
 	def destination = file('fuc')
@@ -188,52 +158,14 @@ if (file('fuc').exists()) {
 	}
 }
 /*
- * generell tasks 
+ * configuration helpers
  */
-task wrapper(type: Wrapper) {
-	gradleVersion = '1.6'
-}
-task buildCompiler(type: Copy, dependsOn: [':javabite-compiler:fatJar']) {
-	from 'javabite-compiler/build/libs'
-	into 'bin'
-	include 'javabite-compiler-*.*.jar'
-}
-task buildAll(dependsOn: javabiteProjects().fatJar) {
-	evaluationDependsOnChildren()
-	subprojects.each { project ->
-		copy {
-			from "${project.name}/build/libs"
-			into 'bin'
-			include 'javabite-*.jar'
-		}
-	}
-}
-task buildForCrossTest(dependsOn: basicJavabiteProjects().jar) {
-	evaluationDependsOnChildren()
-	basicJavabiteProjects().each { project ->
-		copy {
-			from "${project.name}/build/libs"
-			into 'bin'
-			include 'javabite-*.jar'
-		}
-	}
-}
-task run(type: JavaExec, dependsOn: buildCompiler) {
-	main = 'swp_compiler_ss13.javabite.MainDispatcher'
-	classpath = files('bin/javabite-compiler-0.1.jar')
-}
-task runAllModules(type: JavaExec, dependsOn: buildCompiler) {
-	main = 'swp_compiler_ss13.javabite.MainDispatcher'
-	classpath = files('bin/javabite-compiler-0.1.jar') + fucJarFiles()
-}
-
 def javabiteProjects() {
 	subprojects.findAll { it.name != 'fuc' && it.name != 'crosstest' }
 }
 def basicJavabiteProjects() {
 	[project('javabite-common'),project('javabite-lexer'),project('javabite-parser'),project('javabite-semantic'),project('javabite-code-gen'),project('javabite-backend')]
 }
-
 def fucJarFiles() {
 	files('fuc/code/dist/FUC-SymbolTable.jar','fuc/code/dist/FUC-AST.jar',
 		'fuc/code/dist/FUC-Lexer.jar','fuc/code/dist/FUC-Parser.jar',
@@ -241,61 +173,9 @@ def fucJarFiles() {
 		'fuc/code/dist/FUC-Backend.jar','fuc/code/dist/lib/log4j-1.2.17.jar',
 		'fuc/code/dist/FUC-Backend.jar')
 }
-
-class GitSubmoduleInit extends GitBase {
-	List<String> modules
-	@TaskAction
-	void pullRepo() {
-		SubmoduleInitCommand cmd = getGit().submoduleInit()
-		modules.each {cmd.addPath(it)}
-		try {
-			cmd.call()
-		} catch (InvalidRemoteException e) {
-			throw new GradleException("Invalid remote repository.", e)
-		} catch (TransportException e) {
-			throw new GradleException("Problem with transport.", e)
-		} catch (WrongRepositoryStateException e) {
-			throw new GradleException("Invalid repository state.", e)
-		} catch (GitAPIException e) {
-			throw new GradleException("Problem with pull.", e)
-		}
-	}
-	
-	@Input
-	public void getModules() {
-		this.modules = modules?:[];
-	}
-	
-	public void setModules(List<String> modules) {
-		this.modules = modules;
-	}
-}
-
-class GitSubmoduleUpdate extends GitBase {
-	List<String> modules
-	@TaskAction
-	void pullRepo() {
-		SubmoduleUpdateCommand cmd = getGit().submoduleUpdate()
-		modules.each {cmd.addPath(it)}
-		try {
-			cmd.call()
-		} catch (InvalidRemoteException e) {
-			throw new GradleException("Invalid remote repository.", e)
-		} catch (TransportException e) {
-			throw new GradleException("Problem with transport.", e)
-		} catch (WrongRepositoryStateException e) {
-			throw new GradleException("Invalid repository state.", e)
-		} catch (GitAPIException e) {
-			throw new GradleException("Problem with pull.", e)
-		}
-	}
-	
-	@Input
-	public void getModules() {
-		this.modules = modules?:[];
-	}
-	
-	public void setModules(List<String> modules) {
-		this.modules = modules;
-	}
+/*
+ * build helpers
+ */
+task wrapper(type: Wrapper) {
+	gradleVersion = '1.6'
 }

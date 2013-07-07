@@ -416,7 +416,7 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 	public void setSuccessIcon() {
 		Icon icon = null;
 		try {
-			icon = new ImageIcon(IOUtils.toByteArray(ClassLoader.getSystemResourceAsStream("images" + System.getProperty("file.separator") + "success-icon.png")));
+			icon = new ImageIcon(IOUtils.toByteArray(ClassLoader.getSystemResourceAsStream("images/success-icon.png")));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -426,7 +426,7 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 	public void setFailureIcon() {
 		Icon icon = null;
 		try {
-			icon = new ImageIcon(IOUtils.toByteArray(ClassLoader.getSystemResourceAsStream("images" + System.getProperty("file.separator") + "unsuccess-icon.png")));
+			icon = new ImageIcon(IOUtils.toByteArray(ClassLoader.getSystemResourceAsStream("images/unsuccess-icon.png")));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
