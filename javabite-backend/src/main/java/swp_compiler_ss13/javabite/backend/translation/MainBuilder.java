@@ -28,7 +28,6 @@ public class MainBuilder extends AbstractBuilder {
 
 	public MainBuilder(final Classfile classfile, final String methodName) {
 		super(classfile, methodName);
-		returnFlag = false;
 		structNameBuilder = new StringBuilder();
 		structChains = new HashMap<>();
 	}
@@ -976,7 +975,6 @@ public class MainBuilder extends AbstractBuilder {
 				+ q.getOperator();
 		assert ConstantUtils.hasArgsCount(q, 1) : "quadruple has wrong args count: "
 				+ ConstantUtils.getArgsCount(q);
-		returnFlag = true;
 		final short systemExitIndex = classfile
 				.addMethodrefConstantToConstantPool(SYSTEM_EXIT_METHOD);
 		final Operation.Builder op = new Operation.Builder();
@@ -2484,24 +2482,24 @@ public class MainBuilder extends AbstractBuilder {
 		final short stringBuilderToString = classfile
 				.addMethodrefConstantToConstantPool(STRINGBUILDER_TOSTRING_METHOD);
 
-		op.add(newObjectOperation(STRINGBUILDER_NEW_METHOD, null));
+		op.add(fieldNewObjectOperation(STRINGBUILDER_NEW_METHOD, null));
 
 		if (!isIgnoreParam(q.getArgument1())) {
 			op.add(localLoadInstruction(q.getArgument1(),
 					ClassfileUtils.LocalVariableType.STRING));
-			op.add(Mnemonic.INVOKEVIRTUAL,
+			op.add(Mnemonic.INVOKEVIRTUAL, 1,
 					ByteUtils.shortToByteArray(appendMethod));
 		}
 
 		if (!isIgnoreParam(q.getArgument2())) {
 			op.add(localLoadInstruction(q.getArgument2(),
 					ClassfileUtils.LocalVariableType.STRING));
-			op.add(Mnemonic.INVOKEVIRTUAL,
+			op.add(Mnemonic.INVOKEVIRTUAL, 1,
 					ByteUtils.shortToByteArray(appendMethod));
 		}
 
 		if (!isIgnoreParam(q.getResult())) {
-			op.add(Mnemonic.INVOKEVIRTUAL,
+			op.add(Mnemonic.INVOKEVIRTUAL, 1,
 					ByteUtils.shortToByteArray(stringBuilderToString));
 			op.add(localStoreInstruction(q.getResult(),
 					ClassfileUtils.LocalVariableType.STRING));

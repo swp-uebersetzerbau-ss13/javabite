@@ -48,6 +48,10 @@ public class Operation {
 		return instructions[index];
 	}
 
+	public Instruction getLastInstruction() {
+		return instructions[instructions.length - 1];
+	}
+
 	/**
 	 * Returns this operations instruction count
 	 * 
@@ -136,23 +140,40 @@ public class Operation {
 		 * 
 		 * @param mnemonic
 		 *            bytecode mnemonic
+		 * @param addToStackChange
+		 *            this value will be added to the stack change value of the
+		 *            instruction. Useful if the operation has a variable count
+		 *            of elements of the stack, eg. call values.
+		 * @param arguments
+		 *            arguments to be passed along the bytecode instruction
+		 * @return instance of this builder
+		 */
+		public Builder add(final Mnemonic mnemonic, final int addToStackChange,
+				final byte... arguments) {
+			final Instruction instruction;
+			if (mnemonic.getArgsCount() > 0) {
+				assert arguments != null
+						&& arguments.length == mnemonic.getArgsCount();
+				instruction = new Instruction(mnemonic, addToStackChange,
+						arguments);
+			} else {
+				instruction = new Instruction(mnemonic, addToStackChange);
+			}
+			return add(instruction);
+		}
+
+		/**
+		 * Add a new instruction to this builder instance.
+		 * 
+		 * @param mnemonic
+		 *            bytecode mnemonic
 		 * @param arguments
 		 *            arguments to be passed along the bytecode instruction
 		 * @return instance of this builder
 		 */
 		public Builder add(final Mnemonic mnemonic, final byte... arguments) {
-			final Instruction instruction;
-			if (mnemonic.getArgsCount() > 0) {
-				assert arguments != null
-						&& arguments.length == mnemonic.getArgsCount();
-				// instruction = new Instruction(1 + argsSize, mnemonic,
-				// arguments);
-				instruction = new Instruction(mnemonic, arguments);
-			} else {
-				// instruction = new Instruction(1, mnemonic);
-				instruction = new Instruction(mnemonic);
-			}
-			return add(instruction);
+			add(mnemonic, 0, arguments);
+			return this;
 		}
 
 		/**

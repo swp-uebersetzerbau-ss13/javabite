@@ -73,4 +73,13 @@ public class JumpInstruction extends Instruction {
 		return result;
 	}
 
+	public static JumpInstruction copyOf(final JumpInstruction jumpInstruction,
+			final Mnemonic mnemonic, final Instruction instruction) {
+		final Mnemonic m = mnemonic == null ? jumpInstruction.getMnemonic()
+				: mnemonic;
+		final Instruction i = instruction == null ? jumpInstruction.targetInstruction
+				: instruction;
+		return new JumpInstruction(m, i);
+	}
+
 }

@@ -13,8 +13,6 @@ public abstract class AbstractBuilder {
 	private final List<JumpInstruction> jumpInstructions;
 	// saves all jump targets (labels) for jump instruction creation
 	private final Map<String, Instruction> jumpTargets;
-	// indicates last instruction was a label, denoting a jump location
-	private boolean labelFlag;
 	// label name of last label
 	private final Stack<String> labelNames;
 	// the classfile instance of this program
@@ -23,9 +21,6 @@ public abstract class AbstractBuilder {
 	protected final String methodName;
 	// the list of operations of this program
 	protected final List<Operation> operations;
-	// determines, whether the System exit method has already been added/
-	// a return statement is present in the tac
-	protected boolean returnFlag;
 	// sizes of last array declaration, in reverse order on the stack
 	protected final List<String> arrayLengths;
 	// name of last array seen
@@ -51,9 +46,16 @@ public abstract class AbstractBuilder {
 	 * @return new program instance
 	 */
 	public Program build() {
+		boolean needsReturn = !(operations.isEmpty() || operations
+				.get(operations.size() - 1).getLastInstruction().getMnemonic() == Mnemonic.RETURN);
+
 		// check, whether there is a return instruction in the end
 		// if not, set it
-		if (!returnFlag) {
+		if (!labelNames.isEmpty() && !needsReturn) {
+			addNop();
+		}
+
+		if (needsReturn) {
 			addReturnOp();
 		}
 
@@ -67,7 +69,9 @@ public abstract class AbstractBuilder {
 		}
 
 		// caluclate jump offset for every jump, set as argument of jump
-		for (final JumpInstruction in : jumpInstructions) {
+		for (final ListIterator<JumpInstruction> instructionIterator = jumpInstructions
+				.listIterator(); instructionIterator.hasNext();) {
+			final JumpInstruction in = instructionIterator.next();
 			Instruction target = in.getTargetInstruction();
 			if (target == null) {
 				// target instruction is null -> target label is set
@@ -78,8 +82,10 @@ public abstract class AbstractBuilder {
 			// calculate offset delta from jump instruction to target
 			final int offset = target.getOffset() - in.getOffset();
 			if (offset > Short.MAX_VALUE) {
-				in.setMnemonic(Mnemonic.GOTO_W);
-				in.setArguments(ByteUtils.intToByteArray(offset));
+				final JumpInstruction newJi = JumpInstruction.copyOf(in,
+						Mnemonic.GOTO_W, null);
+				newJi.setArguments(ByteUtils.intToByteArray(offset));
+				instructionIterator.set(newJi);
 			} else {
 				in.setArguments(ByteUtils.shortToByteArray((short) offset));
 			}
@@ -101,11 +107,8 @@ public abstract class AbstractBuilder {
 		operations.add(operation);
 
 		// check if jumping targets are expected
-		if (labelFlag) {
-			labelFlag = false;
-			while (!labelNames.isEmpty()) {
-				jumpTargets.put(labelNames.pop(), operation.getInstruction(0));
-			}
+		while (!labelNames.isEmpty()) {
+			jumpTargets.put(labelNames.pop(), operation.getInstruction(0));
 		}
 
 		// check for jumping instructions
@@ -124,7 +127,6 @@ public abstract class AbstractBuilder {
 	 *            name of label
 	 */
 	protected void addLabel(final String labelName) {
-		labelFlag = true;
 		labelNames.push(labelName);
 	}
 
@@ -230,8 +232,8 @@ public abstract class AbstractBuilder {
 	 *            name of variable to store object instance in
 	 * @return new operation instance
 	 */
-	protected Operation newObjectOperation(final MethodSignature constructor,
-			final String store) {
+	protected Operation fieldNewObjectOperation(
+			final MethodSignature constructor, final String store) {
 		final Operation.Builder op = new Operation.Builder();
 		final short classIndex = classfile
 				.addClassConstantToConstantPool(constructor.methodClass);
@@ -240,13 +242,11 @@ public abstract class AbstractBuilder {
 				.addMethodrefConstantToConstantPool(constructor);
 		assert cstrIndex > 0 : "index is zero";
 		if (store != null) {
-			// TODO bla
 			op.add(Mnemonic.ALOAD_0);
 		}
 		op.add(Mnemonic.NEW, ByteUtils.shortToByteArray(classIndex));
 		op.add(Mnemonic.DUP);
 		op.add(Mnemonic.INVOKESPECIAL, ByteUtils.shortToByteArray(cstrIndex));
-		// TODO refactor
 		if (store != null) {
 			final FieldSignature fieldSignature = new FieldSignature(store,
 					classfile.getClassname(),
@@ -429,7 +429,7 @@ public abstract class AbstractBuilder {
 					ClassfileUtils.LocalVariableType.LONG));
 			op.add(Mnemonic.L2I);
 		}
-        arrayLengths.clear();
+		arrayLengths.clear();
 
 		if (arrayClass.arrayDimensions > 1) {
 			// if more than 1 dimension, create a multi dimensional array

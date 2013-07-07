@@ -158,7 +158,7 @@ public class StructBuilder extends AbstractBuilder {
 			constructor = new MethodSignature("<init>",
 					classfile.getClassname() + "_" + q.getResult(), void.class);
 
-			add(newObjectOperation(constructor, q.getResult()));
+			add(fieldNewObjectOperation(constructor, q.getResult()));
 		}
 		return this;
 	}

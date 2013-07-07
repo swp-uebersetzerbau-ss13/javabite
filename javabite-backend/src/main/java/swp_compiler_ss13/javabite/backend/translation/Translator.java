@@ -157,8 +157,8 @@ public class Translator {
 				// register struct as toplevel struct for struct resolution
 				mainClassfile.addToplevelStruct(structName);
 				// arg2 is used to store the full class name of the struct
-				tacIter.set(QuadrupleUtils.copyQuadruple(quad, null, null,
-						className, null));
+				tacIter.set(QuadrupleUtils.copyOf(quad, null, null, className,
+						null));
 
 				// get struct's tac
 				final long memberVarsCount = Long
@@ -282,7 +282,7 @@ public class Translator {
 						fieldTypeSig = new ClassSignature(arrayDimensions,
 								className, name);
 
-						quad = QuadrupleUtils.copyQuadruple(quad, null, null,
+						quad = QuadrupleUtils.copyOf(quad, null, null,
 								fieldTypeSig.baseClassName, null);
 						tacIter.set(quad);
 
@@ -336,7 +336,7 @@ public class Translator {
 					// generate classfile for structTACwithoutFirstDecl
 					final ClassSignature structClassSig = new ClassSignature(
 							className, name);
-					quad = QuadrupleUtils.copyQuadruple(quad, null, null,
+					quad = QuadrupleUtils.copyOf(quad, null, null,
 							structClassSig.className, null);
 					tacIter.set(quad);
 					constructorTAC.add(quad);

@@ -5,7 +5,7 @@ import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
 
 public final class QuadrupleUtils {
 
-	public static Quadruple copyQuadruple(final Quadruple q,
+	public static Quadruple copyOf(final Quadruple q,
 			final Quadruple.Operator op, final String arg1, final String arg2,
 			final String res) {
 		return new QuadrupleJb(op != null ? op : q.getOperator(),

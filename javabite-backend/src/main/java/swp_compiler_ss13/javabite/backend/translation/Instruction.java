@@ -27,6 +27,27 @@ public class Instruction {
 	private Mnemonic mnemonic;
 	private byte[] arguments;
 	private int offset;
+	private int addToStackChange;
+
+	/**
+	 * Create a new instruction class instance
+	 * 
+	 * @param mnemonic
+	 *            mnemonic of opcode
+	 * @param arguments
+	 *            arguments for opcode
+	 */
+	public Instruction(final Mnemonic mnemonic, final int addToStackChange,
+			final byte... arguments) {
+		this.mnemonic = mnemonic;
+		if (mnemonic.getArgsCount() > 0) {
+			this.arguments = arguments;
+		} else {
+			this.arguments = null;
+		}
+		byteCount = 1 + mnemonic.getArgsCount();
+		this.addToStackChange = addToStackChange;
+	}
 
 	/**
 	 * Create a new instruction class instance
@@ -37,13 +58,7 @@ public class Instruction {
 	 *            arguments for opcode
 	 */
 	public Instruction(final Mnemonic mnemonic, final byte... arguments) {
-		this.mnemonic = mnemonic;
-		if (mnemonic.getArgsCount() > 0) {
-			this.arguments = arguments;
-		} else {
-			this.arguments = null;
-		}
-		byteCount = 1 + mnemonic.getArgsCount();
+		this(mnemonic, 0, arguments);
 	}
 
 	/**
@@ -141,7 +156,7 @@ public class Instruction {
 	 * @return the stack change value
 	 */
 	public short getStackChange() {
-		return mnemonic.getStackChange();
+		return (short) (mnemonic.getStackChange() + addToStackChange);
 	}
 
 	@Override
@@ -185,6 +200,17 @@ public class Instruction {
 				+ (arguments != null ? Arrays.hashCode(arguments) : 0);
 		result = 31 * result + offset;
 		return result;
+	}
+
+	public static Instruction copyOf(final Instruction instruction,
+			final Mnemonic mnemonic, final Integer addToStackChange,
+			final byte... arguments) {
+		final Mnemonic m = mnemonic == null ? instruction.mnemonic : mnemonic;
+		final int stackChange = addToStackChange == null ? instruction.addToStackChange
+				: addToStackChange;
+		final byte[] args = arguments == null ? instruction.arguments
+				: arguments;
+		return new Instruction(m, stackChange, args);
 	}
 
 }

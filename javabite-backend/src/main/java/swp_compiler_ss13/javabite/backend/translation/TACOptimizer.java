@@ -112,8 +112,7 @@ public class TACOptimizer {
 			}
 		}
 		if (replace) {
-			iter.set(QuadrupleUtils.copyQuadruple(quad, null, arg1, arg2,
-					result));
+			iter.set(QuadrupleUtils.copyOf(quad, null, arg1, arg2, result));
 		}
 	}
 
@@ -134,11 +133,9 @@ public class TACOptimizer {
 					&& arg1 == null ? "!" : null;
 
 			if (iter.hasNext() && iter.peek().getResult().equals(result))
-				iter.set(QuadrupleUtils.copyQuadruple(next, null, arg1, arg2,
-						"!"));
+				iter.set(QuadrupleUtils.copyOf(next, null, arg1, arg2, "!"));
 			else
-				iter.set(QuadrupleUtils.copyQuadruple(next, null, arg1, arg2,
-						null));
+				iter.set(QuadrupleUtils.copyOf(next, null, arg1, arg2, null));
 		} while (iter.hasNext());
 	}
 
