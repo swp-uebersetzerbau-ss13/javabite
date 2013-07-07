@@ -116,9 +116,33 @@ public class ClassSignature {
 		return className;
 	}
 
-	private static String classNameWithDimensions(final String cleanClassName,
+	public static String classNameWithDimensions(final String cleanClassName,
 			final int arrayDimensions) {
 		return StringUtils.leftPad("", arrayDimensions, '[') + cleanClassName;
+	}
+
+	/**
+	 * Filters out every non legal character for java identifiers.
+	 * 
+	 * @param s
+	 *            string to check for invalid characters
+	 * @return valid java identifier
+	 */
+	public static String rectifyJavaIdentifier(final String s) {
+		final StringBuilder sb = new StringBuilder();
+
+		final char[] c = s.toCharArray();
+		if (Character.isJavaIdentifierStart(c[0])) {
+			sb.append(Character.toUpperCase(c[0]));
+		}
+
+		for (int i = 1; i < c.length; i++) {
+			if (Character.isJavaIdentifierPart(c[i])) {
+				sb.append(c[i]);
+			}
+		}
+
+		return sb.toString();
 	}
 
 }
