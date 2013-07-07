@@ -1,6 +1,7 @@
-# returns 98
+# returns 610
 # prints:
 # 6765
+
 
 long[21] numbers;
 long i;
@@ -21,3 +22,4 @@ i = 0;
         print numbers[20];
         return numbers[15];
 }
+
