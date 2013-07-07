@@ -48,7 +48,7 @@ public class SymbolTableJb implements SymbolTable {
 			if (parent == null)
 				return null;
 			else
-				parent.getIdentifierAlias(identifier);
+				return parent.getIdentifierAlias(identifier);
 		}
 		
 		return (sbInfo.alias != null)?sbInfo.alias:identifier;
