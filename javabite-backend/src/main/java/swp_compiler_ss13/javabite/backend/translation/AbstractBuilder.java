@@ -429,6 +429,7 @@ public abstract class AbstractBuilder {
 					ClassfileUtils.LocalVariableType.LONG));
 			op.add(Mnemonic.L2I);
 		}
+        arrayLengths.clear();
 
 		if (arrayClass.arrayDimensions > 1) {
 			// if more than 1 dimension, create a multi dimensional array
