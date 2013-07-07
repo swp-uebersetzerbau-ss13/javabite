@@ -27,7 +27,7 @@ public abstract class AbstractBuilder {
 	// a return statement is present in the tac
 	protected boolean returnFlag;
 	// sizes of last array declaration, in reverse order on the stack
-	protected final Stack<String> arrayLengths;
+	protected final List<String> arrayLengths;
 	// name of last array seen
 	protected String arrayName;
 
@@ -38,7 +38,7 @@ public abstract class AbstractBuilder {
 		this.classfile = classfile;
 		this.methodName = methodName;
 		this.operations = new ArrayList<>();
-		this.arrayLengths = new Stack<>();
+		this.arrayLengths = new ArrayList<>();
 	}
 
 	/**
@@ -424,8 +424,8 @@ public abstract class AbstractBuilder {
 		op.add(Mnemonic.ALOAD_0);
 
 		// add all dimensions to stack for array creation
-		while (!arrayLengths.isEmpty()) {
-			op.add(localLoadInstruction(arrayLengths.pop(),
+		for (final String arrayLength : arrayLengths) {
+			op.add(localLoadInstruction(arrayLength,
 					ClassfileUtils.LocalVariableType.LONG));
 			op.add(Mnemonic.L2I);
 		}

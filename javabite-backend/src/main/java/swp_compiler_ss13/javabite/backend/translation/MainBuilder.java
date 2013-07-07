@@ -1648,7 +1648,7 @@ public class MainBuilder extends AbstractBuilder {
 		if (!ConstantUtils.isIgnoreParam(q.getResult())) {
 			arrayName = q.getResult();
 		}
-		arrayLengths.push(q.getArgument1());
+		arrayLengths.add(q.getArgument1());
 		return this;
 	}
 
