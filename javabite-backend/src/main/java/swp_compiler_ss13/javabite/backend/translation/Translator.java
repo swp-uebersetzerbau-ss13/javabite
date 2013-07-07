@@ -305,7 +305,7 @@ public class Translator {
 						// generate classfile for structTACwithoutFirstDecl
 						translateStructIntoClassfile(mainClassfile,
 								structTACwithoutFirstDecl,
-								fieldTypeSig.className);
+								fieldTypeSig.baseClassName);
 					} else {
 						constructorTAC.add(quad);
 
@@ -455,6 +455,7 @@ public class Translator {
 						classFile
 								.addStringConstantToConstantPool(removeConstantSign(result));
 						break;
+					case ARRAY_SET_BOOLEAN:
 					default:
 						break;
 					}
@@ -489,6 +490,10 @@ public class Translator {
 					classFile.addLongConstantToConstantPool(Long
 							.parseLong(removeConstantSign(arg2)));
 				}
+				if (isConstant(result)) {
+					classFile.addLongConstantToConstantPool(Long
+							.parseLong(removeConstantSign(result)));
+				}
 				break;
 
 			case DOUBLE:
@@ -502,16 +507,25 @@ public class Translator {
 					classFile.addDoubleConstantToConstantPool(
 							Double.parseDouble(arg2Mod), arg2Mod);
 				}
+				if (isConstant(result)) {
+					final String resMod = removeConstantSign(result);
+					classFile.addDoubleConstantToConstantPool(
+							Double.parseDouble(resMod), resMod);
+				}
 				break;
 
 			case STRING:
-				if (type == ConstantPoolType.STRING && isConstant(arg1)) {
+				if (isConstant(arg1)) {
 					classFile
 							.addStringConstantToConstantPool(removeConstantSign(arg1));
 				}
-				if (type == ConstantPoolType.STRING && isConstant(arg2)) {
+				if (isConstant(arg2)) {
 					classFile
 							.addStringConstantToConstantPool(removeConstantSign(arg2));
+				}
+				if (isConstant(result)) {
+					classFile
+							.addStringConstantToConstantPool(removeConstantSign(result));
 				}
 				break;
 

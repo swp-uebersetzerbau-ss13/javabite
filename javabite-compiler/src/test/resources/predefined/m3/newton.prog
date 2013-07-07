@@ -1,0 +1,26 @@
+# returns 0
+# outputs:
+# i hate floating point numbers
+# 1.4142<irgendwas>
+
+double radicand;
+double guess;
+double error;
+string res;
+
+radicand = 2;
+guess = 1;
+error = radicand;
+res = "i hate floating point numbers";
+
+while (error >= 0.0001) {
+      guess = ((radicand/guess) + guess) / 2.0;
+      error = guess * guess - radicand;
+      if (error < 0) {
+         error = error * -1;
+      }
+}
+
+print res;
+print guess;
+return;

@@ -1,0 +1,84 @@
+# return 0
+# prints:
+# 14 46
+# 28 92
+# 42 138
+# 56 18
+
+# constants
+long ax;
+long ay;
+long bx;
+long by;
+
+# temps
+long ix;
+long iy;
+long i;
+
+# matrix
+long[4][3] a;
+long[3][2] b;
+long[4][2] c;
+
+string sep;
+string br;
+
+sep = "|";
+br = "\n";
+
+ax = 4;
+ay = 3;
+bx = 3;
+by = 2;
+ix = 0;
+
+# init a
+a[0][0] = 1; a[0][1] = 2; a[0][2] = 3;
+a[1][0] = 2; a[1][1] = 4; a[1][2] = 6;
+a[2][0] = 3; a[2][1] = 6; a[2][2] = 9;
+a[3][0] = 4; a[3][1] = 8; a[3][2] = 12;
+
+# init b
+b[0][0] = 1; b[0][1] = 5;
+b[1][0] = 2; b[1][1] = 7;
+b[2][0] = 3; b[2][1] = 9;
+
+
+# init c
+c[0][0]=0;
+c[1][0]=0;
+c[2][0]=0;
+c[3][0]=0;
+
+c[0][1]=0;
+c[1][1]=0;
+c[2][1]=0;
+c[3][1]=0;
+
+
+
+while (ix < ax ) {
+      iy = 0;
+      while (iy < by) {
+            i = 0;
+            while (i < bx && i < ay) {
+                  c[ix][iy] =
+                            a[ix][i] * b[i][iy]
+                            + c[ix][iy];
+            }
+      }
+}
+
+ix = 0;
+while (ix < ax) {
+      iy = 0;
+      while (iy < by){
+            print c[ix][iy];
+            if ( (iy+1) != by )
+               print sep;
+      }
+      print br;
+}
+
+return;

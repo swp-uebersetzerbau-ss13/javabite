@@ -34,7 +34,7 @@ public class Classfile {
 	public static final byte[] MAJOR_VERSION_J2SE_6 = { (byte) 0, (byte) 50 };
 	public static final byte[] MAJOR_VERSION_J2SE_5 = { (byte) 0, (byte) 49 };
 
-	public static final String FILE_EXTENSION_CLASS = ".class";
+    public static final String FILE_EXTENSION_CLASS = ".class";
 
 	private static final Logger logger = LoggerFactory
 			.getLogger(Classfile.class);
