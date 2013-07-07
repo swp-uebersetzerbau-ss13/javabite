@@ -695,7 +695,7 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 
 	private void evalIntermediateAttributes(DeclarationNode n) {
 		SymbolTable t = get(n, SymbolTable.class, INHERITED);
-		if (t.isDeclared(n.getIdentifier())) {
+		if (t.isDeclaredInCurrentScope(n.getIdentifier())) {
 			errorLog.reportError(
 					ReportType.DOUBLE_DECLARATION,
 					n.coverage(),
