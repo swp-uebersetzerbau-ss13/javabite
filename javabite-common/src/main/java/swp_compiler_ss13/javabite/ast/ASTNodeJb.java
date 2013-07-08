@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Queue;
 import java.util.TreeMap;
+import java.util.WeakHashMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +23,7 @@ public abstract class ASTNodeJb implements ASTNode, Iterable<ASTNode> {
 	final private TreeMap<Integer,ASTNode> children=new TreeMap<>();
 	protected ASTNodeType astNodeType;
 	private Map<TokenType,List<Token>> typeTokenMap=new HashMap<>();
-    final private Map<Object,Object> attributes=new TreeMap<>();
+    final private Map<Object,Object> attributes=new WeakHashMap<>();
 	Logger logger=LoggerFactory.getLogger(this.getClass());
 	
 	ASTNode parent;
