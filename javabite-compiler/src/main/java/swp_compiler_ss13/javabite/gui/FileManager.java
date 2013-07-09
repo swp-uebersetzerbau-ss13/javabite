@@ -14,6 +14,7 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.Element;
+import javax.swing.text.Highlighter;
 
 import org.apache.commons.io.IOUtils;
 
@@ -27,6 +28,7 @@ public class FileManager implements DocumentListener {
 	public String filename;
 	public File currentFile;
 	public boolean hasUnsavedChanges = false;
+	private Highlighter highlighter;
 	
 	// should be volatile, highly concurrent access
 	volatile boolean isProcessing = false;
