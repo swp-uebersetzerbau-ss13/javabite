@@ -9,9 +9,7 @@ import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
 
 import java.util.*;
 
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isConstant;
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isIgnoreParam;
-import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.removeConstantSign;
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.*;
 
 /**
  * <h1>Translator</h1>
@@ -102,7 +100,7 @@ public class Translator {
 				MethodAccessFlag.ACC_STATIC);
 
 		// parse tac for struct declarations and create classfiles for them
-		generateClassfilesForStructsInTAC(mainClassfile, tac, mainClassName);
+		analyzeTAC(mainClassfile, tac);
 
 		// translate tac/program into the main method's code
 		if (tac != null) {
@@ -117,7 +115,7 @@ public class Translator {
 	}
 
 	/**
-	 * <h1>generateClassfilesForStructsInTAC</h1>
+	 * <h1>analyzeTAC</h1>
 	 * 
 	 * TODO implementation and javadoc - search for structs in tac and build new
 	 * classes use new translate method or change translate method to
@@ -125,9 +123,8 @@ public class Translator {
 	 * 
 	 * @since 24.06.2013
 	 */
-	private void generateClassfilesForStructsInTAC(
-			final Classfile mainClassfile, final List<Quadruple> tac,
-			final String basicClassName) {
+	private void analyzeTAC(final Classfile mainClassfile,
+			final List<Quadruple> tac) {
 		int listIndex = 0;
 
 		// search for struct declarations
@@ -136,10 +133,10 @@ public class Translator {
 
 			// get the quadruple parts
 			Quadruple quad = tacIter.next();
-            String arrayName = null;
+			String arrayName = null;
 
 			if (quad.getOperator() == Operator.DECLARE_ARRAY) {
-                arrayName = quad.getResult();
+				arrayName = quad.getResult();
 				do {
 					listIndex++;
 				} while ((quad = tacIter.next()).getOperator() == Operator.DECLARE_ARRAY);
@@ -152,8 +149,10 @@ public class Translator {
 			if (quad.getOperator() == Operator.DECLARE_STRUCT) {
 
 				// generate appropriate classfile
-				final String structName = isIgnoreParam(quad.getResult()) ? arrayName : quad.getResult();
-				final String className = basicClassName + "_" + structName;
+				final String structName = isIgnoreParam(quad.getResult()) ? arrayName
+						: quad.getResult();
+				final String className = mainClassfile.getClassname() + "_"
+						+ structName;
 
 				// register struct as toplevel struct for struct resolution
 				mainClassfile.addToplevelStruct(structName);
@@ -181,6 +180,8 @@ public class Translator {
 				tac.subList(listIndex + 1, listIndex + structTAC.size() + 1)
 						.clear();
 				tacIter = tac.listIterator(listIndex + 1);
+			} else if (quad.getOperator() == Operator.PRINT_STRING) {
+				mainClassfile.setPrintFlag(true);
 			}
 		}
 	}
@@ -453,8 +454,8 @@ public class Translator {
 								Double.parseDouble(resMod), resMod);
 						break;
 					case ARRAY_SET_STRING:
-						classFile
-								.addStringConstantToConstantPool(removeConstantSign(result));
+						classFile.addStringConstantToConstantPool(
+								removeConstantSign(result), true);
 						break;
 					case ARRAY_SET_BOOLEAN:
 					default:
@@ -517,16 +518,16 @@ public class Translator {
 
 			case STRING:
 				if (isConstant(arg1)) {
-					classFile
-							.addStringConstantToConstantPool(removeConstantSign(arg1));
+					classFile.addStringConstantToConstantPool(
+							removeConstantSign(arg1), true);
 				}
 				if (isConstant(arg2)) {
-					classFile
-							.addStringConstantToConstantPool(removeConstantSign(arg2));
+					classFile.addStringConstantToConstantPool(
+							removeConstantSign(arg2), true);
 				}
 				if (isConstant(result)) {
-					classFile
-							.addStringConstantToConstantPool(removeConstantSign(result));
+					classFile.addStringConstantToConstantPool(
+							removeConstantSign(result), true);
 				}
 				break;
 

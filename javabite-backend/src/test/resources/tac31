@@ -1,0 +1,2 @@
+DECLARE_STRING #"hallo!" ! s
+PRINT_STRING s ! !

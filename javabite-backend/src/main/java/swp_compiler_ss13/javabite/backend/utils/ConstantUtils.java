@@ -31,8 +31,12 @@ public final class ConstantUtils {
 	}
 
 	public static String removeConstantSign(final String s) {
-		return s.startsWith("#") ? s.substring(1) : s;
+		return s != null && s.startsWith("#") ? s.substring(1) : s;
 	}
+
+    public static String removeQuotationMarks(final String s) {
+        return s != null && s.length() > 1 ? s.substring(1, s.length() - 1) : s;
+    }
 
 	public static Mnemonic convertBooleanConstant(final String arg) {
 		return CONSTANT_VALUE_TRUE.equalsIgnoreCase(arg) ? Mnemonic.ICONST_1
