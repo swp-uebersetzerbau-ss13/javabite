@@ -33,6 +33,7 @@ import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
 import javax.swing.JTextPane;
 import javax.swing.JToolBar;
 import javax.swing.ToolTipManager;
@@ -110,6 +111,7 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 	DefaultTableModel modelReportLogs;
 	JTabbedPane tabbedPaneLog;
 	JTextPane editorPaneSourcecode;
+	JTextArea lineNumberPane;
 	
 	// undo and redo
 	private JButton undoButton;
@@ -258,6 +260,7 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 					undoManager.undo();
 				}
 				restyle();
+				fileManager.setLineNumbers();
 			}
 		});
 		menuBar.add(undoButton);
@@ -278,6 +281,7 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 					undoManager.redo();
 				}
 				restyle();
+				fileManager.setLineNumbers();
 			}
 		});
 		menuBar.add(redoButton);
@@ -346,6 +350,7 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 		editorPaneSourcecode = new JTextPane(doc);
 		editorPaneSourcecode.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
 		scrollPane.setViewportView(editorPaneSourcecode);
+		
 		editorPaneSourcecode.addCaretListener(new CaretListener(){
 			@Override
 			public void caretUpdate(CaretEvent e) {
@@ -370,16 +375,24 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 			@Override
 			public void keyReleased(KeyEvent arg0) {
 				restyle();
+				fileManager.setLineNumbers();
 			}
 		});
 		
-		//Hotkey manager
+		// Hotkey manager
 		HotkeyManager hotkeyManager = new HotkeyManager(fileManager,editorPaneSourcecode,this);
 		KeyboardFocusManager keyboardFocusManager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
 		keyboardFocusManager.addKeyEventDispatcher(hotkeyManager);
 		
 		// undo redo manager
 		undoManager = new UndoCostumManager(editorPaneSourcecode);
+		
+		// set up line numbers
+		lineNumberPane = new JTextArea();
+		lineNumberPane.setBackground(Color.LIGHT_GRAY);
+		lineNumberPane.setText("1");
+		lineNumberPane.setEditable(false);
+		scrollPane.setRowHeaderView(lineNumberPane);
 		
 		// tooltip
 		ToolTipManager.sharedInstance().setDismissDelay(5000);
@@ -483,6 +496,7 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 	}
 
 	private String lastText = null;
+	
 	public void restyle() {
 		if (editorPaneSourcecode.getText().equals(lastText))
 			return;
@@ -542,6 +556,7 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 	public void onConfigChanges(JavabiteConfig config) {
 		Integer fontSize = Integer.parseInt(config.getProperty("font.size","18"));
 		editorPaneSourcecode.setFont(new Font(Font.MONOSPACED, 0, fontSize));
+		lineNumberPane.setFont(new Font(Font.MONOSPACED, 0, fontSize));
 	}
 
 	/**

@@ -1,5 +1,6 @@
 package swp_compiler_ss13.javabite.gui;
 
+import java.awt.Font;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -12,6 +13,7 @@ import javax.swing.JOptionPane;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.text.Element;
 
 import org.apache.commons.io.IOUtils;
 
@@ -36,7 +38,7 @@ public class FileManager implements DocumentListener {
 	/**
 	 * open a new file
 	 * 
-	 * handles the saving of unsave changes
+	 * handles the saving of unsaved changes
 	 * 
 	 * @return false if aborted else true
 	 */
@@ -48,10 +50,27 @@ public class FileManager implements DocumentListener {
 		filename = "new.prog";
 		currentFile = null;
 		mf.clearSourcePane();
+		setLineNumbers();
 		updateUi();
 		isProcessing = false;
 		
 		return true;
+	}
+	
+	/**
+	 * displays the line number for editorPaneSourcecode
+	 */
+	public void setLineNumbers() {
+		int caretPosition = mf.editorPaneSourcecode.getDocument().getLength();
+		Element root = mf.editorPaneSourcecode.getDocument().getDefaultRootElement();
+		String text = "1" + System.getProperty("line.separator");
+		for(int i = 2; i < root.getElementIndex( caretPosition ) + 2; i++){
+			text += i + System.getProperty("line.separator");
+		}
+		Integer fontSize = Integer.parseInt(mf.config.getProperty("font.size","18"));
+		
+		mf.lineNumberPane.setText(text);
+		mf.lineNumberPane.setFont(new Font(Font.MONOSPACED, 0, fontSize));
 	}
 	
 	/**
@@ -89,6 +108,7 @@ public class FileManager implements DocumentListener {
 		loadFileContentIntoEditor(file);
 		updateUi();
 		mf.restyle();
+		setLineNumbers();
 		isProcessing = false;
 		mf.setToolBar(DOCUMENT_OPENED);
 		return true;
@@ -182,11 +202,13 @@ public class FileManager implements DocumentListener {
 	@Override
 	public void insertUpdate(DocumentEvent e) {
 		remarkFileAsChanged();
+		setLineNumbers();
 	}
 
 	@Override
 	public void removeUpdate(DocumentEvent e) {
 		remarkFileAsChanged();
+		setLineNumbers();
 	}
 
 	@Override
@@ -200,6 +222,7 @@ public class FileManager implements DocumentListener {
 		
 		hasUnsavedChanges = true;
 		updateUi();
+		setLineNumbers();
 	}
 	
 	private JFileChooser getFileChooser() {
