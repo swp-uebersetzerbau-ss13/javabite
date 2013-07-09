@@ -41,8 +41,9 @@ class GuiCompiler extends AbstractJavabiteCompiler {
 	@Override
 	protected boolean afterAstGeneration(AST ast) {
 		if (mf.errorReported) {
-			if (mf.astVisualizationRequested)
+			if (mf.astVisualizationRequested) {
 				mf.showAstVisualization(ast);
+			}
 			return reportFailure();
 		}
 
@@ -54,8 +55,9 @@ class GuiCompiler extends AbstractJavabiteCompiler {
 	@Override
 	protected boolean afterSemanticalAnalysis(AST ast) {
 		if (mf.errorReported) {
-			if (mf.astVisualizationRequested)
+			if (mf.astVisualizationRequested) {
 				mf.showAstVisualization(ast);
+			}
 			return reportFailure();
 		}
 		
@@ -73,8 +75,9 @@ class GuiCompiler extends AbstractJavabiteCompiler {
 	@Override
 	protected boolean afterTacGeneration(List<Quadruple> tac) {
 		if (mf.errorReported) {
-			if (mf.tacVisualizationRequested)
+			if (mf.tacVisualizationRequested) {
 				mf.showTacVisualization(tac);
+			}
 			return reportFailure();
 		}
 
