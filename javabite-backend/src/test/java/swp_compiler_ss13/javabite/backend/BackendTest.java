@@ -172,10 +172,15 @@ public class BackendTest {
 		assertEquals(0, testToReturnValueOfTac("tac28", 3));
 	}
 
-	@Test
-	public void testTac29ReturnVal() throws BackendException, IOException {
-		assertEquals(0, testToReturnValueOfTac("tac29", 4));
-	}
+    @Test
+    public void testTac29ReturnVal() throws BackendException, IOException {
+        assertEquals(0, testToReturnValueOfTac("tac29", 4));
+    }
+
+    @Test
+    public void testTac30ReturnVal() throws BackendException, IOException {
+        assertEquals(0, testToReturnValueOfTac("tac30", 2));
+    }
 
 	public long testToReturnValueOfTac(final String tacFile,
 			final int fileamount) throws BackendException, IOException {

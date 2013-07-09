@@ -10,6 +10,7 @@ import swp_compiler_ss13.javabite.quadtruple.QuadrupleJb;
 import java.util.*;
 
 import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isConstant;
+import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isIgnoreParam;
 import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.removeConstantSign;
 
 /**
@@ -127,17 +128,18 @@ public class Translator {
 	private void generateClassfilesForStructsInTAC(
 			final Classfile mainClassfile, final List<Quadruple> tac,
 			final String basicClassName) {
-		int listIndex = -1;
+		int listIndex = 0;
 
 		// search for struct declarations
 		for (ListIterator<Quadruple> tacIter = tac.listIterator(); tacIter
-				.hasNext();) {
-			listIndex++;
+				.hasNext(); listIndex++) {
 
 			// get the quadruple parts
 			Quadruple quad = tacIter.next();
+            String arrayName = null;
 
 			if (quad.getOperator() == Operator.DECLARE_ARRAY) {
+                arrayName = quad.getResult();
 				do {
 					listIndex++;
 				} while ((quad = tacIter.next()).getOperator() == Operator.DECLARE_ARRAY);
@@ -150,8 +152,7 @@ public class Translator {
 			if (quad.getOperator() == Operator.DECLARE_STRUCT) {
 
 				// generate appropriate classfile
-				// TODO normalize struct name
-				final String structName = quad.getResult();
+				final String structName = isIgnoreParam(quad.getResult()) ? arrayName : quad.getResult();
 				final String className = basicClassName + "_" + structName;
 
 				// register struct as toplevel struct for struct resolution
