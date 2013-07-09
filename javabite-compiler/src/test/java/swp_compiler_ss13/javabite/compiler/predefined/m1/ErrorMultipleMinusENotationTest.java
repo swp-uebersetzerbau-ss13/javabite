@@ -27,7 +27,7 @@ public class ErrorMultipleMinusENotationTest extends AbstractCompilerTest {
 	@Override
 	public List<ReportType> getErrorList() {
 		List<ReportType> errors = new ArrayList<>();
-		errors.add(ReportType.WORD_NOT_IN_GRAMMAR);
+		errors.add(ReportType.UNRECOGNIZED_TOKEN);
 		return errors;
 	}
 
