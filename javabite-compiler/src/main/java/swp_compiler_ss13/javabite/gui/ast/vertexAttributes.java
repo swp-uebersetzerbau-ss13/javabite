@@ -39,7 +39,7 @@ public class vertexAttributes {
 	
 	public void addAttributes(ASTNode ast) {
 		if (ast instanceof BasicIdentifierNode) {
-			value = "BasicIdentifierNode"+"\nId= " + ((BasicIdentifierNode) ast).getIdentifier();
+			value = "BasicIdentifierNode"+"\nId = " + ((BasicIdentifierNode) ast).getIdentifier();
 			color = colorAttributes+"0000ff";
 			getToken(ast);
 		} else if (ast instanceof ArithmeticBinaryExpressionNode) {
@@ -59,8 +59,8 @@ public class vertexAttributes {
 		} 
 		
 		else if (ast instanceof LiteralNode) {
-			value = "LiteralNode"+"\nType= " + ((LiteralNode) ast).getLiteralType()
-					+ "\nLiteral= " + ((LiteralNode) ast).getLiteral();
+			value = "LiteralNode"+"\nType = " + ((LiteralNode) ast).getLiteralType()
+					+ "\nLiteral = " + ((LiteralNode) ast).getLiteral();
 			color = colorAttributes+"yellow";
 			getToken(ast);
 		} else if (ast instanceof AssignmentNode) {
@@ -80,7 +80,7 @@ public class vertexAttributes {
 			getToken(ast);
 		} else if (ast instanceof DeclarationNode) {
 			String tValue = "";
-			strAtt=((DeclarationNode) ast).getIdentifier() +":" +((DeclarationNode) ast).getType();
+			strAtt=((DeclarationNode) ast).getIdentifier() +" : " +((DeclarationNode) ast).getType();
 			if (strAtt.length()>23){
 				StringBuffer s = new StringBuffer(strAtt);
 				while(!s.toString().isEmpty()){
@@ -95,13 +95,13 @@ public class vertexAttributes {
 				value = "DeclarationNode\n"+tValue;
 			}
 			else{
-				value = "DeclarationNode\n" + ((DeclarationNode) ast).getIdentifier() +":" 
+				value = "DeclarationNode\n" + ((DeclarationNode) ast).getIdentifier() +" : " 
 						+((DeclarationNode) ast).getType()+"\n";
 			}
 			color = colorAttributes+"magenta";			
 			getToken(ast);
 		} else if (ast instanceof BlockNode) {
-			value ="BlockNode"+"\nStatements= " + ((BlockNode) ast).getNumberOfStatements()
+			value ="BlockNode"+"\nStatements = " + ((BlockNode) ast).getNumberOfStatements()
 					+ "\nDeclarations= "
 					+ ((BlockNode) ast).getNumberOfDeclarations();
 			color = colorAttributes+"pink";
@@ -111,7 +111,7 @@ public class vertexAttributes {
 			color = colorAttributes+"black";
 			getToken(ast);
 		} else if (ast instanceof StructIdentifierNode) {
-			value = "StructIdentifierNode";
+			value = "StructIdentifierNode\nFieldname = " + ((StructIdentifierNode) ast).getFieldName();
 			color = colorAttributes+"red";
 			getToken(ast);
 		} else if (ast instanceof LoopNode) {
@@ -140,7 +140,7 @@ public class vertexAttributes {
 	void getToken(ASTNode ast){
 		
 		for(Token t:ast.coverage()){
-			strA=strA+" "+t.getValue();
+			strA = strA+" "+t.getValue();
 		}
 	}
 

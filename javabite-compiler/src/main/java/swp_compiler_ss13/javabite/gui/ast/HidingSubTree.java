@@ -6,7 +6,12 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import javax.swing.SwingConstants;
+
 import swp_compiler_ss13.common.ast.AST;
+
+import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.view.mxGraph;
@@ -89,8 +94,16 @@ public class HidingSubTree {
 						listEdges.clear();
 						queueSubTree.clear();
 						listClick.set(cellLocation, 0);
+
+						mxHierarchicalLayout layout = new mxHierarchicalLayout(graph);
+						layout.setOrientation(SwingConstants.WEST);
+						layout.setInterRankCellSpacing(80);
+						layout.setInterHierarchySpacing(20);
+						layout.setIntraCellSpacing(5);
+						layout.execute(graph.getDefaultParent());
 					}
 				}
+				graph.repaint();
 			}
 		});
 	}
