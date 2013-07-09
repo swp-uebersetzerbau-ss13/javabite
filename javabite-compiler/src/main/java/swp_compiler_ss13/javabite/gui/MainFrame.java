@@ -689,7 +689,6 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 		}
 		KhaledGraphFrame k= new KhaledGraphFrame();
 		if (bigger>1){
-			System.out.println(bigger);
 			frame.setSize(220*k.levelsCounter(ast), bigger*25+80*k.maximumOfNodesInLevels());
 		}
 		else{
