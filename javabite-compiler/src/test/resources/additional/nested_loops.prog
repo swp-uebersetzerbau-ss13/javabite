@@ -1,0 +1,15 @@
+#returns 30
+long i;
+long j;
+long result;
+
+i = 0;
+j = 0;
+while (i < 10) {
+	do	j = j + 1;
+	while (j < 10);
+	i = i + 1;
+}
+result = i + j;
+
+return result;

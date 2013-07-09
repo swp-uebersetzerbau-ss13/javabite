@@ -1,0 +1,2 @@
+# type_mismatch
+bool b; b = true; return b

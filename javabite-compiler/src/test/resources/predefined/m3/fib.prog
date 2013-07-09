@@ -1,4 +1,4 @@
-# returns 610
+# returns 233
 # prints:
 # 6765
 
@@ -20,6 +20,6 @@ i = 0;
         }
 
         print numbers[20];
-        return numbers[15];
+        return numbers[13];
 }
 

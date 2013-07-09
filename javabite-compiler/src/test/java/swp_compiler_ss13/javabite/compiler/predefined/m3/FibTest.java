@@ -22,7 +22,7 @@ public class FibTest extends AbstractCompilerTest {
 
 	@Override
 	public Integer getResultValue() {
-		return 610;
+		return 233;
 	}
 
 	@Override

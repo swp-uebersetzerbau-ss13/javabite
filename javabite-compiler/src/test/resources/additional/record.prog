@@ -1,0 +1,22 @@
+# returns 0
+# prints Skyrim was not released
+record {
+	long year;
+	long month;
+	long day;
+} date;
+string text;
+
+date.year = 11;
+date.month = 11;
+date.day = 10;
+if ((date.year == date.month) && (date.month == date.day) && (date.day == 11)) {
+	text = "Skyrim was released";
+	print text;
+}
+if (!((date.year == date.month) && (date.month == date.day) && (date.day == 11))) {
+	text = "Skyrim was not released";
+	print text;
+}
+
+return;

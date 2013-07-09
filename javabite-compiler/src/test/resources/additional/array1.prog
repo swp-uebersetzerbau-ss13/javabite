@@ -1,0 +1,2 @@
+# returns 42
+long l; long [ 3 ] a; a [ 0 ] = 42; l = a [ 0 ]; return l;

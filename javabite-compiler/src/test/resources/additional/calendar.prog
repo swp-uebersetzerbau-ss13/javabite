@@ -1,0 +1,30 @@
+#returns 29
+record {
+	long year;
+	long month;
+	long day;
+} [360] calendar;
+
+long i;
+long year;
+long month;
+long day;
+
+i = 0;
+year = 0;
+month = 0;
+day = 0;
+
+while(true) {
+	year = 2013;
+	month = (i/30) + 1;
+	day = i - (30*(month - 1));
+	calendar[i].year = year;
+	calendar[i].month = month;
+	calendar[i].day = day;
+
+	if(i + 1 == 360) break;
+	else i = i + 1;
+}
+
+return calendar[359].day;
