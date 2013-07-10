@@ -4,9 +4,11 @@ import swp_compiler_ss13.common.backend.Quadruple;
 import swp_compiler_ss13.javabite.backend.classfile.Classfile;
 import swp_compiler_ss13.javabite.backend.utils.*;
 
+import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.isIgnoreParam;
 
@@ -25,11 +27,17 @@ public class MainBuilder extends AbstractBuilder {
 	private final StringBuilder structNameBuilder;
 	// stores struct names for reference variables
 	private final Map<String, String> structChains;
+	// stores index of local variable where a printstream for printing is stored
+	private byte printStreamIndex;
 
 	public MainBuilder(final Classfile classfile, final String methodName) {
 		super(classfile, methodName);
 		structNameBuilder = new StringBuilder();
 		structChains = new HashMap<>();
+
+		if (classfile.isPrintFlag()) {
+			createPrintStream();
+		}
 	}
 
 	private String getCompoundStructName(final Quadruple q) {
@@ -47,7 +55,12 @@ public class MainBuilder extends AbstractBuilder {
 		return classfile.getClassname() + structChains.get(q.getArgument1());
 	}
 
-	// METHOD SIGNATURES ---------------------------------------------------
+	// CLASS SIGNATURES -------------------------------------------------------
+
+	public static final ClassSignature PRINTSTREAM_CLASS = new ClassSignature(
+			PrintStream.class);
+
+	// METHOD SIGNATURES ------------------------------------------------------
 
 	public static final MethodSignature SYSTEM_EXIT_METHOD = new MethodSignature(
 			"exit", System.class, void.class, int.class);
@@ -73,12 +86,16 @@ public class MainBuilder extends AbstractBuilder {
 	public static final MethodSignature STRINGBUILDER_TOSTRING_METHOD = new MethodSignature(
 			"toString", StringBuilder.class, String.class);
 
-	// FIELD SIGNATURES ----------------------------------------------------
+	public static final MethodSignature PRINTSTREAM_INIT_METHOD = new MethodSignature(
+			"<init>", PrintStream.class, void.class, OutputStream.class,
+			boolean.class, String.class);
+
+	// FIELD SIGNATURES -------------------------------------------------------
 
 	public static final FieldSignature SYSTEM_OUT_FIELD = new FieldSignature(
 			"out", System.class, PrintStream.class);
 
-	// GENERIC OPERATIONS --------------------------------------------------
+	// GENERIC OPERATIONS -----------------------------------------------------
 
 	/**
 	 * Assigns a number (constant or variable) to a variable. If needed, the
@@ -328,6 +345,37 @@ public class MainBuilder extends AbstractBuilder {
 		op.add(Mnemonic.GETFIELD, ByteUtils.shortToByteArray(fieldIndex));
 		op.add(localStoreInstruction(q.getResult(), variableType));
 		return op.build();
+	}
+
+	private byte createPrintStream() {
+		if (printStreamIndex == 0) {
+			final short psIndex = classfile
+					.addClassConstantToConstantPool(PRINTSTREAM_CLASS);
+			final short outIndex = classfile
+					.addFieldrefConstantToConstantPool(SYSTEM_OUT_FIELD);
+			final short charsetIndex = classfile
+					.addStringConstantToConstantPool("UTF-8", false);
+			final short initIndex = classfile
+					.addMethodrefConstantToConstantPool(PRINTSTREAM_INIT_METHOD);
+			printStreamIndex = classfile.addVariableToMethodsCode(methodName,
+					UUID.randomUUID().toString().replaceAll("-", ""),
+					ClassfileUtils.LocalVariableType.AREF);
+
+			final Operation.Builder op = new Operation.Builder();
+
+			op.add(Mnemonic.NEW, ByteUtils.shortToByteArray(psIndex));
+			op.add(Mnemonic.DUP);
+			op.add(Mnemonic.GETSTATIC, ByteUtils.shortToByteArray(outIndex));
+			op.add(Mnemonic.ICONST_1);
+			op.add(localLoadInstruction(charsetIndex, false));
+			op.add(Mnemonic.INVOKESPECIAL,
+					ByteUtils.shortToByteArray(initIndex));
+			op.add(Mnemonic.ASTORE.withIndex(printStreamIndex),
+					printStreamIndex);
+
+			add(op.build());
+		}
+		return printStreamIndex;
 	}
 
 	// OPERATIONS ----------------------------------------------------------
@@ -1596,16 +1644,14 @@ public class MainBuilder extends AbstractBuilder {
 				+ q.getOperator();
 		assert ConstantUtils.hasArgsCount(q, 1) : "quadruple has wrong args count: "
 				+ ConstantUtils.getArgsCount(q);
+		assert printStreamIndex != 0 : "print stream index is zero";
 		final Operation.Builder op = new Operation.Builder();
-
-		final short systemOutIndex = classfile
-				.addFieldrefConstantToConstantPool(SYSTEM_OUT_FIELD);
 
 		// add print methodref info to constant pool, if necessary
 		final short printIndex = classfile
 				.addMethodrefConstantToConstantPool(PRINTSTREAM_PRINT_METHOD);
 
-		op.add(Mnemonic.GETSTATIC, ByteUtils.shortToByteArray(systemOutIndex));
+		op.add(Mnemonic.ALOAD.withIndex(printStreamIndex), printStreamIndex);
 		op.add(localLoadInstruction(q.getArgument1(),
 				ClassfileUtils.LocalVariableType.STRING));
 		op.add(Mnemonic.INVOKEVIRTUAL, ByteUtils.shortToByteArray(printIndex));

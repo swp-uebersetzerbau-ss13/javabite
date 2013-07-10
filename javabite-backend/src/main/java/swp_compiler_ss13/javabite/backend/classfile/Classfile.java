@@ -72,6 +72,7 @@ public class Classfile {
 	private final short attributesCount;
 
 	private byte[] constructorIndex;
+	private boolean printFlag;
 
 	// attribute area left out
 
@@ -155,6 +156,14 @@ public class Classfile {
 
 	public String getStructMemberArrayType(final String arrayPath) {
 		return structMemberArrayTypes.get(arrayPath);
+	}
+
+	public boolean isPrintFlag() {
+		return printFlag;
+	}
+
+	public void setPrintFlag(final boolean printFlag) {
+		this.printFlag = printFlag;
 	}
 
 	/**
@@ -357,11 +366,15 @@ public class Classfile {
 	 * @since 26.05.2013
 	 * @param value
 	 *            string value of the value which is to be generated
+	 * @param removeQuotationMarks
+	 *            remove quotation marks from the string to add, if present
 	 * @return short index of a string info entry in the constant pool of this
 	 *         classfile meeting the parameters.
 	 */
-	public short addStringConstantToConstantPool(final String value) {
-		return constantPool.generateConstantStringInfo(value);
+	public short addStringConstantToConstantPool(final String value,
+			boolean removeQuotationMarks) {
+		return constantPool.generateConstantStringInfo(value,
+				removeQuotationMarks);
 	}
 
 	/**

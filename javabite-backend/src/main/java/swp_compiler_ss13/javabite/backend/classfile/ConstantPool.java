@@ -201,7 +201,7 @@ public class ConstantPool {
 	 * @return short index of a STRING info entry in the constant pool of this
 	 *         classfile meeting the parameters.
 	 */
-	short generateConstantStringInfo(String value) {
+	short generateConstantStringInfo(String value, boolean removeQuotationMarks) {
 		checkConstantPoolSize(1);
 		final String key = ConstantPoolType.STRING.name() + value;
 
@@ -211,8 +211,12 @@ public class ConstantPool {
 		}
 
 		assert value.length() >= 2;
-		value = StringEscapeUtils.unescapeJava(value.substring(1,
-				value.length() - 1));
+		if (removeQuotationMarks) {
+			value = StringEscapeUtils.unescapeJava(value.substring(1,
+					value.length() - 1));
+		} else {
+			value = StringEscapeUtils.unescapeJava(value);
+		}
 		// generate UTF8-entry
 		final short nameIndex = generateConstantUTF8Info(value);
 		// generate String entry

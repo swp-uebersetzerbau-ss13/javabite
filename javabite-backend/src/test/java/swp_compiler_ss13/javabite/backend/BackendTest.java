@@ -182,6 +182,11 @@ public class BackendTest {
         assertEquals(0, testToReturnValueOfTac("tac30", 2));
     }
 
+    @Test
+    public void testTac31ReturnVal() throws BackendException, IOException {
+        assertEquals(0, testToReturnValueOfTac("tac31", 1));
+    }
+
 	public long testToReturnValueOfTac(final String tacFile,
 			final int fileamount) throws BackendException, IOException {
 		Integer retVal;

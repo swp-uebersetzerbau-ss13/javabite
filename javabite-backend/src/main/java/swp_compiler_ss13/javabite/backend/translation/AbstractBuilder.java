@@ -157,6 +157,20 @@ public abstract class AbstractBuilder {
 		return new Instruction(variableType.varLoadOp.withIndex(index), index);
 	}
 
+	protected static Instruction localLoadInstruction(final short index,
+			final boolean wide) {
+		assert index > 0 : "index is zero";
+		if (wide) {
+			return new Instruction(Mnemonic.LDC2_W,
+					ByteUtils.shortToByteArray(index));
+		} else if (index >= 256) {
+			return new Instruction(Mnemonic.LDC_W,
+					ByteUtils.shortToByteArray(index));
+		} else {
+			return new Instruction(Mnemonic.LDC, (byte) index);
+		}
+	}
+
 	/**
 	 * Creates a load instruction, that can be added to a program flow. This
 	 * operation can distinguish between constants and variables, but needs
@@ -175,16 +189,7 @@ public abstract class AbstractBuilder {
 			assert variableType != null : "variable type is null";
 			final short index = classfile.getIndexOfConstantInConstantPool(
 					variableType.constantPoolType, removeConstantSign(arg1));
-			assert index > 0 : "index is zero";
-			if (variableType.wide) {
-				return new Instruction(Mnemonic.LDC2_W,
-						ByteUtils.shortToByteArray(index));
-			} else if (index >= 256) {
-				return new Instruction(Mnemonic.LDC_W,
-						ByteUtils.shortToByteArray(index));
-			} else {
-				return new Instruction(Mnemonic.LDC, (byte) index);
-			}
+			return localLoadInstruction(index, variableType.wide);
 		} else {
 			final byte index = classfile.addVariableToMethodsCode(methodName,
 					arg1, variableType);
@@ -236,18 +241,13 @@ public abstract class AbstractBuilder {
 	protected Operation fieldNewObjectOperation(
 			final MethodSignature constructor, final String store) {
 		final Operation.Builder op = new Operation.Builder();
-		final short classIndex = classfile
-				.addClassConstantToConstantPool(constructor.methodClass);
-		assert classIndex > 0 : "index is zero";
-		final short cstrIndex = classfile
-				.addMethodrefConstantToConstantPool(constructor);
-		assert cstrIndex > 0 : "index is zero";
+
 		if (store != null) {
 			op.add(Mnemonic.ALOAD_0);
 		}
-		op.add(Mnemonic.NEW, ByteUtils.shortToByteArray(classIndex));
-		op.add(Mnemonic.DUP);
-		op.add(Mnemonic.INVOKESPECIAL, ByteUtils.shortToByteArray(cstrIndex));
+
+		op.add(newObjectOperation(constructor));
+
 		if (store != null) {
 			final FieldSignature fieldSignature = new FieldSignature(store,
 					classfile.getClassname(),
@@ -257,6 +257,22 @@ public abstract class AbstractBuilder {
 			assert fieldIndex > 0 : "index is zero";
 			op.add(Mnemonic.PUTFIELD, ByteUtils.shortToByteArray(fieldIndex));
 		}
+		return op.build();
+	}
+
+	protected Operation newObjectOperation(final MethodSignature constructor) {
+		final Operation.Builder op = new Operation.Builder();
+		final short classIndex = classfile
+				.addClassConstantToConstantPool(constructor.methodClass);
+		assert classIndex > 0 : "index is zero";
+		final short cstrIndex = classfile
+				.addMethodrefConstantToConstantPool(constructor);
+		assert cstrIndex > 0 : "index is zero";
+
+		op.add(Mnemonic.NEW, ByteUtils.shortToByteArray(classIndex));
+		op.add(Mnemonic.DUP);
+		op.add(Mnemonic.INVOKESPECIAL, ByteUtils.shortToByteArray(cstrIndex));
+
 		return op.build();
 	}
 

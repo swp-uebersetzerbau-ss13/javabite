@@ -59,7 +59,7 @@ public class ProgramTests {
 
 	private void addStringConstant(final String... vals) {
 		for (final String v : vals) {
-			classfile.addStringConstantToConstantPool(v);
+			classfile.addStringConstantToConstantPool(v, true);
 		}
 	}
 

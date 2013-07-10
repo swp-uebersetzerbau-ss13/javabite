@@ -58,7 +58,6 @@ import swp_compiler_ss13.javabite.gui.config.SettingsPanel;
 import swp_compiler_ss13.javabite.gui.tac.TacVisualizerJb;
 import swp_compiler_ss13.javabite.runtime.JavaClassProcess;
 import java.awt.Cursor;
-import java.awt.Component;
 
 public class MainFrame extends JFrame implements ReportLog, Configurable {
 	
@@ -121,7 +120,7 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 	private JMenuItem mntmNew;
 	private JSeparator separator;
 	private JSeparator separator_1;
-
+	
 	private JScrollPane scrollPaneReportLogs;
 	
 	/**
@@ -243,7 +242,6 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 		menuBar.add(buttonRunCompile);
 		
 		// undo button
-		
 		Icon icon = null;
 		try {
 			icon = new ImageIcon(IOUtils.toByteArray(ClassLoader.getSystemResourceAsStream("images/undo-icon.png")));
@@ -268,8 +266,8 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 		// redo button
 		try {
 			icon = new ImageIcon(IOUtils.toByteArray(ClassLoader.getSystemResourceAsStream("images/redo-icon.png")));
-		} catch (IOException e1) {
-			e1.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 		redoButton = new JButton("", icon);
 		redoButton.setMargin(new Insets(0, 0, 0, 0));
@@ -351,21 +349,21 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 		editorPaneSourcecode.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
 		scrollPane.setViewportView(editorPaneSourcecode);
 		
-		editorPaneSourcecode.addCaretListener(new CaretListener(){
+		editorPaneSourcecode.addCaretListener(new CaretListener() {
 			@Override
 			public void caretUpdate(CaretEvent e) {
 				int pos = e.getDot();
 				int row = 1, column=0;
 				int lastNewline=-1;
 				String text = editorPaneSourcecode.getText().replaceAll("\r", "");
-				for(int i=0;i<pos;i++){
-					if(text.charAt(i)==10){
+				for (int i = 0; i < pos; i++) {
+					if (text.charAt(i) == 10) {
 						row++;
-						lastNewline=i;
+						lastNewline = i;
 					}
 				}
 				
-				column=pos-lastNewline;
+				column = pos-lastNewline;
 				setLineColumn(column, row);
 			}
 		});
@@ -401,14 +399,14 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 				styleManager.showToolTip(e.getPoint());
 			}
 		});
-
+		
 		JavabiteConfig.registerConfigurable(this);
 		
-		if (withNewFile)
+		if (withNewFile) {
 			fileManager.newFile();
+		}
 	}
-
-
+	
 	@Override
 	public void setTitle(String title) {
 		super.setTitle(BASE_TITLE + title);
@@ -471,7 +469,6 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 			line = tokens.get(0).getLine();
 			column = tokens.get(0).getColumn();
 		}
-		
 		modelReportLogs.addRow(new Object[] { "Warning", type, line, column, message });
 		styleManager.underlineToken(tokens, Color.YELLOW);
 	}
@@ -483,31 +480,30 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 		int start_column = 0;
 		int end_line = 0;
 		int end_column = 0;
-		
 		if (tokens != null && !tokens.isEmpty()) {
 			start_line = tokens.get(0).getLine();
 			start_column = tokens.get(0).getColumn();
 			end_line = tokens.get(tokens.size()-1).getLine();
-			end_column = tokens.get(tokens.size()-1).getColumn()+tokens.get(tokens.size()-1).getValue().length();
-			
+			end_column = tokens.get(tokens.size()-1).getColumn() + tokens.get(tokens.size()-1).getValue().length();
 		}
-		modelReportLogs.addRow(new Object[] { "Error", type, start_line+":"+start_column, end_line+":"+end_column, message });
+		modelReportLogs.addRow(new Object[] { "Error", type, start_line+":" + start_column, end_line + ":" + end_column, message });
 		styleManager.underlineToken(tokens, Color.RED);
 	}
 
 	private String lastText = null;
 	
 	public void restyle() {
-		if (editorPaneSourcecode.getText().equals(lastText))
+		if (editorPaneSourcecode.getText().equals(lastText)) {
 			return;
+		}
 		lastText = editorPaneSourcecode.getText();
 		styleManager.setTokens(guiCompiler.getTokenListFor(lastText));
 	}
-
+	
 	private void showSettingsPanel() {
 		new SettingsPanel().setVisible(true);
 	}
-
+	
 	private void initializeConfig() {
 		config.getProperty("syntaxHighlighting.num", "#000000");
 		config.getProperty("syntaxHighlighting.real", "#000000");
@@ -551,22 +547,23 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 		config.getProperty("syntaxHighlighting.comment", "#3F7F5F");
 		config.getProperty("syntaxHighlighting.not_a_token", "#FF0000");
 	}
-
+	
 	@Override
 	public void onConfigChanges(JavabiteConfig config) {
 		Integer fontSize = Integer.parseInt(config.getProperty("font.size","18"));
 		editorPaneSourcecode.setFont(new Font(Font.MONOSPACED, 0, fontSize));
 		lineNumberPane.setFont(new Font(Font.MONOSPACED, 0, fontSize));
 	}
-
+	
 	/**
 	 * Main entry point for the compile process
 	 * */
 	public void compile() {
 		progressBar.setValue(0);
 		try {
-			if (!fileManager.saveFileIfChanged())
+			if (!fileManager.saveFileIfChanged()) {
 				return;
+			}
 			
 			textPaneLogs.setText("Compiler started.");
 			appendToConsole("\n[Compiler] started");
@@ -617,7 +614,7 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 			progressBar.setEnabled(false);
 		}
 	}
-
+	
 	private void requestTacVisualization() {
 		tacVisualizationRequested = true;
 		compile();
@@ -669,29 +666,28 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 		else if (errorReported) {
 			JOptionPane.showMessageDialog(null, "While generating the AST an error occoured. The shown AST is not correct.", "Compilation Errors", JOptionPane.ERROR_MESSAGE);
 		}
-
+		
 		astVisualizationRequested = false;
 		ASTVisualizerJb visualizer = new ASTVisualizerJb();
 		visualizer.visualizeAST(ast);
 		JFrame frame = new JFrame();
-		JScrollPane ast_frame=visualizer.getFrame();
+		JScrollPane ast_frame = visualizer.getFrame();
 		frame.setVisible(true);
-		ASTVisualizerJb v= new ASTVisualizerJb();
+		ASTVisualizerJb v = new ASTVisualizerJb();
 		v.visualizeAST(ast);
-		intArray =v.intArray;
+		intArray = v.intArray;
 		int smaller;
 		int bigger=intArray.get(0);
-		for (int i=0;i<intArray.size();i++){
+		for (int i = 0; i < intArray.size(); i++) {
 			smaller=intArray.get(i);
-			if (smaller>bigger){
-				bigger=smaller;
+			if (smaller > bigger) {
+				bigger = smaller;
 			}
 		}
-		KhaledGraphFrame k= new KhaledGraphFrame();
-		if (bigger>1){
+		KhaledGraphFrame k = new KhaledGraphFrame();
+		if (bigger > 1) {
 			frame.setSize(220*k.levelsCounter(ast), bigger*25+80*k.maximumOfNodesInLevels());
-		}
-		else{
+		} else {
 			frame.setSize(220*k.levelsCounter(ast), 80*k.maximumOfNodesInLevels());
 		}
 		frame.getContentPane().add(ast_frame);
