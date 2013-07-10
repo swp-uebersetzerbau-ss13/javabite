@@ -34,17 +34,34 @@ public class StyleManager extends DocumentFilter {
 	/**
 	 * Styles a special part of the sourcecode
 	 */
-	private void styleToken(TokenType tokenType, int start, int end) {
+	private void styleToken(TokenType tokenType, int start, int length) {
 		// check properties file for tokentype key, if exist set defined color
 		String color;
 		if ((color = config.getProperty("syntaxHighlighting."+tokenType.toString().toLowerCase())) != null) {
 			Style style = mf.editorPaneSourcecode.addStyle(tokenType.toString(), null);
 			StyleConstants.setForeground(style, Color.decode(color));
-			mf.doc.setCharacterAttributes(start, end, mf.editorPaneSourcecode.getStyle(tokenType.toString()), true);
+			mf.doc.setCharacterAttributes(start, length, style, true);
 		} else {
 			Style style = mf.editorPaneSourcecode.addStyle("Black", null);
 			StyleConstants.setForeground(style, Color.BLACK);
-			mf.doc.setCharacterAttributes(start, end, mf.editorPaneSourcecode.getStyle("Black"), true);
+			mf.doc.setCharacterAttributes(start, length, style, true);
+		}
+	}
+	
+	/**
+	 * Styles a special part of the sourcecode
+	 */
+	private void styleToken(TokenType tokenType, TextRange range) {
+		// check properties file for tokentype key, if exist set defined color
+		String color;
+		if ((color = config.getProperty("syntaxHighlighting."+tokenType.toString().toLowerCase())) != null) {
+			Style style = mf.editorPaneSourcecode.addStyle(tokenType.toString(), null);
+			StyleConstants.setForeground(style, Color.decode(color));
+			mf.doc.setCharacterAttributes(range.from, range.to-range.from, style, true);
+		} else {
+			Style style = mf.editorPaneSourcecode.addStyle("Black", null);
+			StyleConstants.setForeground(style, Color.BLACK);
+			mf.doc.setCharacterAttributes(range.from, range.to-range.from, style, true);
 		}
 	}
 	
@@ -54,7 +71,7 @@ public class StyleManager extends DocumentFilter {
 		int cursorPos = mf.editorPaneSourcecode.getCaretPosition();
 		String text = mf.editorPaneSourcecode.getText();
 		// reset so base style
-		mf.editorPaneSourcecode.setText("");
+		mf.editorPaneSourcecode.setText("a");
 		Style style = mf.editorPaneSourcecode.addStyle("Black", null);
 		StyleConstants.setForeground(style, Color.BLACK);
 		mf.doc.setCharacterAttributes(0, 1, mf.editorPaneSourcecode.getStyle("Black"), true);
@@ -65,9 +82,10 @@ public class StyleManager extends DocumentFilter {
 		int currentPosition = 0;
 		int lastPosition = 0;
 		for(Token t:tokens) {
-			currentPosition = text.indexOf(t.getValue(), lastPosition);
-			lastPosition = currentPosition + t.getValue().length();
-			styleToken(t.getTokenType(), currentPosition, lastPosition);
+//			currentPosition = text.indexOf(t.getValue(), lastPosition);
+//			lastPosition = currentPosition + t.getValue().length();
+//			styleToken(t.getTokenType(), currentPosition, t.getValue().length());
+			styleToken(t.getTokenType(), getTextRange(t));
 		}
 		mf.fileManager.isProcessing = false;
 	}

@@ -121,7 +121,11 @@ public class FileManager implements DocumentListener {
 	 * @return false if user abort workflow else true
 	 */
 	public boolean saveFileIfChanged() {
+		
 		if (!hasUnsavedChanges) {
+			if (currentFile == null) {
+				return false; //no file can't have no changes
+			}
 			return true;
 		}
 		
