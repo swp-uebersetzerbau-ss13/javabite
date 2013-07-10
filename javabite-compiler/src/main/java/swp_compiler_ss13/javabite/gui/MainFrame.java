@@ -52,7 +52,7 @@ import swp_compiler_ss13.common.report.ReportType;
 import swp_compiler_ss13.javabite.config.Configurable;
 import swp_compiler_ss13.javabite.config.JavabiteConfig;
 import swp_compiler_ss13.javabite.gui.ast.ASTVisualizerJb;
-import swp_compiler_ss13.javabite.gui.ast.fitted.KhaledGraphFrame;
+import swp_compiler_ss13.javabite.gui.ast.GraphPropertyCalculator;
 import swp_compiler_ss13.javabite.gui.bytecode.ByteCodeVisualizerJb;
 import swp_compiler_ss13.javabite.gui.config.SettingsPanel;
 import swp_compiler_ss13.javabite.gui.tac.TacVisualizerJb;
@@ -684,7 +684,7 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 				bigger = smaller;
 			}
 		}
-		KhaledGraphFrame k = new KhaledGraphFrame();
+		GraphPropertyCalculator k = new GraphPropertyCalculator();
 		if (bigger > 1) {
 			frame.setSize(220*k.levelsCounter(ast), bigger*25+80*k.maximumOfNodesInLevels());
 		} else {

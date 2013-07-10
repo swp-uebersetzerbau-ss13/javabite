@@ -1,4 +1,4 @@
-package swp_compiler_ss13.javabite.gui.ast.fitted;
+package swp_compiler_ss13.javabite.gui.ast;
 
 import java.util.ArrayDeque;
 import java.util.Queue;
@@ -6,7 +6,7 @@ import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.ASTNode.ASTNodeType;
 
-public class KhaledGraphFrame {
+public class GraphPropertyCalculator {
 	Queue<Integer> sizeQ = new ArrayDeque<>();
 
 	public int levelsCounter(AST ast) {

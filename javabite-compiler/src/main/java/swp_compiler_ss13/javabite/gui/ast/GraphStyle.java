@@ -5,10 +5,10 @@ import com.mxgraph.util.mxConstants;
 import com.mxgraph.view.mxGraph;
 import com.mxgraph.view.mxStylesheet;
 
-public class graphStyle {
+public class GraphStyle {
 	mxGraph graph;
 	
-	public graphStyle(mxGraph graph){
+	public GraphStyle(mxGraph graph){
 		this.graph=graph;
 	}
 	

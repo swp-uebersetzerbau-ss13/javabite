@@ -12,14 +12,14 @@ import com.mxgraph.view.mxGraph;
 import swp_compiler_ss13.common.ast.AST;
 import swp_compiler_ss13.common.ast.ASTNode;
 
-public class CreateTree {
+public class TreeBuilder {
 	
 	mxGraph graph;
 	Map<Object, String> tooltips = new HashMap<Object, String>();
 	Queue<Object> toVisit_celledCopy;
 	List<String> strList= new ArrayList<String>();
 	List<Integer> intArray= new ArrayList<Integer>();
-	CreateTree(mxGraph graph){
+	TreeBuilder(mxGraph graph){
 		this.graph=graph;	
 	}
 	
@@ -33,7 +33,7 @@ public class CreateTree {
 	void initTree(AST ast) {
 		// necessary for the model, not important for us
 		Object parent = graph.getDefaultParent();
-		CreateCell createCell = new CreateCell(graph);
+		CellBuilder createCell = new CellBuilder(graph);
 
 		// double-valued BFS. We have to do so since we have two different data
 		// structures
@@ -61,7 +61,6 @@ public class CreateTree {
 			// add all children
 			for (ASTNode child : current_ast.getChildren()) {
 				// get the children, one as ASTNode, one as cell
-				// System.out.println("type: "+child.getClass());
 				Object child_as_cell = createCell.asCell(child);
 
 				// add them to the queue to visit them

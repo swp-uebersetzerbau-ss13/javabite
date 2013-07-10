@@ -21,7 +21,7 @@ import swp_compiler_ss13.common.ast.nodes.unary.ReturnNode;
 import swp_compiler_ss13.common.ast.nodes.unary.StructIdentifierNode;
 import swp_compiler_ss13.common.lexer.Token;
 
-public class vertexAttributes {
+public class VertexAttributes {
 	final String colorAttributes= "ROUNDED;strokeWidth=2.0;" +
 			"strokeColor=white;shadow=false;" +
 			"autosize=0;foldable=0;" +

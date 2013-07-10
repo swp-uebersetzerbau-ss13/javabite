@@ -9,7 +9,7 @@ import swp_compiler_ss13.common.ast.ASTNode;
 import swp_compiler_ss13.common.ast.nodes.unary.DeclarationNode;
 import swp_compiler_ss13.common.lexer.Token;
 
-public class CreateCell {
+public class CellBuilder {
 	
 	mxGraph graph;
 	List<Token> token= new ArrayList<Token>();
@@ -18,7 +18,7 @@ public class CreateCell {
 	int counter=0;
 	List<Integer> intArray= new ArrayList<Integer>();
 	
-	public CreateCell(mxGraph graph){
+	public CellBuilder(mxGraph graph){
 		this.graph=graph;
 	}
 	
@@ -32,7 +32,7 @@ public class CreateCell {
 
 	Object asCell(ASTNode ast) {
 		Object returnVal;
-		vertexAttributes ver = new vertexAttributes();
+		VertexAttributes ver = new VertexAttributes();
 		ver.addAttributes(ast);
 		List<String> strList=ver.strList;
 		intArray.add(strList.size());
