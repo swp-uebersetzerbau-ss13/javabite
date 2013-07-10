@@ -6,6 +6,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Insets;
 import java.awt.KeyboardFocusManager;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
@@ -332,6 +333,28 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 		tabbedPaneLog.addTab("Report Log", null, scrollPaneReportLogs, null);
 		
 		tableReportLogs = new JTable(modelReportLogs);
+		
+		//jump on click to this error
+		tableReportLogs.addMouseListener(new MouseAdapter(){
+		     public void mouseClicked(MouseEvent e){
+		    	 Point p = e.getPoint();
+                 int row = tableReportLogs.rowAtPoint(p);
+                 if(row != -1)
+                 {
+                	 String cellContent = tableReportLogs.getValueAt(row,2).toString();
+                	 String[] split = cellContent.split(":");
+                	 if(split.length == 2)
+                	 {
+                		 int errorLine = Integer.parseInt(split[0]);
+                		 
+                		 editorPaneSourcecode.setCaretPosition(getCarretPositionByLineNumber(errorLine, editorPaneSourcecode));
+                		 
+                		 
+                		 
+                	 }
+                 }
+		      }
+		     });
 		tableReportLogs.setEnabled(false);
 		modelReportLogs.addColumn("");
 		modelReportLogs.addColumn("Type");
@@ -693,5 +716,25 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 		frame.getContentPane().add(ast_frame);
 		frame.setVisible(true);
 		toolBarLabel.setText("Rendered AST.");
+	}
+	
+	private int getCarretPositionByLineNumber(int lineNumber, JTextPane pane) {
+		
+		String value = pane.getText();
+		String[] split = value.split("\n");
+		int pos = 0;
+		for(int i = 0; i< (lineNumber+1); i++)
+		{
+			//index out of bounds if error is in the last line
+			if(i >= split.length)
+			{
+				pos = value.length();
+				break;
+			}
+			pos += split[i].length();
+		}
+		if(pos > value.length())
+			pos = value.length();
+		return pos;
 	}
 }

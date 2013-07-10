@@ -30,7 +30,7 @@ public class HotkeyManager implements KeyEventDispatcher {
 		{
 			keypress = !keypress;
 			if(keypress == false){
-				System.out.println("Save file");
+				//system.out.println("Save file");
 				fileManager.saveFile();
 			}
 		}
@@ -40,7 +40,7 @@ public class HotkeyManager implements KeyEventDispatcher {
 		{
 			keypress = !keypress;
 			if(keypress == false){
-				System.out.println("New file");
+				//system.out.println("New file");
 				fileManager.newFile();
 			}
 		}
@@ -50,7 +50,7 @@ public class HotkeyManager implements KeyEventDispatcher {
 		{
 			keypress = !keypress;
 			if(keypress == false){
-				System.out.println("Open File");
+				//system.out.println("Open File");
 				fileManager.openFile();
 			}
 		}
@@ -60,7 +60,7 @@ public class HotkeyManager implements KeyEventDispatcher {
 		{
 			keypress = !keypress;
 			if(keypress == false){
-				System.out.println("Copy");
+				//system.out.println("Copy");
 				copyText();
 			}
 		}
@@ -70,7 +70,7 @@ public class HotkeyManager implements KeyEventDispatcher {
 		{
 			keypress = !keypress;
 			if(keypress == false){
-				System.out.println("cut");
+				//system.out.println("cut");
 				cutText();
 			}
 		}
@@ -79,7 +79,7 @@ public class HotkeyManager implements KeyEventDispatcher {
 		{
 			keypress = !keypress;
 			if(keypress == false){
-				System.out.println("paste");
+				//system.out.println("paste");
 				pasteText();
 			}
 		}
@@ -89,7 +89,7 @@ public class HotkeyManager implements KeyEventDispatcher {
 		{
 			keypress = !keypress;
 			if(keypress == false){
-				System.out.println("select all");
+				//system.out.println("select all");
 				selectAllText();
 			}
 		}
@@ -99,7 +99,7 @@ public class HotkeyManager implements KeyEventDispatcher {
 		{
 			keypress = !keypress;
 			if(keypress == false){
-				System.out.println("compile");
+				//system.out.println("compile");
 				mainFrame.compile();
 			}
 		}
