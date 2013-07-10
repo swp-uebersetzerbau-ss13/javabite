@@ -18,7 +18,6 @@ public class DoWhileNodeConverter extends AbstractAst2CodeConverter {
 
 		String startLabel = icg.getNewLabel();
 		String endLabel = icg.getNewLabel();
-		
 		icg.enterLoop(endLabel);
 		
 		icg.addQuadruple(QuadrupleFactoryJb.generateLabel(startLabel));
@@ -27,7 +26,13 @@ public class DoWhileNodeConverter extends AbstractAst2CodeConverter {
 		
 		icg.processNode(loopNode.getCondition());
 		IdentifierData result = icg.popIdentifierData();
-		icg.addQuadruple(QuadrupleFactoryJb.generateConditionalBranch(result, startLabel, endLabel));
+		if (result.getIdentifier().startsWith("#")) {
+			if (result.getIdentifier().equalsIgnoreCase("#true")) {
+				icg.addQuadruple(QuadrupleFactoryJb.generateBranch(startLabel));
+			}
+		} else {
+			icg.addQuadruple(QuadrupleFactoryJb.generateConditionalBranch(result, startLabel, endLabel));
+		}
 		icg.addQuadruple(QuadrupleFactoryJb.generateLabel(endLabel));
 		
 		icg.leaveLoop();

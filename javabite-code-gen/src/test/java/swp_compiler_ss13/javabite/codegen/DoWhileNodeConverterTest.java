@@ -56,4 +56,56 @@ public class DoWhileNodeConverterTest {
     	
     }
     
+    @Test
+    public void testDoWhileNodeConverterWithTrueConstant(){
+    	try {
+	    	DoWhileNode node = Mockito.mock(DoWhileNode.class);
+	    	when(converter.icg.getNewLabel()).thenReturn("startLabel","endLabel");
+	    	when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("#true", new BooleanType()));
+	    	StatementNode statementNode = Mockito.mock(StatementNode.class);
+	    	when(node.getLoopBody()).thenReturn(statementNode);
+	    	ExpressionNode expressionNode = Mockito.mock(ExpressionNode.class);
+	    	when(node.getCondition()).thenReturn(expressionNode);
+			converter.convert(node);
+			verify(converter.icg).enterLoop("endLabel");
+			verify(converter.icg).addQuadruple(
+					new QuadrupleJb(Operator.LABEL, "startLabel", Quadruple.EmptyArgument,
+							Quadruple.EmptyArgument));
+			
+			verify(converter.icg).addQuadruple(
+					new QuadrupleJb(Operator.BRANCH, "startLabel", Quadruple.EmptyArgument,
+							Quadruple.EmptyArgument));
+			verify(converter.icg).addQuadruple(
+					new QuadrupleJb(Operator.LABEL, "endLabel", Quadruple.EmptyArgument,
+							Quadruple.EmptyArgument));
+		} catch (IntermediateCodeGeneratorException e) {
+			fail();
+		}
+    	
+    }
+    
+    @Test
+    public void testDoWhileNodeConverterWithFalseConstant(){
+    	try {
+	    	DoWhileNode node = Mockito.mock(DoWhileNode.class);
+	    	when(converter.icg.getNewLabel()).thenReturn("startLabel","endLabel");
+	    	when(converter.icg.popIdentifierData()).thenReturn(new IdentifierData("#false", new BooleanType()));
+	    	StatementNode statementNode = Mockito.mock(StatementNode.class);
+	    	when(node.getLoopBody()).thenReturn(statementNode);
+	    	ExpressionNode expressionNode = Mockito.mock(ExpressionNode.class);
+	    	when(node.getCondition()).thenReturn(expressionNode);
+			converter.convert(node);
+			verify(converter.icg).enterLoop("endLabel");
+			verify(converter.icg).addQuadruple(
+					new QuadrupleJb(Operator.LABEL, "startLabel", Quadruple.EmptyArgument,
+							Quadruple.EmptyArgument));
+			
+			verify(converter.icg).addQuadruple(
+					new QuadrupleJb(Operator.LABEL, "endLabel", Quadruple.EmptyArgument,
+							Quadruple.EmptyArgument));
+		} catch (IntermediateCodeGeneratorException e) {
+			fail();
+		}
+    	
+    }
 }

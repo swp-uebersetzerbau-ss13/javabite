@@ -25,14 +25,18 @@ public class WhileNodeConverter extends AbstractAst2CodeConverter {
 		icg.addQuadruple(QuadrupleFactoryJb.generateLabel(startLabel));
 		icg.processNode(loopNode.getCondition());
 		IdentifierData result = icg.popIdentifierData();
-		icg.addQuadruple(QuadrupleFactoryJb.generateConditionalBranch(result, trueLabel, endLabel));
-		
-		icg.addQuadruple(QuadrupleFactoryJb.generateLabel(trueLabel));
-		icg.processNode(loopNode.getLoopBody());
-		icg.addQuadruple(QuadrupleFactoryJb.generateBranch(startLabel));
-		
-		icg.addQuadruple(QuadrupleFactoryJb.generateLabel(endLabel));
-		
+		boolean isConditionConstant = result.getIdentifier().startsWith("#");
+		boolean isTrue = result.getIdentifier().equalsIgnoreCase("#true");
+		if (!isConditionConstant || isTrue) {
+			if (!isConditionConstant) {
+				icg.addQuadruple(QuadrupleFactoryJb.generateConditionalBranch(result, trueLabel, endLabel));
+				icg.addQuadruple(QuadrupleFactoryJb.generateLabel(trueLabel));
+			} 
+			icg.processNode(loopNode.getLoopBody());
+			icg.addQuadruple(QuadrupleFactoryJb.generateBranch(startLabel));
+			
+			icg.addQuadruple(QuadrupleFactoryJb.generateLabel(endLabel));
+		}
 		icg.leaveLoop();
 	}
 

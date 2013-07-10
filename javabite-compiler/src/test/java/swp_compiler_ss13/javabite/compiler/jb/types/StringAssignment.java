@@ -16,7 +16,7 @@ public class StringAssignment extends AbstractCompilerTest {
 
 	@Override
 	public String getOutput() {
-		return "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ‰ˆ¸ƒ÷‹ﬂ!?.\"'\n\\ &%$[]{}/=+-:;,";
+		return "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ√§√∂√º√Ñ√ñ√ú√ü!?.\"'\n\\ &%$[]{}/=+-:;,";
 	}
 
 	@Override
