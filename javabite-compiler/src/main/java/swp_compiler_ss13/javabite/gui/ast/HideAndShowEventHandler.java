@@ -2,186 +2,127 @@ package swp_compiler_ss13.javabite.gui.ast;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.swing.SwingConstants;
-
-import swp_compiler_ss13.common.ast.AST;
 
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
 import com.mxgraph.model.mxCell;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.view.mxGraph;
+import com.mxgraph.view.mxGraph.mxICellVisitor;
 
+/**
+ * This class provides user-triggered online graph manipulations.
+ * 
+ * @author Khaled, Mahmoud, Ahmet, Till
+ *
+ */
 public class HideAndShowEventHandler extends MouseAdapter {
-	
+
 	// attributes set by outer usage
-	AST ast;
 	mxGraph graph;
-	mxGraph firstGraph;
 	mxGraphComponent frame;
-	
-	
-	
-	List<Object[]> temporaryEdgeslist = new ArrayList<Object[]>();
-	Object[] temporaryEdges;
-	
-	List<mxCell> cells = new ArrayList<mxCell>();
-	List<Object[]> listEdges = new ArrayList<Object[]>();
-	List<mxCell> queueSubTree = new ArrayList<mxCell>();
-	List<List<mxCell>> listSubTree = new ArrayList<List<mxCell>>();
-	List<List<Object[]>> linLEdges = new ArrayList<List<Object[]>>(); // liste
-																		// in
-																		// liste
-	List<Integer> listClick = new ArrayList<Integer>();
-	List<Object> listObject = new ArrayList<Object>();
-	int location = 0;
-	int index = 0;
-	int i = 0;
-	int j = 0;
-	
-	public HideAndShowEventHandler(mxGraph graph, mxGraphComponent frame,
-			AST ast) {
+
+	// nodes, that have been hidden by invoking the hiding on the root ( key)
+	Map<mxCell, Set<mxCell>> rootToHiddenVertices = new HashMap<>();
+
+	/**
+	 * Adds the event handler to the graph in the frame.
+	 * @param graph "-"
+	 * @param frame "-"
+	 */
+	public HideAndShowEventHandler(mxGraph graph, mxGraphComponent frame) {
 		this.graph = graph;
 		this.frame = frame;
-		this.ast = ast;
-		this.firstGraph = graph;
-	}
-	
-	public void addEventHandler() {
 		frame.getGraphControl().addMouseListener(this);
+		
 	}
-	
-	
+
+	/**
+	 * reacts to the mouse-clicked event. 
+	 * is NOOP, if no cell has been selected or it wasn't a double-click
+	 */
 	public void mouseClicked(MouseEvent e) {
-		mxCell cell =(mxCell) ((mxGraphComponent) frame).getCellAt(e.getX(), e.getY());
-		i++;
-		if (cell != null && i == 2) {
-			// double click on vertex
-			if (listObject.contains(cell)) {
-				int cellLocation = listObject.indexOf(cell);
-				listClick.set(cellLocation, 2);
-			} else {
-				listObject.add(location, cell);
-				listClick.add(location, 2);
-				location++;
-			}
-			enqueueAllVerticesInSubtreeAndRemoveConditionally(cell);
-			listSubTree.add(j, queueSubTree);
-			cells.add(j, cell); // inserted cell
-			Object[] edges = graph.getOutgoingEdges(cell);
-			temporaryEdgeslist.add(j, edges);
-			graph.removeCells(edges);
-			for (mxCell k : queueSubTree) {
-				Object[] edges1 = graph.getOutgoingEdges( k);
-				listEdges.add(index, edges1);
-				graph.removeCells(edges1);
-				index++;
-			}
-			linLEdges.add(j, listEdges);
-			index = 0;
-			i = 0;
-			j++;
-
-		} else if (cell != null && i == 1 && listObject.contains(cell)) {
-			int cellLocation = listObject.indexOf(cell);
-			i = 0;
-			if (listClick.get(cellLocation) == 2) {
-				listClick.set(cellLocation, 0);
-				int indexOfCell = cells.indexOf(cell);
-				temporaryEdges = temporaryEdgeslist.get(indexOfCell);
-				enqueueAllVerticesInSubtreeAndInsertEdge( cell);
-				listEdges = linLEdges.get(indexOfCell);
-				for (mxCell k : listSubTree.get(indexOfCell)) {
-					temporaryEdges = listEdges.get(index);
-					enqueueAllVerticesInSubtreeAndInsertEdge((mxCell) k);
-					index++;
-				}
-				index = 0;
-				listEdges.clear();
-				queueSubTree.clear();
-				listClick.set(cellLocation, 0);
-
-				mxHierarchicalLayout layout = new mxHierarchicalLayout(graph);
-				layout.setOrientation(SwingConstants.WEST);
-				layout.setInterRankCellSpacing(80);
-				layout.setInterHierarchySpacing(20);
-				layout.setIntraCellSpacing(5);
-				layout.execute(graph.getDefaultParent());
-			}
+		// get cell corresponding to the click
+		final mxCell root =(mxCell) ((mxGraphComponent) frame).getCellAt(e.getX(), e.getY());
+		
+		// ignore everything but a double-click on a vertex
+		if (e.getClickCount()!=2 || root==null)
+			return;
+		
+		// restore or hide subtree. Choice depends on "backuped" subtreenodes
+		if (rootToHiddenVertices.containsKey(root)){
+			restoreSubTree(root);
 		}
-		graph.repaint();
+		else{
+			hideSubTree(root);
+		}
+		
+		// layout in each case, even if the graph components "jump around"
+		layout();
 	}
 
-
-
-	
-
-	
 	/**
-	 * traverses through the subtree of parent.
-	 * Additionally, if i==2 every node will be removed from its parent
-	 * @param parent the root of the subtree
+	 * looks for the hidden subtree and its nodes in the corresponding map "rootToHiddenVertices" and
+	 * makes them al visible again
+	 * @param root the mxCell, which has been clicked on as the subtree has been hidden.
 	 */
-	private void enqueueAllVerticesInSubtreeAndRemoveConditionally(mxCell parent) {
-		HashSet<mxCell> visitedSet= new HashSet<>();
-		visitedSet.clear();
-		List<mxCell> queue = new ArrayList<mxCell>();
-		queue.add(parent);
-		visitedSet.add(parent);
-		// for each v in vertices(bfs(parent))
-		while (!queue.isEmpty()) {
-			mxCell cell = queue.remove(0);
-			Object[] edges = graph.getOutgoingEdges(cell);
-			// e_set <- (v,u) of E
-			for (Object edge : edges) {
-				// target <- u
-				mxCell target = (mxCell) graph.getView().getVisibleTerminal(
-						edge, false);
-				if (!visitedSet.contains(target)) {
-					// if bfs(parent) hasn't visited u yet, mark u
-					visitedSet.add(target);
-					// add to set of bfs(parent)
-					queue.add(target);
-					queueSubTree.add(target);
-					if (i == 2) {
-						target.removeFromParent();// here there is problem
-					}
-				}
-			}
+	private void restoreSubTree(mxCell root) {
+		Set<mxCell> hiddenNodes = rootToHiddenVertices.get(root);
+		rootToHiddenVertices.remove(root);
+		for (mxCell cell : hiddenNodes){
+			graph.addCell(cell);
 		}
 	}
 
 	/**
-	 * traverses through the subtree of parent.
-	 * additionally, each edge to every found node is inserted
-	 * @param parent the root of the subtree
+	 * removes/hides every vertex/edge in the subtree of the given mxCell.
+	 * The hidden nodes are united and this set is going to be the value
+	 * ( the key is the mxCell root) in the map "rootToHiddenVertices".
+	 * @param root
 	 */
-	private void enqueueAllVerticesInSubtreeAndInsertEdge(mxCell parent) {
-		HashSet<mxCell> visitedSet= new HashSet<>();
-		visitedSet = new HashSet<mxCell>();
-		List<mxCell> queue = new ArrayList<mxCell>();
-		queue.add(parent);
-		visitedSet.add(parent);
-		// for each v in vertices(bfs(parent))
-		while (!queue.isEmpty()) {
-			mxCell cell = queue.remove(0);
-			// e_set <- (v,u) of E
-			for (Object edge : temporaryEdges) {
-				mxCell target = (mxCell) firstGraph.getView()
-						.getVisibleTerminal(edge, false);
-				if (!visitedSet.contains(target)) {
-					// if bfs(parent) hasn't visited u yet, mark u
-					graph.addCell(target);
-					// insert edge to graph
-					graph.insertEdge(parent, null, null, cell, target);
-					visitedSet.add(target);
-					queue.add(target);
+	private void hideSubTree(final mxCell root) {
+
+		// add an empty set, which is going to be filled with hidden nodes
+		final Set<mxCell> hiddenNodes = new HashSet<>();
+		rootToHiddenVertices.put(root, hiddenNodes);
+		
+		// traverse through the tree, add the nodes to be removed to the hiddenNodes set.
+		// no manipulation here at the graph
+		graph.traverse(root, true, new mxICellVisitor() {
+			@Override
+			public boolean visit(Object vertex, Object edge) {
+				mxCell cell = (mxCell) vertex;
+				mxCell cell_edge= (mxCell) edge;
+				if (cell != root) {
+					hiddenNodes.add(cell);
+					hiddenNodes.add(cell_edge);
 				}
+				return true;
 			}
-		}
+		});
+		
+		// remove the cells using the synchronized update of the model
+		graph.getModel().beginUpdate();
+		for (mxCell cell : hiddenNodes)
+			graph.getModel().remove(cell);
+		graph.getModel().endUpdate();
 	}
 
+	
+	/**
+	 * layouts the complete graph again
+	 */
+	private void layout() {
+		mxHierarchicalLayout layout = new mxHierarchicalLayout(graph);
+		layout.setOrientation(SwingConstants.WEST);
+		layout.setInterRankCellSpacing(80);
+		layout.setInterHierarchySpacing(20);
+		layout.setIntraCellSpacing(5);
+		layout.execute(graph.getDefaultParent());
+	}
 }

@@ -66,8 +66,7 @@ public class ASTVisualizerJb extends JComponent implements ASTVisualization {
 		// final rendering & frame mixing & event delegation
 		frame = new mxGraphComponent(graph);
 		frame.setToolTips(true);
-		HideAndShowEventHandler h = new HideAndShowEventHandler(graph,frame,ast);
-		h.addEventHandler();
+		HideAndShowEventHandler h = new HideAndShowEventHandler(graph,frame);
 		intArray=treeBuilder.intArray;
 	}
 	
