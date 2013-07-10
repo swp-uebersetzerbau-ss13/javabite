@@ -137,13 +137,13 @@ public class StructBuilder extends AbstractBuilder {
 
 		final MethodSignature constructor;
 		if (ConstantUtils.isIgnoreParam(q.getResult())) {
-			constructor = new MethodSignature("<init>", q.getArgument2(),
-					void.class);
+			constructor = new MethodSignature.Builder("<init>").ofClass(
+					q.getArgument2()).build();
 			final short classIndex = classfile
-					.addClassConstantToConstantPool(constructor.methodClass);
+					.addClassToConstantPool(constructor.methodClass);
 			assert classIndex > 0 : "index is zero";
 			final short cstrIndex = classfile
-					.addMethodrefConstantToConstantPool(constructor);
+					.addMethodrefToConstantPool(constructor);
 			assert cstrIndex > 0 : "index is zero";
 
 			final int arrayDimensions = arrayLengths.size();
@@ -155,9 +155,8 @@ public class StructBuilder extends AbstractBuilder {
 					arrayDimensions, null, false));
 
 		} else {
-			constructor = new MethodSignature("<init>",
-					classfile.getClassname() + "_" + q.getResult(), void.class);
-
+			constructor = new MethodSignature.Builder("<init>").ofClass(
+					classfile.getClassname(), q.getResult()).build();
 			add(fieldNewObjectOperation(constructor, q.getResult()));
 		}
 		return this;

@@ -298,7 +298,7 @@ public class MainBuilder extends AbstractBuilder {
 			final ClassfileUtils.LocalVariableType variableType) {
 		final Operation.Builder op = new Operation.Builder();
 		final short toStringIndex = classfile
-				.addMethodrefConstantToConstantPool(toStringSig);
+				.addMethodrefToConstantPool(toStringSig);
 		assert toStringIndex > 0 : "index is zero";
 		op.add(localLoadInstruction(q.getArgument1(), variableType));
 		op.add(Mnemonic.INVOKESTATIC, ByteUtils.shortToByteArray(toStringIndex));
@@ -340,7 +340,7 @@ public class MainBuilder extends AbstractBuilder {
 		final FieldSignature fieldSignature = new FieldSignature(
 				q.getArgument2(), structName, fieldClass.typeClassName);
 		final short fieldIndex = classfile
-				.addFieldrefConstantToConstantPool(fieldSignature);
+				.addFieldrefToConstantPool(fieldSignature);
 		assert fieldIndex > 0 : "index is zero";
 		op.add(Mnemonic.GETFIELD, ByteUtils.shortToByteArray(fieldIndex));
 		op.add(localStoreInstruction(q.getResult(), variableType));
@@ -350,15 +350,15 @@ public class MainBuilder extends AbstractBuilder {
 	private byte createPrintStream() {
 		if (printStreamIndex == 0) {
 			final short psIndex = classfile
-					.addClassConstantToConstantPool(PRINTSTREAM_CLASS);
+					.addClassToConstantPool(PRINTSTREAM_CLASS);
 			final short outIndex = classfile
-					.addFieldrefConstantToConstantPool(SYSTEM_OUT_FIELD);
-			final short charsetIndex = classfile
-					.addStringConstantToConstantPool("UTF-8", false);
+					.addFieldrefToConstantPool(SYSTEM_OUT_FIELD);
+			final short charsetIndex = classfile.addStringToConstantPool(
+					"UTF-8", false);
 			final short initIndex = classfile
-					.addMethodrefConstantToConstantPool(PRINTSTREAM_INIT_METHOD);
-			printStreamIndex = classfile.addVariableToMethodsCode(methodName,
-					UUID.randomUUID().toString().replaceAll("-", ""),
+					.addMethodrefToConstantPool(PRINTSTREAM_INIT_METHOD);
+			printStreamIndex = classfile.addVariableToMethod(methodName, UUID
+					.randomUUID().toString().replaceAll("-", ""),
 					ClassfileUtils.LocalVariableType.AREF);
 
 			final Operation.Builder op = new Operation.Builder();
@@ -1024,7 +1024,7 @@ public class MainBuilder extends AbstractBuilder {
 		assert ConstantUtils.hasArgsCount(q, 1) : "quadruple has wrong args count: "
 				+ ConstantUtils.getArgsCount(q);
 		final short systemExitIndex = classfile
-				.addMethodrefConstantToConstantPool(SYSTEM_EXIT_METHOD);
+				.addMethodrefToConstantPool(SYSTEM_EXIT_METHOD);
 		final Operation.Builder op = new Operation.Builder();
 		op.add(localLoadInstruction(q.getArgument1(),
 				ClassfileUtils.LocalVariableType.LONG));
@@ -1649,7 +1649,7 @@ public class MainBuilder extends AbstractBuilder {
 
 		// add print methodref info to constant pool, if necessary
 		final short printIndex = classfile
-				.addMethodrefConstantToConstantPool(PRINTSTREAM_PRINT_METHOD);
+				.addMethodrefToConstantPool(PRINTSTREAM_PRINT_METHOD);
 
 		op.add(Mnemonic.ALOAD.withIndex(printStreamIndex), printStreamIndex);
 		op.add(localLoadInstruction(q.getArgument1(),
@@ -2144,13 +2144,13 @@ public class MainBuilder extends AbstractBuilder {
 				+ ConstantUtils.getArgsCount(q);
 
 		// create the signature of the default constructor
-		final MethodSignature constructor = new MethodSignature("<init>",
-				q.getArgument2(), void.class);
+		final MethodSignature constructor = new MethodSignature.Builder(
+				"<init>").ofClass(q.getArgument2()).build();
 		final short classIndex = classfile
-				.addClassConstantToConstantPool(constructor.methodClass);
+				.addClassToConstantPool(constructor.methodClass);
 		assert classIndex > 0 : "index is zero";
 		final short cstrIndex = classfile
-				.addMethodrefConstantToConstantPool(constructor);
+				.addMethodrefToConstantPool(constructor);
 		assert cstrIndex > 0 : "index is zero";
 
 		if (ConstantUtils.isIgnoreParam(q.getResult())) {
@@ -2524,9 +2524,9 @@ public class MainBuilder extends AbstractBuilder {
 				+ ConstantUtils.getArgsCount(q);
 		final Operation.Builder op = new Operation.Builder();
 		final short appendMethod = classfile
-				.addMethodrefConstantToConstantPool(STRINGBUILDER_APPEND_METHOD);
+				.addMethodrefToConstantPool(STRINGBUILDER_APPEND_METHOD);
 		final short stringBuilderToString = classfile
-				.addMethodrefConstantToConstantPool(STRINGBUILDER_TOSTRING_METHOD);
+				.addMethodrefToConstantPool(STRINGBUILDER_TOSTRING_METHOD);
 
 		op.add(fieldNewObjectOperation(STRINGBUILDER_NEW_METHOD, null));
 

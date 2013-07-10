@@ -26,46 +26,46 @@ public class ProgramTests {
 
 	private void addBooleanVariable(final String... vars) {
 		for (final String v : vars) {
-			classfile.addVariableToMethodsCode(methodName, v,
+			classfile.addVariableToMethod(methodName, v,
 					ClassfileUtils.LocalVariableType.BOOLEAN);
 		}
 	}
 
 	private void addDoubleConstant(final double... vals) {
 		for (final double v : vals) {
-			classfile.addDoubleConstantToConstantPool(v, Double.toString(v));
+			classfile.addDoubleToConstantPool(v, Double.toString(v));
 		}
 	}
 
 	private void addDoubleVariable(final String... vars) {
 		for (final String v : vars) {
-			classfile.addVariableToMethodsCode(methodName, v,
+			classfile.addVariableToMethod(methodName, v,
 					ClassfileUtils.LocalVariableType.DOUBLE);
 		}
 	}
 
 	private void addLongConstant(final long... vals) {
 		for (final long v : vals) {
-			classfile.addLongConstantToConstantPool(v);
+			classfile.addLongToConstantPool(v);
 		}
 	}
 
 	private void addLongVariable(final String... vars) {
 		for (final String v : vars) {
-			classfile.addVariableToMethodsCode(methodName, v,
+			classfile.addVariableToMethod(methodName, v,
 					ClassfileUtils.LocalVariableType.LONG);
 		}
 	}
 
 	private void addStringConstant(final String... vals) {
 		for (final String v : vals) {
-			classfile.addStringConstantToConstantPool(v, true);
+			classfile.addStringToConstantPool(v, true);
 		}
 	}
 
 	private void addStringVariable(final String... vars) {
 		for (final String v : vars) {
-			classfile.addVariableToMethodsCode(methodName, v,
+			classfile.addVariableToMethod(methodName, v,
 					ClassfileUtils.LocalVariableType.STRING);
 		}
 	}
@@ -79,7 +79,7 @@ public class ProgramTests {
 	public void setUp() {
 		classfile = new Classfile("main", "java/lang/Object", false,
 				ClassfileAccessFlag.ACC_PUBLIC, ClassfileAccessFlag.ACC_SUPER);
-		classfile.addMethodToMethodArea(methodName, "([Ljava/lang/String;])V",
+		classfile.addToMethodArea(methodName, "([Ljava/lang/String;])V",
 				MethodAccessFlag.ACC_PUBLIC, MethodAccessFlag.ACC_STATIC);
 		pb = new MainBuilder(classfile, methodName);
 	}

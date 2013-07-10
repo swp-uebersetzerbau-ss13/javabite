@@ -55,7 +55,7 @@ class Method {
 	 * @param fieldAccessFlags
 	 *            arbitrary amount of MethodAccessFlag
 	 * @see #accessFlags
-	 * @see Classfile#addUTF8ConstantToConstantPool(String)
+	 * @see Classfile#addUTF8ToConstantPool(String)
 	 * @see MethodAccessFlag
 	 */
 	// private Method(final String methodName, final String methodDescriptor,
@@ -63,9 +63,9 @@ class Method {
 	//
 	// // add constants to this classfile's constant pool
 	// this.nameIndex = Classfile.this
-	// .addUTF8ConstantToConstantPool(methodName);
+	// .addUTF8ToConstantPool(methodName);
 	// this.descriptorIndex = Classfile.this
-	// .addUTF8ConstantToConstantPool(methodDescriptor);
+	// .addUTF8ToConstantPool(methodDescriptor);
 	//
 	// for (final MethodAccessFlag a : accessFlags) {
 	// this.accessFlags = (short) (this.accessFlags | a.getValue());
@@ -77,7 +77,7 @@ class Method {
 	// */
 	// this.attributesCount = 1;
 	// final short codeIndex = Classfile.this
-	// .addUTF8ConstantToConstantPool("Code");
+	// .addUTF8ToConstantPool("Code");
 	// this.codeAttribute = new CodeAttribute(codeIndex);
 	// }
 

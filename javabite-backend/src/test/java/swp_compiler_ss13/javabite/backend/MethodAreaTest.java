@@ -16,11 +16,11 @@ import static org.junit.Assert.*;
 
 public class MethodAreaTest {
 	// METHODAREA_TESTS:
-	// addMethodToMethodArea
-	// addVariableToMethodsCode
+	// addToMethodArea
+	// addVariableToMethod
 	// getIndexOfVariableInMethod
 	// addInstructionToMethodsCode
-	// addInstructionsToMethodsCode
+	// addInstructionsToMethod
 	Object methodArea;
 	HashMap<String, Object> methodMap;
 
@@ -148,7 +148,7 @@ public class MethodAreaTest {
 								new Class<?>[] { Object.class },
 								new Object[] { "varName_" + type.name() }));
 
-				PrivateAccessor.invoke(methodArea, "addVariableToMethodsCode",
+				PrivateAccessor.invoke(methodArea, "addVariableToMethod",
 						new Class<?>[] { String.class, String.class,
 								LocalVariableType.class }, new Object[] {
 								"testMethod", "varName_" + type.name(), type });
@@ -190,7 +190,7 @@ public class MethodAreaTest {
 			short expectedIndex = 1;
 			for (final LocalVariableType type : doubleWideTypes) {
 
-				PrivateAccessor.invoke(methodArea, "addVariableToMethodsCode",
+				PrivateAccessor.invoke(methodArea, "addVariableToMethod",
 						new Class<?>[] { String.class, String.class,
 								LocalVariableType.class }, new Object[] {
 								"testMethod", "varName_" + type.name(), type });
@@ -219,7 +219,7 @@ public class MethodAreaTest {
 			}
 
 			for (final LocalVariableType type : singleWideTypes) {
-				PrivateAccessor.invoke(methodArea, "addVariableToMethodsCode",
+				PrivateAccessor.invoke(methodArea, "addVariableToMethod",
 						new Class<?>[] { String.class, String.class,
 								ClassfileUtils.LocalVariableType.class },
 						new Object[] { "testMethod", "varName_" + type.name(),

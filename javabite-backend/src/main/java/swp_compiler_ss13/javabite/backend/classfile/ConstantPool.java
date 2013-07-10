@@ -44,7 +44,7 @@ public class ConstantPool {
 	 * pool.
 	 * </p>
 	 * 
-	 * @see Classfile#getIndexOfConstantInConstantPool(swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType,
+	 * @see Classfile#getIndexInConstantPool(swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType,
 	 *      String)
 	 */
 	private final Map<String, Short> cpEntryMap;
@@ -528,7 +528,7 @@ public class ConstantPool {
 	 * @param constantType
 	 *            InfoTag type of the constant
 	 * @return index of the constant in this constant pool
-	 * @see Classfile#getIndexOfConstantInConstantPool(swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType,
+	 * @see Classfile#getIndexInConstantPool(swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType,
 	 *      String) TODO constantName umbenennen, teilweise constants, teilweise
 	 *      names
 	 */

@@ -187,12 +187,12 @@ public abstract class AbstractBuilder {
 			return new Instruction(convertBooleanConstant(arg1));
 		} else if (isConstant(arg1)) {
 			assert variableType != null : "variable type is null";
-			final short index = classfile.getIndexOfConstantInConstantPool(
+			final short index = classfile.getIndexInConstantPool(
 					variableType.constantPoolType, removeConstantSign(arg1));
 			return localLoadInstruction(index, variableType.wide);
 		} else {
-			final byte index = classfile.addVariableToMethodsCode(methodName,
-					arg1, variableType);
+			final byte index = classfile.addVariableToMethod(methodName, arg1,
+					variableType);
 			return localLoadVariableInstruction(index, variableType);
 		}
 	}
@@ -215,14 +215,13 @@ public abstract class AbstractBuilder {
 	 */
 	protected Instruction localStoreInstruction(final String result,
 			final ClassfileUtils.LocalVariableType variableType) {
-		final byte index = classfile.addVariableToMethodsCode(methodName,
-				result, variableType);
+		final byte index = classfile.addVariableToMethod(methodName, result,
+				variableType);
 		return localStoreInstruction(index, variableType);
 	}
 
 	protected Instruction fieldStoreInstruction(final FieldSignature signature) {
-		final short fieldIndex = classfile
-				.addFieldrefConstantToConstantPool(signature);
+		final short fieldIndex = classfile.addFieldrefToConstantPool(signature);
 		assert fieldIndex > 0 : "index is zero";
 		return new Instruction(Mnemonic.PUTFIELD,
 				ByteUtils.shortToByteArray(fieldIndex));
@@ -253,7 +252,7 @@ public abstract class AbstractBuilder {
 					classfile.getClassname(),
 					constructor.methodClass.typeClassName);
 			final short fieldIndex = classfile
-					.addFieldrefConstantToConstantPool(fieldSignature);
+					.addFieldrefToConstantPool(fieldSignature);
 			assert fieldIndex > 0 : "index is zero";
 			op.add(Mnemonic.PUTFIELD, ByteUtils.shortToByteArray(fieldIndex));
 		}
@@ -263,10 +262,10 @@ public abstract class AbstractBuilder {
 	protected Operation newObjectOperation(final MethodSignature constructor) {
 		final Operation.Builder op = new Operation.Builder();
 		final short classIndex = classfile
-				.addClassConstantToConstantPool(constructor.methodClass);
+				.addClassToConstantPool(constructor.methodClass);
 		assert classIndex > 0 : "index is zero";
 		final short cstrIndex = classfile
-				.addMethodrefConstantToConstantPool(constructor);
+				.addMethodrefToConstantPool(constructor);
 		assert cstrIndex > 0 : "index is zero";
 
 		op.add(Mnemonic.NEW, ByteUtils.shortToByteArray(classIndex));
@@ -283,7 +282,7 @@ public abstract class AbstractBuilder {
 		final FieldSignature arrayField = new FieldSignature(arrayName,
 				classfile.getClassname(), arraySignature.typeClassName);
 		final short arrayFieldIndex = classfile
-				.addFieldrefConstantToConstantPool(arrayField);
+				.addFieldrefToConstantPool(arrayField);
 		final Operation arrayLoad = new Operation.Builder()
 				.add(Mnemonic.ALOAD_0)
 				.add(Mnemonic.GETFIELD,
@@ -295,8 +294,8 @@ public abstract class AbstractBuilder {
 	protected Operation localArrayInit(final short cpoolIndex,
 			final short classCstrCpoolIndex, final int dimensionsLeft,
 			final List<Byte> indexVars, final boolean last) {
-		final byte arrayVarIndex = classfile.addVariableToMethodsCode(
-				methodName, arrayName, ClassfileUtils.LocalVariableType.AREF);
+		final byte arrayVarIndex = classfile.addVariableToMethod(methodName,
+				arrayName, ClassfileUtils.LocalVariableType.AREF);
 		final Operation arrayLoad = new Operation.Builder().add(
 				Mnemonic.ALOAD.withIndex(arrayVarIndex), arrayVarIndex).build();
 		return arrayInit(arrayLoad, cpoolIndex, classCstrCpoolIndex,
@@ -330,7 +329,7 @@ public abstract class AbstractBuilder {
 		if (!last) {
 			op.add(Mnemonic.ICONST_0);
 
-			final byte currentVarIndex = classfile.addVariableToMethodsCode(
+			final byte currentVarIndex = classfile.addVariableToMethod(
 					methodName, UUID.randomUUID().toString(),
 					ClassfileUtils.LocalVariableType.BOOLEAN);
 
@@ -452,7 +451,7 @@ public abstract class AbstractBuilder {
 			// if more than 1 dimension, create a multi dimensional array
 			// every multi dimensional array is an array of references
 			final short classIndex = classfile
-					.addClassConstantToConstantPool(arrayClass.typeClassName);
+					.addClassToConstantPool(arrayClass.typeClassName);
 			assert classIndex > 0 : "index is zero";
 			final byte[] classIndexArray = ByteUtils
 					.shortToByteArray(classIndex);
@@ -467,7 +466,7 @@ public abstract class AbstractBuilder {
 			// if single dimensional and complex (object), create with
 			// class reference
 			final short classIndex = classfile
-					.addClassConstantToConstantPool(arrayClass.baseClassName);
+					.addClassToConstantPool(arrayClass.baseClassName);
 			op.add(Mnemonic.ANEWARRAY, ByteUtils.shortToByteArray(classIndex));
 		}
 

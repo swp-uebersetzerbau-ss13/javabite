@@ -117,7 +117,7 @@ class MethodArea {
 	}
 
 	/**
-	 * <h1>addVariableToMethodsCode</h1>
+	 * <h1>addVariableToMethod</h1>
 	 * <p>
 	 * This method looks up the specified Method object in the method area of
 	 * this classfile using the method {@link #getMethodByMethodName(String)}

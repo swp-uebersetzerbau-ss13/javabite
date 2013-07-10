@@ -181,21 +181,21 @@ public class Classfile {
 		 * back its index in the constant pool and set member variable
 		 * thisClassIndex to it
 		 */
-		thisClassIndex = addClassConstantToConstantPool(thisClassNameEIF);
+		thisClassIndex = addClassToConstantPool(thisClassNameEIF);
 
 		/*
 		 * add the super class' name encoded in internal form to constant pool,
 		 * get back its index in the constant pool and set member variable
 		 * superClassIndex to it
 		 */
-		superClassIndex = addClassConstantToConstantPool(superClassNameEIF);
+		superClassIndex = addClassToConstantPool(superClassNameEIF);
 
 		/*
 		 * add initialize-method (constructor) to method area and set invoke
 		 * parameter
 		 */
 		// TODO externalize static strings
-		addMethodToMethodArea("<init>", "()V", MethodAccessFlag.ACC_PUBLIC);
+		addToMethodArea("<init>", "()V", MethodAccessFlag.ACC_PUBLIC);
 
 		// if this is a struct, the initialization of the object will be done by
 		// the program builder, later in the program
@@ -210,8 +210,8 @@ public class Classfile {
 			final Instruction InstrInvokespecial = new Instruction(
 					Mnemonic.INVOKESPECIAL, constructorIndex);
 			final Instruction InstrReturn = new Instruction(Mnemonic.RETURN);
-			addInstructionsToMethodsCode("<init>", InstrAload,
-					InstrInvokespecial, InstrReturn);
+			addInstructionsToMethod("<init>", InstrAload, InstrInvokespecial,
+					InstrReturn);
 		}
 	}
 
@@ -314,7 +314,7 @@ public class Classfile {
 	}
 
 	/**
-	 * <h1>addLongConstantToConstantPool</h1>
+	 * <h1>addLongToConstantPool</h1>
 	 * <p>
 	 * This method creates an longInfo-entry meeting the jvm classfile constant
 	 * pool CONSTANT_LONG_info standard in the constantPool of this classfile.
@@ -328,12 +328,12 @@ public class Classfile {
 	 * @return short index of a long info entry in the constant pool of this
 	 *         classfile meeting the parameters.
 	 */
-	public short addLongConstantToConstantPool(final long value) {
+	public short addLongToConstantPool(final long value) {
 		return constantPool.generateConstantLongInfo(value);
 	}
 
 	/**
-	 * <h1>addDoubleConstantToConstantPool</h1>
+	 * <h1>addDoubleToConstantPool</h1>
 	 * <p>
 	 * This method creates an doubleInfo-entry meeting the jvm classfile
 	 * constant pool CONSTANT_DOUBLE_info standard in the constantPool of this
@@ -349,13 +349,13 @@ public class Classfile {
 	 * @return short index of a double info entry in the constant pool of this
 	 *         classfile meeting the parameters.
 	 */
-	public short addDoubleConstantToConstantPool(final double value,
+	public short addDoubleToConstantPool(final double value,
 			final String keyValue) {
 		return constantPool.generateConstantDoubleInfo(value, keyValue);
 	}
 
 	/**
-	 * <h1>addStringConstantToConstantPool</h1>
+	 * <h1>addStringToConstantPool</h1>
 	 * <p>
 	 * This method creates an stringInfo-entry meeting the jvm classfile
 	 * constant pool CONSTANT_STRING_info standard in the constantPool of this
@@ -371,14 +371,14 @@ public class Classfile {
 	 * @return short index of a string info entry in the constant pool of this
 	 *         classfile meeting the parameters.
 	 */
-	public short addStringConstantToConstantPool(final String value,
+	public short addStringToConstantPool(final String value,
 			boolean removeQuotationMarks) {
 		return constantPool.generateConstantStringInfo(value,
 				removeQuotationMarks);
 	}
 
 	/**
-	 * <h1>addUTF8ConstantToConstantPool</h1>
+	 * <h1>addUTF8ToConstantPool</h1>
 	 * <p>
 	 * This method creates an utf8Info-entry meeting the jvm classfile constant
 	 * pool CONSTANT_UTF8_info standard in the constantPool of this classfile.
@@ -392,12 +392,12 @@ public class Classfile {
 	 * @return short index of a utf8 info entry in the constant pool of this
 	 *         classfile meeting the parameters.
 	 */
-	public short addUTF8ConstantToConstantPool(final String value) {
+	public short addUTF8ToConstantPool(final String value) {
 		return constantPool.generateConstantUTF8Info(value);
 	}
 
 	/**
-	 * <h1>addClassConstantToConstantPool</h1>
+	 * <h1>addClassToConstantPool</h1>
 	 * <p>
 	 * This method creates an classInfo-entry meeting the jvm classfile constant
 	 * pool CONSTANT_CLASS_info standard in the constantPool of this classfile.
@@ -411,17 +411,16 @@ public class Classfile {
 	 * @return short index of a class info entry in the constant pool of this
 	 *         classfile meeting the parameters.
 	 */
-	public short addClassConstantToConstantPool(final String value) {
+	public short addClassToConstantPool(final String value) {
 		return constantPool.generateConstantClassInfo(value);
 	}
 
-	public short addClassConstantToConstantPool(
-			final ClassSignature classSignature) {
-		return addClassConstantToConstantPool(classSignature.className);
+	public short addClassToConstantPool(final ClassSignature classSignature) {
+		return addClassToConstantPool(classSignature.className);
 	}
 
 	/**
-	 * <h1>addMethodrefConstantToConstantPool</h1>
+	 * <h1>addMethodrefToConstantPool</h1>
 	 * <p>
 	 * This method creates an methodrefInfo-entry meeting the jvm classfile
 	 * constant pool CONSTANT_Methodref_info standard in the constantPool of
@@ -437,10 +436,9 @@ public class Classfile {
 	 * @return short index of a methodref info entry in the constant pool of
 	 *         this classfile meeting the parameters.
 	 */
-	public short addMethodrefConstantToConstantPool(
-			final MethodSignature signature) {
+	public short addMethodrefToConstantPool(final MethodSignature signature) {
 		// add class
-		final short classIndex = addClassConstantToConstantPool(signature.methodClass);
+		final short classIndex = addClassToConstantPool(signature.methodClass);
 		// add NAT
 		final short natIndex = constantPool.generateConstantNameAndTypeInfo(
 				signature.methodName, signature.methodDescriptor);
@@ -449,7 +447,7 @@ public class Classfile {
 	}
 
 	/**
-	 * <h1>addFieldrefConstantToConstantPool</h1>
+	 * <h1>addFieldrefToConstantPool</h1>
 	 * <p>
 	 * This method creates a fieldrefInfo-entry meeting the jvm classfile
 	 * constant pool CONSTANT_Fieldref_info standard in the constantPool of this
@@ -465,11 +463,10 @@ public class Classfile {
 	 * @return short index of a fieldref info entry in the constant pool of this
 	 *         classfile meeting the parameters.
 	 */
-	public short addFieldrefConstantToConstantPool(
-			final FieldSignature signature) {
+	public short addFieldrefToConstantPool(final FieldSignature signature) {
 
 		// add class
-		final short classIndex = addClassConstantToConstantPool(signature.fieldClass.className);
+		final short classIndex = addClassToConstantPool(signature.fieldClass.className);
 		// add NAT
 		final short natIndex = constantPool.generateConstantNameAndTypeInfo(
 				signature.fieldName, signature.fieldType.typeClassName);
@@ -479,7 +476,7 @@ public class Classfile {
 	}
 
 	/**
-	 * <h1>getIndexOfConstantInConstantPool</h1>
+	 * <h1>getIndexInConstantPool</h1>
 	 * <p>
 	 * This method looks up the index of a constant in the constant pool of this
 	 * classfile.<br/>
@@ -501,13 +498,13 @@ public class Classfile {
 	 *            String name of the constant
 	 * @return index of the constant in the constant pool of this classfile.
 	 */
-	public short getIndexOfConstantInConstantPool(
-			final ConstantPoolType constantType, final String constantName) {
+	public short getIndexInConstantPool(final ConstantPoolType constantType,
+			final String constantName) {
 		return constantPool.getIndexOfConstant(constantType, constantName);
 	}
 
 	/**
-	 * <h1>addMethodToMethodArea</h1>
+	 * <h1>addToMethodArea</h1>
 	 * <p>
 	 * This method calls the addMethod method of the classfile's method area to
 	 * add and initialize a new method.
@@ -521,21 +518,21 @@ public class Classfile {
 	 * @param accessFlags
 	 *            arbitrary amount of method access flags
 	 */
-	public void addMethodToMethodArea(final String methodName,
+	public void addToMethodArea(final String methodName,
 			final String methodDescriptor,
 			final MethodAccessFlag... accessFlags) {
 
 		// add constants to this classfile's constant pool
-		final short nameIndex = addUTF8ConstantToConstantPool(methodName);
-		final short descriptorIndex = addUTF8ConstantToConstantPool(methodDescriptor);
-		final short codeIndex = addUTF8ConstantToConstantPool("Code");
+		final short nameIndex = addUTF8ToConstantPool(methodName);
+		final short descriptorIndex = addUTF8ToConstantPool(methodDescriptor);
+		final short codeIndex = addUTF8ToConstantPool("Code");
 
 		methodArea.addMethod(methodName, nameIndex, descriptorIndex, codeIndex,
 				methodDescriptor, accessFlags);
 	}
 
 	/**
-	 * <h1>addVariableToMethodsCode</h1>
+	 * <h1>addVariableToMethod</h1>
 	 * <p>
 	 * This method adds a new variable to a methods code by allocating
 	 * appropriate space in the local variable table of the method.
@@ -549,7 +546,7 @@ public class Classfile {
 	 * @param localVariableType
 	 *            LocalVariableType variable type of the variable
 	 */
-	public byte addVariableToMethodsCode(final String methodName,
+	public byte addVariableToMethod(final String methodName,
 			final String variableName,
 			final ClassfileUtils.LocalVariableType localVariableType) {
 
@@ -558,7 +555,7 @@ public class Classfile {
 	}
 
 	/**
-	 * <h1>addInstructionsToMethodsCode</h1>
+	 * <h1>addInstructionsToMethod</h1>
 	 * <p>
 	 * This method adds new Instructions to the code area of the code attribute
 	 * of the provided method of the method area of this classfile using the
@@ -570,10 +567,10 @@ public class Classfile {
 	 *            String name of the method
 	 * @param instructions
 	 *            Collection of instances of class Instruction
-	 * @see Classfile#addInstructionsToMethodsCode(String,
+	 * @see Classfile#addInstructionsToMethod(String,
 	 *      swp_compiler_ss13.javabite.backend.translation.Instruction[])
 	 */
-	public void addInstructionsToMethodsCode(final String methodName,
+	public void addInstructionsToMethod(final String methodName,
 			final Instruction... instructions) {
 		methodArea.addInstructionsToMethodsCode(methodName, instructions);
 	}

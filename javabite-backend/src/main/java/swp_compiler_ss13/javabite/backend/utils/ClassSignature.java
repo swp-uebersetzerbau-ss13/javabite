@@ -19,8 +19,9 @@ public class ClassSignature {
 		this(getClassName(clazz), null, clazz.isPrimitive());
 	}
 
-	public ClassSignature(final String... classNameParts) {
-		this(StringUtils.join(classNameParts, '_'), null, false);
+	public ClassSignature(final String classNameStart,
+			final String... classNameParts) {
+		this(joinClassName(classNameStart, classNameParts), null, false);
 	}
 
 	public ClassSignature(final String className) {
@@ -28,8 +29,9 @@ public class ClassSignature {
 	}
 
 	public ClassSignature(final int arrayDimensions,
-			final String... classNameParts) {
-		this(StringUtils.join(classNameParts, '_'), arrayDimensions, false);
+			final String classNameStart, final String... classNameParts) {
+		this(joinClassName(classNameStart, classNameParts), arrayDimensions,
+				false);
 	}
 
 	public ClassSignature(final int arrayDimensions, final String className) {
@@ -143,6 +145,14 @@ public class ClassSignature {
 		}
 
 		return sb.toString();
+	}
+
+	public static String joinClassName(final String classNameStart,
+			final String... classNameParts) {
+		if (classNameParts != null && classNameParts.length > 0) {
+			return classNameStart + '_' + StringUtils.join(classNameParts, '_');
+		}
+		return classNameStart;
 	}
 
 }
