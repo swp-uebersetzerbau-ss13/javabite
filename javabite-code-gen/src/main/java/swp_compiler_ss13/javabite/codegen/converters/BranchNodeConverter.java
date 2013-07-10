@@ -27,7 +27,16 @@ public class BranchNodeConverter extends AbstractAst2CodeConverter {
 
 		icg.processNode(branchNode.getCondition());
 		IdentifierData result = icg.popIdentifierData();
-		if (hasFalseBlock) {
+		Boolean conditionIsConstant = result.getIdentifier().startsWith("#");
+		if (conditionIsConstant) {
+			if (result.getIdentifier().equalsIgnoreCase("#true")) {
+				icg.processNode(branchNode.getStatementNodeOnTrue());
+			} else {
+				if (hasFalseBlock) {
+					icg.processNode(branchNode.getStatementNodeOnFalse());
+				}
+			}
+		} else if (hasFalseBlock) {
 			icg.addQuadruple(QuadrupleFactoryJb.generateConditionalBranch(
 					result, trueLabel, falseLabel));
 			icg.addQuadruple(QuadrupleFactoryJb.generateLabel(trueLabel));

@@ -36,16 +36,15 @@ public class BranchNodeConvereterTest {
 			StatementNode trueNode = Mockito.mock(StatementNode.class);
 			StatementNode falseNode = Mockito.mock(StatementNode.class);
 			BranchNode branchNode = Mockito.mock(BranchNode.class);
-			when(branchNode.getStatementNodeOnFalse()).thenReturn(
-					falseNode);
-			when(icg.getNewLabel()).thenReturn("trueLabel","falseLabel","endLabel");
+			when(branchNode.getStatementNodeOnFalse()).thenReturn(falseNode);
+			when(icg.getNewLabel()).thenReturn("trueLabel", "falseLabel",
+					"endLabel");
 			ExpressionNode condition = Mockito.mock(ExpressionNode.class);
 			when(branchNode.getCondition()).thenReturn(condition);
 			when(icg.popIdentifierData()).thenReturn(
 					new IdentifierData("conditionResult", new BooleanType()));
 			when(branchNode.getStatementNodeOnTrue()).thenReturn(trueNode);
-			when(branchNode.getStatementNodeOnFalse()).thenReturn(
-					falseNode);
+			when(branchNode.getStatementNodeOnFalse()).thenReturn(falseNode);
 
 			converter.convert(branchNode);
 
@@ -56,16 +55,15 @@ public class BranchNodeConvereterTest {
 			verify(converter.icg).addQuadruple(
 					new QuadrupleJb(Operator.LABEL, "trueLabel",
 							Quadruple.EmptyArgument, Quadruple.EmptyArgument));
-			verify(converter.icg).processNode(falseNode);
+			verify(converter.icg).processNode(trueNode);
 			verify(converter.icg).addQuadruple(
 					new QuadrupleJb(Operator.BRANCH, "endLabel",
 							Quadruple.EmptyArgument, Quadruple.EmptyArgument));
-			
+
 			verify(converter.icg).addQuadruple(
 					new QuadrupleJb(Operator.LABEL, "falseLabel",
 							Quadruple.EmptyArgument, Quadruple.EmptyArgument));
-			verify(converter.icg).processNode(
-					falseNode);
+			verify(converter.icg).processNode(falseNode);
 
 			verify(converter.icg).addQuadruple(
 					new QuadrupleJb(Operator.LABEL, "endLabel",
@@ -77,75 +75,105 @@ public class BranchNodeConvereterTest {
 
 	@Test
 	public void testBranchNodeConverterOnlyTrue() {
-		// try {
-		// BranchNode branchNode = Mockito.mock(BranchNode.class);
-		// when(branchNode.getStatementNodeOnFalse()).thenReturn(
-		// Mockito.mock(StatementNode.class));
-		// when(icg.getNewLabel()).thenReturn("trueLabel");
-		// when(icg.getNewLabel()).thenReturn("falseLabel");
-		// when(icg.getNewLabel()).thenReturn("endLabel");
-		// ExpressionNode condition = Mockito.mock(ExpressionNode.class);
-		// when(branchNode.getCondition()).thenReturn(condition);
-		// verify(icg).processNode(condition);
-		// when(icg.popIdentifierData()).thenReturn(
-		// new IdentifierData("conditionResult", new BooleanType()));
-		//
-		// if (hasFalseBlock) {
-		// verify(converter.icg).addQuadruple(
-		// new QuadrupleJb(Operator.BRANCH, trueLabel, falseLabel,
-		// "test"));
-		// verify(converter.icg).addQuadruple(
-		// new QuadrupleJb(Operator.LABEL, trueLabel,
-		// Quadruple.EmptyArgument,
-		// Quadruple.EmptyArgument));
-		//
-		// when(branchNode.getStatementNodeOnTrue()).thenReturn(
-		// any(StatementNode.class));
-		// verify(converter.icg).processNode(
-		// branchNode.getStatementNodeOnTrue());
-		//
-		// verify(converter.icg).addQuadruple(
-		// new QuadrupleJb(Operator.BRANCH, endLabel,
-		// Quadruple.EmptyArgument,
-		// Quadruple.EmptyArgument));
-		//
-		// verify(converter.icg).addQuadruple(
-		// new QuadrupleJb(Operator.LABEL, falseLabel,
-		// Quadruple.EmptyArgument,
-		// Quadruple.EmptyArgument));
-		//
-		// when(branchNode.getStatementNodeOnTrue()).thenReturn(
-		// any(StatementNode.class));
-		// verify(converter.icg).processNode(
-		// branchNode.getStatementNodeOnFalse());
-		//
-		// verify(converter.icg).addQuadruple(
-		// new QuadrupleJb(Operator.LABEL, endLabel,
-		// Quadruple.EmptyArgument,
-		// Quadruple.EmptyArgument));
-		// } else {
-		// verify(converter.icg).addQuadruple(
-		// new QuadrupleJb(Operator.BRANCH, trueLabel, endLabel,
-		// "test"));
-		//
-		// verify(converter.icg).addQuadruple(
-		// new QuadrupleJb(Operator.LABEL, trueLabel,
-		// Quadruple.EmptyArgument,
-		// Quadruple.EmptyArgument));
-		//
-		// when(branchNode.getStatementNodeOnTrue()).thenReturn(
-		// any(StatementNode.class));
-		// verify(converter.icg).processNode(
-		// branchNode.getStatementNodeOnFalse());
-		//
-		// verify(converter.icg).addQuadruple(
-		// new QuadrupleJb(Operator.LABEL, endLabel,
-		// Quadruple.EmptyArgument,
-		// Quadruple.EmptyArgument));
-		// }
-		//
-		// } catch (IntermediateCodeGeneratorException e) {
-		// fail();
-		// }
+		try {
+			StatementNode trueNode = Mockito.mock(StatementNode.class);
+			BranchNode branchNode = Mockito.mock(BranchNode.class);
+			when(icg.getNewLabel()).thenReturn("trueLabel", "endLabel");
+			ExpressionNode condition = Mockito.mock(ExpressionNode.class);
+			when(branchNode.getCondition()).thenReturn(condition);
+			when(icg.popIdentifierData()).thenReturn(
+					new IdentifierData("conditionResult", new BooleanType()));
+			when(branchNode.getStatementNodeOnTrue()).thenReturn(trueNode);
+
+			converter.convert(branchNode);
+
+			verify(icg).processNode(condition);
+			verify(converter.icg).addQuadruple(
+					new QuadrupleJb(Operator.BRANCH, "trueLabel", "endLabel",
+							"conditionResult"));
+			verify(converter.icg).addQuadruple(
+					new QuadrupleJb(Operator.LABEL, "trueLabel",
+							Quadruple.EmptyArgument, Quadruple.EmptyArgument));
+			verify(converter.icg).processNode(trueNode);
+			verify(converter.icg).addQuadruple(
+					new QuadrupleJb(Operator.LABEL, "endLabel",
+							Quadruple.EmptyArgument, Quadruple.EmptyArgument));
+		} catch (IntermediateCodeGeneratorException e) {
+			fail();
+		}
+	}
+
+	@Test
+	public void testBranchNodeConverterConstantTrue() {
+		try {
+			StatementNode trueNode = Mockito.mock(StatementNode.class);
+			StatementNode falseNode = Mockito.mock(StatementNode.class);
+			BranchNode branchNode = Mockito.mock(BranchNode.class);
+			when(branchNode.getStatementNodeOnFalse()).thenReturn(falseNode);
+			when(icg.getNewLabel()).thenReturn("trueLabel", "falseLabel",
+					"endLabel");
+			ExpressionNode condition = Mockito.mock(ExpressionNode.class);
+			when(branchNode.getCondition()).thenReturn(condition);
+			when(icg.popIdentifierData()).thenReturn(
+					new IdentifierData("#true", new BooleanType()));
+			when(branchNode.getStatementNodeOnTrue()).thenReturn(trueNode);
+			when(branchNode.getStatementNodeOnFalse()).thenReturn(falseNode);
+
+			converter.convert(branchNode);
+
+			verify(icg).processNode(condition);
+			verify(converter.icg).processNode(trueNode);
+		} catch (IntermediateCodeGeneratorException e) {
+			fail();
+		}
+	}
+
+	@Test
+	public void testBranchNodeConverterOnlyTrueConstantFalse() {
+		try {
+			StatementNode trueNode = Mockito.mock(StatementNode.class);
+			StatementNode falseNode = Mockito.mock(StatementNode.class);
+			BranchNode branchNode = Mockito.mock(BranchNode.class);
+			when(branchNode.getStatementNodeOnFalse()).thenReturn(falseNode);
+			when(icg.getNewLabel()).thenReturn("trueLabel", "falseLabel",
+					"endLabel");
+			ExpressionNode condition = Mockito.mock(ExpressionNode.class);
+			when(branchNode.getCondition()).thenReturn(condition);
+			when(icg.popIdentifierData()).thenReturn(
+					new IdentifierData("#false", new BooleanType()));
+			when(branchNode.getStatementNodeOnTrue()).thenReturn(trueNode);
+			when(branchNode.getStatementNodeOnFalse()).thenReturn(falseNode);
+
+			converter.convert(branchNode);
+
+			verify(icg).processNode(condition);
+		} catch (IntermediateCodeGeneratorException e) {
+			fail();
+		}
+	}
+
+	@Test
+	public void testBranchNodeConverterWithTrueAndFalseConstantFalse() {
+		try {
+			StatementNode trueNode = Mockito.mock(StatementNode.class);
+			StatementNode falseNode = Mockito.mock(StatementNode.class);
+			BranchNode branchNode = Mockito.mock(BranchNode.class);
+			when(branchNode.getStatementNodeOnFalse()).thenReturn(falseNode);
+			when(icg.getNewLabel()).thenReturn("trueLabel", "falseLabel",
+					"endLabel");
+			ExpressionNode condition = Mockito.mock(ExpressionNode.class);
+			when(branchNode.getCondition()).thenReturn(condition);
+			when(icg.popIdentifierData()).thenReturn(
+					new IdentifierData("#false", new BooleanType()));
+			when(branchNode.getStatementNodeOnTrue()).thenReturn(trueNode);
+			when(branchNode.getStatementNodeOnFalse()).thenReturn(falseNode);
+
+			converter.convert(branchNode);
+
+			verify(icg).processNode(condition);
+			verify(converter.icg).processNode(falseNode);
+		} catch (IntermediateCodeGeneratorException e) {
+			fail();
+		}
 	}
 }
