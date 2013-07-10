@@ -16,7 +16,7 @@ public class PrintTest extends AbstractCompilerTest {
 
 	@Override
 	public String getOutput() {
-		return "true\n18121313223\n-2.323E-99\njagÄrEttString\"\n";
+		return "true\n18121313223\n-2.323E-99\njagÃ„rEttString\"\n";
 	}
 
 	@Override

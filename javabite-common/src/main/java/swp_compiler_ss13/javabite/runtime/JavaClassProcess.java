@@ -37,10 +37,10 @@ public class JavaClassProcess {
 				+ File.separator + "bin" + File.separator + "java";
 		ProcessBuilder processBuilder;
 		if (NO_VERIFY_NEEDED) {
-			processBuilder = new ProcessBuilder(javaExecutablePath, "-cp",
+			processBuilder = new ProcessBuilder(javaExecutablePath, "-Dfile.encoding=UTF-8", "-cp",
 					classPath, NO_VERIFY, className);
 		} else {
-			processBuilder = new ProcessBuilder(javaExecutablePath, "-cp",
+			processBuilder = new ProcessBuilder(javaExecutablePath, "-Dfile.encoding=UTF-8", "-cp",
 					classPath, className);
 		}
 		try {
