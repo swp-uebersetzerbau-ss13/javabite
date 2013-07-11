@@ -123,9 +123,6 @@ public class FileManager implements DocumentListener {
 	public boolean saveFileIfChanged() {
 		
 		if (!hasUnsavedChanges) {
-			if (currentFile == null) {
-				return false; //no file can't have no changes
-			}
 			return true;
 		}
 		

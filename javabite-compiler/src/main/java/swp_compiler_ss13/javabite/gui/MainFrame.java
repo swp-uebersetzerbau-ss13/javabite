@@ -544,6 +544,7 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 		config.getProperty("syntaxHighlighting.print", "#7F0055");
 		config.getProperty("syntaxHighlighting.long_symbol", "#7F0055");
 		config.getProperty("syntaxHighlighting.double_symbol", "#7F0055");
+		config.getProperty("syntaxHighlighting.string_symbol", "#7F0055");
 		config.getProperty("syntaxHighlighting.bool_symbol", "#7F0055");
 		config.getProperty("syntaxHighlighting.record_symbol", "#7F0055");
 		config.getProperty("syntaxHighlighting.assignop", "#000000");
@@ -585,6 +586,9 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 	public void compile() {
 		progressBar.setValue(0);
 		try {
+			if (fileManager.currentFile == null) {
+				return; //no file can not be compiled
+			}
 			if (!fileManager.saveFileIfChanged()) {
 				return;
 			}

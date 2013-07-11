@@ -620,7 +620,7 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 				if (statement != last_statement
 						&& is(statement, FLOW_INTERRUPT, SYNTHESIZED)) {
 					// not valid
-					errorLog.reportError(ReportType.UNDEFINED,
+					errorLog.reportError(ReportType.UNREACHABLE_CODE,
 							statement.coverage(), "Non-reachable code");
 					set(n, FLOW_INTERRUPT, SYNTHESIZED);
 					break;
