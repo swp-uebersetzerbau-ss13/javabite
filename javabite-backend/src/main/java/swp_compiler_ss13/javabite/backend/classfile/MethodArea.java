@@ -16,10 +16,11 @@ import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToHexStrin
  * <h1>MethodArea</h1>
  * <p>
  * This class represents all information needed to create a JVM-Classfile
- * methods' area.
+ * methods' area. (Actually, there is not something like a method area in the
+ * jvm specification, so this "area" stands for the following part of the
+ * specification: u2 methods_count; method_info methods[methods_count]; )
  * </p>
  * 
- * @author Marco
  * @since 28.04.2013
  */
 class MethodArea {
@@ -81,13 +82,18 @@ class MethodArea {
 	 * @since 29.04.2013
 	 * @param methodName
 	 *            String name of the method
+	 * @param nameIndex
+	 *            short index of method's name in the constant pool
+	 * @param descriptorIndex
+	 *            short index of method's descriptor in the constant pool
+	 * @param codeIndex
+	 *            short index of string "code" in the constant pool
 	 * @param methodDescriptor
 	 *            String method descriptor as specified by jvm specification
 	 * @param accessFlags
 	 *            arbitrary amount of method access flags
 	 * @see Method
 	 */
-	// TODO: UPDATE JAVADOC
 	void addMethod(final String methodName, final short nameIndex,
 			final short descriptorIndex, final short codeIndex,
 			final String methodDescriptor,
@@ -135,6 +141,7 @@ class MethodArea {
 	 *            String name of the variable
 	 * @param localVariableType
 	 *            LocalVariableType variable type of the variable
+	 * @return byte index of variable in the method's local variable table.
 	 * @see Method
 	 * @see Method#addVariableToCodeAttribute(String,
 	 *      swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType)
@@ -188,7 +195,7 @@ class MethodArea {
 	 * @param methodName
 	 *            String name of the method
 	 * @param instructions
-	 *            instance of class Instruction
+	 *            arbitrary instances of class Instruction
 	 * @see #getMethodByMethodName(String)
 	 * @see Method
 	 * @see Method#addInstructionsToCodeAttribute(swp_compiler_ss13.javabite.backend.translation.Instruction...)

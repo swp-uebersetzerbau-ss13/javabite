@@ -15,7 +15,6 @@ import java.io.IOException;
  * info structure.
  * </p>
  * 
- * @author Marco
  * @since 19.06.2013
  */
 class FieldInfo {

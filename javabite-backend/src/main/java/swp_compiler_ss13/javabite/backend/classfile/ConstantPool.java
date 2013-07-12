@@ -19,11 +19,10 @@ import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.*;
 /**
  * <h1>ConstantPool</h1>
  * <p>
- * This class represents all information needed to create a
- * JVM-classfile-constantPool being part of every JVM-Classfile.
+ * This class represents all information needed to create a jvm classfile
+ * constant pool being part of every jvm classfile.
  * </p>
  * 
- * @author Marco
  * @since 27.04.2013
  */
 public class ConstantPool {
@@ -110,7 +109,6 @@ public class ConstantPool {
 		}
 	}
 
-	// TODO: add exception
 	/**
 	 * <h1>generateConstantLongInfo</h1>
 	 * <p>
@@ -198,6 +196,9 @@ public class ConstantPool {
 	 * @since 29.04.2013
 	 * @param value
 	 *            string value of entry, which is to be generated
+	 * @param removeQuotationMarks
+	 *            determines, whether quotation marks are supposed to be removed
+	 *            from value or not
 	 * @return short index of a STRING info entry in the constant pool of this
 	 *         classfile meeting the parameters.
 	 */
@@ -210,6 +211,7 @@ public class ConstantPool {
 			return getCPMapEntry(key);
 		}
 
+		// remove quotation marks, if necessary
 		assert value.length() >= 2;
 		if (removeQuotationMarks) {
 			value = StringEscapeUtils.unescapeJava(value.substring(1,
@@ -291,11 +293,12 @@ public class ConstantPool {
 			return getCPMapEntry(key);
 		}
 
+		// create bytes of CPInfo entry according to jvm specification
 		final int strlen = value.length();
 		int utflen = 0;
 		int c, count = 0;
 
-		/* use charAt instead of copying String to char array */
+		// use charAt instead of copying String to char array
 		for (int i = 0; i < strlen; i++) {
 			c = value.charAt(i);
 			if (c >= 0x0001 && c <= 0x007F) {
@@ -416,6 +419,9 @@ public class ConstantPool {
 	 *            short index of a NameAndType entry in this constant pool
 	 * @param fieldName
 	 *            string name of the field
+	 * @param classNameEIF
+	 *            classname encoded in internal form meeting the jvm
+	 *            specification
 	 * @return short index of a Fieldref info entry in the constant pool of this
 	 *         classfile meeting the parameters.
 	 */
@@ -529,8 +535,7 @@ public class ConstantPool {
 	 *            InfoTag type of the constant
 	 * @return index of the constant in this constant pool
 	 * @see Classfile#getIndexInConstantPool(swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.ConstantPoolType,
-	 *      String) TODO constantName umbenennen, teilweise constants, teilweise
-	 *      names
+	 *      String)
 	 */
 	public short getIndexOfConstant(final ConstantPoolType constantType,
 			final String constantName) {
@@ -551,7 +556,7 @@ public class ConstantPool {
 	 * 
 	 * @since 29.04.2013
 	 * @param key
-	 *            String key which is to be used in the mapping
+	 *            string key which is to be used in the mapping
 	 * @param value
 	 *            short value which is to be used in the mapping
 	 */
@@ -570,6 +575,7 @@ public class ConstantPool {
 	 * @since 30.04.2013
 	 * @param key
 	 *            String key which is to be checked
+	 * @return true, if entry exists, else false
 	 */
 	boolean cpMapEntryExists(final String key) {
 		return cpEntryMap.containsKey(key);
@@ -585,6 +591,7 @@ public class ConstantPool {
 	 * @since 30.04.2013
 	 * @param key
 	 *            String key which is to be checked
+	 * @return short index of constant pool entry, if it exists, else 0
 	 * @see #cpMapEntryExists(String)
 	 */
 	public Short getCPMapEntry(final String key) {

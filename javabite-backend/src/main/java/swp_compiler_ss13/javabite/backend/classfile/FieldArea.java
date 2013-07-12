@@ -14,11 +14,16 @@ import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.intToHexString;
 /**
  * <h1>FieldArea</h1>
  * <p>
- * This class represents all information needed to create a JVM-Classfile fields
- * area.
+ * This class represents all information needed to create a jvm classfile fields
+ * area. 
+ * (Actually, there is not something like a field area in the jvm
+ * specification, so this "area" stands for the following part of the
+ * specification:
+ *     u2 fields_count;
+ *     field_info fields[fields_count];
+ * )
  * </p>
  * 
- * @author Marco
  * @since 19.06.2013
  */
 class FieldArea {
@@ -85,6 +90,8 @@ class FieldArea {
 	 * @param descriptorIndex
 	 *            short index into this classfile's constant pool of field's
 	 *            string descriptor.
+	 * @param accessFlags
+	 *            list of access flags for the field
 	 */
 	void addField(final short nameIndex, final short descriptorIndex,
 			final FieldAccessFlag... accessFlags) {

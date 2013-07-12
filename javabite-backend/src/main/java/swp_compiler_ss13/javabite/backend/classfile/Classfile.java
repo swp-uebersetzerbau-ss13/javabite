@@ -22,40 +22,59 @@ import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToHexStrin
 /**
  * <h1>Classfile</h1>
  * <p>
- * This class represents all information needed to create a JVM-Classfile.
+ * This class represents all information needed to create a jvm classfile. (Java
+ * Version 1.5)
  * </p>
  * 
- * @author Marco
  * @since 27.04.2013
  */
 public class Classfile {
 
+	// major versions
 	public static final byte[] MAJOR_VERSION_J2SE_7 = { (byte) 0, (byte) 51 };
 	public static final byte[] MAJOR_VERSION_J2SE_6 = { (byte) 0, (byte) 50 };
 	public static final byte[] MAJOR_VERSION_J2SE_5 = { (byte) 0, (byte) 49 };
 
+	/*
+	 * file extension, which will be used, when the actual files are generated
+	 * by the compiler
+	 */
 	public static final String FILE_EXTENSION_CLASS = ".class";
 
+	// logging
 	private static final Logger logger = LoggerFactory
 			.getLogger(Classfile.class);
 
-	// name of File
+	/*
+	 * name (plus exntension) of file, which is supposed to be generated for
+	 * this classfile object
+	 */
 	private final String name;
+
+	/*
+	 * determines, whether this is the main classfile object or a classfile
+	 * object generated for a struct
+	 */
 	private final boolean isStruct;
 
-	// used only in main classfile
-	// TODO moar commentz
+	/*
+	 * these sets and maps are used only in the main classfile in order to
+	 * remember certain names and structures in the translator's tac
+	 * preprocessing part, which are later needed in the actual translation
+	 */
 	private final Set<String> toplevelStructs;
 	private final Set<String> sublevelStructs;
 	private final Map<String, String> structMemberArrayTypes;
 
 	/*
 	 * general classfile constant pool information being used while classfile
-	 * initialization
+	 * initialization (see JVM Classfile Specification)
 	 */
-	private final String thisClassNameEIF;
-	private final String superClassNameEIF;
 
+	// this classname encoded in internal form
+	private final String thisClassNameEIF;
+	// super classname encoded in internal form
+	private final String superClassNameEIF;
 	// general classfile structure information
 	private final byte[] magic = { (byte) 0xca, (byte) 0xfe, (byte) 0xba,
 			(byte) 0xbe };
@@ -66,26 +85,26 @@ public class Classfile {
 	private short thisClassIndex;
 	private short superClassIndex;
 	private final short interfaceCount;
-	// interface area left out
+	// interface area is left out, because it is not needed
 	protected FieldArea fieldArea;
 	protected MethodArea methodArea;
 	private final short attributesCount;
+	// attribute area is left out, because it is not needed
 
+	// index of constructor's method ref entry in the constant pool
 	private byte[] constructorIndex;
 	private boolean printFlag;
-
-	// attribute area left out
 
 	/**
 	 * <h1>Classfile</h1>
 	 * <p>
-	 * This class represents all information needed to create a JVM-Classfile.
+	 * This class represents all information needed to create a jvm classfile.
 	 * </p>
 	 * 
 	 * <h1>Classfile constructor</h1>
 	 * <p>
-	 * The constructor instantiates the classfile's constant pool, field area,
-	 * method area and attribute area and sets basic classfile information.
+	 * The constructor instantiates the classfile's constant pool, field area
+	 * and method area and sets basic classfile information.
 	 * </p>
 	 * 
 	 * @since 27.04.2013
@@ -105,7 +124,7 @@ public class Classfile {
 			final String superClassNameEIF, final boolean isStruct,
 			final ClassfileAccessFlag... accessFlags) {
 
-		// set basic parameters
+		// set and initialize basic parameters
 		this.name = thisClassNameEIF + FILE_EXTENSION_CLASS;
 		this.isStruct = isStruct;
 		toplevelStructs = new HashSet<>();
@@ -113,57 +132,25 @@ public class Classfile {
 		structMemberArrayTypes = new HashMap<>();
 		this.thisClassNameEIF = thisClassNameEIF;
 		this.superClassNameEIF = superClassNameEIF;
+		/*
+		 * as we do not need interfaces or general attributes, we set their
+		 * counts to zero
+		 */
 		interfaceCount = 0;
 		attributesCount = 0;
 
+		// set access flags
 		for (final ClassfileAccessFlag accessFlag : accessFlags) {
 			this.accessFlags = (short) (this.accessFlags | accessFlag.value);
 		}
 
-		// instantiate constant pool, field area, method area and attribute area
+		// instantiate constant pool, field area and method area
 		constantPool = new ConstantPool();
 		methodArea = new MethodArea();
 		fieldArea = new FieldArea();
 
 		// initialize classfile
 		initializeClassfile();
-	}
-
-	public byte[] getConstructorIndex() {
-		return constructorIndex;
-	}
-
-	public void addToplevelStruct(final String structName) {
-		toplevelStructs.add(structName);
-	}
-
-	public boolean isToplevelStruct(final String structName) {
-		return toplevelStructs.contains(structName);
-	}
-
-	public void addSublevelStruct(final String structName) {
-		sublevelStructs.add(structName);
-	}
-
-	public boolean isSublevelStruct(final String structName) {
-		return sublevelStructs.contains(structName);
-	}
-
-	public void addStructMemberArray(final String arrayPath,
-			final String arrayType) {
-		structMemberArrayTypes.put(arrayPath, arrayType);
-	}
-
-	public String getStructMemberArrayType(final String arrayPath) {
-		return structMemberArrayTypes.get(arrayPath);
-	}
-
-	public boolean isPrintFlag() {
-		return printFlag;
-	}
-
-	public void setPrintFlag(final boolean printFlag) {
-		this.printFlag = printFlag;
 	}
 
 	/**
@@ -176,6 +163,7 @@ public class Classfile {
 	 * @since 28.04.2013
 	 */
 	private void initializeClassfile() {
+
 		/*
 		 * add the class' name encoded in internal form to constant pool, get
 		 * back its index in the constant pool and set member variable
@@ -194,16 +182,19 @@ public class Classfile {
 		 * add initialize-method (constructor) to method area and set invoke
 		 * parameter
 		 */
-		// TODO externalize static strings
 		addToMethodArea("<init>", "()V", MethodAccessFlag.ACC_PUBLIC);
 
-		// if this is a struct, the initialization of the object will be done by
-		// the program builder, later in the program
-		// TODO replace with addMethodref
+		// generate approriate entries for constructor in the constant pool
 		final short initNATIndex = constantPool
 				.generateConstantNameAndTypeInfo("<init>", "()V");
 		constructorIndex = ByteUtils.shortToByteArray(constantPool
 				.generateConstantMethodrefInfo(superClassIndex, initNATIndex));
+
+		/*
+		 * if this is a struct, the initialization of the object (constructor
+		 * code) will be done by the program builder, later in the translation
+		 * process
+		 */
 		if (!isStruct) {
 			// add code to initialize-method
 			final Instruction InstrAload = new Instruction(Mnemonic.ALOAD_0);
@@ -248,6 +239,8 @@ public class Classfile {
 	 *            the output stream to which the bytes are written
 	 * @see ConstantPool#writeTo(java.io.DataOutputStream)
 	 * @see MethodArea#writeTo(java.io.DataOutputStream)
+	 * @see JVM Specification:
+	 *      http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html
 	 */
 	public void writeTo(final OutputStream classfileOS) {
 		try {
@@ -268,11 +261,13 @@ public class Classfile {
 			// write constantPool content
 			constantPool.writeTo(classfileDOS);
 
+			// write further meta information
 			classfileDOS.writeShort(accessFlags);
 			classfileDOS.writeShort(thisClassIndex);
 			classfileDOS.writeShort(superClassIndex);
 			classfileDOS.writeShort(interfaceCount);
 
+			// write field area content
 			fieldArea.writeTo(classfileDOS);
 
 			if (logger.isDebugEnabled()) {
@@ -283,6 +278,7 @@ public class Classfile {
 						shortToHexString(interfaceCount));
 			}
 
+			// write method area content
 			methodArea.writeTo(classfileDOS);
 
 			classfileDOS.writeShort(attributesCount);
@@ -304,13 +300,175 @@ public class Classfile {
 	 * </p>
 	 * 
 	 * @since 27.04.2013
+	 * @return String describing the classfile's name
 	 */
 	public String getFilename() {
 		return name;
 	}
 
+	/**
+	 * <h1>getClassname</h1>
+	 * <p>
+	 * This method returns the classfile's name encoded in internal form
+	 * according to the jvm specification.
+	 * </p>
+	 * 
+	 * @since 27.04.2013
+	 * @return String describing the classfile's name encoded in internal form
+	 *         according to the jvm specification
+	 */
 	public String getClassname() {
 		return thisClassNameEIF;
+	}
+
+	/**
+	 * <h1>getConstructorIndex</h1>
+	 * <p>
+	 * This method gets the index of the constructor's method ref entry in the
+	 * constant pool adn returns it.
+	 * </p>
+	 * 
+	 * @since 05.07.2013
+	 * @return byte array with constant pool entries index
+	 */
+	public byte[] getConstructorIndex() {
+		return constructorIndex;
+	}
+
+	/**
+	 * <h1>addToplevelStruct</h1>
+	 * <p>
+	 * This method adds a string with a top level struct's name to the
+	 * appropriate set of top level structs.
+	 * </p>
+	 * 
+	 * @since 05.07.2013
+	 * @param structName
+	 *            String describing the name of a top level struct (a struct
+	 *            which is declared in the main program and not within another
+	 *            struct)
+	 */
+	public void addToplevelStruct(final String structName) {
+		toplevelStructs.add(structName);
+	}
+
+	/**
+	 * <h1>isToplevelStruct</h1>
+	 * <p>
+	 * This method checks, whether the set of top level structs contains a
+	 * certain struct name.
+	 * </p>
+	 * 
+	 * @since 05.07.2013
+	 * @param structName
+	 *            String describing the name of a top level struct (a struct
+	 *            which is declared in the main program and not within another
+	 *            struct)
+	 * @return true if this classfile's set of top level structs contains the
+	 *         provided struct name, else false
+	 */
+	public boolean isToplevelStruct(final String structName) {
+		return toplevelStructs.contains(structName);
+	}
+
+	/**
+	 * <h1>addSublevelStruct</h1>
+	 * <p>
+	 * This method adds a string with a sub level struct's name to the
+	 * appropriate set of sub level structs.
+	 * </p>
+	 * 
+	 * @since 05.07.2013
+	 * @param structName
+	 *            String describing the name of a sub level struct (a struct
+	 *            which is not declared in the main program, but within another
+	 *            struct)
+	 */
+	public void addSublevelStruct(final String structName) {
+		sublevelStructs.add(structName);
+	}
+
+	/**
+	 * <h1>isSublevelStruct</h1>
+	 * <p>
+	 * This method checks, whether the set of sub level structs contains a
+	 * certain struct name.
+	 * </p>
+	 * 
+	 * @since 05.07.2013
+	 * @param structName
+	 *            String describing the name of a sub level struct (a struct
+	 *            which is not declared in the main program, but within another
+	 *            struct)
+	 * @return true if this classfile's set of sub level structs contains the
+	 *         provided struct name, else false
+	 */
+	public boolean isSublevelStruct(final String structName) {
+		return sublevelStructs.contains(structName);
+	}
+
+	/**
+	 * <h1>addStructMemberArray</h1>
+	 * <p>
+	 * This method adds a new entry to the map "structMemberArrayTypes", which
+	 * maps array paths to the corresponding arrays' types.
+	 * </p>
+	 * 
+	 * @since 05.07.2013
+	 * @param arrayPath
+	 *            String describing the path of an array, meaning the nesting of
+	 *            the array within other structs and strucs/array-combinations.
+	 * @param arrayType
+	 *            String describing the array's type meeting the jvm
+	 *            specification.
+	 */
+	public void addStructMemberArray(final String arrayPath,
+			final String arrayType) {
+		structMemberArrayTypes.put(arrayPath, arrayType);
+	}
+
+	/**
+	 * <h1>getStructMemberArrayType</h1>
+	 * <p>
+	 * This method gets an entry from the map "structMemberArrayTypes" according
+	 * to its parameter.
+	 * </p>
+	 * 
+	 * @since 05.07.2013
+	 * @param arrayPath
+	 *            String describing the path of an array, meaning the nesting of
+	 *            the array within other structs and strucs/array-combinations.
+	 * @return String describing an array type meeting the jvm specification.
+	 */
+	public String getStructMemberArrayType(final String arrayPath) {
+		return structMemberArrayTypes.get(arrayPath);
+	}
+
+	/**
+	 * <h1>isPrintFlag</h1>
+	 * <p>
+	 * This method checks, whether the print flag is set or not.
+	 * </p>
+	 * 
+	 * @since 05.07.2013
+	 * @return true, if the print flag is set, false else.
+	 */
+	public boolean isPrintFlag() {
+		return printFlag;
+	}
+
+	/**
+	 * <h1>setPrintFlag</h1>
+	 * <p>
+	 * This method sets the print flag.
+	 * </p>
+	 * 
+	 * @since 05.07.2013
+	 * @param printFlag
+	 *            boolean value to which the print flag is supposed to be set.
+	 */
+	public void setPrintFlag(final boolean printFlag) {
+		this.printFlag = printFlag;
 	}
 
 	/**
@@ -415,6 +573,22 @@ public class Classfile {
 		return constantPool.generateConstantClassInfo(value);
 	}
 
+	/**
+	 * <h1>addClassToConstantPool</h1>
+	 * <p>
+	 * This method creates an classInfo-entry meeting the jvm classfile constant
+	 * pool CONSTANT_CLASS_info standard in the constantPool of this classfile.
+	 * The generated entry is appended to the existing list, if it is not
+	 * already in it. The entry's index is returned.
+	 * </p>
+	 * 
+	 * @since 05.07.2013
+	 * @param classSignature
+	 *            ClassSignature value, whose className is used for further
+	 *            processing
+	 * @return short index of a class info entry in the constant pool of this
+	 *         classfile meeting the parameters.
+	 */
 	public short addClassToConstantPool(final ClassSignature classSignature) {
 		return addClassToConstantPool(classSignature.className);
 	}
@@ -432,7 +606,7 @@ public class Classfile {
 	 * 
 	 * @since 13.05.2013
 	 * @param signature
-	 *            Signature of method to add to the constant pool
+	 *            MethodSignature of the method to be add to the constant pool
 	 * @return short index of a methodref info entry in the constant pool of
 	 *         this classfile meeting the parameters.
 	 */
@@ -459,7 +633,7 @@ public class Classfile {
 	 * 
 	 * @since 30.05.2013
 	 * @param signature
-	 *            signature of field to add
+	 *            FieldSignature of the field to be added to the constant pool
 	 * @return short index of a fieldref info entry in the constant pool of this
 	 *         classfile meeting the parameters.
 	 */
@@ -488,7 +662,8 @@ public class Classfile {
 	 * CLASS - {class description}<br/>
 	 * UTF8 - {utf8 value}<br/>
 	 * Methodref - {class index}.{nameAndType index}<br/>
-	 * NameAndType - {method name}{method descriptor}
+	 * NameAndType - {method name}{method descriptor} FieldRef -
+	 * {classNameEIF}{field name}
 	 * </p>
 	 * 
 	 * @since 30.04.2013
@@ -545,6 +720,7 @@ public class Classfile {
 	 *            String name of the variable
 	 * @param localVariableType
 	 *            LocalVariableType variable type of the variable
+	 * @return byte index of variable in the method's local variable table.
 	 */
 	public byte addVariableToMethod(final String methodName,
 			final String variableName,
@@ -584,7 +760,7 @@ public class Classfile {
 	 * 
 	 * @since 24.06.2013
 	 * @param signature
-	 *            signature of field to add
+	 *            FieldSignature of field to be added
 	 * @param accessFlags
 	 *            list of access flags for the field
 	 */

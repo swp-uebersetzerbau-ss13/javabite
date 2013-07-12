@@ -25,7 +25,6 @@ import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.*;
  *      href="http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.7.3">JVM
  *      attributes Specification</a> </p>
  * 
- * @author Marco
  * @since 28.04.2013
  */
 class Code {
@@ -46,6 +45,7 @@ class Code {
 	private short maxStack;
 	private short maxLocals;
 	private final short attributesCount;
+
 	/**
 	 * <h1>codeArea</h1>
 	 * <p>
@@ -98,7 +98,6 @@ class Code {
 	 */
 	void writeTo(final DataOutputStream classfileDOS) {
 
-		// TODO use bytebuffer or classfileDOS directly?
 		final ByteArrayOutputStream attributesBAOS = new ByteArrayOutputStream();
 		final DataOutputStream attributesDOS = new DataOutputStream(
 				attributesBAOS);
@@ -121,7 +120,7 @@ class Code {
 			for (final Instruction instruction : codeArea) {
 				instruction.writeTo(codeDOS);
 			}
-			// TODO why use codeDOS for size() and codeBAOS for toByteArray() ?
+
 			attributesDOS.writeInt(codeDOS.size());
 			attributesDOS.write(codeBAOS.toByteArray());
 
@@ -183,7 +182,7 @@ class Code {
 	 * <p>
 	 * This method adds a new variable to the local variable space considering
 	 * the variable's name and type. If it's already existent, nothing will
-	 * happen.maxLocals
+	 * happen, just the index will be returned.
 	 * </p>
 	 * 
 	 * @since 29.04.2013
@@ -192,6 +191,7 @@ class Code {
 	 * @param localVariableType
 	 *            LocalVariableType variable type of the variable to be added
 	 * @see swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType
+	 * @return byte index of variable in the local variable table.
 	 * @see #variableMap
 	 */
 	byte addVariable(final String variableName,
@@ -224,8 +224,6 @@ class Code {
 	 * @see #variableMap
 	 */
 	byte getIndexOfVariable(final String variableName) {
-		// TODO check size of variable space overflow -> exception
-
 		if (variableMap.containsKey(variableName)) {
 			return variableMap.get(variableName);
 		} else {

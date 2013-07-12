@@ -17,7 +17,6 @@ import java.io.IOException;
  * containing further information.
  * </p>
  * 
- * @author Marco
  * @since 27.04.2013
  */
 public class CPInfo {

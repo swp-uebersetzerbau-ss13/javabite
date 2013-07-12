@@ -18,7 +18,6 @@ import static swp_compiler_ss13.javabite.backend.utils.ByteUtils.shortToHexStrin
  * method.
  * </p>
  * 
- * @author Marco
  * @since 28.04.2013
  */
 class Method {
@@ -40,56 +39,37 @@ class Method {
 	/**
 	 * <h1>Method</h1>
 	 * <p>
-	 * This class represents all information needed to create a JVM-Classfile
+	 * This class represents all information needed to create a jvm classfile
 	 * method.
 	 * </p>
 	 * 
 	 * <h1>Method constructor</h1>
 	 * <p>
-	 * The constructor adds some constants to this classfile being needed for a
-	 * new Method object. Furthermore it sets the method's {@link #accessFlags}
-	 * according to the parameters.
+	 * The constructor just initializes some member variables and sets the
+	 * provided access flags.
 	 * </p>
 	 * 
 	 * @since 28.04.2013
-	 * @param fieldAccessFlags
+	 * @param nameIndex
+	 *            short index of method's name in the constant pool
+	 * @param descriptorIndex
+	 *            short index of method's descriptor in the constant pool
+	 * @param codeIndex
+	 *            short index of string "code" in the constant pool
+	 * @param methodAccessFlags
 	 *            arbitrary amount of MethodAccessFlag
 	 * @see #accessFlags
 	 * @see Classfile#addUTF8ToConstantPool(String)
 	 * @see MethodAccessFlag
 	 */
-	// private Method(final String methodName, final String methodDescriptor,
-	// final MethodAccessFlag... accessFlags) {
-	//
-	// // add constants to this classfile's constant pool
-	// this.nameIndex = Classfile.this
-	// .addUTF8ToConstantPool(methodName);
-	// this.descriptorIndex = Classfile.this
-	// .addUTF8ToConstantPool(methodDescriptor);
-	//
-	// for (final MethodAccessFlag a : accessFlags) {
-	// this.accessFlags = (short) (this.accessFlags | a.getValue());
-	// }
-	//
-	// /*
-	// * for convenience the attributes count is set explicitly as we need
-	// * only the Code attribute
-	// */
-	// this.attributesCount = 1;
-	// final short codeIndex = Classfile.this
-	// .addUTF8ToConstantPool("Code");
-	// this.codeAttribute = new CodeAttribute(codeIndex);
-	// }
-
-	// TODO: UPDATE JAVADOC
 	Method(final short nameIndex, final short descriptorIndex,
-			final short codeIndex, final MethodAccessFlag... fieldAccessFlags) {
+			final short codeIndex, final MethodAccessFlag... methodAccessFlags) {
 		this.nameIndex = nameIndex;
 		this.descriptorIndex = descriptorIndex;
 		codeAttribute = new Code(codeIndex);
 
-		for (final MethodAccessFlag faf : fieldAccessFlags) {
-			accessFlags = (short) (accessFlags | faf.value);
+		for (final MethodAccessFlag maf : methodAccessFlags) {
+			accessFlags = (short) (accessFlags | maf.value);
 		}
 
 	}
@@ -143,6 +123,7 @@ class Method {
 	 *            String name of the variable
 	 * @param localVariableType
 	 *            LocalVariableType variable type of the variable
+	 * @return byte index of variable in the method's local variable table.
 	 * @see swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType
 	 * @see Code
 	 * @see Code#addVariable(String,
@@ -183,7 +164,7 @@ class Method {
 	 * 
 	 * @since 30.04.2013
 	 * @param instructions
-	 *            instances of class Instruction
+	 *            arbitrary instances of class Instruction
 	 * @see Code
 	 * @see Code#addInstructions(swp_compiler_ss13.javabite.backend.translation.Instruction...)
 	 * @see Instruction
