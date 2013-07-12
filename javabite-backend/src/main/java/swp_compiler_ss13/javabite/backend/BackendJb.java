@@ -14,17 +14,29 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * BackendImpl class. Implementation of the interface "Backend".
+ * BackendJb class. Implementation of the interface "Backend".
  * 
- * @author Marco
  * @since 27.04.2013
- * 
  */
 public class BackendJb implements Backend {
 
 	/**
-	 * generates the target code for the input list of three address code
-	 * quadruples.
+	 * <h1>generateTargetCode</h1>
+	 * 
+	 * <p>
+	 * This method generates the target code for the input list of three address
+	 * code quadruples using the main components - a three-address-code
+	 * optimizer, an actual translater and a target code optimizer.
+	 * </p>
+	 * 
+	 * @since 27.04.2013
+	 * 
+	 * @param baseFileName
+	 *            String filename, which is to be used for the main classfile
+	 *            generation and as prefix for all struct classfile names.
+	 * @param tac
+	 *            list of quadruples, which represents the program, that is
+	 *            supposed to be translated into java bytecode.
 	 */
 	@Override
 	public Map<String, InputStream> generateTargetCode(String baseFileName,
