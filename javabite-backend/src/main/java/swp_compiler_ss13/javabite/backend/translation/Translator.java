@@ -15,20 +15,22 @@ import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.*;
  * <h1>Translator</h1>
  * <p>
  * This class and its methods are supposed to be used to translate the tac into
- * a list of classfiles containing the target bytecode.
+ * a list of classfiles containing the target bytecode (java bytecode).
  * </p>
  * 
- * @author Marco
  * @since 27.04.2013
  */
 public class Translator {
 
+	// MethodSignature objec of the main method
 	public static final MethodSignature MAIN_METHOD = new MethodSignature.Builder(
 			"main").args(String[].class).build();
 
+	// ClassSignature of the general object class
 	public static final ClassSignature OBJECT_CLASS = new ClassSignature(
 			Object.class);
 
+	// list of array-set-operators
 	static final EnumSet<Operator> ARRAY_SET_OPERATORS = EnumSet.of(
 			Operator.ARRAY_SET_BOOLEAN, Operator.ARRAY_SET_DOUBLE,
 			Operator.ARRAY_SET_LONG, Operator.ARRAY_SET_STRING);
@@ -40,9 +42,9 @@ public class Translator {
 	}
 
 	/**
-	 * BOOLEAN <h1>generateNewFile</h1>
+	 * <h1>generateClassfile</h1>
 	 * <p>
-	 * This method generates a new Classfile object using its parameter name and
+	 * This method generates a new Classfile object using its parameter and
 	 * appends it to the translator's classfile list.
 	 * </p>
 	 * 
@@ -57,7 +59,9 @@ public class Translator {
 	 * @param isStruct
 	 *            determines, whether a main classfile or a struct classfile is
 	 *            supposed to be generated
-	 * @return instance of a class implementing the Classfile interface
+	 * @param accessFlags
+	 *            arbitrary amount of classfile access flags
+	 * @return instance of Classfile
 	 */
 	private Classfile generateClassfile(final String thisClassNameEIF,
 			final String superClassNameEIF, final boolean isStruct,
@@ -85,6 +89,7 @@ public class Translator {
 	 *            generated
 	 * @param tac
 	 *            List of quadruple objects
+	 * @return Collection of classfile objects
 	 */
 	public Collection<Classfile> translate(final String mainClassName,
 			List<Quadruple> tac) {
@@ -99,14 +104,26 @@ public class Translator {
 				MAIN_METHOD.methodDescriptor, MethodAccessFlag.ACC_PUBLIC,
 				MethodAccessFlag.ACC_STATIC);
 
-		// parse tac for struct declarations and create classfiles for them
+		/*
+		 * ##### At this point the actual translation starts. The tac is
+		 * preprocessed in several steps and finally it's being translated into
+		 * the main classfile. #####
+		 */
+
+		/*
+		 * parse tac for struct declarations, create classfiles for them and
+		 * generate appropriate constructors to initialize the member variables
+		 */
 		analyzeTAC(mainClassfile, tac);
 
-		// translate tac/program into the main method's code
+		// translate tac/program into the main classfile
 		if (tac != null) {
+			// "allocate" appropriate space for local variables
 			tac = addVariablesToLocalVariableSpace(mainClassfile,
 					MAIN_METHOD.methodName, tac);
+			// search for constants and add them to the constant pool
 			addConstantsToConstantPool(mainClassfile, tac);
+			// translate the tac into jav bytecode instructions
 			extractInstructionsFromOperations(mainClassfile,
 					MAIN_METHOD.methodName, tac);
 		}
@@ -117,11 +134,24 @@ public class Translator {
 	/**
 	 * <h1>analyzeTAC</h1>
 	 * 
-	 * TODO implementation and javadoc - search for structs in tac and build new
-	 * classes use new translate method or change translate method to
-	 * translate(...,..., false)
+	 * <p>
+	 * This method analyzes the provided tac and tries to find struct
+	 * declarations. If it finds a declaration, it gets the whole declaration
+	 * tac using the method "getStructQuadrupleCount" and then translates it
+	 * into a classfile using the method "translateStructIntoClassfile".
+	 * Finally, it deletes the struct declaration body (everything of the
+	 * declaration after the first declaration statement), as it is not needed
+	 * anymore in the further translation.
+	 * </p>
 	 * 
 	 * @since 24.06.2013
+	 * 
+	 * @param mainClassfile
+	 *            Classfile object of the main classfile, which is needed to
+	 *            save some information of the struct translation, which is
+	 *            needed in later parts of the translation
+	 * @param tac
+	 *            the complete program tac as list of quadruples
 	 */
 	private void analyzeTAC(final Classfile mainClassfile,
 			final List<Quadruple> tac) {
@@ -133,8 +163,13 @@ public class Translator {
 
 			// get the quadruple parts
 			Quadruple quad = tacIter.next();
+			// array name, if we find one with struct as basic type
 			String arrayName = null;
 
+			/*
+			 * if we find an array declaration, get its name and skip to the
+			 * arrays basic type declaration
+			 */
 			if (quad.getOperator() == Operator.DECLARE_ARRAY) {
 				arrayName = quad.getResult();
 				do {
@@ -143,20 +178,31 @@ public class Translator {
 			}
 
 			/*
-			 * if the operator is an DECLARE_STRUCT-operator, a new classfile
-			 * has to be generated
+			 * if the operator/ basic type is an DECLARE_STRUCT operator, a new
+			 * classfile has to be generated
 			 */
 			if (quad.getOperator() == Operator.DECLARE_STRUCT) {
 
-				// generate appropriate classfile
+				// first, get the struct's name
 				final String structName = isIgnoreParam(quad.getResult()) ? arrayName
 						: quad.getResult();
+				/*
+				 * Then, generate the class name being used in the classfile,
+				 * which is generated for the struct. We decided to name the
+				 * struct classes according to their nesting prefixed with the
+				 * main class' name. For instance: If we have a main class named
+				 * "main" and a struct x being declared in a struct y, the name
+				 * of the class being generated for x will be: "main_y_x".
+				 */
 				final String className = ClassSignature.joinClassName(
 						mainClassfile.getClassname(), structName);
 
 				// register struct as toplevel struct for struct resolution
 				mainClassfile.addToplevelStruct(structName);
-				// arg2 is used to store the full class name of the struct
+				/*
+				 * Arg2 is used to store the full class name of the struct. This
+				 * is needed in later parts of the translation process.
+				 */
 				tacIter.set(QuadrupleUtils.copyOf(quad, null, null, className,
 						null));
 
@@ -170,28 +216,44 @@ public class Translator {
 								+ getStructQuadrupleCount(tacIter,
 										memberVarsCount));
 
+				/*
+				 * translate the found struct's tac into an appropriate
+				 * classfile using the already analyzed information
+				 */
 				translateStructIntoClassfile(mainClassfile, structTAC,
 						className);
 
 				/*
-				 * delete struct tac from tac, structStart + 1 to keep the
-				 * struct declaration
+				 * delete struct body tac from program tac, structStart + 1 to
+				 * keep the struct declaration
 				 */
 				tac.subList(listIndex + 1, listIndex + structTAC.size() + 1)
 						.clear();
 				tacIter = tac.listIterator(listIndex + 1);
+
 			} else if (quad.getOperator() == Operator.PRINT_STRING) {
+
+				// set print flag, if print declaration is found
 				mainClassfile.setPrintFlag(true);
 			}
 		}
 	}
 
 	/**
-	 * <h1>getStructsTac</h1>
+	 * <h1>getStructQuadrupleCount</h1>
 	 * 
-	 * getStructsTac TODO javadoc
+	 * <p>
+	 * This method counts, how many quadruples belong to the current struct
+	 * declaration.
+	 * </p>
 	 * 
 	 * @since 24.06.2013
+	 * 
+	 * @param tacIter
+	 *            program iterator at the struct declaration position
+	 * @param memberVarsCount
+	 *            number of expected struct members to be found
+	 * @return int amount of quadruples belonging to the struct tac
 	 */
 	private static int getStructQuadrupleCount(
 			final ListIterator<Quadruple> tacIter, final long memberVarsCount) {
@@ -199,7 +261,7 @@ public class Translator {
 		// number of quadruples belonging to the current struct
 		int quadCount = 0;
 
-		// get tac
+		// get tac of current struct declaration
 		for (int i = 0; i < memberVarsCount && tacIter.hasNext(); i++, quadCount++) {
 			Quadruple structQuad = tacIter.next();
 			final Operator operator = structQuad.getOperator();
@@ -208,6 +270,7 @@ public class Translator {
 			case DECLARE_ARRAY:
 				structQuad = tacIter.next();
 				quadCount++;
+				// if it is an array, skip to the basic type declaration
 				while (structQuad.getOperator() == Operator.DECLARE_ARRAY) {
 					structQuad = tacIter.next();
 					quadCount++;
@@ -232,33 +295,71 @@ public class Translator {
 	/**
 	 * <h1>translateStructIntoClassfile</h1>
 	 * 
-	 * translateStructIntoClassfile TODO javadoc
+	 * <p>
+	 * This method translates the provided struct tac into an appropriate
+	 * classfile. In order to do this, it generates an new classfile and parses
+	 * the tac again, afterwards, generating appropriate fields in the field
+	 * area and fieldref constants in the constant pool, which are needed for
+	 * the constructor generation at the end of this method (which is done using
+	 * the method "translateStructTacIntoConstructorCode"), for every member
+	 * variable of the processed struct. Many special cases have to be
+	 * considered, for instance the recursive call of this method, if we find
+	 * another struct declaration or an array of structs in the processed
+	 * struct's tac so that new classfiles have to be generated for them. During
+	 * the whole processing, all the quadruples are filtered out, which are not
+	 * needed during the constructor generation, afterwards.
+	 * </p>
 	 * 
 	 * @since 24.06.2013
+	 * 
+	 * @param mainClassfile
+	 *            Classfile object of the main classfile, which is needed to
+	 *            save some information of the struct translation, which is
+	 *            needed in later parts of the translation
+	 * @param structTac
+	 *            list of quadruples representing the struct's body (all the
+	 *            member declarations, which have to be considered for classfile
+	 *            generation)
+	 * @param className
+	 *            the classname which has to be used for teh classfile
+	 *            generation
 	 */
 	private void translateStructIntoClassfile(final Classfile mainClassfile,
 			final List<Quadruple> structTac, final String className) {
 
-		// tac list for constructor code generation
+		/*
+		 * tac list for constructor code generation; at the end of this method,
+		 * the struct tac is preprocessed, an appropriate classfile is created
+		 * and this list contains only quadruples, which are needed for
+		 * constructor code generation
+		 */
 		final List<Quadruple> constructorTAC = new ArrayList<>();
 
-		// create a new (main)classfile / classfile with main method
+		/*
+		 * create a new classfile for this struct using the previously specified
+		 * classname
+		 */
 		final Classfile structClassfile = generateClassfile(className,
 				OBJECT_CLASS.className, true, ClassfileAccessFlag.ACC_PUBLIC,
 				ClassfileAccessFlag.ACC_SUPER);
 
-		// add constants to constant pool
+		/*
+		 * add constants of struct tac to the constant pool of the just created
+		 * classfile
+		 */
 		addConstantsToConstantPool(structClassfile, structTac);
 
 		/*
-		 * generate field info structures in field are, field constants in
-		 * constant pool and new classfiles, if necessary
+		 * generate field info structures in field area for every struct member,
+		 * appropriate field constants in constant pool and new classfiles, if
+		 * necessary (if a struct is found in this struct)
 		 */
 		int listIndex = 0;
 		for (final ListIterator<Quadruple> tacIter = structTac.listIterator(); tacIter
 				.hasNext(); listIndex++) {
 
 			Quadruple quad = tacIter.next();
+			// get members name
 			final String name = quad.getResult();
 
 			switch (quad.getOperator()) {
@@ -276,22 +377,26 @@ public class Translator {
 
 				final ClassSignature fieldTypeSig;
 
+				// check found arrays basic type and act appropriatly
 				if (quad.getOperator() == Operator.DECLARE_STRUCT) {
-					// assemble struct name
+					/*
+					 * BASIC TYPE STRUCT FOUND -> another classfile has to be
+					 * generated
+					 */
 
+					// assemble struct name
 					fieldTypeSig = new ClassSignature(arrayDimensions,
 							className, name);
-
 					quad = QuadrupleUtils.copyOf(quad, null, null,
 							fieldTypeSig.baseClassName, null);
 					tacIter.set(quad);
 
+					// add struct declaration to constructor tac
 					constructorTAC.add(quad);
 
 					// get struct's tac
 					final long structMemberCount = Long
 							.parseLong(removeConstantSign(quad.getArgument1()));
-
 					final int quadCount = getStructQuadrupleCount(tacIter,
 							structMemberCount);
 					List<Quadruple> structTACBody = structTac.subList(
@@ -301,6 +406,7 @@ public class Translator {
 					translateStructIntoClassfile(mainClassfile, structTACBody,
 							fieldTypeSig.baseClassName);
 				} else {
+					// SIMPLE BASIC TYPE FOUND
 					constructorTAC.add(quad);
 
 					fieldTypeSig = new ClassSignature(
@@ -308,7 +414,7 @@ public class Translator {
 							JavaType.getByOperator(quad.getOperator()).classSignature.className);
 				}
 
-				// getDescriptor using arrayTAC
+				// get member variable's descriptor using arrayTAC
 				final FieldSignature arrayFieldSig = new FieldSignature(name,
 						className, fieldTypeSig.typeClassName);
 				structClassfile.addFieldToFieldArea(arrayFieldSig,
@@ -327,11 +433,18 @@ public class Translator {
 				break;
 
 			case DECLARE_STRUCT:
+				/*
+				 * STRUCT DECLARATION FOUND -> another classfile has to be
+				 * generated
+				 */
+
 				// generate classfile for structTACwithoutFirstDecl
 				final ClassSignature structClassSig = new ClassSignature(
 						className, name);
 				quad = QuadrupleUtils.copyOf(quad, null, null,
 						structClassSig.className, null);
+
+				// change iterator and constructor tac appropriatly
 				tacIter.set(quad);
 				constructorTAC.add(quad);
 
@@ -343,13 +456,14 @@ public class Translator {
 				final List<Quadruple> structTACBody = structTac.subList(
 						listIndex + 1, listIndex + 1 + quadCount);
 
+				// generate a new classfile for found struct tac
 				translateStructIntoClassfile(mainClassfile, structTACBody,
 						structClassSig.className);
 
 				// register struct as substruct
 				mainClassfile.addSublevelStruct(structClassSig.className);
 
-				// getDescriptor using structTAC
+				// get member variable's descriptor using structTAC
 				final FieldSignature structFieldSig = new FieldSignature(name,
 						className, structClassSig.typeClassName);
 				structClassfile.addFieldToFieldArea(structFieldSig,
@@ -388,7 +502,10 @@ public class Translator {
 			}
 		}
 
-		// set constructor
+		/*
+		 * set constructor/ generate constructor code to initialize the member
+		 * variables of the previously generated struct classfile
+		 */
 		translateStructTacIntoConstructorCode(structClassfile, constructorTAC);
 	}
 
@@ -419,7 +536,8 @@ public class Translator {
 
 			/*
 			 * if the operator is an array_set-operator, it'll have to be
-			 * examined separately
+			 * examined separately, as argument constant types can be different
+			 * from each other
 			 */
 			if (ARRAY_SET_OPERATORS.contains(operator)) {
 				// argument 2 is a long constant
@@ -527,12 +645,21 @@ public class Translator {
 	 * <h1>addVariablesToLocalVariableSpace</h1>
 	 * <p>
 	 * This method "allocates" space in the local variable space of the provided
-	 * classfile's provided method's code attribute for all variable
-	 * declarations and will convert them into assignments, if they have an
-	 * initial value and will delete them if not.
+	 * classfile's method's code attribute for all variable declarations, will
+	 * convert them into assignments, if they have an initial value and will
+	 * delete them if not.
 	 * </p>
 	 * 
 	 * @since 29.04.2013
+	 * @param file
+	 *            instance of Classfile, which is used
+	 * @param methodName
+	 *            String method name being used to identify the method of the
+	 *            provided classfile, in whose local variable space, space is
+	 *            supposed to be "allocated"
+	 * @param tac
+	 *            list of quadruples which are analyzed in order to dinf
+	 *            variable declarations
 	 * @return List<Quadruple> the modified three-address-code
 	 */
 	private static List<Quadruple> addVariablesToLocalVariableSpace(
