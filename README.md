@@ -58,7 +58,7 @@ There exist several important packages and classes, each of them providing a spe
 #### Mentionable Modifications
 Some approaches have to be fitted or completely replaced to use it in our implementation with the given grammar. We note some of them:
 * It's not traceable to construct the ast when the translation is given in a right-most fashion. We had to translate the right-most derivation in the left-most derivation first in the **TargetGrammar** class.
-* The SLRAutomaton had to be modified in a way, that the automaton is able to deal with epsilon productions. Another way is to remove the epsilon-productions from the grammar, what results in another grammar. We did want to keep the grammar. In the most common literature, the automaton has not to deal with epsilon productions since they are removed before. Thus, the automaton had to be adjusted.
+* The LRAutomaton had to be modified in a way, that the automaton is able to deal with epsilon productions. Another way is to remove the epsilon-productions from the grammar, what results in another grammar. We did want to keep the grammar. In the most common literature, the automaton has not to deal with epsilon productions since they are removed before. Thus, the automaton had to be adjusted.
 * The closure, first- and follow set computation can be very complex for large grammars. We decide to differ from a pure functional implementation and implemented cached and/ or pre-computed values as often as possible. This decreases the readability but increases the performance dramatically.
 
 #### Application of the Modules
@@ -71,7 +71,7 @@ A typical application can be drafted as follows:
 5. We use the TargetGrammar to _rotate_ the derivation to gain a left-to-right fashioned derivation.
 6. We use a semantic translation to construct the ast from the derivation in _ASTGenerator_.
 
-### Semantical Analyser
+### Semantic Analyser
 Like the implementation of the parser, we tried to follow as often as possible the prototype approach of the compiler design course. Unfortunately, this not as frequently as in the parser possible. In the next sections, we describe the important modules and after that, a short outline of the use of the semantic analyzer.
 
 #### Modules and Classes
@@ -81,7 +81,12 @@ There are just a few important classes, whose are quickly described:
 
 
 #### Mentionable Modifications
-The best-practice approach would be to create a L-Attributed grammar to check e.g. for invalid break-statement positions. We decided to try it with a less complex approach, since the only semantic errors which cannot be checked by a S-Attributed grammar is the positioning of return and break statements. The implementation is currently under heavy development. We want to take a look at the control flow where it is possible. For example, if a statement exists (unconditional) after a return statement, it's placement is invalid. We try to check this invariant for the whole tree.
+The best-practice approach would be to create a L-Attributed grammar to check e.g. for invalid break-statement positions.
+To implement a simple evaluation scheme, we decided to use a L-Attributed grammar with a limited dependency scheme to ease the evaluation approach. The big advantage is that we do not have to use a dynamic scheme based on the dependency graph.
+We distinguish between S and L' attributes. *S attributes* depend just on the attributes of the subtree, as expected with synthesized attributes. 
+*L' attributes* depend on L' attributes of the parent or is a immediate determined value ( like the type of a literal).
+Using this scheme, it was possible to evaluate all attributes with a simple left-to-right depth-first-traversal, where at a node the L' attributes computed instantly. After the procedure have been invoked recursive on the whole subtree, the synthesized attributes are evaluated.
+With this scheme, it is possible to evaluate synthesized attributes like the type and L' attributes like the validness of a position for a break-statement ( context-sensitive).
 
 #### Application of the Modules
 A typical application can be drafted as follows:
@@ -98,7 +103,7 @@ For the conversion process the converters can access helper methods provided by 
 ### Backend
 The backend generates the *Java Bytecode* from the TAC. The main class is [**swp_compiler_ss13.javabite.backend.BackendModule**](https://github.com/swp-uebersetzerbau-ss13/javabite/blob/master/javabite-backend/src/main/java/swp_compiler_ss13/javabite/backend/BackendJb.java)
 
-Basically the javabite-backend consists of three main components – 
+Basically the javabite-backend consists of three main components ï¿½ 
 
 1. a three-address-code optimizer 
   * [swp_compiler_ss13.javabite.backend.translation.TACOptimizer](https://github.com/swp-uebersetzerbau-ss13/javabite/blob/master/javabite-backend/src/main/java/swp_compiler_ss13/javabite/backend/translation/TACOptimizer.java)
