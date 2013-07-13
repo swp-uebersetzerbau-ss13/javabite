@@ -586,11 +586,11 @@ public class MainFrame extends JFrame implements ReportLog, Configurable {
 	public void compile() {
 		progressBar.setValue(0);
 		try {
-			if (fileManager.currentFile == null) {
-				return; //no file can not be compiled
-			}
 			if (!fileManager.saveFileIfChanged()) {
 				return;
+			}
+			if (fileManager.currentFile == null) {
+				return; //no file can not be compiled
 			}
 			
 			textPaneLogs.setText("Compiler started.");

@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -704,6 +705,20 @@ public class SemanticAnalyserJb implements SemanticAnalyser {
 							+ t.lookupType(n.getIdentifier()) + "" + ")");
 		}
 		t.insert(n.getIdentifier(), n.getType());
+		if (n.getType().getKind() == Kind.STRUCT) {
+			// check double declaration inside of structs
+			HashSet<String> checkedIdentifiers = new HashSet<>();
+			for (Member m:((StructType)n.getType()).members()) {
+				if (checkedIdentifiers.contains(m.getName())) {
+					errorLog.reportError(
+							ReportType.DOUBLE_DECLARATION,
+							n.coverage(),
+							"Variable name \"" + m.getName()
+									+ "\" is already used inside record \"" + n.getIdentifier() + "\"");
+				}
+				checkedIdentifiers.add(m.getName());
+			}
+		}
 	}
 
 	private void evalSynthesizedAttributes(DeclarationNode n) {
