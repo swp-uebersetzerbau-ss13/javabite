@@ -1,8 +1,11 @@
 package swp_compiler_ss13.javabite.backend.utils;
 
 /**
- * Created with IntelliJ IDEA. User: eike Date: 7/7/13 Time: 12:52 AM To change
- * this template use File | Settings | File Templates.
+ * <h1>FieldSignature</h1>
+ * <p>
+ * This class is a helper class to create field signatures used by the jvm to
+ * reference class fields.
+ * </p>
  */
 public class FieldSignature {
 
@@ -10,6 +13,16 @@ public class FieldSignature {
 	public final String fieldName;
 	public final ClassSignature fieldType;
 
+	/**
+	 * Create a new instance of the FieldSignature class
+	 * 
+	 * @param fieldName
+	 *            name of field
+	 * @param fieldClass
+	 *            class containing the field
+	 * @param fieldType
+	 *            field class type
+	 */
 	public FieldSignature(final String fieldName, final String fieldClass,
 			final String fieldType) {
 		this.fieldName = fieldName;
@@ -17,6 +30,16 @@ public class FieldSignature {
 		this.fieldType = new ClassSignature(fieldType);
 	}
 
+	/**
+	 * Create a new instance of the FieldSignature class
+	 * 
+	 * @param fieldName
+	 *            name of field
+	 * @param fieldClass
+	 *            class containing the field
+	 * @param fieldType
+	 *            field class type
+	 */
 	public FieldSignature(final String fieldName, final Class<?> fieldClass,
 			final Class<?> fieldType) {
 		this.fieldClass = new ClassSignature(fieldClass);

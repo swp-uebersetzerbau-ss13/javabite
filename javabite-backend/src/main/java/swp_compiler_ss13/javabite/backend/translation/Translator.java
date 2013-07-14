@@ -946,7 +946,11 @@ public class Translator {
 	}
 
 	/**
-	 * <h1>translateStructIntoConstructorCode</h1> TODO EIke
+	 * <h1>translateStructIntoConstructorCode</h1>
+	 * 
+	 * This method translates the initialization code of a struct classfile into
+	 * bytecode. Struct classfiles contain nothing but a default constructor,
+	 * which initializes all fields of that struct.
 	 */
 	private static void translateStructTacIntoConstructorCode(
 			final Classfile structClassfile,

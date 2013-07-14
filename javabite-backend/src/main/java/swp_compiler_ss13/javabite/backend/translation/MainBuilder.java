@@ -62,36 +62,66 @@ public class MainBuilder extends AbstractBuilder {
 
 	// METHOD SIGNATURES ------------------------------------------------------
 
+	/**
+	 * @see java.lang.System#exit(int)
+	 */
 	public static final MethodSignature SYSTEM_EXIT_METHOD = new MethodSignature(
 			"exit", System.class, void.class, int.class);
 
+	/**
+	 * @see Long#toString()
+	 */
 	public static final MethodSignature LONG_TOSTRING_METHOD = new MethodSignature(
 			"toString", Long.class, String.class, long.class);
 
+	/**
+	 * @see Double#toString()
+	 */
 	public static final MethodSignature DOUBLE_TOSTRING_METHOD = new MethodSignature(
 			"toString", Double.class, String.class, double.class);
 
+	/**
+	 * @see Boolean#toString()
+	 */
 	public static final MethodSignature BOOLEAN_TOSTRING_METHOD = new MethodSignature(
 			"toString", Boolean.class, String.class, boolean.class);
 
+	/**
+	 * @see java.io.PrintStream#print(String)
+	 */
 	public static final MethodSignature PRINTSTREAM_PRINT_METHOD = new MethodSignature(
 			"print", PrintStream.class, void.class, String.class);
 
+	/**
+	 * @see java.lang.StringBuilder#append(String)
+	 */
 	public static final MethodSignature STRINGBUILDER_APPEND_METHOD = new MethodSignature(
 			"append", StringBuilder.class, StringBuilder.class, String.class);
 
+	/**
+	 * @see java.lang.StringBuilder
+	 */
 	public static final MethodSignature STRINGBUILDER_NEW_METHOD = new MethodSignature(
 			"<init>", StringBuilder.class, void.class);
 
+	/**
+	 * @see StringBuilder#toString()
+	 */
 	public static final MethodSignature STRINGBUILDER_TOSTRING_METHOD = new MethodSignature(
 			"toString", StringBuilder.class, String.class);
 
-	public static final MethodSignature PRINTSTREAM_INIT_METHOD = new MethodSignature(
+	/**
+	 * @see java.io.PrintStream
+	 */
+	public static final MethodSignature PRINTSTREAM_NEW_METHOD = new MethodSignature(
 			"<init>", PrintStream.class, void.class, OutputStream.class,
 			boolean.class, String.class);
 
 	// FIELD SIGNATURES -------------------------------------------------------
 
+	/**
+	 * @see java.lang.System#out
+	 */
 	public static final FieldSignature SYSTEM_OUT_FIELD = new FieldSignature(
 			"out", System.class, PrintStream.class);
 
@@ -356,7 +386,7 @@ public class MainBuilder extends AbstractBuilder {
 			final short charsetIndex = classfile.addStringToConstantPool(
 					"UTF-8", false);
 			final short initIndex = classfile
-					.addMethodrefToConstantPool(PRINTSTREAM_INIT_METHOD);
+					.addMethodrefToConstantPool(PRINTSTREAM_NEW_METHOD);
 			printStreamIndex = classfile.addVariableToMethod(methodName, UUID
 					.randomUUID().toString().replaceAll("-", ""),
 					ClassfileUtils.LocalVariableType.AREF);

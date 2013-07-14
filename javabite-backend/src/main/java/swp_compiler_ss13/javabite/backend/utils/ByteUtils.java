@@ -9,6 +9,13 @@ import java.nio.ByteBuffer;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+/**
+ * <h1>ByteUtils</h1>
+ * <p>
+ * This class contains static methods and constants to help with creating
+ * classfile contents.
+ * </p>
+ */
 public final class ByteUtils {
 
 	private static final Pattern P_HEX_BYTES = Pattern.compile("(.{2})");

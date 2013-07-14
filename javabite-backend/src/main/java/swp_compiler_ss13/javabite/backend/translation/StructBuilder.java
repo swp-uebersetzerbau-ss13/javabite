@@ -7,6 +7,14 @@ import swp_compiler_ss13.javabite.backend.utils.ClassfileUtils;
 import swp_compiler_ss13.javabite.backend.utils.ConstantUtils;
 import swp_compiler_ss13.javabite.backend.utils.MethodSignature;
 
+/**
+ * <h1>StructBuilder</h1>
+ * <p>
+ * This class is used to create a program sequence of operations for a struct. A
+ * struct only needs to initialize its fields, everything else is done by the
+ * main program.
+ * </p>
+ */
 public class StructBuilder extends AbstractBuilder {
 
 	public StructBuilder(final Classfile classfile, final String methodName) {

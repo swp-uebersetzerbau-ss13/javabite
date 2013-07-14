@@ -7,6 +7,14 @@ import java.util.*;
 
 import static swp_compiler_ss13.javabite.backend.utils.ConstantUtils.*;
 
+/**
+ * <h1>AbstractBuilder</h1>
+ * <p>
+ * This class is the abstract superclass of all program builders. It provides
+ * many methods to generate common bytecode, like accessing local variables, or
+ * saving to them.
+ * </p>
+ */
 public abstract class AbstractBuilder {
 
 	// saves all jump instructions for later offset calculation

@@ -294,18 +294,24 @@ public enum Mnemonic {
 		}
 	}
 
+	/**
+	 * Returns the mnemonic with the appended index, if the mnemonic exists. For
+	 * example: ALOAD and 1 will return ALOAD_1, but ALOAD and 99 will return
+	 * just ALOAD.
+	 * 
+	 * @param index
+	 *            index to append to the mnemonic
+	 * @return this mnemonic, or another mnemonic with the passed index as
+	 *         suffix.
+	 */
 	public Mnemonic withIndex(final int index) {
 		try {
 			final String name = name() + "_" + (index < 0 ? "M" : "")
 					+ Integer.toString(Math.abs(index));
-			return valueOf(name);
+			return this;
 		} catch (final IllegalArgumentException e) {
 			return this;
 		}
-	}
-
-	public static Mnemonic getMnemonic(final String prefix) {
-		return valueOf(prefix);
 	}
 
 }

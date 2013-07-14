@@ -9,6 +9,10 @@ import java.util.EnumSet;
 public final class ClassfileUtils {
 
 	// @formatter:off
+
+    /**
+     * These operators expect arguments of long types.
+     */
     public static final EnumSet<Operator> OPERATOR_LONG_TYPES = EnumSet.of(
         Operator.DECLARE_LONG,
         Operator.DECLARE_ARRAY,
@@ -34,6 +38,9 @@ public final class ClassfileUtils {
         Operator.RETURN
     );
 
+    /**
+     * These operators expect arguments of double types
+     */
     public static final EnumSet<Operator> OPERATOR_DOUBLE_TYPES = EnumSet.of(
         Operator.DECLARE_DOUBLE,
         Operator.DOUBLE_TO_LONG,
@@ -51,6 +58,9 @@ public final class ClassfileUtils {
         Operator.COMPARE_DOUBLE_LE
     );
 
+    /**
+     * These operators expect arguments of boolean types
+     */
     public static final EnumSet<Operator> OPERATOR_BOOLEAN_TYPES = EnumSet.of(
         Operator.DECLARE_BOOLEAN,
         Operator.BOOLEAN_TO_STRING,
@@ -62,6 +72,9 @@ public final class ClassfileUtils {
         Operator.BRANCH
     );
 
+    /**
+     * These operators expect arguments of string types
+     */
     public static final EnumSet<Operator> OPERATOR_STRING_TYPES = EnumSet.of(
         Operator.DECLARE_STRING,
         Operator.ASSIGN_STRING,
@@ -281,6 +294,11 @@ public final class ClassfileUtils {
 
 	}
 
+    /**
+     * Returns the type information of the operator of the passed quadruple. The type of an operator is the type of the arguments of the operator.
+     * @param quad the quadruple with operator
+     * @return type information 
+     */
 	public static String typeByQuadruples(final Quadruple quad) {
 		return JavaType.getByOperator(quad.getOperator()).classSignature.typeClassName;
 	}

@@ -17,6 +17,12 @@ public class Program {
 
 	private final List<Operation> operations;
 
+	/**
+	 * Creates a new Program class instance
+	 * 
+	 * @param operations
+	 *            list of operations to add to the program
+	 */
 	public Program(final List<Operation> operations) {
 		this.operations = operations;
 	}

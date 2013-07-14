@@ -10,7 +10,7 @@ import java.util.*;
 /**
  * TACOptimizer class.
  * 
- * @author Marco
+ * @author Eike
  * @since 27.04.2013
  * 
  */
