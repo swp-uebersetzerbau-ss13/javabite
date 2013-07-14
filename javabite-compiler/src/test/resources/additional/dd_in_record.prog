@@ -1,0 +1,6 @@
+# double_declaration error
+record {
+	long i;
+	long i;
+} i;
+print i.i;

@@ -141,7 +141,7 @@ public class StyleManager extends DocumentFilter {
 	TextRange getTextRange(Token token){
 		int sl=token.getLine();
 		int sc=token.getColumn();
-		int ec=sc+token.getValue().length();
+		int ec=sc+((token.getValue() != null)?token.getValue().length():0);
 		int curr_line=1;
 		int curr_pos=0;
 		while (curr_line != sl) {

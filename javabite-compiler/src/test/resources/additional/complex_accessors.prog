@@ -1,0 +1,19 @@
+# prints 2\n3
+record {
+	record {
+		record {
+			long r;
+		} r;
+		long[9][3] a;
+	} r;
+	long l;
+} [3][2] l;
+long i;
+string s;
+l[1][2].r.r.r = 2;
+l[1][(i=l[1][2].l)].l = (l[1][2].l=l[1][2].r.r.r) + 1;
+s = "\n";
+print i;
+print s;
+print l[1][2].l;
+print s;
