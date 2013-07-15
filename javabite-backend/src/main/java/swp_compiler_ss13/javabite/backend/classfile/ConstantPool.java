@@ -123,6 +123,12 @@ public class ConstantPool {
 	 *            long value of entry, which is to be generated
 	 * @return short index of a LONG info entry in the constant pool of this
 	 *         classfile meeting the parameters.
+	 * @see <a
+	 *      href=http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html
+	 *      #jvms-4.4.5>CONSTANT_LONG Specification</a>
+	 * @see <a
+	 *      href=http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html
+	 *      #jvms-4.4>Constant Pool Specification</a>
 	 */
 	short generateConstantLongInfo(final long value) {
 		checkConstantPoolSize(2);
@@ -162,6 +168,9 @@ public class ConstantPool {
 	 *            original (unparsed) double value as string to assemble map key
 	 * @return short index of a DOUBLE info entry in the constant pool of this
 	 *         classfile meeting the parameters.
+	 * @see <a
+	 *      href=http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html#jvms-4.4.5>
+	 *      Double info</a>
 	 */
 	short generateConstantDoubleInfo(final double value, final String keyValue) {
 		checkConstantPoolSize(2);
@@ -201,6 +210,12 @@ public class ConstantPool {
 	 *            from value or not
 	 * @return short index of a STRING info entry in the constant pool of this
 	 *         classfile meeting the parameters.
+	 * @see <a
+	 *      href=http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html
+	 *      #jvms-4.4.3>CONSTANT_STRING Specification</a>
+	 * @see <a
+	 *      href=http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html
+	 *      #jvms-4.4>Constant Pool Specification</a>
 	 */
 	short generateConstantStringInfo(String value, boolean removeQuotationMarks) {
 		checkConstantPoolSize(1);
@@ -246,6 +261,12 @@ public class ConstantPool {
 	 *            string value of entry, which is to be generated
 	 * @return short index of a CLASS info entry in the constant pool of this
 	 *         classfile meeting the parameters.
+	 * @see <a
+	 *      href=http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html
+	 *      #jvms-4.4.1>CONSTANT_Class Specification</a>
+	 * @see <a
+	 *      href=http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html
+	 *      #jvms-4.4>Constant Pool Specification</a>
 	 */
 	short generateConstantClassInfo(final String value) {
 		checkConstantPoolSize(1);
@@ -283,6 +304,12 @@ public class ConstantPool {
 	 *            string value of entry, which is to be generated
 	 * @return short index of an UTF8 info entry in the constant pool of this
 	 *         classfile meeting the parameters.
+	 * @see <a
+	 *      href=http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html
+	 *      #jvms-4.4.7>CONSTANT_UTF8 Specification</a>
+	 * @see <a
+	 *      href=http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html
+	 *      #jvms-4.4>Constant Pool Specification</a>
 	 */
 	short generateConstantUTF8Info(final String value) {
 		checkConstantPoolSize(1);
@@ -370,7 +397,10 @@ public class ConstantPool {
 	 *         this classfile meeting the parameters.
 	 * @see <a
 	 *      href=http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html
-	 *      #jvms-4.4.2>COMSTANT_METHODREF</a>
+	 *      #jvms-4.4.2>CONSTANT_METHODREF Specification</a>
+	 * @see <a
+	 *      href=http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html
+	 *      #jvms-4.4>Constant Pool Specification</a>
 	 */
 	short generateConstantMethodrefInfo(final short classIndex,
 			final short nameAndTypeIndex) {
@@ -424,6 +454,12 @@ public class ConstantPool {
 	 *            specification
 	 * @return short index of a Fieldref info entry in the constant pool of this
 	 *         classfile meeting the parameters.
+	 * @see <a
+	 *      href=http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html
+	 *      #jvms-4.4.2>CONSTANT_FIELDREG Specification</a>
+	 * @see <a
+	 *      href=http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html
+	 *      #jvms-4.4>Constant Pool Specification</a>
 	 */
 	short generateConstantFieldrefInfo(final short classIndex,
 			final short nameAndTypeIndex, final String fieldName,
@@ -473,6 +509,12 @@ public class ConstantPool {
 	 *            string method descriptor as specified by the jvm specification
 	 * @return short index of a NameAndType info entry in the constant pool of
 	 *         this classfile meeting the parameters.
+	 * @see <a
+	 *      href=http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html
+	 *      #jvms-4.4.6>CONSTANT_NAME_AND_TYPE Specification</a>
+	 * @see <a
+	 *      href=http://docs.oracle.com/javase/specs/jvms/se7/html/jvms-4.html
+	 *      #jvms-4.4>Constant Pool Specification</a>
 	 */
 	short generateConstantNameAndTypeInfo(final String name,
 			final String descriptor) {

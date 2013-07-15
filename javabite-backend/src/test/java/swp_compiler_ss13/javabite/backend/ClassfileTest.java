@@ -60,17 +60,4 @@ public class ClassfileTest {
 				Whitebox.getInternalState(classfile, "methodArea"));
 
 	}
-
-	// TODO:
-	@Test
-	public void testWriteTo() {
-
-	}
-
-	// TODO:
-	// addLongVariableToMethodsCode
-	// addDoubleVariableToMethodsCode
-	// addStringVariableToMethodsCode
-	// addBooleanVariableToMethodsCode
-	//
 }

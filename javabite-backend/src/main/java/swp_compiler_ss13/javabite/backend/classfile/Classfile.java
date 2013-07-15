@@ -506,6 +506,7 @@ public class Classfile {
 	 *            original (unparsed) double value as string to assemble map key
 	 * @return short index of a double info entry in the constant pool of this
 	 *         classfile meeting the parameters.
+	 * @see ConstantPool#generateConstantDoubleInfo(double, String)
 	 */
 	public short addDoubleToConstantPool(final double value,
 			final String keyValue) {
@@ -528,6 +529,7 @@ public class Classfile {
 	 *            remove quotation marks from the string to add, if present
 	 * @return short index of a string info entry in the constant pool of this
 	 *         classfile meeting the parameters.
+	 * @see ConstantPool#generateConstantStringInfo(String, boolean)
 	 */
 	public short addStringToConstantPool(final String value,
 			boolean removeQuotationMarks) {
@@ -549,6 +551,8 @@ public class Classfile {
 	 *            string value of the value which is to be generated
 	 * @return short index of a utf8 info entry in the constant pool of this
 	 *         classfile meeting the parameters.
+	 * 
+	 * @see ConstantPool#generateConstantUTF8Info(String)
 	 */
 	public short addUTF8ToConstantPool(final String value) {
 		return constantPool.generateConstantUTF8Info(value);
@@ -568,6 +572,7 @@ public class Classfile {
 	 *            string value of the value which is to be generated
 	 * @return short index of a class info entry in the constant pool of this
 	 *         classfile meeting the parameters.
+	 * @see ConstantPool#generateConstantClassInfo(String)
 	 */
 	public short addClassToConstantPool(final String value) {
 		return constantPool.generateConstantClassInfo(value);
@@ -588,6 +593,7 @@ public class Classfile {
 	 *            processing
 	 * @return short index of a class info entry in the constant pool of this
 	 *         classfile meeting the parameters.
+	 * @see Classfile#addClassToConstantPool(String)
 	 */
 	public short addClassToConstantPool(final ClassSignature classSignature) {
 		return addClassToConstantPool(classSignature.className);
@@ -609,6 +615,7 @@ public class Classfile {
 	 *            MethodSignature of the method to be add to the constant pool
 	 * @return short index of a methodref info entry in the constant pool of
 	 *         this classfile meeting the parameters.
+	 * @see ConstantPool#generateConstantMethodrefInfo(short, short)
 	 */
 	public short addMethodrefToConstantPool(final MethodSignature signature) {
 		// add class
@@ -636,6 +643,7 @@ public class Classfile {
 	 *            FieldSignature of the field to be added to the constant pool
 	 * @return short index of a fieldref info entry in the constant pool of this
 	 *         classfile meeting the parameters.
+	 * @see ConstantPool#generateConstantFieldrefInfo(short, short, String, String)
 	 */
 	public short addFieldrefToConstantPool(final FieldSignature signature) {
 
@@ -672,6 +680,7 @@ public class Classfile {
 	 * @param constantName
 	 *            String name of the constant
 	 * @return index of the constant in the constant pool of this classfile.
+	 * @see ConstantPool#getIndexOfConstant(ConstantPoolType, String)
 	 */
 	public short getIndexInConstantPool(final ConstantPoolType constantType,
 			final String constantName) {
@@ -692,6 +701,7 @@ public class Classfile {
 	 *            String method descriptor as specified by jvm specification
 	 * @param accessFlags
 	 *            arbitrary amount of method access flags
+	 * @see MethodArea#addMethod(String, short, short, short, String, MethodAccessFlag...)
 	 */
 	public void addToMethodArea(final String methodName,
 			final String methodDescriptor,
@@ -721,6 +731,7 @@ public class Classfile {
 	 * @param localVariableType
 	 *            LocalVariableType variable type of the variable
 	 * @return byte index of variable in the method's local variable table.
+	 * @see MethodArea#addVariableToMethodsCode(String, String, swp_compiler_ss13.javabite.backend.utils.ClassfileUtils.LocalVariableType)
 	 */
 	public byte addVariableToMethod(final String methodName,
 			final String variableName,
@@ -745,6 +756,7 @@ public class Classfile {
 	 *            Collection of instances of class Instruction
 	 * @see Classfile#addInstructionsToMethod(String,
 	 *      swp_compiler_ss13.javabite.backend.translation.Instruction[])
+	 * @see MethodArea#addInstructionsToMethodsCode(String, Instruction...)
 	 */
 	public void addInstructionsToMethod(final String methodName,
 			final Instruction... instructions) {
@@ -763,6 +775,7 @@ public class Classfile {
 	 *            FieldSignature of field to be added
 	 * @param accessFlags
 	 *            list of access flags for the field
+	 * @see FieldArea#addField(short, short, FieldAccessFlag...)
 	 */
 	public void addFieldToFieldArea(final FieldSignature signature,
 			final FieldAccessFlag... accessFlags) {

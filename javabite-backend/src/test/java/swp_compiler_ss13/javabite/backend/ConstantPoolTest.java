@@ -257,7 +257,6 @@ public class ConstantPoolTest {
 	 * 
 	 * @throws Throwable
 	 */
-	// TODO: more concret tests
 	@Test
 	public void testThatCPDoubleInfoHoldRightValues() throws Throwable {
 

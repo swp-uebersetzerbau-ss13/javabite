@@ -37,6 +37,7 @@ public class BackendJb implements Backend {
 	 * @param tac
 	 *            list of quadruples, which represents the program, that is
 	 *            supposed to be translated into java bytecode.
+	 * @See {@link Translator#translate(String, List)}
 	 */
 	@Override
 	public Map<String, InputStream> generateTargetCode(String baseFileName,
