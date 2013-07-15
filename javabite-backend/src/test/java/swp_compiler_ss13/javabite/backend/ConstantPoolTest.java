@@ -720,6 +720,13 @@ public class ConstantPoolTest {
 	@Test
 	public void testThatMethodrefConstantsAddedToCP() throws Throwable {
 
+
+		final String fieldName1 = "out";
+		final String eifName1 = "PrintStream";
+		
+		final String fieldName2 = "in";
+		final String eifName2 = "InputStream";
+		
 		// "out", "Ljava/io/PrintStream;", "java/lang/System");
 		// "in" "Ljava/io/InputStream" "java/lang/System"
 		final short class_index1 = (Short) PrivateAccessor.invoke(cp,
@@ -741,18 +748,18 @@ public class ConstantPoolTest {
 
 		final short methodref_index1 = (Short) PrivateAccessor.invoke(cp,
 				"generateConstantFieldrefInfo", new Class<?>[] { short.class,
-						short.class },
-				new Object[] { class_index1, nat_index1 });
+						short.class, String.class, String.class },
+				new Object[] { class_index1, nat_index1, fieldName1, eifName1 });
 
 		final short methodref_index2 = (Short) PrivateAccessor.invoke(cp,
 				"generateConstantFieldrefInfo", new Class<?>[] { short.class,
-						short.class },
-				new Object[] { class_index2, nat_index2 });
+						short.class, String.class, String.class},
+				new Object[] { class_index2, nat_index2, fieldName2, eifName2 });
 
 		final short methodref_index3 = (Short) PrivateAccessor.invoke(cp,
 				"generateConstantFieldrefInfo", new Class<?>[] { short.class,
-						short.class },
-				new Object[] { class_index2, nat_index2 });
+						short.class, String.class, String.class },
+				new Object[] { class_index2, nat_index2, fieldName2, fieldName2 });
 
 		/**
 		 * Overview of constant pool entries
@@ -783,6 +790,6 @@ public class ConstantPoolTest {
 		 */
 		assertTrue("Invalid index", methodref_index1 == 11);
 		assertTrue("Invalid index", methodref_index2 == 12);
-		assertTrue("Invalid index", methodref_index3 == 12);
+		assertTrue("Invalid index", methodref_index3 == 13);
 	}
 }
