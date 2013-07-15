@@ -22,9 +22,9 @@
           };
           var h=document.getElementsByTagName("html")[0];h.className+=" wf-loading";var t=setTimeout(function(){h.className=h.className.replace(/( |^)wf-loading( |$)/g,"");h.className+=" wf-inactive"},config.scriptTimeout);var tk=document.createElement("script");tk.src='//use.typekit.net/'+config.kitId+'.js';tk.type="text/javascript";tk.async="true";tk.onload=tk.onreadystatechange=function(){var a=this.readyState;if(a&&a!="complete"&&a!="loaded")return;clearTimeout(t);try{Typekit.load(config)}catch(b){}};var s=document.getElementsByTagName("script")[0];s.parentNode.insertBefore(tk,s)
         })();
-      </script><style type="text/css">.tk-adelle{font-family:"adelle",serif;}</style><link rel="stylesheet" href="http://use.typekit.net/k/hjp0pft-d.css?3bb2a6e53c9684ffdc9a9bf01b5b2a62ec6379d745fd2575909b9300b5707f02cb2ddcd5078d03b6d9259656df038f6d1266b16f69aee39a5c1d1b81f2a47392b7e6399dd3a04e8fd8b8902a4ba5c08f5c01b3f138717cb3ed683592649533826ccadaaac8dd808a2c94c961c124dab69e5a895ba7ecb919a1ad3ecab6677c0c0e193f375acdeff5e7f08a7896ff9359c781a4ff7b6fbc43d3799e6e4ca506ca23">
+      </script>
     
-  <style type="text/css"></style></head>
+  <style type="text/css">.tk-adelle{font-family:"adelle",serif;}</style><link rel="stylesheet" href="http://use.typekit.net/k/hjp0pft-d.css?3bb2a6e53c9684ffdc9a9bf01b5b2a62ec6379d745fd2575909b9300b5707f02cb2ddcd5078d03b6d9259656df038f6d1266b16f69aee39a5c1d1b81f2a47392b7e6399dd3a04e8fd8b8902a4ba5c08f5c01b3f138717cb3ed683592649533826ccadaaac8dd808a2c94c961c124dab69e5a895ba7ecb919a1ad3ecab6677c0c0e193f375acdeff5e7f08a7896ff9359c781a4ff7b6fbc43d3799e6e4ca506ca23"><style type="text/css"></style></head>
   <body><div id="container">
   <div id="nav">
     
@@ -58,7 +58,7 @@
                 </li>
               
                 <li>
-                  <a href="http://documentup.com/swp-uebersetzerbau-ss13/javabite#module-descriptions/semantical-analyser">Semantical Analyser</a>
+                  <a href="http://documentup.com/swp-uebersetzerbau-ss13/javabite#module-descriptions/semantic-analyser">Semantic Analyser</a>
                 </li>
               
                 <li>
@@ -94,6 +94,10 @@
                   <a href="http://documentup.com/swp-uebersetzerbau-ss13/javabite#project-structure/runtime-test">Runtime test</a>
                 </li>
               
+                <li>
+                  <a href="http://documentup.com/swp-uebersetzerbau-ss13/javabite#project-structure/cross-testing">Cross testing</a>
+                </li>
+              
             </ul>
           
         </li>
@@ -118,17 +122,10 @@
     
     <h1>javabite</h1>
 <p>Javabite is a compiler for a language, mostly named <strong>'PROG'</strong>, described by the related repository 
-</p>
-<p><a href="https://github.com/swp-uebersetzerbau-ss13/common">https://github.com/swp-uebersetzerbau-ss13/common</a>.
-
-</p>
+<a href="https://github.com/swp-uebersetzerbau-ss13/common">https://github.com/swp-uebersetzerbau-ss13/common</a>.</p>
 <h2 id="what-can-you-find-in-this-repository">What can you find in this repository?</h2>
-<p>This repository contains implementations for all interfaces defined by the common-repository mentioned above, a CLI compiler utilizing the implemented compiler modules and a minimalitic IDE-like GUI with visualization of datastructures of the compilation process like the Abstract Syntax Tree (AST) and the Three Address Code (TAC). 
-
-</p>
-<p>The compiler is developed in <strong>JAVA</strong> and generates <strong>target code</strong> for the <strong>JVM 1.7</strong>. The compiler is modulazied into five parts:
-
-</p>
+<p>This repository contains implementations for all interfaces defined by the common-repository mentioned above, a CLI compiler utilizing the implemented compiler modules and a minimalitic IDE-like GUI with visualization of datastructures of the compilation process like the Abstract Syntax Tree (AST) and the Three Address Code (TAC). </p>
+<p>The compiler is developed in <strong>JAVA</strong> and generates <strong>target code</strong> for the <strong>JVM 1.7</strong>. The compiler is modulazied into five parts:</p>
 <ol>
 <li>Lexer<ul>
 <li>The lexer tokenize the input into word of the <a href="https://github.com/swp-uebersetzerbau-ss13/common/wiki/Grammar">grammar of <strong>PROG</strong></a></li>
@@ -151,58 +148,38 @@
 </ul>
 </li>
 </ol>
-<p>All modules are also implemented against the same interfaces by the second team working in <a href="https://github.com/swp-uebersetzerbau-ss13/fuc">https://github.com/swp-uebersetzerbau-ss13/fuc</a>. They provide alternative implementations of the frontend modules (all but Backend) and a backend module targeting the <a href="http://llvm.org/">LLVM</a>
-
-</p>
+<p>All modules are also implemented against the same interfaces by the second team working in <a href="https://github.com/swp-uebersetzerbau-ss13/fuc">https://github.com/swp-uebersetzerbau-ss13/fuc</a>. They provide alternative implementations of the frontend modules (all but Backend) and a backend module targeting the <a href="http://llvm.org/">LLVM</a></p>
 <h2 id="quickstart">Quickstart</h2>
-<p>If you want to try the compiler, execute this command on the shell: 
-
-</p>
+<p>If you want to try the compiler, execute this command on the shell: </p>
 <pre><code><span class="title">git</span> clone https://github.com/swp-uebersetzerbau-ss13/javabite.git
 <span class="title">cd</span> javabite
 <span class="title">git</span> submodule init
 <span class="title">git</span> submodule update
 <span class="title">gradlew</span> buildCompiler
 <span class="title">java</span> -jar bin\javabite-compiler-<span class="number">0.2</span>.jar</code></pre>
-<p>This starts the GUI. Examples of <strong>PROG</strong> programs can be found in this repository and in common. Look for files with suffix '.prog'.
-
-</p>
+<p>This starts the GUI. Examples of <strong>PROG</strong> programs can be found in this repository and in common. Look for files with suffix '.prog'.</p>
 <h2 id="module-descriptions">Module Descriptions</h2>
-<p>This section describes the functionality, implementation and structure of the different modules.
-
-</p>
+<p>This section describes the functionality, implementation and structure of the different modules.</p>
 <h3 id="module-descriptions/lexer">Lexer</h3>
-<p>The task of the lexer module is to tokenize the incoming sourcecode. This tokenization breaks down the words of the sourcecode into a set of tokens, which are strings. Additionally the lexer adds a context to each token, for example, whether the token is of the type NUM or REAL. With such tokens other compiler modules like the parser can create an AST more easily. The lexer is build with a pattern matcher, that works with the <em>regular expression engine</em> of <em>Java</em> to tokenize the sourcecode. This implementation can be easily updated, because of the fact that only the regular expressions for each token have to be updated. We also can add new tokens by just adding a new token type and a regular expression for it. The list of tokens in the <strong>PROG</strong> grammar can be found in the <a href="https://github.com/swp-uebersetzerbau-ss13/javabite/blob/master/javabite-lexer/src/main/java/swp_compiler_ss13/javabite/lexer/JavabiteTokenType.java">TokenType definition</a> and the used regular expressions are available in the <a href="https://github.com/swp-uebersetzerbau-ss13/javabite/blob/master/javabite-lexer/src/main/java/swp_compiler_ss13/javabite/lexer/JavabiteTokenType.java">JavabiteTokenType definition</a>
-
-</p>
-<p>Then lexer implementation is named <a href="https://github.com/swp-uebersetzerbau-ss13/javabite/blob/master/javabite-lexer/src/main/java/swp_compiler_ss13/javabite/lexer/LexerJb.java"><strong>swp_compiler_ss13.javabite.lexer.LexerJb</strong></a>.
-
-</p>
+<p>The task of the lexer module is to tokenize the incoming sourcecode. This tokenization breaks down the words of the sourcecode into a set of tokens, which are strings. Additionally the lexer adds a context to each token, for example, whether the token is of the type NUM or REAL. With such tokens other compiler modules like the parser can create an AST more easily. The lexer is build with a pattern matcher, that works with the <em>regular expression engine</em> of <em>Java</em> to tokenize the sourcecode. This implementation can be easily updated, because of the fact that only the regular expressions for each token have to be updated. We also can add new tokens by just adding a new token type and a regular expression for it. The list of tokens in the <strong>PROG</strong> grammar can be found in the <a href="https://github.com/swp-uebersetzerbau-ss13/javabite/blob/master/javabite-lexer/src/main/java/swp_compiler_ss13/javabite/lexer/JavabiteTokenType.java">TokenType definition</a> and the used regular expressions are available in the <a href="https://github.com/swp-uebersetzerbau-ss13/javabite/blob/master/javabite-lexer/src/main/java/swp_compiler_ss13/javabite/lexer/JavabiteTokenType.java">JavabiteTokenType definition</a></p>
+<p>Then lexer implementation is named <a href="https://github.com/swp-uebersetzerbau-ss13/javabite/blob/master/javabite-lexer/src/main/java/swp_compiler_ss13/javabite/lexer/LexerJb.java"><strong>swp_compiler_ss13.javabite.lexer.LexerJb</strong></a>.</p>
 <h3 id="module-descriptions/parser">Parser</h3>
 <p>The parser logic has been implemented based on the fundamental knowledge gained from the course <em>Compiler Design</em>. Regardless, it was necessary to tailor some of the learned techniques to our needs. This documentation gives in particular a introduction into the deflexion of the <em>default approach</em>. 
 First, we name the important classes and their basic functionality. Thereafter, we show where we had to change the prototype-implementation presented in various lectures. At last, we'll outline how the interaction  between the modules happens and how a typical application of the parser works. 
-Long story short, we've successfully implemented a SLR parser
-
-</p>
+Long story short, we've successfully implemented a SLR parser</p>
 <h4>Modules and Classes</h4>
 <p>There exist several important packages and classes, each of them providing a special kind of functionality.
 <em> <strong>swp_compiler_ss13.javabite.parser.grammar.Grammar<t,nt></t,nt></strong> is the most important class of the parser. This class represents a grammar with <strong>T</strong> as terminals and <strong>NT</strong> as NonTerminals, respectively. The implementation provides functions like closure-computation, first- and follow-set determination.  
 </em> <strong>swp_compiler_ss13.javabite.parser.targetgrammar.TargetGrammar</strong> is a special subclass of <strong>Grammar</strong>. This class represents the exact programmatic translation of the <a href="https://github.com/swp-uebersetzerbau-ss13/common/wiki/Grammar">grammar of interest</a>. 
 <em> <strong>swp_compiler_ss13.javabite.parser.grammar.SLRAutomaton</strong> is a automaton, which can derive the concrete derivation of a given word with a look ahead of 1.
-</em> <strong>swp_compiler_ss13.javabite.parser.astGenerator.ASTGenerator</strong> has been developed to translate a derivation ( bottom-up-left-to-right). The result is a Abstract Syntax tree
-
-</p>
+</em> <strong>swp_compiler_ss13.javabite.parser.astGenerator.ASTGenerator</strong> has been developed to translate a derivation ( bottom-up-left-to-right). The result is a Abstract Syntax tree</p>
 <h4>Mentionable Modifications</h4>
 <p>Some approaches have to be fitted or completely replaced to use it in our implementation with the given grammar. We note some of them:
 <em> It's not traceable to construct the ast when the translation is given in a right-most fashion. We had to translate the right-most derivation in the left-most derivation first in the <strong>TargetGrammar</strong> class.
-</em> The SLRAutomaton had to be modified in a way, that the automaton is able to deal with epsilon productions. Another way is to remove the epsilon-productions from the grammar, what results in another grammar. We did want to keep the grammar. In the most common literature, the automaton has not to deal with epsilon productions since they are removed before. Thus, the automaton had to be adjusted.
-* The closure, first- and follow set computation can be very complex for large grammars. We decide to differ from a pure functional implementation and implemented cached and/ or pre-computed values as often as possible. This decreases the readability but increases the performance dramatically.
-
-</p>
+</em> The LRAutomaton had to be modified in a way, that the automaton is able to deal with epsilon productions. Another way is to remove the epsilon-productions from the grammar, what results in another grammar. We did want to keep the grammar. In the most common literature, the automaton has not to deal with epsilon productions since they are removed before. Thus, the automaton had to be adjusted.
+* The closure, first- and follow set computation can be very complex for large grammars. We decide to differ from a pure functional implementation and implemented cached and/ or pre-computed values as often as possible. This decreases the readability but increases the performance dramatically.</p>
 <h4>Application of the Modules</h4>
-<p>A typical application can be drafted as follows:
-
-</p>
+<p>A typical application can be drafted as follows:</p>
 <ol>
 <li>A word of the grammar is given in form of a sequence of tokens</li>
 <li>We abstract from the concrete token and just consider the type ( e.g. "myInt" and "myDouble" as a ID is treated the same way). </li>
@@ -211,44 +188,32 @@ Long story short, we've successfully implemented a SLR parser
 <li>We use the TargetGrammar to <em>rotate</em> the derivation to gain a left-to-right fashioned derivation.</li>
 <li>We use a semantic translation to construct the ast from the derivation in <em>ASTGenerator</em>.</li>
 </ol>
-<h3 id="module-descriptions/semantical-analyser">Semantical Analyser</h3>
-<p>Like the implementation of the parser, we tried to follow as often as possible the prototype approach of the compiler design course. Unfortunately, this not as frequently as in the parser possible. In the next sections, we describe the important modules and after that, a short outline of the use of the semantic analyzer.
-
-</p>
+<h3 id="module-descriptions/semantic-analyser">Semantic Analyser</h3>
+<p>Like the implementation of the parser, we tried to follow as often as possible the prototype approach of the compiler design course. Unfortunately, this not as frequently as in the parser possible. In the next sections, we describe the important modules and after that, a short outline of the use of the semantic analyzer.</p>
 <h4>Modules and Classes</h4>
 <p>There are just a few important classes, whose are quickly described:
 <em> <strong>swp_compiler_ss13.javabite.semantic.SemanticAnalyzerJb</strong> simply checks for simple division by zero and uses the ASTTypeChecker ( described below) to guarantee type-correctness.
-</em> <strong>swp_compiler_ss13.javabite.semantic.ASTTypeChecker</strong> is a very simple S-Attributed check. Implemented by traversing and caching. 
-
-
-</p>
+</em> <strong>swp_compiler_ss13.javabite.semantic.ASTTypeChecker</strong> is a very simple S-Attributed check. Implemented by traversing and caching. </p>
 <h4>Mentionable Modifications</h4>
-<p>The best-practice approach would be to create a L-Attributed grammar to check e.g. for invalid break-statement positions. We decided to try it with a less complex approach, since the only semantic errors which cannot be checked by a S-Attributed grammar is the positioning of return and break statements. The implementation is currently under heavy development. We want to take a look at the control flow where it is possible. For example, if a statement exists (unconditional) after a return statement, it's placement is invalid. We try to check this invariant for the whole tree.
-
-</p>
+<p>The best-practice approach would be to create a L-Attributed grammar to check e.g. for invalid break-statement positions.
+To implement a simple evaluation scheme, we decided to use a L-Attributed grammar with a limited dependency scheme to ease the evaluation approach. The big advantage is that we do not have to use a dynamic scheme based on the dependency graph.
+We distinguish between S and L' attributes. <em>S attributes</em> depend just on the attributes of the subtree, as expected with synthesized attributes. 
+<em>L' attributes</em> depend on L' attributes of the parent or is a immediate determined value ( like the type of a literal).
+Using this scheme, it was possible to evaluate all attributes with a simple left-to-right depth-first-traversal, where at a node the L' attributes computed instantly. After the procedure have been invoked recursive on the whole subtree, the synthesized attributes are evaluated.
+With this scheme, it is possible to evaluate synthesized attributes like the type and L' attributes like the validness of a position for a break-statement ( context-sensitive).</p>
 <h4>Application of the Modules</h4>
-<p>A typical application can be drafted as follows:
-
-</p>
+<p>A typical application can be drafted as follows:</p>
 <ol>
 <li>Create a SemanticAnalyzer</li>
 <li>analyze the ast of interest with it</li>
 <li>interpret the results and errors thrown by the reportErrorLog.</li>
 </ol>
 <h3 id="module-descriptions/intermediate-code-generator">Intermediate Code Generator</h3>
-<p>The intermediate code generator converts the provided AST into a list of quadruple which is the TAC. The implementation for the javabite team <a href="https://github.com/swp-uebersetzerbau-ss13/javabite/blob/master/javabite-code-gen/src/main/java/swp_compiler_ss13/javabite/codegen/IntermediateCodeGeneratorJb.java"><strong>swp_compiler_ss13.javabite.codegen.IntermediateCodeGeneratorJb</strong></a> delegates the conversion of the AST nodes to specialized converters for each node type. The converters calls the generator for processing subnodes, generates necessary quadruples and add them to the quadruple list.
-
-</p>
-<p>For the conversion process the converters can access helper methods provided by the generator. The helper methods provided unique temporary variable names and unique names for jump labels. Furthermore there are mechanismns for scope management and mapping from AST to TAC name space.
-
-</p>
+<p>The intermediate code generator converts the provided AST into a list of quadruple which is the TAC. The implementation for the javabite team <a href="https://github.com/swp-uebersetzerbau-ss13/javabite/blob/master/javabite-code-gen/src/main/java/swp_compiler_ss13/javabite/codegen/IntermediateCodeGeneratorJb.java"><strong>swp_compiler_ss13.javabite.codegen.IntermediateCodeGeneratorJb</strong></a> delegates the conversion of the AST nodes to specialized converters for each node type. The converters calls the generator for processing subnodes, generates necessary quadruples and add them to the quadruple list.</p>
+<p>For the conversion process the converters can access helper methods provided by the generator. The helper methods provided unique temporary variable names and unique names for jump labels. Furthermore there are mechanismns for scope management and mapping from AST to TAC name space.</p>
 <h3 id="module-descriptions/backend">Backend</h3>
-<p>The backend generates the <em>Java Bytecode</em> from the TAC. The main class is <a href="https://github.com/swp-uebersetzerbau-ss13/javabite/blob/master/javabite-backend/src/main/java/swp_compiler_ss13/javabite/backend/BackendJb.java"><strong>swp_compiler_ss13.javabite.backend.BackendModule</strong></a>
-
-</p>
-<p>Basically the javabite-backend consists of three main components � 
-
-</p>
+<p>The backend generates the <em>Java Bytecode</em> from the TAC. The main class is <a href="https://github.com/swp-uebersetzerbau-ss13/javabite/blob/master/javabite-backend/src/main/java/swp_compiler_ss13/javabite/backend/BackendJb.java"><strong>swp_compiler_ss13.javabite.backend.BackendModule</strong></a></p>
+<p>Basically the javabite-backend consists of three main components � </p>
 <ol>
 <li>a three-address-code optimizer <ul>
 <li><a href="https://github.com/swp-uebersetzerbau-ss13/javabite/blob/master/javabite-backend/src/main/java/swp_compiler_ss13/javabite/backend/translation/TACOptimizer.java">swp_compiler_ss13.javabite.backend.translation.TACOptimizer</a></li>
@@ -263,16 +228,10 @@ Long story short, we've successfully implemented a SLR parser
 </ul>
 </li>
 </ol>
-<p>The optimization components are not implemented, yet, as they are optional.
-
-</p>
+<p>The optimization components are not implemented, yet, as they are optional.</p>
 <h4>Translator</h4>
-<p>The translator translates the three-address-code into java bytecode in several steps:
-
-</p>
-<p>swp_compiler_ss13.javabite.backend.translation.Translator.translate(String, List<quadruple>)
-
-</quadruple></p>
+<p>The translator translates the three-address-code into java bytecode in several steps:</p>
+<p>swp_compiler_ss13.javabite.backend.translation.Translator.translate(String, List<quadruple>)</quadruple></p>
 <ol>
 <li>First, it generates a new classfile object (swp_compiler_ss13.javabite.backend.classfile.Classfile), initializes it with all necessary information considering the jvm specification for classfiles and adds a new 'main'-method object to it, which will be used to run the generated code.</li>
 <li>Then, the translator iterates three times over the three-address-code extracting different information.</li>
@@ -281,23 +240,13 @@ Long story short, we've successfully implemented a SLR parser
 <li>During the third iteration, the actual translation takes place and the three-address-code is translated into instruction objects being modeled considering the jvm specification for those ones. The generated code is added to the code attribute of the previously generated classfile's main-method, afterwards.</li>
 <li>Finally, the translator returns a Collection of classfile objects.</li>
 </ol>
-<p><a href="http://docs.oracle.com/javase/specs/jvms/se7/html/">JVM Specification - </a><a href="http://docs.oracle.com/javase/specs/jvms/se7/html/">http://docs.oracle.com/javase/specs/jvms/se7/html/</a>
-
-</p>
+<p><a href="http://docs.oracle.com/javase/specs/jvms/se7/html/">JVM Specification - </a><a href="http://docs.oracle.com/javase/specs/jvms/se7/html/">http://docs.oracle.com/javase/specs/jvms/se7/html/</a></p>
 <h3 id="module-descriptions/compiler">Compiler</h3>
-<p>There are three ways to work with the compiler: via JUnit-test, via CLI and via GUI. All of these implementations base on <a href="https://github.com/swp-uebersetzerbau-ss13/javabite/blob/master/javabite-common/src/main/java/swp_compiler_ss13/javabite/compiler/AbstractJavabiteCompiler.java"><strong>swp_compiler_ss13.javabite.compiler.AbstractJavabiteCompiler</strong></a>.
-
-</p>
-<p>The <em>AbstractJavabiteCompiler</em> loads all necessary module via the <a href="http://docs.oracle.com/javase/6/docs/api/java/util/ServiceLoader.html">Java ServiceLoader API</a> and select the implementation like defined in the javabite.properties file, which gets generated if not existing on startup.
-
-</p>
-<p>The compilation process is implemented based on the requirements of the common interfaces and after each phase of the compilation process (each module providing a phase), a notification method is called which can abort the compilation process.
-
-</p>
+<p>There are three ways to work with the compiler: via JUnit-test, via CLI and via GUI. All of these implementations base on <a href="https://github.com/swp-uebersetzerbau-ss13/javabite/blob/master/javabite-common/src/main/java/swp_compiler_ss13/javabite/compiler/AbstractJavabiteCompiler.java"><strong>swp_compiler_ss13.javabite.compiler.AbstractJavabiteCompiler</strong></a>.</p>
+<p>The <em>AbstractJavabiteCompiler</em> loads all necessary module via the <a href="http://docs.oracle.com/javase/6/docs/api/java/util/ServiceLoader.html">Java ServiceLoader API</a> and select the implementation like defined in the javabite.properties file, which gets generated if not existing on startup.</p>
+<p>The compilation process is implemented based on the requirements of the common interfaces and after each phase of the compilation process (each module providing a phase), a notification method is called which can abort the compilation process.</p>
 <h3 id="module-descriptions/ide-environment">IDE Environment</h3>
-<p>The Javabite IDE is not only a wrapper for the command line interface. With the IDE files can be edited and compiled without always typing in the command line. The following list shows the main functionalities of the Javabite compiler:
-
-</p>
+<p>The Javabite IDE is not only a wrapper for the command line interface. With the IDE files can be edited and compiled without always typing in the command line. The following list shows the main functionalities of the Javabite compiler:</p>
 <ul>
 <li>opening, editing and saving files</li>
 <li>compiling and running the sourcecode</li>
@@ -308,9 +257,7 @@ Long story short, we've successfully implemented a SLR parser
 <li>display the sourcecode as an three address code in quadruple</li>
 </ul>
 <h2 id="project-structure">Project Structure</h2>
-<p>The project consists of eigth projects, each responsible for another part of the compiler:
-
-</p>
+<p>The project consists of eigth projects, each responsible for another part of the compiler:</p>
 <ol>
 <li>common<ul>
 <li>common contains the language specification, tests to check for interface conformance of a implementation and the common interfaces</li>
@@ -348,18 +295,12 @@ Long story short, we've successfully implemented a SLR parser
 </ol>
 <h3 id="project-structure/setup-of-development-environment">Setup of development environment</h3>
 <p>The following is needed:
-+ a recent git installation
-
-</p>
++ a recent git installation</p>
 <p>Recommended is:
 + Eclipse
 + a gradle installation (you get one automatically by executing the gradlew-command)
-+ Gradle Integration for Eclipse (available through Eclipse Marketplace)
-
-</p>
-<p>If another IDE integration plugin in the build.gralde is needed, please open issue.
-
-</p>
++ Gradle Integration for Eclipse (available through Eclipse Marketplace)</p>
+<p>If another IDE integration plugin in the build.gralde is needed, please open issue.</p>
 <ol>
 <li><p>Checkout the repository to a location you want. Execute:</p>
 <pre><code><span class="title">git</span> submodule init
@@ -370,12 +311,11 @@ Long story short, we've successfully implemented a SLR parser
 <li>Select all projects</li>
 <li>Press "finish"</li>
 </ol>
-<p>Eclipse will setup repository for you.
-
-</p>
+<p>Eclipse will setup repository for you.</p>
 <h3 id="project-structure/runtime-test">Runtime test</h3>
-<p>They can be executed with: <code>gradlew :javabite-compiler:test</code>
-</p>
+<p>They can be executed with: <code>gradlew :javabite-compiler:test</code></p>
+<h3 id="project-structure/cross-testing">Cross testing</h3>
+<p>Cross-testing is not automated yet. Manually they can be executed by adding the jars to the :javabite:test-task classpath and change the javabite.properties in test-resources.</p>
 
   </div>
 </div>
